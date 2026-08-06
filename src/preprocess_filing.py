@@ -19,6 +19,41 @@ ITEM_HEADING_PATTERN = re.compile(
     re.IGNORECASE,
 )
 PAGE_NUMBER_PATTERN = re.compile(r"^(?:\d{1,3}|[ivxlcdm]{1,8})$", re.IGNORECASE)
+TABLE_BULLET_PATTERN = re.compile(r"^[•●▪◦○■□✓✔]$")
+TABLE_NUMERIC_PATTERN = re.compile(
+    r"^\(?[-+]?(?:[$€£¥]\s*)?(?:\d{1,3}(?:,\d{3})*|\d+)"
+    r"(?:\.\d+)?\)?%?$"
+)
+TABLE_PERIOD_PATTERN = re.compile(
+    r"\b(?:19|20)\d{2}\b|\b(?:year|years)\s+ended\b|\bas\s+of\b|"
+    r"\b(?:january|february|march|april|may|june|july|august|september|"
+    r"october|november|december)\s+\d{1,2},?\b",
+    re.IGNORECASE,
+)
+TABLE_UNITS_PATTERN = re.compile(
+    r"\b(?:(?:u\.s\.\s+)?dollars?|shares?)\s+in\s+"
+    r"(?:thousands|millions|billions)\b|\bin\s+(?:thousands|millions|billions)\b",
+    re.IGNORECASE,
+)
+TABLE_FINANCIAL_PATTERN = re.compile(
+    r"\b(?:assets?|liabilit(?:y|ies)|revenues?|income|loss|expenses?|cash|equity|"
+    r"earnings?|shares?|tax(?:es)?|debt|inventory|inventories|receivables?|"
+    r"fair value)\b",
+    re.IGNORECASE,
+)
+TABLE_COVER_PATTERN = re.compile(
+    r"\b(?:commission file|trading symbol|exchange|accelerated filer|"
+    r"emerging growth company|employer identification|principal executive offices)\b",
+    re.IGNORECASE,
+)
+TABLE_EXHIBIT_PATTERN = re.compile(
+    r"\b(?:exhibit\s+no\.?|exhibits and financial statement schedules)\b",
+    re.IGNORECASE,
+)
+GENERIC_FINANCIAL_HEADER_PATTERN = re.compile(
+    r"^notes to (?:the )?consolidated financial statements$",
+    re.IGNORECASE,
+)
 
 BLOCK_FIELDS = (
     "block_id",
@@ -484,28 +519,396 @@ def emit_list_item(node, context: ExtractionContext) -> dict | None:
     )
 
 
-def emit_table(node, context: ExtractionContext) -> dict | None:
-    """Preserve a table as rows and text without interpreting its semantics yet."""
+def parse_table_span(value: str | None) -> int:
+    """Return a safe positive rowspan or colspan value."""
+    try:
+        return max(1, int(value or "1"))
+    except ValueError:
+        return 1
+
+
+def table_rows(node) -> list:
+    """Return rows belonging to this table, excluding rows in nested tables."""
     rows = []
     for row in node.xpath(".//tr"):
-        cells = [
-            text_excluding_descendants(cell, {"table"})
-            for cell in row.xpath("./th | ./td")
-        ]
-        if any(cells):
-            rows.append(cells)
+        nearest_table = next(
+            (ancestor for ancestor in row.iterancestors() if raw_tag(ancestor) == "table"),
+            None,
+        )
+        if nearest_table is node:
+            rows.append(row)
+    return rows
 
+
+def extract_table_structure(node) -> dict:
+    """Extract raw cells and a span-aware rectangular grid from a table."""
+    raw_rows = []
+    raw_cells = []
+    slots = {}
+    source_rows = table_rows(node)
+
+    for row_index, row in enumerate(source_rows):
+        physical_row = []
+        column_index = 0
+        for cell in row.xpath("./th | ./td"):
+            while (row_index, column_index) in slots:
+                column_index += 1
+
+            text = text_excluding_descendants(cell, {"table"})
+            rowspan = parse_table_span(cell.get("rowspan"))
+            colspan = parse_table_span(cell.get("colspan"))
+            cell_record = {
+                "row": row_index,
+                "column": column_index,
+                "text": text,
+                "rowspan": rowspan,
+                "colspan": colspan,
+                "source_tag": raw_tag(cell),
+                "is_header": raw_tag(cell) == "th",
+            }
+            raw_cells.append(cell_record)
+            physical_row.append(text)
+
+            for row_offset in range(rowspan):
+                covered_row = row_index + row_offset
+                if covered_row >= len(source_rows):
+                    break
+                for column_offset in range(colspan):
+                    covered_column = column_index + column_offset
+                    slots[(covered_row, covered_column)] = {
+                        "text": text,
+                        "origin_row": row_index,
+                        "origin_column": column_index,
+                    }
+            column_index += colspan
+        raw_rows.append(physical_row)
+
+    if not source_rows or not slots:
+        return {
+            "raw_rows": raw_rows,
+            "raw_cells": raw_cells,
+            "rows": [],
+            "expanded_rows": [],
+            "source_row_indexes": [],
+            "source_column_indexes": [],
+        }
+
+    maximum_column = max(column for _, column in slots)
+    nonempty_rows = [
+        row_index
+        for row_index in range(len(source_rows))
+        if any(
+            slots.get((row_index, column), {}).get("text", "")
+            for column in range(maximum_column + 1)
+        )
+    ]
+    nonempty_columns = [
+        column
+        for column in range(maximum_column + 1)
+        if any(
+            slots.get((row_index, column), {}).get("text", "")
+            for row_index in nonempty_rows
+        )
+    ]
+
+    rows = []
+    expanded_rows = []
+    for row_index in nonempty_rows:
+        display_row = []
+        expanded_row = []
+        for column in nonempty_columns:
+            slot = slots.get((row_index, column))
+            expanded_row.append(slot["text"] if slot else "")
+            if slot and (
+                slot["origin_row"] == row_index
+                and slot["origin_column"] == column
+            ):
+                display_row.append(slot["text"])
+            else:
+                display_row.append("")
+        rows.append(display_row)
+        expanded_rows.append(expanded_row)
+
+    return {
+        "raw_rows": raw_rows,
+        "raw_cells": raw_cells,
+        "rows": rows,
+        "expanded_rows": expanded_rows,
+        "source_row_indexes": nonempty_rows,
+        "source_column_indexes": nonempty_columns,
+    }
+
+
+def is_numeric_table_value(value: str) -> bool:
+    """Return True for a standalone financial-style numeric value."""
+    compact_value = normalize_text(value).replace(" ", "")
+    return bool(compact_value and TABLE_NUMERIC_PATTERN.fullmatch(compact_value))
+
+
+def detect_table_header_rows(structure: dict) -> list[int]:
+    """Identify explicit and common multi-row financial header rows."""
+    source_to_clean = {
+        source_index: clean_index
+        for clean_index, source_index in enumerate(structure["source_row_indexes"])
+    }
+    header_rows = {
+        source_to_clean[cell["row"]]
+        for cell in structure["raw_cells"]
+        if cell["is_header"]
+        and cell["text"]
+        and cell["row"] in source_to_clean
+    }
+
+    for row_index, row in enumerate(structure["expanded_rows"][:5]):
+        row_text = " ".join(value for value in row if value)
+        if TABLE_PERIOD_PATTERN.search(row_text) or TABLE_UNITS_PATTERN.search(row_text):
+            header_rows.add(row_index)
+
+    return sorted(header_rows)
+
+
+def build_column_headers(structure: dict, header_rows: list[int]) -> list[str]:
+    """Combine multi-row header labels for every logical table column."""
+    if not structure["expanded_rows"]:
+        return []
+
+    headers = []
+    for column_index in range(len(structure["expanded_rows"][0])):
+        labels = []
+        for row_index in header_rows:
+            label = structure["expanded_rows"][row_index][column_index]
+            if label and label not in labels:
+                labels.append(label)
+        headers.append(" — ".join(labels))
+    return headers
+
+
+def extract_table_units(rows: list[list[str]]) -> str | None:
+    """Extract an explicit table unit such as 'U.S. dollars in millions'."""
+    searchable_text = " ".join(
+        value for row in rows[:6] for value in row if value
+    )
+    match = TABLE_UNITS_PATTERN.search(searchable_text)
+    if match:
+        return normalize_text(match.group(0))
+    if any(value.strip() == "%" or value.strip().endswith("%") for row in rows for value in row):
+        return "percent"
+    return None
+
+
+def find_table_title(node) -> str | None:
+    """Find a nearby styled title without treating arbitrary prose as a caption."""
+    candidates = node.xpath(
+        "preceding::*[self::p or self::div or self::h1 or self::h2 or "
+        "self::h3 or self::h4 or self::h5 or self::h6][normalize-space()]"
+    )
+    for candidate in reversed(candidates[-12:]):
+        if any(raw_tag(ancestor) == "table" for ancestor in candidate.iterancestors()):
+            continue
+        text = normalize_text(candidate.text_content())
+        if not text or len(text) > 250 or is_page_furniture(candidate):
+            continue
+        if GENERIC_FINANCIAL_HEADER_PATTERN.fullmatch(text):
+            continue
+        if has_heading_style(candidate) or text.isupper():
+            return text
+    return None
+
+
+def classify_table(node, structure: dict, section: str) -> tuple[str, list[str]]:
+    """Conservatively classify a table using several independent signals."""
+    rows = structure["rows"]
+    values = [value for row in rows for value in row if value]
+    table_text = " ".join(values)
+    table_text_casefolded = table_text.casefold()
+    reasons = []
+
+    item_references = len(re.findall(r"\bitem\s+\d{1,2}[a-z]?\.?", table_text, re.I))
+    link_count = len(node.xpath(".//a[@href]"))
+    page_header = any(
+        value.casefold() == "page" for row in rows[:3] for value in row if value
+    )
+    page_number_rows = sum(
+        any(PAGE_NUMBER_PATTERN.fullmatch(value) for value in row if value)
+        for row in rows[1:]
+    )
+    if (
+        "table of contents" in table_text_casefolded
+        or (page_header and item_references >= 3)
+        or (page_header and page_number_rows >= 3)
+        or (link_count >= 3 and item_references >= 2)
+    ):
+        reasons.append("contains table-of-contents navigation signals")
+        return "navigation", reasons
+
+    bullet_rows = 0
+    for row in rows:
+        nonempty_values = [value for value in row if value]
+        if any(TABLE_BULLET_PATTERN.fullmatch(value) for value in nonempty_values):
+            bullet_rows += 1
+    if rows and bullet_rows / len(rows) >= 0.6:
+        reasons.append(f"{bullet_rows} of {len(rows)} rows contain bullet markers")
+        return "list_layout", reasons
+
+    if section == "Cover" and TABLE_COVER_PATTERN.search(table_text):
+        reasons.append("contains cover-page filing labels")
+        return "cover_layout", reasons
+
+    if section.casefold().startswith("item 15") or TABLE_EXHIBIT_PATTERN.search(table_text):
+        reasons.append("contains exhibit-index references")
+        return "reference_table", reasons
+
+    numeric_count = sum(is_numeric_table_value(value) for value in values)
+    numeric_row_count = sum(
+        any(is_numeric_table_value(value) for value in row if value)
+        for row in rows[1:]
+    )
+    has_period = bool(TABLE_PERIOD_PATTERN.search(table_text))
+    has_units = bool(TABLE_UNITS_PATTERN.search(table_text))
+    has_percent_units = any(
+        value.strip() == "%" or value.strip().endswith("%") for value in values
+    )
+    has_financial_terms = bool(TABLE_FINANCIAL_PATTERN.search(table_text))
+    has_explicit_headers = any(cell["is_header"] for cell in structure["raw_cells"])
+    data_score = sum(
+        (
+            numeric_count >= 2,
+            has_period,
+            has_units or has_percent_units,
+            has_financial_terms,
+            has_explicit_headers,
+        )
+    )
+    structured_numeric_grid = len(rows) >= 3 and numeric_row_count >= 2
+    if (
+        len(rows) >= 2
+        and len(structure["source_column_indexes"]) >= 2
+        and (data_score >= 3 or structured_numeric_grid)
+    ):
+        reasons.extend(
+            reason
+            for condition, reason in (
+                (numeric_count >= 2, f"contains {numeric_count} numeric cells"),
+                (structured_numeric_grid, "contains numeric values across multiple rows"),
+                (has_period, "contains reporting-period labels"),
+                (has_units or has_percent_units, "contains explicit units"),
+                (has_financial_terms, "contains financial row labels"),
+                (has_explicit_headers, "contains HTML header cells"),
+            )
+            if condition
+        )
+        return "data_table", reasons
+
+    reasons.append("did not meet a conservative classification threshold")
+    return "unknown_table", reasons
+
+
+def render_table_text(
+    rows: list[list[str]],
+    *,
+    title: str | None = None,
+    units: str | None = None,
+) -> str:
+    """Create compact retrieval text while retaining the aligned grid separately."""
+    lines = []
+    if title:
+        lines.append(title)
+    if units and (not title or units.casefold() not in title.casefold()):
+        lines.append(units)
+    lines.extend(" | ".join(value for value in row if value) for row in rows)
+    return "\n".join(line for line in lines if line)
+
+
+def group_list_layout_rows(rows: list[list[str]]) -> list[dict]:
+    """Group bullet-table rows into semantic list items."""
+    items = []
+    for row_index, row in enumerate(rows):
+        values = [value for value in row if value]
+        has_bullet = any(TABLE_BULLET_PATTERN.fullmatch(value) for value in values)
+        text = " ".join(
+            value for value in values if not TABLE_BULLET_PATTERN.fullmatch(value)
+        )
+        if not text:
+            continue
+        if has_bullet or not items:
+            items.append({"text": text, "row_indexes": [row_index]})
+        else:
+            items[-1]["text"] = normalize_text(f"{items[-1]['text']} {text}")
+            items[-1]["row_indexes"].append(row_index)
+    return items
+
+
+def emit_table(node, context: ExtractionContext) -> dict | list[dict] | None:
+    """Classify and emit a span-aware table or its semantic list items."""
+    structure = extract_table_structure(node)
+    rows = structure["rows"]
     if not rows:
         return None
 
-    table_text = "\n".join(" | ".join(cells) for cells in rows)
+    table_class, classification_reasons = classify_table(
+        node,
+        structure,
+        context.section,
+    )
+    source_anchor = find_source_anchor(node)
+
+    if table_class == "list_layout":
+        blocks = []
+        for item in group_list_layout_rows(rows):
+            blocks.append(
+                append_block(
+                    context,
+                    content_type="list_item",
+                    text=item["text"],
+                    source_tag="table",
+                    source_anchor=source_anchor,
+                    extra={
+                        "table_class": table_class,
+                        "classification_reasons": classification_reasons,
+                        "table_row_indexes": item["row_indexes"],
+                        "rows": [rows[index] for index in item["row_indexes"]],
+                    },
+                )
+            )
+        return blocks
+
+    header_rows = detect_table_header_rows(structure)
+    title = find_table_title(node) if table_class == "data_table" else None
+    units = extract_table_units(rows) if table_class == "data_table" else None
+    content_type = {
+        "navigation": "navigation",
+        "cover_layout": "cover_table",
+        "reference_table": "reference_table",
+        "data_table": "data_table",
+        "unknown_table": "unknown_table",
+    }[table_class]
+    extra = {
+        "table_class": table_class,
+        "classification_reasons": classification_reasons,
+        "raw_rows": structure["raw_rows"],
+        "raw_cells": structure["raw_cells"],
+        "rows": rows,
+    }
+    if table_class == "data_table":
+        extra.update(
+            {
+                "title": title,
+                "units": units,
+                "header_row_indexes": header_rows,
+                "column_headers": build_column_headers(structure, header_rows),
+                "data_rows": [
+                    row for index, row in enumerate(rows) if index not in header_rows
+                ],
+            }
+        )
+
     return append_block(
         context,
-        content_type="unknown_table",
-        text=table_text,
+        content_type=content_type,
+        text=render_table_text(rows, title=title, units=units),
         source_tag="table",
-        source_anchor=find_source_anchor(node),
-        extra={"rows": rows},
+        source_anchor=source_anchor,
+        extra=extra,
     )
 
 
