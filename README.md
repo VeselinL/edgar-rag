@@ -50,8 +50,9 @@ written separately under `data/processed/`.
 - Python 3.12
 - `lxml`
 - `python-dotenv`
+- `langchain-text-splitters`
 
-A dependency declaration still needs to be added.
+Install dependencies with `pip install -r requirements.txt`.
 
 Set an SEC-compliant user agent in `.env`:
 
@@ -64,7 +65,7 @@ SEC_USER_AGENT="Application Name contact@example.com"
 Download the latest configured 10-K filings:
 
 ```bash
-python src/fetch_data.py
+python -m src.filings.fetch_data
 ```
 
 Existing filing snapshots are not overwritten by default.
@@ -72,13 +73,13 @@ Existing filing snapshots are not overwritten by default.
 Process an existing filing, for example Mobileye:
 
 ```bash
-python src/preprocess_filing.py mobileye
+python -m src.filings.preprocess_filing mobileye
 ```
 
 Rebuild an existing processed output intentionally:
 
 ```bash
-python src/preprocess_filing.py mobileye --overwrite
+python -m src.filings.preprocess_filing mobileye --overwrite
 ```
 
 Run tests:

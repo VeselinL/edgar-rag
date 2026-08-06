@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "strategy": "recursive",
+  "chunk_size": 1200,
+  "chunk_overlap": 150,
+  "length_function": "characters",
+  "separators": ["\n\n", "\n", ". ", " ", ""],
+  "excluded_content_types": ["navigation"],
+  "narrative_content_types": ["heading", "paragraph", "list_item"],
+  "table_content_types": ["data_table", "text_table", "unknown_table"],
+  "table_policy": "row groups with repeated title, units, and headers"
+}

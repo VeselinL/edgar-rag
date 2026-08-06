@@ -1,0 +1,3 @@
+lxml==6.1.1
+python-dotenv==1.2.2
+langchain-text-splitters==1.1.2

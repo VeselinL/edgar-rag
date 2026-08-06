@@ -9,7 +9,7 @@ import unicodedata
 from datetime import datetime
 from pathlib import Path
 
-from fetch_data import COMPANIES
+from .fetch_data import COMPANIES
 
 from lxml import html as lxml_html
 

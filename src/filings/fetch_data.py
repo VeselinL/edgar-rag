@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from urllib.request import Request, urlopen
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 RAW_DATA_DIRECTORY = PROJECT_ROOT / "data" / "raw"
 
 COMPANIES: dict[str, dict[str, str]] = {

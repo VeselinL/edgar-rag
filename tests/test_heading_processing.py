@@ -5,9 +5,9 @@ from pathlib import Path
 from lxml import html as lxml_html
 
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from preprocess_filing import ExtractionContext, emit_paragraph
+from src.filings.preprocess_filing import ExtractionContext, emit_paragraph
 
 
 def parse_paragraph(markup: str):
