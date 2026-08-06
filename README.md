@@ -111,4 +111,3 @@ and follow-up questions built from the downloaded filings.
 ## Reference
 
 - [SEC EDGAR APIs](https://www.sec.gov/search-filings/edgar-application-programming-interfaces)
-- See `AGENTS.md` for project constraints and `ROADMAP.md` for the detailed plan.
