@@ -41,11 +41,6 @@ TABLE_FINANCIAL_PATTERN = re.compile(
     r"fair value)\b",
     re.IGNORECASE,
 )
-TABLE_COVER_PATTERN = re.compile(
-    r"\b(?:commission file|trading symbol|exchange|accelerated filer|"
-    r"emerging growth company|employer identification|principal executive offices)\b",
-    re.IGNORECASE,
-)
 TABLE_EXHIBIT_PATTERN = re.compile(
     r"\b(?:exhibit\s+no\.?|exhibits and financial statement schedules)\b",
     re.IGNORECASE,
@@ -78,6 +73,15 @@ BLOCK_FIELDS = (
 )
 
 
+COVER_SPECIFIC_FACTS = {
+    "exchange": "SecurityExchangeName",
+    "address": "EntityAddressAddressLine1",
+    "city": "EntityAddressCityOrTown",
+    "country": "EntityAddressCountry",
+    "postal_code": "EntityAddressPostalZipCode",
+}
+
+
 @dataclass
 class ExtractionContext:
     ticker: str
@@ -90,8 +94,10 @@ class ExtractionContext:
     accession_number: str = ""
     source_url: str = ""
     section: str = "Cover"
+    subsection: str | None = None
     section_anchor: str | None = None
     blocks: list[dict] = field(default_factory=list)
+    content_started: bool = False
 
 
 def find_latest_local_filing(
@@ -202,6 +208,10 @@ def load_extraction_metadata(
     if form != "10-K":
         raise ValueError(f"Expected a normal 10-K, found form {form!r}: {filing_path}")
 
+    cover_metadata = {
+        key: extract_inline_xbrl_fact(root, fact) for key, fact in COVER_SPECIFIC_FACTS.items()
+    }
+
     metadata = {
         "company": stored_metadata.get("company") or company_info["company"],
         "ticker": stored_metadata.get("ticker") or company_info["ticker"],
@@ -213,6 +223,7 @@ def load_extraction_metadata(
         "accession_number": str(stored_metadata.get("accession_number") or ""),
         "source_url": str(stored_metadata.get("source_url") or ""),
     }
+    metadata = metadata | cover_metadata
 
     reporting_year = str(metadata["reporting_period"])[:4]
     if reporting_year.isdigit() and int(reporting_year) != filing_year:
@@ -227,6 +238,7 @@ def raw_tag(node):
     return str(node.tag).lower() if isinstance(node.tag, str) else ""
 
 def drop_non_text_nodes(root):
+    """Remove DOM nodes with non-text tags."""
     title_nodes = root.xpath("//title")
     document_title = title_nodes[0].text_content().strip() if title_nodes else None
 
@@ -394,13 +406,37 @@ def text_excluding_descendants(node, excluded_tags: set[str]) -> str:
 def has_heading_style(node) -> bool:
     """Check whether a node has common SEC heading presentation signals."""
     for candidate in [node, *node.iterdescendants()]:
-        tag = raw_tag(candidate)
-        style = compact_style(candidate)
-        if tag in {"b", "strong"}:
-            return True
-        if "font-weight:bold" in style or "font-weight:700" in style:
+        if is_bold_element(candidate):
             return True
     return False
+
+
+def is_bold_element(node) -> bool:
+    """Return True when an element explicitly renders its complete text as bold."""
+    style = compact_style(node)
+    return (
+        raw_tag(node) in {"b", "strong"}
+        or "font-weight:bold" in style
+        or "font-weight:700" in style
+    )
+
+
+def is_subheading_candidate(node, text: str) -> bool:
+    """Conservatively detect a short standalone block whose full text is bold."""
+    if raw_tag(node) not in {"p", "div"} or not text or len(text) > 200:
+        return False
+    if len(text.split()) > 25 or text.endswith((".", "?", "!", ";")):
+        return False
+    if any(raw_tag(ancestor) in {"table", "li"} for ancestor in node.iterancestors()):
+        return False
+    if node.xpath(".//a[starts-with(@href, '#')]"):
+        return False
+
+    return any(
+        is_bold_element(candidate)
+        and normalize_text(candidate.text_content()) == text
+        for candidate in [node, *node.iterdescendants()]
+    )
 
 
 def identify_item_section(node, text: str) -> str | None:
@@ -430,6 +466,10 @@ def append_block(
 ) -> dict:
     """Create one deterministic block and append it to the extraction context."""
     block_index = len(context.blocks) + 1
+    section_path = [context.section]
+    if context.subsection:
+        section_path.append(context.subsection)
+
     block = {
         "block_id": f"{context.ticker}-{context.filing_year}-{block_index:06d}",
         "block_index": block_index,
@@ -442,7 +482,7 @@ def append_block(
         "reporting_period": context.reporting_period,
         "accession_number": context.accession_number,
         "section": context.section,
-        "section_path": [context.section],
+        "section_path": section_path,
         "content_type": content_type,
         "text": text,
         "source_tag": source_tag,
@@ -463,13 +503,22 @@ def emit_paragraph(node, context: ExtractionContext) -> dict | None:
     if not text:
         return None
 
+
+
     source_anchor = find_source_anchor(node)
     section = identify_item_section(node, text)
     content_type = "paragraph"
+    extra = None
     if section:
         context.section = section
+        context.subsection = None
         context.section_anchor = source_anchor
         content_type = "heading"
+        extra = {"heading_kind": "item", "heading_level": 1}
+    elif is_subheading_candidate(node, text):
+        context.subsection = text
+        content_type = "heading"
+        extra = {"heading_kind": "subsection", "heading_level": 2}
 
     return append_block(
         context,
@@ -477,6 +526,7 @@ def emit_paragraph(node, context: ExtractionContext) -> dict | None:
         text=text,
         source_tag=raw_tag(node),
         source_anchor=source_anchor,
+        extra=extra,
     )
 
 
@@ -495,7 +545,14 @@ def emit_heading(node, context: ExtractionContext) -> dict | None:
     section = identify_item_section(node, text)
     if section:
         context.section = section
+        context.subsection = None
         context.section_anchor = source_anchor
+        heading_kind = "item"
+        heading_level = 1
+    else:
+        context.subsection = text
+        heading_kind = "subsection"
+        heading_level = 2
 
     return append_block(
         context,
@@ -503,6 +560,7 @@ def emit_heading(node, context: ExtractionContext) -> dict | None:
         text=text,
         source_tag=raw_tag(node),
         source_anchor=source_anchor,
+        extra={"heading_kind": heading_kind, "heading_level": heading_level},
     )
 
 
@@ -748,15 +806,11 @@ def classify_table(node, structure: dict, section: str) -> tuple[str, list[str]]
             bullet_rows += 1
     if rows and bullet_rows / len(rows) >= 0.6:
         reasons.append(f"{bullet_rows} of {len(rows)} rows contain bullet markers")
-        return "list_layout", reasons
-
-    if section == "Cover" and TABLE_COVER_PATTERN.search(table_text):
-        reasons.append("contains cover-page filing labels")
-        return "cover_layout", reasons
+        return "list", reasons
 
     if section.casefold().startswith("item 15") or TABLE_EXHIBIT_PATTERN.search(table_text):
         reasons.append("contains exhibit-index references")
-        return "reference_table", reasons
+        return "text", reasons
 
     numeric_count = sum(is_numeric_table_value(value) for value in values)
     numeric_row_count = sum(
@@ -797,10 +851,14 @@ def classify_table(node, structure: dict, section: str) -> tuple[str, list[str]]
             )
             if condition
         )
-        return "data_table", reasons
+        return "data", reasons
+
+    if values and numeric_count == 0:
+        reasons.append("contains text without a numeric data grid")
+        return "text", reasons
 
     reasons.append("did not meet a conservative classification threshold")
-    return "unknown_table", reasons
+    return "unknown", reasons
 
 
 def render_table_text(
@@ -819,7 +877,7 @@ def render_table_text(
     return "\n".join(line for line in lines if line)
 
 
-def group_list_layout_rows(rows: list[list[str]]) -> list[dict]:
+def group_list_rows(rows: list[list[str]]) -> list[dict]:
     """Group bullet-table rows into semantic list items."""
     items = []
     for row_index, row in enumerate(rows):
@@ -852,9 +910,9 @@ def emit_table(node, context: ExtractionContext) -> dict | list[dict] | None:
     )
     source_anchor = find_source_anchor(node)
 
-    if table_class == "list_layout":
+    if table_class == "list":
         blocks = []
-        for item in group_list_layout_rows(rows):
+        for item in group_list_rows(rows):
             blocks.append(
                 append_block(
                     context,
@@ -873,14 +931,13 @@ def emit_table(node, context: ExtractionContext) -> dict | list[dict] | None:
         return blocks
 
     header_rows = detect_table_header_rows(structure)
-    title = find_table_title(node) if table_class == "data_table" else None
-    units = extract_table_units(rows) if table_class == "data_table" else None
+    title = find_table_title(node) if table_class == "data" else None
+    units = extract_table_units(rows) if table_class == "data" else None
     content_type = {
         "navigation": "navigation",
-        "cover_layout": "cover_table",
-        "reference_table": "reference_table",
-        "data_table": "data_table",
-        "unknown_table": "unknown_table",
+        "data": "data_table",
+        "text": "text_table",
+        "unknown": "unknown_table",
     }[table_class]
     extra = {
         "table_class": table_class,
@@ -889,7 +946,7 @@ def emit_table(node, context: ExtractionContext) -> dict | list[dict] | None:
         "raw_cells": structure["raw_cells"],
         "rows": rows,
     }
-    if table_class == "data_table":
+    if table_class == "data":
         extra.update(
             {
                 "title": title,
@@ -920,8 +977,25 @@ def visit_node(node, context: ExtractionContext) -> None:
         return
 
     if tag == "table":
-        emit_table(node, context)
+        if context.content_started:
+            emit_table(node, context)
         return
+
+    is_text_block = (
+            tag in {"p", "h1", "h2", "h3", "h4", "h5", "h6"}
+            or (tag == "div" and is_leaf_content_div(node))
+    )
+
+    if is_text_block and not context.content_started:
+        text = normalize_text(node.text_content())
+        section = identify_item_section(node, text)
+        is_toc_link = bool(node.xpath(".//a[starts-with(@href, '#')]"))
+
+        if section and section.startswith("Item 1 —") and not is_toc_link:
+            context.content_started = True
+        else:
+            return
+
     if tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
         emit_heading(node, context)
         return
@@ -929,6 +1003,9 @@ def visit_node(node, context: ExtractionContext) -> None:
         emit_paragraph(node, context)
         return
     if tag == "li":
+        if not context.content_started:
+            return
+
         emit_list_item(node, context)
         for nested_list in node.xpath("./ul | ./ol"):
             visit_node(nested_list, context)

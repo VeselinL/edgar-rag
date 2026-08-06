@@ -41,7 +41,7 @@ class TableProcessingTests(unittest.TestCase):
         self.assertEqual(structure["source_column_indexes"], [0, 1])
         self.assertEqual(
             classify_table(table, structure, "Item 8 — Financial Statements")[0],
-            "data_table",
+            "data",
         )
 
     def test_table_of_contents_is_navigation(self):
@@ -72,10 +72,10 @@ class TableProcessingTests(unittest.TestCase):
 
         self.assertEqual(len(blocks), 1)
         self.assertEqual(blocks[0]["content_type"], "list_item")
-        self.assertEqual(blocks[0]["table_class"], "list_layout")
+        self.assertEqual(blocks[0]["table_class"], "list")
         self.assertEqual(blocks[0]["text"], "Financial risk.")
 
-    def test_exhibit_index_is_not_treated_as_financial_data(self):
+    def test_exhibit_index_is_text(self):
         table = parse_table(
             """
             <table>
@@ -88,10 +88,22 @@ class TableProcessingTests(unittest.TestCase):
 
         structure = extract_table_structure(table)
 
-        self.assertEqual(
-            classify_table(table, structure, "Item 15 — Exhibits")[0],
-            "reference_table",
+        context = ExtractionContext(
+            ticker="MBLY",
+            filing_year=2025,
+            section="Item 15 — Exhibits",
         )
+        block = emit_table(table, context)
+
+        self.assertEqual(classify_table(table, structure, context.section)[0], "text")
+        self.assertEqual(block["content_type"], "text_table")
+        self.assertEqual(block["table_class"], "text")
+
+    def test_ambiguous_mixed_table_remains_unknown(self):
+        table = parse_table("<table><tr><td>Ratio</td><td>1</td></tr></table>")
+        structure = extract_table_structure(table)
+
+        self.assertEqual(classify_table(table, structure, "Item 1 — Business")[0], "unknown")
 
     def test_financial_table_retains_title_units_headers_and_raw_cells(self):
         document = lxml_html.fromstring(
@@ -116,6 +128,7 @@ class TableProcessingTests(unittest.TestCase):
         block = emit_table(table, context)
 
         self.assertEqual(block["content_type"], "data_table")
+        self.assertEqual(block["table_class"], "data")
         self.assertEqual(block["title"], "CONSOLIDATED BALANCE SHEETS")
         self.assertEqual(block["units"], "U.S. dollars in millions")
         self.assertEqual(block["header_row_indexes"], [0])
