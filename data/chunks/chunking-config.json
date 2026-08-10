@@ -8,5 +8,5 @@
   "excluded_content_types": ["navigation"],
   "narrative_content_types": ["heading", "paragraph", "list_item"],
   "table_content_types": ["data_table", "text_table", "unknown_table"],
-  "table_policy": "row groups with repeated title, units, and headers"
+  "table_policy": "one complete table per chunk with title, units, column units, and headers"
 }

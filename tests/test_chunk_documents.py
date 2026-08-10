@@ -67,13 +67,14 @@ class ChunkDocumentTests(unittest.TestCase):
         self.assertTrue(all(len(chunk["text"]) <= CONFIG["chunk_size"] for chunk in chunks))
         self.assertTrue(all(chunk["block_ids"] == [paragraph["block_id"]] for chunk in chunks))
 
-    def test_table_chunks_repeat_title_units_and_headers(self):
+    def test_complete_table_is_one_chunk_with_context(self):
         table = block(1, "data_table", "unused", "Item 8")
         table.update(
             {
                 "table_class": "data",
                 "title": "Balance Sheets",
-                "units": "USD millions",
+                "units": "mixed",
+                "column_units": [None, "dollars", "percent"],
                 "rows": [
                     ["Line item", "2025", "2024"],
                     ["Cash", "100", "80"],
@@ -84,12 +85,20 @@ class ChunkDocumentTests(unittest.TestCase):
             }
         )
 
-        chunks = chunk_blocks([table], CONFIG)
+        table_config = {**CONFIG, "chunk_size": 100}
+        chunks = chunk_blocks([table], table_config)
 
-        self.assertTrue(all(chunk["content_type"] == "table" for chunk in chunks))
-        self.assertTrue(all("Balance Sheets" in chunk["text"] for chunk in chunks))
-        self.assertTrue(all("Units: USD millions" in chunk["text"] for chunk in chunks))
-        self.assertTrue(all("Line item | 2025 | 2024" in chunk["text"] for chunk in chunks))
+        self.assertEqual(len(chunks), 1)
+        chunk = chunks[0]
+        self.assertEqual(chunk["content_type"], "table")
+        self.assertEqual(chunk["table_row_indexes"], [1, 2, 3])
+        self.assertEqual(chunk["table_rows"], table["rows"][1:])
+        self.assertIn("Balance Sheets", chunk["text"])
+        self.assertIn("Units: mixed", chunk["text"])
+        self.assertIn("Column units:  | dollars | percent", chunk["text"])
+        self.assertIn("Line item | 2025 | 2024", chunk["text"])
+        self.assertIn("Liabilities | 200 | 190", chunk["text"])
+        self.assertGreater(len(chunk["text"]), table_config["chunk_size"])
 
     def test_navigation_is_excluded(self):
         navigation = block(1, "navigation", "Table of contents")

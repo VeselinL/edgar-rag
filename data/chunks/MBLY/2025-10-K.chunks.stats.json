@@ -1,17 +1,17 @@
 {
   "strategy": "recursive",
-  "chunk_count": 842,
+  "chunk_count": 827,
   "chunk_size": 1200,
   "configured_overlap": 150,
   "actual_overlap_median": 0.0,
   "length_min": 42,
-  "length_median": 815.0,
-  "length_p95": 1176,
-  "length_max": 1199,
+  "length_median": 815,
+  "length_p95": 1181,
+  "length_max": 3910,
   "boundary_accuracy": 0.7535483870967742,
   "section_accuracy": 1.0,
   "table_context_accuracy": 1.0,
   "source_block_coverage": 1.0,
   "narrative_chunks": 775,
-  "table_chunks": 67
+  "table_chunks": 52
 }

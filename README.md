@@ -16,11 +16,14 @@ Implemented:
 - HTML cleanup with visible Inline XBRL text preserved
 - extraction of Item sections, headings, paragraphs, lists, and tables
 - table classification as `data`, `text`, `navigation`, `list`, or `unknown`
+- table header, title, unit, and per-column unit extraction
 - deterministic JSONL block output with filing metadata and source anchors
+- configurable narrative and table chunking with source-block provenance
+- one complete table per table chunk
+- local MiniLM embedding pipeline with normalized vectors and reproducibility manifests
 
 Not implemented yet:
 
-- chunking and embeddings
 - vector database and retrieval
 - answer generation and citations
 - conversation history and chat interface
@@ -51,8 +54,12 @@ written separately under `data/processed/`.
 - `lxml`
 - `python-dotenv`
 - `langchain-text-splitters`
+- `sentence-transformers`
 
 Install dependencies with `pip install -r requirements.txt`.
+
+On Linux, the requirements select CPU-only PyTorch from the official PyTorch
+package index. Replace that requirement intentionally if GPU inference is needed.
 
 Set an SEC-compliant user agent in `.env`:
 
@@ -82,6 +89,22 @@ Rebuild an existing processed output intentionally:
 python -m src.filings.preprocess_filing mobileye --overwrite
 ```
 
+Create retrieval chunks:
+
+```bash
+python -m src.chunking.chunk_documents --overwrite
+```
+
+Embed the chunks with `sentence-transformers/all-MiniLM-L6-v2`:
+
+```bash
+python -m src.embeddings.embed_chunks --device cpu
+```
+
+The embedding command writes normalized vectors to a compressed NumPy file and
+a JSON manifest containing the source hash, exact model revision, dimensions,
+normalization policy, and any inputs truncated by the model.
+
 Run tests:
 
 ```bash
@@ -99,9 +122,18 @@ data/
   processed/
     MBLY/
       2025-10-K.blocks.jsonl
+  chunks/
+    MBLY/
+      2025-10-K.chunks.jsonl
+      2025-10-K.chunks.stats.json
+  embeddings/
+    MBLY/
+      2025-10-K.embeddings.npz
+      2025-10-K.embeddings.manifest.json
 ```
 
-Future stages will add `data/chunks/`, `data/indexes/`, and `data/evaluation/`.
+Generated `.npz` vectors are ignored by Git; manifests remain available for
+reproducibility. Future stages will add `data/indexes/` and `data/evaluation/`.
 
 ## Evaluation direction
 

@@ -9,3 +9,10 @@
 
 # Local variables
 .idea/
+
+# Python-generated files
+__pycache__/
+*.py[cod]
+
+# Generated embedding vectors
+data/embeddings/**/*.npz

@@ -170,7 +170,7 @@ def chunk_narrative(blocks: list[dict], config: dict, group_id: str) -> list[dic
 
 
 def render_row(row: list) -> str:
-    return " | ".join(str(value).strip() for value in row).rstrip()
+    return " | ".join("" if value is None else str(value).strip() for value in row).rstrip()
 
 
 def chunk_table(block: dict, config: dict) -> list[dict]:
@@ -186,47 +186,26 @@ def chunk_table(block: dict, config: dict) -> list[dict]:
         context.append(block["title"])
     if block.get("units"):
         context.append(f"Units: {block['units']}")
+    if any(block.get("column_units") or []):
+        context.append(f"Column units: {render_row(block['column_units'])}")
     context.extend(render_row(row) for row in headers)
     prefix = "\n".join(context)
-    available = config["chunk_size"] - len(prefix) - 1
-    if available <= 0:
-        raise ValueError(f"Table context exceeds chunk size: {block['block_id']}")
-
-    chunks = []
-    pending = []
-
-    def emit(row_group: list[tuple[int, list]], text: str) -> None:
-        chunks.append(
-            {
-                **source_metadata([block]),
-                "content_type": "table",
-                "table_class": block.get("table_class", "unknown"),
-                "title": block.get("title"),
-                "units": block.get("units"),
-                "table_headers": headers,
-                "table_rows": [row for _, row in row_group],
-                "table_row_indexes": [index for index, _ in row_group],
-                "source_group": f"table-{block['block_id']}",
-                "text": f"{prefix}\n{text}",
-            }
-        )
-
-    for row_index, row in body_rows:
-        row_text = render_row(row)
-        candidate = "\n".join(render_row(value) for _, value in pending + [(row_index, row)])
-        if pending and len(candidate) > available:
-            emit(pending, "\n".join(render_row(value) for _, value in pending))
-            pending = []
-        if len(row_text) > available:
-            for text, start, end in split_spans(row_text, available, config):
-                emit([(row_index, row)], text)
-                chunks[-1]["source_text_start"] = start
-                chunks[-1]["source_text_end"] = end
-        else:
-            pending.append((row_index, row))
-    if pending:
-        emit(pending, "\n".join(render_row(value) for _, value in pending))
-    return chunks
+    table_text = "\n".join(render_row(row) for _, row in body_rows)
+    return [
+        {
+            **source_metadata([block]),
+            "content_type": "table",
+            "table_class": block.get("table_class", "unknown"),
+            "title": block.get("title"),
+            "units": block.get("units"),
+            "column_units": block.get("column_units") or [],
+            "table_headers": headers,
+            "table_rows": [row for _, row in body_rows],
+            "table_row_indexes": [index for index, _ in body_rows],
+            "source_group": f"table-{block['block_id']}",
+            "text": f"{prefix}\n{table_text}",
+        }
+    ]
 
 
 def chunk_blocks(blocks: list[dict], config: dict) -> list[dict]:
@@ -281,7 +260,12 @@ def validate_chunks(chunks: list[dict], config: dict) -> None:
     for index, chunk in enumerate(chunks, start=1):
         if chunk["chunk_index"] != index or not chunk["block_ids"]:
             raise ValueError(f"Invalid chunk provenance: {chunk['chunk_id']}")
-        if not chunk["text"].strip() or len(chunk["text"]) > config["chunk_size"]:
+        if not chunk["text"].strip():
+            raise ValueError(f"Invalid chunk length: {chunk['chunk_id']}")
+        if (
+            chunk["content_type"] != "table"
+            and len(chunk["text"]) > config["chunk_size"]
+        ):
             raise ValueError(f"Invalid chunk length: {chunk['chunk_id']}")
 
 
@@ -330,6 +314,10 @@ def chunk_statistics(chunks: list[dict], config: dict, blocks: list[dict] | None
         expected_context = [chunk.get("title")]
         if chunk.get("units"):
             expected_context.append(f"Units: {chunk['units']}")
+        if any(chunk.get("column_units") or []):
+            expected_context.append(
+                f"Column units: {render_row(chunk['column_units'])}"
+            )
         expected_context.extend(render_row(row) for row in chunk.get("table_headers", []))
         table_context_hits += all(
             not value or value in chunk["text"] for value in expected_context
