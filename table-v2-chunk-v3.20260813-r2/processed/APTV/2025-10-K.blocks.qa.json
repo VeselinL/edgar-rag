@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-08-13T13:09:31.007997+00:00",
+  "source_raw": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/raw/APTV/2025-10-K.html",
+  "source_raw_sha256": "6736c71ab066d6db4e6d670b397df8cb8a077826eccb27c218e31c6ced701bc0",
+  "processed_blocks": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v2-chunk-v3.20260813-r2/processed/APTV/2025-10-K.blocks.jsonl",
+  "processed_blocks_sha256": "4dd5c3633ab588648ad700b37836298ac986449d6a29b3fc3a500e735a5a7cad",
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "html_table_fingerprint_version": "cleaned-lxml-html-v1",
+  "lxml_version": "6.1.1",
+  "block_count": 1367,
+  "table_fragment_count": 138,
+  "raw_cell_accounting_min": 1.0,
+  "standalone_marker_count": 0,
+  "markdown_valid_count": 138,
+  "normalization_fallback_count": 17
+}

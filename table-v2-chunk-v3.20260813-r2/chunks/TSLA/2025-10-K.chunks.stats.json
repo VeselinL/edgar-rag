@@ -1,0 +1,62 @@
+{
+  "chunk_schema_version": 3,
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+  "source_processed_sha256": "64dd343f8df8ab67b47c496a72bf96c026b3c0035d7771582ca44642cdc1aa36",
+  "strategy": "recursive",
+  "length_function": "tokens",
+  "tokenizer_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "chunk_count": 341,
+  "chunk_size": 500,
+  "configured_overlap": 32,
+  "actual_overlap_median": 0,
+  "length_min": 10,
+  "length_median": 220,
+  "length_p95": 489,
+  "length_max": 980,
+  "boundary_accuracy": 0.8872727272727273,
+  "section_accuracy": 1.0,
+  "table_context_copy_completeness": 1.0,
+  "logical_table_count": 66,
+  "table_fragment_count": 68,
+  "table_kind_counts": {
+    "exhibit_list": 4,
+    "financial_data": 58,
+    "layout": 2,
+    "structured_text": 2
+  },
+  "table_class_counts": {
+    "data": 58,
+    "text": 8
+  },
+  "header_mode_counts": {
+    "headerless": 5,
+    "inferred": 61
+  },
+  "title_source_counts": {
+    "heading": 25,
+    "none": 12,
+    "prose_caption": 29
+  },
+  "composition_mode_counts": {
+    "horizontal": 1,
+    "single": 64,
+    "vertical": 1
+  },
+  "accepted_continuation_link_count": 2,
+  "logical_empty_density_median": 0.0,
+  "logical_empty_density_p95": 0.25,
+  "logical_empty_density_max": 0.26666666666666666,
+  "logical_tables_over_50_percent_empty": 0,
+  "table_length_max": 980,
+  "table_inputs_over_narrative_limit": 10,
+  "table_markdown_validity": 1.0,
+  "standalone_marker_count": 0,
+  "normalization_fallback_fragment_count": 5,
+  "source_block_coverage": 1.0,
+  "source_anchor_coverage": 1.0,
+  "source_coverage_scope": "non-heading non-navigation processed blocks",
+  "narrative_chunks": 275,
+  "table_chunks": 66
+}
