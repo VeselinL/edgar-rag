@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "review_id": "mobileye-bgebase-table-v2-baseline-review-r2",
+  "reviewed_on": "2026-08-13",
+  "reviewer": "Codex senior-engineer implementation review",
+  "baseline_path": "data/evaluation/mobileye_bgebase_table_v2_baseline.json",
+  "baseline_id": "mobileye-bgebase-table-v2-chunk-v3.20260813-r2",
+  "baseline_sha256": "sha256:356c1c13551eb485daf5d938f9406ead99cdcae0172c2156cee22dbb68fa2cac",
+  "dataset_sha256": "sha256:1c7ec7041cb596b18a018f1f0b00df015f3feea5351879ca5d3957497716b301",
+  "chunks_sha256": "sha256:a84fb4c9b6058d84e07b4f8f63479c64696e4608ea67da99fe1fb989b6dc7154",
+  "embedding_manifest_sha256": "sha256:0b4edf04d40e8c20893436b6c93956ccc73e93c59101187082f02dd3c54b043f",
+  "review_scope": "Every Recall@10 result below 1.0 was traced through gold-v2 source blocks, logical table IDs or narrative spans, chunk text, and the validated embedding release.",
+  "conclusion": "No incomplete retrieval is caused by parser evidence loss, chunk/provenance loss, stale labels, or embedding misalignment. Every retrieved ranking, score, Recall@10 result, and incomplete-result ID is identical to the reviewed r1 baseline after the r2 provenance repair. The 34-question historical comparison subset remains at mean Recall@10 0.721 (exact 0.720588), including 0.833 single narrative, 0.625 single table, and 0.5625 multi-chunk. Remaining misses are first-stage semantic ranking and compact-table-embedding limitations; reranking remains paused.",
+  "reviewed_incomplete_count": 26,
+  "reviews": [
+    {
+      "id": "Q01",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "partial",
+      "artifact_integrity": "verified",
+      "reason": "Broad three-part business-chain question retrieved the autonomous-mobility partner evidence at rank 2 but not both separate OEM/Tier-1 passages; all three gold chunks and evidence mappings are intact."
+    },
+    {
+      "id": "Q02",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "Two-passages synthesis about installed-base collection and REM mapping was displaced by nearby mapping/product passages; both gold narrative chunks are byte-identical to the historical corpus."
+    },
+    {
+      "id": "Q04",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "Three-passages synthesis contrasting consumer AV and AMaaS paths was displaced by semantically adjacent autonomous-driving passages; the three gold chunks remain present and embedded."
+    },
+    {
+      "id": "Q08",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "The specific OEM in-house-development risk passage was not in top 10; its narrative source block, chunk text, and vector are present and integrity-validated."
+    },
+    {
+      "id": "Q09",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "partial",
+      "artifact_integrity": "verified",
+      "reason": "Two of three supplier-risk passages were retrieved at ranks 1 and 2; the additional geopolitical foundry passage remains present but fell outside top 10."
+    },
+    {
+      "id": "Q10",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "partial",
+      "artifact_integrity": "verified",
+      "reason": "One of three dispersed Intel ownership/constraint passages was retrieved; this is a multi-evidence semantic-ranking limitation, not missing evidence."
+    },
+    {
+      "id": "Q12",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "The shipment-volume/product-mix/pricing explanation passage remains byte-identical and embedded but was displaced by adjacent financial narrative."
+    },
+    {
+      "id": "Q14",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "partial",
+      "artifact_integrity": "verified",
+      "reason": "The R&D change explanation was retrieved at rank 1; the broad question also requires a narrative policy passage and results table that fell outside top 10."
+    },
+    {
+      "id": "Q15",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "partial",
+      "artifact_integrity": "verified",
+      "reason": "The goodwill impairment explanation was retrieved at rank 1, while the results table needed for the loss comparison fell outside top 10."
+    },
+    {
+      "id": "Q16",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "The four-way cash-flow synthesis spans one table and three narratives; all four are present, but none entered this semantic top 10."
+    },
+    {
+      "id": "Q17",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "Customer/country concentration requires two tables plus a risk narrative; all evidence is preserved, while related general business passages outranked it."
+    },
+    {
+      "id": "Q18",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "Both lease tables are complete and valid; compact table embeddings intentionally emphasize descriptors rather than the full numeric matrix, limiting this reconciliation query."
+    },
+    {
+      "id": "Q19",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "partial",
+      "artifact_integrity": "verified",
+      "reason": "One of three RSU evidence chunks was retrieved at rank 8; expense, cash-flow, and dilution evidence is dispersed across narrative and table chunks."
+    },
+    {
+      "id": "Q20",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "This deliberately broad funding synthesis requires five intact evidence chunks; general financial passages outranked the complete gold set."
+    },
+    {
+      "id": "Q21",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "The lease-balance table is complete, but the requested numeric current/non-current value is not retained in the compact table embedding matrix."
+    },
+    {
+      "id": "Q26",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "The non-GAAP gross-profit/margin table is complete; the numeric lookup is weakly represented by the compact table embedding policy."
+    },
+    {
+      "id": "C2Q12",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "The Intel advantages narrative chunk is byte-identical to the historical artifact; this same single-narrative miss is reflected in the historical 0.833 category result."
+    },
+    {
+      "id": "C2Q13",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "The employee-count narrative chunk is byte-identical and embedded; this same miss is part of the unchanged historical single-narrative result."
+    },
+    {
+      "id": "C2Q14",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "The OEM internal-development narrative chunk is byte-identical and embedded; this same miss is part of the unchanged historical single-narrative result."
+    },
+    {
+      "id": "C2Q20",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "The results table is complete, but fiscal-2024 revenue is a numeric matrix value omitted from compact embedding text; the historical single-table category already recorded this miss."
+    },
+    {
+      "id": "C2Q23",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "The complete lease table is present; numeric current/long-term values are not represented in compact embedding text, matching the historical table-result limitation."
+    },
+    {
+      "id": "C2Q26",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "The complete major-customer table is present; the numeric percentage is omitted from compact embedding text, matching the historical table-result limitation."
+    },
+    {
+      "id": "C2Q31",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "partial",
+      "artifact_integrity": "verified",
+      "reason": "The goodwill narrative ranked first, while the results table did not enter top 10; the historical multi-chunk result likewise gives half recall."
+    },
+    {
+      "id": "C2Q32",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "Three intact chunks are required for the funding synthesis; semantically adjacent financial passages displaced them, matching the historical multi-chunk limitation."
+    },
+    {
+      "id": "C2Q33",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "Two complete lease tables are required; compact table embeddings underrepresent the numeric reconciliation, matching the historical multi-chunk limitation."
+    },
+    {
+      "id": "C2Q34",
+      "decision": "approved_as_baseline_limitation",
+      "outcome": "miss",
+      "artifact_integrity": "verified",
+      "reason": "The three-chunk customer/country/risk synthesis is intact but absent from top 10, matching the historical multi-chunk limitation."
+    }
+  ]
+}

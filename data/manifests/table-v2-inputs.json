@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "manifest_id": "table-v2-approved-raw-inputs-2026-08-13",
+  "corpus_policy": "fixed ten-company latest normal 10-K snapshots; no 10-K/A",
+  "company_count": 10,
+  "files": [
+    {
+      "company_key": "aptiv",
+      "ticker": "APTV",
+      "filing": "data/raw/APTV/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001521332-26-000009",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1521332/000152133226000009/aptv-20251231.htm",
+      "filing_date": "2026-02-06",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:6736c71ab066d6db4e6d670b397df8cb8a077826eccb27c218e31c6ced701bc0"
+    },
+    {
+      "company_key": "aurora",
+      "ticker": "AUR",
+      "filing": "data/raw/AUR/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001828108-26-000016",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1828108/000182810826000016/aur-20251231.htm",
+      "filing_date": "2026-02-11",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:6746492a9b782b90faec089cd4a1d5f7d8178df4ca1d9454dec59d1a4c54c0d7"
+    },
+    {
+      "company_key": "ford",
+      "ticker": "F",
+      "filing": "data/raw/F/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0000037996-26-000015",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/37996/000003799626000015/f-20251231.htm",
+      "filing_date": "2026-02-11",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:3bbda349b5831cfb9a2686dbdb7d87614bcdbe2d195aa8ecd9b39215945361f9"
+    },
+    {
+      "company_key": "general_motors",
+      "ticker": "GM",
+      "filing": "data/raw/GM/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001467858-26-000013",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1467858/000146785826000013/gm-20251231.htm",
+      "filing_date": "2026-01-27",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:62079dfef1451b92c8ea6109f2ef77cd645c3d95b0670c9f03af01010c1ecc74"
+    },
+    {
+      "company_key": "alphabet",
+      "ticker": "GOOGL",
+      "filing": "data/raw/GOOGL/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001652044-26-000018",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "filing_date": "2026-02-05",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:c2f6301004f35411a20611c14ff01d80a85c0bcbab6053c80d8cc7f6fc747161"
+    },
+    {
+      "company_key": "mobileye",
+      "ticker": "MBLY",
+      "filing": "data/raw/MBLY/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001104659-26-014300",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1910139/000110465926014300/mbly-20251227x10k.htm",
+      "filing_date": "2026-02-12",
+      "reporting_period": "2025-12-27",
+      "raw_sha256": "sha256:fd30bf23b6d500166c51d2e465cc12fa3c00da2780d6a82290024d7d72405738"
+    },
+    {
+      "company_key": "nvidia",
+      "ticker": "NVDA",
+      "filing": "data/raw/NVDA/2026-10-K.html",
+      "filing_year": 2026,
+      "accession_number": "0001045810-26-000021",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+      "filing_date": "2026-02-25",
+      "reporting_period": "2026-01-25",
+      "raw_sha256": "sha256:73d81f5a111abcf72426c840871e76f5f5edc9631f436d495a86b6f87306d58b"
+    },
+    {
+      "company_key": "ouster",
+      "ticker": "OUST",
+      "filing": "data/raw/OUST/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001628280-26-013313",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1816581/000162828026013313/oust-20251231.htm",
+      "filing_date": "2026-03-02",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:0120bd7ecf96187a459e6abd14937ba2a4f8beae0ebc0404feea7a2ee230923d"
+    },
+    {
+      "company_key": "qualcomm",
+      "ticker": "QCOM",
+      "filing": "data/raw/QCOM/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0000804328-25-000085",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/804328/000080432825000085/qcom-20250928.htm",
+      "filing_date": "2025-11-05",
+      "reporting_period": "2025-09-28",
+      "raw_sha256": "sha256:da5ced9e61dfdd634360fda810c173c66c230e95fea9643979862b6564fbb814"
+    },
+    {
+      "company_key": "tesla",
+      "ticker": "TSLA",
+      "filing": "data/raw/TSLA/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001628280-26-003952",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026003952/tsla-20251231.htm",
+      "filing_date": "2026-01-29",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:90d5d2bc4057df41c645f85dcebe575af9b0953a6a1902d189297bec17fd440a"
+    }
+  ]
+}

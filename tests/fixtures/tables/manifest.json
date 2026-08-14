@@ -1,0 +1,1822 @@
+{
+  "schema_version": 1,
+  "frozen_on": "2026-08-13",
+  "locator_convention_note": "REFORMAT_PARSING table labels were verified to equal one-based HTML table indexes in the frozen sources; zero-based ordinals are therefore recorded explicitly as label minus one.",
+  "fixture_policy": "Table and context HTML files are exact contiguous byte slices from immutable raw filings; wrappers are not added and source byte ranges are recorded.",
+  "raw_filings": [
+    {
+      "ticker": "APTV",
+      "filing": "data/raw/APTV/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001521332-26-000009",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1521332/000152133226000009/aptv-20251231.htm",
+      "filing_date": "2026-02-06",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:6736c71ab066d6db4e6d670b397df8cb8a077826eccb27c218e31c6ced701bc0"
+    },
+    {
+      "ticker": "AUR",
+      "filing": "data/raw/AUR/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001828108-26-000016",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1828108/000182810826000016/aur-20251231.htm",
+      "filing_date": "2026-02-11",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:6746492a9b782b90faec089cd4a1d5f7d8178df4ca1d9454dec59d1a4c54c0d7"
+    },
+    {
+      "ticker": "F",
+      "filing": "data/raw/F/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0000037996-26-000015",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/37996/000003799626000015/f-20251231.htm",
+      "filing_date": "2026-02-11",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:3bbda349b5831cfb9a2686dbdb7d87614bcdbe2d195aa8ecd9b39215945361f9"
+    },
+    {
+      "ticker": "GM",
+      "filing": "data/raw/GM/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001467858-26-000013",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1467858/000146785826000013/gm-20251231.htm",
+      "filing_date": "2026-01-27",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:62079dfef1451b92c8ea6109f2ef77cd645c3d95b0670c9f03af01010c1ecc74"
+    },
+    {
+      "ticker": "GOOGL",
+      "filing": "data/raw/GOOGL/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001652044-26-000018",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "filing_date": "2026-02-05",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:c2f6301004f35411a20611c14ff01d80a85c0bcbab6053c80d8cc7f6fc747161"
+    },
+    {
+      "ticker": "MBLY",
+      "filing": "data/raw/MBLY/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001104659-26-014300",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1910139/000110465926014300/mbly-20251227x10k.htm",
+      "filing_date": "2026-02-12",
+      "reporting_period": "2025-12-27",
+      "raw_sha256": "sha256:fd30bf23b6d500166c51d2e465cc12fa3c00da2780d6a82290024d7d72405738"
+    },
+    {
+      "ticker": "NVDA",
+      "filing": "data/raw/NVDA/2026-10-K.html",
+      "filing_year": 2026,
+      "accession_number": "0001045810-26-000021",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+      "filing_date": "2026-02-25",
+      "reporting_period": "2026-01-25",
+      "raw_sha256": "sha256:73d81f5a111abcf72426c840871e76f5f5edc9631f436d495a86b6f87306d58b"
+    },
+    {
+      "ticker": "OUST",
+      "filing": "data/raw/OUST/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001628280-26-013313",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1816581/000162828026013313/oust-20251231.htm",
+      "filing_date": "2026-03-02",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:0120bd7ecf96187a459e6abd14937ba2a4f8beae0ebc0404feea7a2ee230923d"
+    },
+    {
+      "ticker": "QCOM",
+      "filing": "data/raw/QCOM/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0000804328-25-000085",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/804328/000080432825000085/qcom-20250928.htm",
+      "filing_date": "2025-11-05",
+      "reporting_period": "2025-09-28",
+      "raw_sha256": "sha256:da5ced9e61dfdd634360fda810c173c66c230e95fea9643979862b6564fbb814"
+    },
+    {
+      "ticker": "TSLA",
+      "filing": "data/raw/TSLA/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001628280-26-003952",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026003952/tsla-20251231.htm",
+      "filing_date": "2026-01-29",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:90d5d2bc4057df41c645f85dcebe575af9b0953a6a1902d189297bec17fd440a"
+    }
+  ],
+  "historical_artifact_diagnostics": {
+    "status": "historical_only_not_a_valid_table_baseline",
+    "captured_before_table-v2 promotion": true,
+    "files": [
+      {
+        "path": "data/processed/APTV/2025-10-K.blocks.jsonl",
+        "sha256": "sha256:f9fec97053afec191997b1ac449228899a54714de213c7b54219b1c0e91bbf49",
+        "size_bytes": 5224672
+      },
+      {
+        "path": "data/processed/AUR/2025-10-K.blocks.jsonl",
+        "sha256": "sha256:67b52ee02a0f77b6c30bb6384692ad36c11982cf558f1f0eedb6c4f74cfb51e5",
+        "size_bytes": 1550288
+      },
+      {
+        "path": "data/processed/F/2025-10-K.blocks.jsonl",
+        "sha256": "sha256:e9a7d7997d9d23b5eac1d618337cafa6ade1b5dc5c03d24eca8543823a90a0de",
+        "size_bytes": 6374994
+      },
+      {
+        "path": "data/processed/GM/2025-10-K.blocks.jsonl",
+        "sha256": "sha256:bc30ab4adfdddfdc937a82bb5ca17ea387c39d7837a460273ee6ab6af6578447",
+        "size_bytes": 4929632
+      },
+      {
+        "path": "data/processed/GOOGL/2025-10-K.blocks.jsonl",
+        "sha256": "sha256:9ff1a23edc7d05f751372e7d9f533e51941b5a4b7c33bcd87138fea096d08e46",
+        "size_bytes": 3312138
+      },
+      {
+        "path": "data/processed/MBLY/2025-10-K.blocks.jsonl",
+        "sha256": "sha256:f17905722777d2e4d4a02d108734b2a9c1c7968dcd74de54610b53fc651ab25a",
+        "size_bytes": 2641713
+      },
+      {
+        "path": "data/processed/NVDA/2026-10-K.blocks.jsonl",
+        "sha256": "sha256:70c2a7253958c6183e5177adcca3fa9d66ae00b4ff23c6279d2c8d9035ae9188",
+        "size_bytes": 2396452
+      },
+      {
+        "path": "data/processed/OUST/2025-10-K.blocks.jsonl",
+        "sha256": "sha256:8dd0abbb331289a2ab50d057ce07e8c15fe50997b4501dea1685c67cbe7ff91a",
+        "size_bytes": 2442449
+      },
+      {
+        "path": "data/processed/QCOM/2025-10-K.blocks.jsonl",
+        "sha256": "sha256:c476194b21f993513774949b61977130ba2f8f3c84f60fb9b99ab29832349bc3",
+        "size_bytes": 2243874
+      },
+      {
+        "path": "data/processed/TSLA/2025-10-K.blocks.jsonl",
+        "sha256": "sha256:cadeaff23512de9dcfa4a413605a3ede1e2fcd61a4201a366f3e36f247c83bae",
+        "size_bytes": 2388139
+      },
+      {
+        "path": "data/chunks/APTV/2025-10-K.chunks.jsonl",
+        "sha256": "sha256:cbe338a08c0ae20c0669d59b2bc4e416b648cf027c26c24a32adbf95a08927d9",
+        "size_bytes": 1489627
+      },
+      {
+        "path": "data/chunks/APTV/2025-10-K.chunks.stats.json",
+        "sha256": "sha256:956ba3fff0d1b37d03d11b08134e7e376c1b685acc4d785d093175843e4d031e",
+        "size_bytes": 498
+      },
+      {
+        "path": "data/chunks/AUR/2025-10-K.chunks.jsonl",
+        "sha256": "sha256:b6d9afd491789aed0a42e350e159318757ac92868e76d65144773848fd1e877d",
+        "size_bytes": 661009
+      },
+      {
+        "path": "data/chunks/AUR/2025-10-K.chunks.stats.json",
+        "sha256": "sha256:037036c824999c7de7eb6818e73e178351b02c9d41093ab6ac986d52ed2f06d0",
+        "size_bytes": 497
+      },
+      {
+        "path": "data/chunks/F/2025-10-K.chunks.jsonl",
+        "sha256": "sha256:e8167c520e049f48c12c2916c2b12936a7fc977c371f52276b25ef5d8d749f0e",
+        "size_bytes": 1540526
+      },
+      {
+        "path": "data/chunks/F/2025-10-K.chunks.stats.json",
+        "sha256": "sha256:ac601af2f3c538b20cd5d257c73ac89ff6a88d2396fcbc7fe0feade969781724",
+        "size_bytes": 501
+      },
+      {
+        "path": "data/chunks/GM/2025-10-K.chunks.jsonl",
+        "sha256": "sha256:58f64f29d11263d989eb533d17512a1813b9e58f24279b2c9d3f30d5a29a2193",
+        "size_bytes": 1171987
+      },
+      {
+        "path": "data/chunks/GM/2025-10-K.chunks.stats.json",
+        "sha256": "sha256:b8f031108dd709f8be9e230cfbc6392c559b68dd6443ff2b9552e18ce9609a69",
+        "size_bytes": 501
+      },
+      {
+        "path": "data/chunks/GOOGL/2025-10-K.chunks.jsonl",
+        "sha256": "sha256:8882a155871464d80e92fd4bfa2af14032c1fbc4a016f3e38c5725fb8c1a0f89",
+        "size_bytes": 1018062
+      },
+      {
+        "path": "data/chunks/GOOGL/2025-10-K.chunks.stats.json",
+        "sha256": "sha256:5595b643800a6e51dc5a4ed9a89f3f722ff333ea0abed13a241f0f7ec1d077e6",
+        "size_bytes": 500
+      },
+      {
+        "path": "data/chunks/MBLY/2025-10-K.chunks.jsonl",
+        "sha256": "sha256:af41b65b5259a88f00654773adc711b974903f6a6310c40817b1b1063713ca06",
+        "size_bytes": 1111749
+      },
+      {
+        "path": "data/chunks/MBLY/2025-10-K.chunks.stats.json",
+        "sha256": "sha256:63d89f5c6be0f8fa663d76f9d45c5a4381310c9240e82199cb1c59b0ab12c02b",
+        "size_bytes": 497
+      },
+      {
+        "path": "data/chunks/NVDA/2026-10-K.chunks.jsonl",
+        "sha256": "sha256:0f6cac3d744ef70b0eb3e1d7b1e5b629bbad55c152045a88ce26e018c7dceca5",
+        "size_bytes": 784244
+      },
+      {
+        "path": "data/chunks/NVDA/2026-10-K.chunks.stats.json",
+        "sha256": "sha256:f357214fdf4f1941f8f4b20acfe60f8f1ce48c4c4592bea926aa8884152fcfef",
+        "size_bytes": 500
+      },
+      {
+        "path": "data/chunks/OUST/2025-10-K.chunks.jsonl",
+        "sha256": "sha256:95540f5a84eec590b7395d31a280c7927012b26530ca454744b0ee00b6027b15",
+        "size_bytes": 912949
+      },
+      {
+        "path": "data/chunks/OUST/2025-10-K.chunks.stats.json",
+        "sha256": "sha256:7169471f2e407ce7e8e28b5b06e6a86237d4ad0e8054a73650905ab2e919786b",
+        "size_bytes": 496
+      },
+      {
+        "path": "data/chunks/QCOM/2025-10-K.chunks.jsonl",
+        "sha256": "sha256:cc4a25249d70ba9082f8eeb8311f75fa33cb0731e30bff571566a71bcd486f08",
+        "size_bytes": 806105
+      },
+      {
+        "path": "data/chunks/QCOM/2025-10-K.chunks.stats.json",
+        "sha256": "sha256:2117b332dc33612557bef9696eda0e4aec3593143888d84a86db0657b1eb4e87",
+        "size_bytes": 500
+      },
+      {
+        "path": "data/chunks/TSLA/2025-10-K.chunks.jsonl",
+        "sha256": "sha256:5cc01e8d196fbc230701f201561cd8e8425839998f8ba7a4bb6b28c9e9c33a82",
+        "size_bytes": 880421
+      },
+      {
+        "path": "data/chunks/TSLA/2025-10-K.chunks.stats.json",
+        "sha256": "sha256:45a12d088c1460011f900ee5444fcb4e9eb743339788ea14cf4821db9402740f",
+        "size_bytes": 496
+      },
+      {
+        "path": "data/chunks/chunking-config.json",
+        "sha256": "sha256:09ce7624e3117d6115453beac998bbff2bf5be44f41b2f06ca4bd7862f556de7",
+        "size_bytes": 728
+      },
+      {
+        "path": "data/embeddings/APTV/2025-10-K.bgebase.embeddings.manifest.json",
+        "sha256": "sha256:dbfc0e9143cb483e7f6c0bd61d215f63a185de1d95d86d529df34bf1ff64d341",
+        "size_bytes": 1581
+      },
+      {
+        "path": "data/embeddings/APTV/2025-10-K.bgebase.embeddings.npz",
+        "sha256": "sha256:101fd2762a90349e72f369f3c87d0934ce01a8bbe91f8a26a90137fdf31c0876",
+        "size_bytes": 1537526
+      },
+      {
+        "path": "data/embeddings/AUR/2025-10-K.bgebase.embeddings.manifest.json",
+        "sha256": "sha256:94fe021e7cbd05d635a22e8bbe7e658b6564661c03d09d08203411fa236e73c5",
+        "size_bytes": 1428
+      },
+      {
+        "path": "data/embeddings/AUR/2025-10-K.bgebase.embeddings.npz",
+        "sha256": "sha256:5267b2be1cd64a050b413b1eb066d568cb805526223a892dcbb2c0a89cbaa006",
+        "size_bytes": 761860
+      },
+      {
+        "path": "data/embeddings/AUR/2025-10-K.minilm.embeddings.manifest.json",
+        "sha256": "sha256:b3e261fd2c42fdd3b18c3ca579f1e6f8e1fd8bf9980cadf484db4de3bab225ab",
+        "size_bytes": 4841
+      },
+      {
+        "path": "data/embeddings/AUR/2025-10-K.minilm.embeddings.npz",
+        "sha256": "sha256:a0174b495e0b82cfa0ed04c736abf56bfab734ed2277e8885ce377132a9c920e",
+        "size_bytes": 387538
+      },
+      {
+        "path": "data/embeddings/F/2025-10-K.bgebase.embeddings.manifest.json",
+        "sha256": "sha256:94cf8f470d69f2df1956d211d54667c9eb753f4ef82994675f9dffdda38da327",
+        "size_bytes": 1587
+      },
+      {
+        "path": "data/embeddings/F/2025-10-K.bgebase.embeddings.npz",
+        "sha256": "sha256:7bdeaf52e3ee8309d0a024106be084d02410c8a0fff1fb806123c70b9caf07dd",
+        "size_bytes": 1648529
+      },
+      {
+        "path": "data/embeddings/GM/2025-10-K.bgebase.embeddings.manifest.json",
+        "sha256": "sha256:04555365fa9f374dd93d1aae21a362ea1f59ead2145e3db8f86f2511f0a74997",
+        "size_bytes": 1511
+      },
+      {
+        "path": "data/embeddings/GM/2025-10-K.bgebase.embeddings.npz",
+        "sha256": "sha256:d0efc5df35031a84c7b94a5fc647d229ea00c068e9bc93aca75ec0c47313d741",
+        "size_bytes": 1186162
+      },
+      {
+        "path": "data/embeddings/GOOGL/2025-10-K.bgebase.embeddings.manifest.json",
+        "sha256": "sha256:88a61863447db863023d0281c645c7f137641e1afb5cb750f7d92957bae8ff3f",
+        "size_bytes": 1495
+      },
+      {
+        "path": "data/embeddings/GOOGL/2025-10-K.bgebase.embeddings.npz",
+        "sha256": "sha256:fe61e6b9a2a240a78cf4b0dfd6324ec319a87ac29849eac9065d693d7cac01bf",
+        "size_bytes": 1436710
+      },
+      {
+        "path": "data/embeddings/MBLY/2025-10-K.bgebase.embeddings.manifest.json",
+        "sha256": "sha256:309cc73c16ef605b527563fb6fbf6b5970065f5418c98c56589d1c93034c1f6a",
+        "size_bytes": 1460
+      },
+      {
+        "path": "data/embeddings/MBLY/2025-10-K.bgebase.embeddings.npz",
+        "sha256": "sha256:8f5873696a1507328f66cdc382977552cb150dfc293e23652c3741d5907cbc91",
+        "size_bytes": 1348592
+      },
+      {
+        "path": "data/embeddings/MBLY/2025-10-K.embeddings.manifest.json",
+        "sha256": "sha256:d3b13f7f71cce00321289079a8e5aeec8e5dcf52c8b94953de9fc82ff099b1bb",
+        "size_bytes": 1411
+      },
+      {
+        "path": "data/embeddings/MBLY/2025-10-K.embeddings.npz",
+        "sha256": "sha256:458c5fa520fdbbf176bb69103b3467ce7d91853b5699d9f0fed14d9e9a8ef088",
+        "size_bytes": 1147195
+      },
+      {
+        "path": "data/embeddings/MBLY/2025-10-K.minilm.embeddings.manifest.json",
+        "sha256": "sha256:528dc427444ffac5d43d20490c0befa854b62a07b54e4828454ca6ae0b87d78c",
+        "size_bytes": 7902
+      },
+      {
+        "path": "data/embeddings/MBLY/2025-10-K.minilm.embeddings.npz",
+        "sha256": "sha256:5d3ba05a1458caedb07c8832da72b0ae139e520254b27ae72d6193aa14e56583",
+        "size_bytes": 685358
+      },
+      {
+        "path": "data/embeddings/MBLY/2025-10-K.mpnet.embeddings.manifest.json",
+        "sha256": "sha256:cec4a6b0ce69e6fcc54a0e73beb444cb7bb6d671230a719c9152e2fdf104a665",
+        "size_bytes": 5141
+      },
+      {
+        "path": "data/embeddings/MBLY/2025-10-K.mpnet.embeddings.npz",
+        "sha256": "sha256:2f1344d4ec10a2b136005cfe313d63d9f9d44aadbdf71e6b58451f2f3a41cc71",
+        "size_bytes": 1350119
+      },
+      {
+        "path": "data/embeddings/MBLY/2025-10-K.nomic.embeddings.manifest.json",
+        "sha256": "sha256:e2d74d1471c6ca2cbc373e8ebc1741800da46b0ec82050fd16280051cdcb4ff1",
+        "size_bytes": 1378
+      },
+      {
+        "path": "data/embeddings/MBLY/2025-10-K.nomic.embeddings.npz",
+        "sha256": "sha256:59d70c45a6e3250d638b75fa44f15ee5a53723bcac482ff5b0306367febc3cc8",
+        "size_bytes": 1348832
+      },
+      {
+        "path": "data/embeddings/NVDA/2026-10-K.bgebase.embeddings.manifest.json",
+        "sha256": "sha256:a0b9610e54b90b30a0e6c56ad261213d2d818309b5e9eaa9ff6dd5a360c3f1d1",
+        "size_bytes": 1430
+      },
+      {
+        "path": "data/embeddings/NVDA/2026-10-K.bgebase.embeddings.npz",
+        "sha256": "sha256:24d09e36e7655b271a95a50eb6f8ca86dc0fcbe52a571f264a9cd1b5a4a27589",
+        "size_bytes": 947375
+      },
+      {
+        "path": "data/embeddings/OUST/2025-10-K.bgebase.embeddings.manifest.json",
+        "sha256": "sha256:f0da145edcbd26e64a06d17972449bd10bad198922add7c515391adab1e60917",
+        "size_bytes": 1430
+      },
+      {
+        "path": "data/embeddings/OUST/2025-10-K.bgebase.embeddings.npz",
+        "sha256": "sha256:4a14d9a5fcb7ff7f119f4b8fdfcd0ed96cf15c488f2772b36b59ddfe5f4561c3",
+        "size_bytes": 1093034
+      },
+      {
+        "path": "data/embeddings/QCOM/2025-10-K.bgebase.embeddings.manifest.json",
+        "sha256": "sha256:5126164b2e64e444e79383ba23b30a8c4f96a897926447786339f9f5816c7bf9",
+        "size_bytes": 1490
+      },
+      {
+        "path": "data/embeddings/QCOM/2025-10-K.bgebase.embeddings.npz",
+        "sha256": "sha256:4fca723214625e4c3ee21814c4e363b2676131a15997f5b237c1010978b9b4cd",
+        "size_bytes": 941905
+      },
+      {
+        "path": "data/embeddings/TSLA/2025-10-K.bgebase.embeddings.manifest.json",
+        "sha256": "sha256:a42907b8cdc1bd9b66960597d46a95e879533aa197451fe383f16c6bc879c7bb",
+        "size_bytes": 1430
+      },
+      {
+        "path": "data/embeddings/TSLA/2025-10-K.bgebase.embeddings.npz",
+        "sha256": "sha256:34527eb30c2390ab900f77c1bcdc391c21fef1fbb82a95fae394d003543435dc",
+        "size_bytes": 988404
+      }
+    ]
+  },
+  "priority_fixtures": [
+    {
+      "id": "aptv_variance",
+      "ticker": "APTV",
+      "filing": "data/raw/APTV/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001521332-26-000009",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1521332/000152133226000009/aptv-20251231.htm",
+      "filing_date": "2026-02-06",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:6736c71ab066d6db4e6d670b397df8cb8a077826eccb27c218e31c6ced701bc0",
+      "historical_block_id": "APTV-2025-000455",
+      "spec_audit_table_label": 13,
+      "cleaned_table_ordinal_zero_based": 12,
+      "html_table_index_one_based": 13,
+      "cleaned_xpath": "/html/body/div[584]/table",
+      "source_fragment_fingerprint": "sha256:410833400e7e28470554dae62d5f7be54decd1d87eb68f61ab5e332b4beef17c",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/APTV/table-0013.html",
+        "sha256": "sha256:c814e3a65861b49625dcf1a3e2c7a28e1bb6240b2e29b148c0652e3f39fa946f",
+        "raw_byte_start": 947602,
+        "raw_byte_end": 958669
+      },
+      "context_fixture": null,
+      "included_context_boundaries": "isolated outer table only",
+      "expected_physical_display_width": 45,
+      "expected_logical_width": 9,
+      "assertions": {
+        "table_kind": "financial_data",
+        "header_mode": "inferred",
+        "header_contains": [
+          "Volume, net of contractual price reductions",
+          "Commodity pass-through"
+        ],
+        "standalone_marker_count": 0
+      }
+    },
+    {
+      "id": "aptv_commodity",
+      "ticker": "APTV",
+      "filing": "data/raw/APTV/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001521332-26-000009",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1521332/000152133226000009/aptv-20251231.htm",
+      "filing_date": "2026-02-06",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:6736c71ab066d6db4e6d670b397df8cb8a077826eccb27c218e31c6ced701bc0",
+      "historical_block_id": "APTV-2025-001126",
+      "spec_audit_table_label": 96,
+      "cleaned_table_ordinal_zero_based": 95,
+      "html_table_index_one_based": 96,
+      "cleaned_xpath": "/html/body/div[1427]/table",
+      "source_fragment_fingerprint": "sha256:b376f7c4cdd677b1ddf8981c0e3d0257537cdf4b05c11ce026a2f58e21a1b0ef",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/APTV/table-0096.html",
+        "sha256": "sha256:73a8097f198ada73ffdf7acce00c212337898740cd82ee9e4bc434a67f8671ea",
+        "raw_byte_start": 3208190,
+        "raw_byte_end": 3213421
+      },
+      "context_fixture": null,
+      "included_context_boundaries": "isolated outer table only",
+      "expected_physical_display_width": 15,
+      "expected_logical_width": 4,
+      "assertions": {
+        "table_kind": "financial_data",
+        "logical_column_headers": [
+          "Commodity",
+          "Quantity Hedged",
+          "Unit of Measure",
+          "Notional Amount (Approximate USD Equivalent)"
+        ],
+        "row_contains": [
+          "Copper",
+          "77,871",
+          "pounds",
+          "$415"
+        ]
+      }
+    },
+    {
+      "id": "aur_tax_rate",
+      "ticker": "AUR",
+      "filing": "data/raw/AUR/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001828108-26-000016",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1828108/000182810826000016/aur-20251231.htm",
+      "filing_date": "2026-02-11",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:6746492a9b782b90faec089cd4a1d5f7d8178df4ca1d9454dec59d1a4c54c0d7",
+      "historical_block_id": "AUR-2025-000831",
+      "spec_audit_table_label": 34,
+      "cleaned_table_ordinal_zero_based": 33,
+      "html_table_index_one_based": 34,
+      "cleaned_xpath": "/html/body/div[1031]/table",
+      "source_fragment_fingerprint": "sha256:b330ca51852e67d69642ea9df2f31f47f4be42d2842570e24e38fbcc86823200",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/AUR/table-0034.html",
+        "sha256": "sha256:42a68e90fa0f70bf6f7064cd5e562167bf41d7175f0b52fba82bd5e6e6d2f332",
+        "raw_byte_start": 1213900,
+        "raw_byte_end": 1250097
+      },
+      "context_fixture": {
+        "path": "tests/fixtures/tables/AUR/context-priority-0034.html",
+        "sha256": "sha256:9433ae644a6f22c70ddbd7328b4cc51e54ace6daaec25d9b703adb1b4e3f04e0",
+        "raw_byte_start": 1213625,
+        "raw_byte_end": 1250103
+      },
+      "included_context_boundaries": "contiguous raw byte range shown in context_fixture",
+      "expected_physical_display_width": 36,
+      "expected_logical_width": 7,
+      "assertions": {
+        "table_kind": "financial_data",
+        "header_mode": "inferred",
+        "header_row_source_indexes": [
+          1,
+          2,
+          3
+        ],
+        "logical_column_units": [
+          "text",
+          "usd_millions",
+          "percent",
+          "usd_millions",
+          "percent",
+          "usd_millions",
+          "percent"
+        ]
+      }
+    },
+    {
+      "id": "ford_lease_schedule",
+      "ticker": "F",
+      "filing": "data/raw/F/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0000037996-26-000015",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/37996/000003799626000015/f-20251231.htm",
+      "filing_date": "2026-02-11",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:3bbda349b5831cfb9a2686dbdb7d87614bcdbe2d195aa8ecd9b39215945361f9",
+      "historical_block_id": "F-2025-001358",
+      "spec_audit_table_label": 115,
+      "cleaned_table_ordinal_zero_based": 114,
+      "html_table_index_one_based": 115,
+      "cleaned_xpath": "/html/body/div[2627]/table",
+      "source_fragment_fingerprint": "sha256:760847b7c474af8819ecbdf5b586e6ee229b63fa4c8e487b72e9d4e31990f253",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/F/table-0115.html",
+        "sha256": "sha256:f6cb0859e8dec3e4e8c1432ede86dccb268103996a3edfc8eacaa14ad4803d89",
+        "raw_byte_start": 3740084,
+        "raw_byte_end": 3748135
+      },
+      "context_fixture": {
+        "path": "tests/fixtures/tables/F/context-priority-0115.html",
+        "sha256": "sha256:3d29531b8215cc6d0c2d0668a577248da5c68eb69b09278820291ab8108d1828",
+        "raw_byte_start": 3739829,
+        "raw_byte_end": 3748141
+      },
+      "included_context_boundaries": "contiguous raw byte range shown in context_fixture",
+      "expected_physical_display_width": 21,
+      "expected_logical_width": 7,
+      "assertions": {
+        "table_kind": "financial_data",
+        "logical_column_headers": [
+          "Line item",
+          "2026",
+          "2027",
+          "2028",
+          "2029",
+          "2030",
+          "Total"
+        ],
+        "title": "Ford Credit Segment",
+        "document_region": "financial_statement_notes"
+      }
+    },
+    {
+      "id": "gm_wholesale",
+      "ticker": "GM",
+      "filing": "data/raw/GM/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001467858-26-000013",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1467858/000146785826000013/gm-20251231.htm",
+      "filing_date": "2026-01-27",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:62079dfef1451b92c8ea6109f2ef77cd645c3d95b0670c9f03af01010c1ecc74",
+      "historical_block_id": "GM-2025-000016",
+      "spec_audit_table_label": 9,
+      "cleaned_table_ordinal_zero_based": 8,
+      "html_table_index_one_based": 9,
+      "cleaned_xpath": "/html/body/div[83]/table",
+      "source_fragment_fingerprint": "sha256:f851cd4583ddd2c433c6d0e0be595e2d968f8a7b1a8bb7f99a90d17f9bd232b8",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/GM/table-0009.html",
+        "sha256": "sha256:7e6b815bf554f85de598eb89ec03dd9fb180eac47b581e35c73d62491c6c7582",
+        "raw_byte_start": 472820,
+        "raw_byte_end": 485193
+      },
+      "context_fixture": {
+        "path": "tests/fixtures/tables/GM/context-priority-0009.html",
+        "sha256": "sha256:a7d55ffda41bae9961e1ebbb4dd4475f3f43192a2199c6996ab894bf2ceeb37b",
+        "raw_byte_start": 468197,
+        "raw_byte_end": 485199
+      },
+      "included_context_boundaries": "contiguous raw byte range shown in context_fixture",
+      "expected_physical_display_width": 36,
+      "expected_logical_width": 7,
+      "assertions": {
+        "table_kind": "financial_data",
+        "row_exact": [
+          "GMNA",
+          "3,296",
+          "86.8%",
+          "3,464",
+          "86.4%",
+          "3,147",
+          "83.5%"
+        ],
+        "title": "The following table summarizes wholesale vehicle sales by our Automotive operations (vehicles in thousands)"
+      }
+    },
+    {
+      "id": "gm_market_share",
+      "ticker": "GM",
+      "filing": "data/raw/GM/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001467858-26-000013",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1467858/000146785826000013/gm-20251231.htm",
+      "filing_date": "2026-01-27",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:62079dfef1451b92c8ea6109f2ef77cd645c3d95b0670c9f03af01010c1ecc74",
+      "historical_block_id": "GM-2025-000021",
+      "spec_audit_table_label": 10,
+      "cleaned_table_ordinal_zero_based": 9,
+      "html_table_index_one_based": 10,
+      "cleaned_xpath": "/html/body/div[91]/table",
+      "source_fragment_fingerprint": "sha256:5a557ef58a2cd97ecdcbf69411656a629c02569d7217cf885a9cbd640bf061cf",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/GM/table-0010.html",
+        "sha256": "sha256:f2f34524467697f7de046b2360fd32a41c2f409c249a764e46fda571123b20ac",
+        "raw_byte_start": 488204,
+        "raw_byte_end": 579943
+      },
+      "context_fixture": null,
+      "included_context_boundaries": "isolated outer table only",
+      "expected_physical_display_width": 54,
+      "expected_logical_width": 10,
+      "assertions": {
+        "table_kind": "financial_data",
+        "body_row_exact": [
+          "North America",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "body_row_role": "section_label"
+      }
+    },
+    {
+      "id": "gm_guidance",
+      "ticker": "GM",
+      "filing": "data/raw/GM/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001467858-26-000013",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1467858/000146785826000013/gm-20251231.htm",
+      "filing_date": "2026-01-27",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:62079dfef1451b92c8ea6109f2ef77cd645c3d95b0670c9f03af01010c1ecc74",
+      "historical_block_id": "GM-2025-000233",
+      "spec_audit_table_label": 18,
+      "cleaned_table_ordinal_zero_based": 17,
+      "html_table_index_one_based": 18,
+      "cleaned_xpath": "/html/body/div[502]/table",
+      "source_fragment_fingerprint": "sha256:8e81ef3e925a37fdae3ef651549d84a2ec006af065d2ff70b41c04428dd8b2aa",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/GM/table-0018.html",
+        "sha256": "sha256:b2d036f1df36b8be2e8cbdd157f6dd9329b9763094a86e18bd0af3afcfe79867",
+        "raw_byte_start": 833500,
+        "raw_byte_end": 836392
+      },
+      "context_fixture": {
+        "path": "tests/fixtures/tables/GM/context-priority-0018.html",
+        "sha256": "sha256:9555af07e3c2e56d03f10f7c1d1a6f3b7b7d0ac560b3d0d46863f62caf73227f",
+        "raw_byte_start": 830184,
+        "raw_byte_end": 836398
+      },
+      "included_context_boundaries": "contiguous raw byte range shown in context_fixture",
+      "expected_physical_display_width": 6,
+      "expected_logical_width": 2,
+      "assertions": {
+        "table_kind": "financial_data",
+        "values_include": [
+          "$ 10.3-11.7",
+          "2.6-3.2",
+          "$ 13.0-15.0"
+        ]
+      }
+    },
+    {
+      "id": "googl_maturities",
+      "ticker": "GOOGL",
+      "filing": "data/raw/GOOGL/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001652044-26-000018",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "filing_date": "2026-02-05",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:c2f6301004f35411a20611c14ff01d80a85c0bcbab6053c80d8cc7f6fc747161",
+      "historical_block_id": "GOOGL-2025-000996",
+      "spec_audit_table_label": 130,
+      "cleaned_table_ordinal_zero_based": 129,
+      "html_table_index_one_based": 130,
+      "cleaned_xpath": "/html/body/div[1150]/table",
+      "source_fragment_fingerprint": "sha256:cda2ef6b2a77a98aa1ca1308b139f7565f0399e0f1529119fa2b00b645b5fc1d",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/GOOGL/table-0130.html",
+        "sha256": "sha256:ef1473e98c15af924e38eedd31df74301ed2fd87a54a21291031ebd090da018b",
+        "raw_byte_start": 1757451,
+        "raw_byte_end": 1763132
+      },
+      "context_fixture": {
+        "path": "tests/fixtures/tables/GOOGL/context-priority-0130.html",
+        "sha256": "sha256:50404554d7bcce2ce6b8cfebb0be469a7f1bc46bd634cf1b23be44d274cfa7e8",
+        "raw_byte_start": 1757109,
+        "raw_byte_end": 1763138
+      },
+      "included_context_boundaries": "contiguous raw byte range shown in context_fixture",
+      "expected_physical_display_width": 6,
+      "expected_logical_width": 2,
+      "assertions": {
+        "table_kind": "financial_data",
+        "header_mode": "headerless",
+        "first_row": [
+          "2026",
+          "$2,000"
+        ]
+      }
+    },
+    {
+      "id": "mbly_debt_2025",
+      "ticker": "MBLY",
+      "filing": "data/raw/MBLY/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001104659-26-014300",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1910139/000110465926014300/mbly-20251227x10k.htm",
+      "filing_date": "2026-02-12",
+      "reporting_period": "2025-12-27",
+      "raw_sha256": "sha256:fd30bf23b6d500166c51d2e465cc12fa3c00da2780d6a82290024d7d72405738",
+      "historical_block_id": "MBLY-2025-001170",
+      "spec_audit_table_label": 180,
+      "cleaned_table_ordinal_zero_based": 179,
+      "html_table_index_one_based": 180,
+      "cleaned_xpath": "/html/body/div[135]/div[2]/table[3]",
+      "source_fragment_fingerprint": "sha256:30f4274a7c51adec7c015867237f7013c4abd3731c5ed73622bf898e511777ed",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/MBLY/table-0180.html",
+        "sha256": "sha256:993ac8a5f974e437dae8c137b77570b1d87fb62f6c1528fba29e809875209277",
+        "raw_byte_start": 2785720,
+        "raw_byte_end": 2818673
+      },
+      "context_fixture": null,
+      "included_context_boundaries": "isolated outer table only",
+      "expected_physical_display_width": 18,
+      "expected_logical_width": 7,
+      "assertions": {
+        "table_kind": "financial_data",
+        "shared_logical_table_with": "MBLY-2025-001171",
+        "title": "The following tables summarize the Company’s marketable debt securities"
+      }
+    },
+    {
+      "id": "mbly_debt_2024",
+      "ticker": "MBLY",
+      "filing": "data/raw/MBLY/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001104659-26-014300",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1910139/000110465926014300/mbly-20251227x10k.htm",
+      "filing_date": "2026-02-12",
+      "reporting_period": "2025-12-27",
+      "raw_sha256": "sha256:fd30bf23b6d500166c51d2e465cc12fa3c00da2780d6a82290024d7d72405738",
+      "historical_block_id": "MBLY-2025-001171",
+      "spec_audit_table_label": 181,
+      "cleaned_table_ordinal_zero_based": 180,
+      "html_table_index_one_based": 181,
+      "cleaned_xpath": "/html/body/div[135]/div[2]/table[4]",
+      "source_fragment_fingerprint": "sha256:4575f8f8597ff1264ebfb7d291dac3250dce77f57ef722fd303df3b15b6feaee",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/MBLY/table-0181.html",
+        "sha256": "sha256:d056c7cd010232934d6699d1bc12319164b6cae2bb580c0d96194afe7bd4535a",
+        "raw_byte_start": 2818808,
+        "raw_byte_end": 2851830
+      },
+      "context_fixture": null,
+      "included_context_boundaries": "isolated outer table only",
+      "expected_physical_display_width": 18,
+      "expected_logical_width": 7,
+      "assertions": {
+        "table_kind": "financial_data",
+        "is_continuation": true,
+        "continued_from_block_id": "MBLY-2025-001170"
+      }
+    },
+    {
+      "id": "nvda_insider_trading",
+      "ticker": "NVDA",
+      "filing": "data/raw/NVDA/2026-10-K.html",
+      "filing_year": 2026,
+      "accession_number": "0001045810-26-000021",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+      "filing_date": "2026-02-25",
+      "reporting_period": "2026-01-25",
+      "raw_sha256": "sha256:73d81f5a111abcf72426c840871e76f5f5edc9631f436d495a86b6f87306d58b",
+      "historical_block_id": "NVDA-2026-000541",
+      "spec_audit_table_label": 19,
+      "cleaned_table_ordinal_zero_based": 18,
+      "html_table_index_one_based": 19,
+      "cleaned_xpath": "/html/body/div[718]/table",
+      "source_fragment_fingerprint": "sha256:9e37d3a1f35bbe60daa5e8124807ddf9667368ab6c8debb95dc12b63e11194e7",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/NVDA/table-0019.html",
+        "sha256": "sha256:cee71b6413f65c5c95fc11ec0097f52718bfcc65019f529e25ae26d7bf6b8dc6",
+        "raw_byte_start": 694887,
+        "raw_byte_end": 702450
+      },
+      "context_fixture": null,
+      "included_context_boundaries": "isolated outer table only",
+      "expected_physical_display_width": 18,
+      "expected_logical_width": 6,
+      "assertions": {
+        "table_kind": "structured_text",
+        "header_mode": "inferred",
+        "values_include": [
+          "12/10/2025",
+          "3,984*"
+        ]
+      }
+    },
+    {
+      "id": "nvda_income_statement",
+      "ticker": "NVDA",
+      "filing": "data/raw/NVDA/2026-10-K.html",
+      "filing_year": 2026,
+      "accession_number": "0001045810-26-000021",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+      "filing_date": "2026-02-25",
+      "reporting_period": "2026-01-25",
+      "raw_sha256": "sha256:73d81f5a111abcf72426c840871e76f5f5edc9631f436d495a86b6f87306d58b",
+      "historical_block_id": "NVDA-2026-000601",
+      "spec_audit_table_label": 21,
+      "cleaned_table_ordinal_zero_based": 20,
+      "html_table_index_one_based": 21,
+      "cleaned_xpath": "/html/body/div[800]/table",
+      "source_fragment_fingerprint": "sha256:b53a286829c0303eec69f12663823dd4ef3714654ce9ecf197536e17263adeb2",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/NVDA/table-0021.html",
+        "sha256": "sha256:75787fee4226e553d03470bee34601753f470d9578f2b1b1b769e0dee2f07363",
+        "raw_byte_start": 762118,
+        "raw_byte_end": 805607
+      },
+      "context_fixture": {
+        "path": "tests/fixtures/tables/NVDA/context-priority-0021.html",
+        "sha256": "sha256:f51d4ff04fa9f90f37768f4bdba3e07a7cc474b9c39a3473a8eb885d239aba98",
+        "raw_byte_start": 760409,
+        "raw_byte_end": 805613
+      },
+      "included_context_boundaries": "contiguous raw byte range shown in context_fixture",
+      "expected_physical_display_width": 18,
+      "expected_logical_width": 4,
+      "assertions": {
+        "table_kind": "financial_data",
+        "title": "Consolidated Statements of Income",
+        "document_region": "financial_statements"
+      }
+    },
+    {
+      "id": "oust_statement_index",
+      "ticker": "OUST",
+      "filing": "data/raw/OUST/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001628280-26-013313",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1816581/000162828026013313/oust-20251231.htm",
+      "filing_date": "2026-03-02",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:0120bd7ecf96187a459e6abd14937ba2a4f8beae0ebc0404feea7a2ee230923d",
+      "historical_block_id": "OUST-2025-000630",
+      "spec_audit_table_label": 19,
+      "cleaned_table_ordinal_zero_based": 18,
+      "html_table_index_one_based": 19,
+      "cleaned_xpath": "/html/body/div[785]/table",
+      "source_fragment_fingerprint": "sha256:958cb6c854b9aff77bea8877907f1d6a3462e70a1f0cb7f90eecda0e68cf6c3c",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/OUST/table-0019.html",
+        "sha256": "sha256:51b5a59d310150302ca63fd859681b013f8aa33269bb56a2a3017e7de0efe730",
+        "raw_byte_start": 800943,
+        "raw_byte_end": 810223
+      },
+      "context_fixture": {
+        "path": "tests/fixtures/tables/OUST/context-priority-0019.html",
+        "sha256": "sha256:660b6c0465d5d0fdd4de31ee77185c5c63c50850f404109dd4ffdce5cc6555d7",
+        "raw_byte_start": 799091,
+        "raw_byte_end": 810229
+      },
+      "included_context_boundaries": "contiguous raw byte range shown in context_fixture",
+      "expected_physical_display_width": 6,
+      "expected_logical_width": 2,
+      "assertions": {
+        "table_kind": "index_navigation",
+        "header_mode": "headerless",
+        "page_values": [
+          "59",
+          "61",
+          "62",
+          "63",
+          "64",
+          "65"
+        ]
+      }
+    },
+    {
+      "id": "qcom_debt",
+      "ticker": "QCOM",
+      "filing": "data/raw/QCOM/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0000804328-25-000085",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/804328/000080432825000085/qcom-20250928.htm",
+      "filing_date": "2025-11-05",
+      "reporting_period": "2025-09-28",
+      "raw_sha256": "sha256:da5ced9e61dfdd634360fda810c173c66c230e95fea9643979862b6564fbb814",
+      "historical_block_id": "QCOM-2025-000761",
+      "spec_audit_table_label": 58,
+      "cleaned_table_ordinal_zero_based": 57,
+      "html_table_index_one_based": 58,
+      "cleaned_xpath": "/html/body/div[978]/table",
+      "source_fragment_fingerprint": "sha256:0c7e5a5ae71faecbdcee9adbceeb5bb399b1d2c8bbee3dc6dc49be57bb5c4f3d",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/QCOM/table-0058.html",
+        "sha256": "sha256:184bcbeda2f89c655ee69071f412dd2c095e4db545098d9708ae476c19fc5904",
+        "raw_byte_start": 1645318,
+        "raw_byte_end": 1669395
+      },
+      "context_fixture": {
+        "path": "tests/fixtures/tables/QCOM/context-priority-0058.html",
+        "sha256": "sha256:748b61d7ddff9b9b08a67e04d8a238190f7a829dfdfd8379ba00a61b0a134aff",
+        "raw_byte_start": 1645022,
+        "raw_byte_end": 1669401
+      },
+      "included_context_boundaries": "contiguous raw byte range shown in context_fixture",
+      "expected_physical_display_width": 33,
+      "expected_logical_width": 7,
+      "assertions": {
+        "table_kind": "financial_data",
+        "document_region": "financial_statement_notes",
+        "values_include": [
+          "2027 - 2053",
+          "2.39% - 5.12%"
+        ]
+      }
+    },
+    {
+      "id": "tesla_fair_value",
+      "ticker": "TSLA",
+      "filing": "data/raw/TSLA/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001628280-26-003952",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026003952/tsla-20251231.htm",
+      "filing_date": "2026-01-29",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:90d5d2bc4057df41c645f85dcebe575af9b0953a6a1902d189297bec17fd440a",
+      "historical_block_id": "TSLA-2025-000678",
+      "spec_audit_table_label": 38,
+      "cleaned_table_ordinal_zero_based": 37,
+      "html_table_index_one_based": 38,
+      "cleaned_xpath": "/html/body/div[916]/table",
+      "source_fragment_fingerprint": "sha256:97011c1a2e7640f68ca5fde3514918a90025a93c674d5b66a8bdae44eb2cbd8f",
+      "fingerprint_version": "cleaned-lxml-html-v1",
+      "fixture": {
+        "path": "tests/fixtures/tables/TSLA/table-0038.html",
+        "sha256": "sha256:0e9ee634d1f2b093fe8b8a5c329d13d97fc178a43abdb4322ad852e2467d7a6c",
+        "raw_byte_start": 1380632,
+        "raw_byte_end": 1424750
+      },
+      "context_fixture": {
+        "path": "tests/fixtures/tables/TSLA/context-priority-0038.html",
+        "sha256": "sha256:f83d80b3a497fdfed7b95f986e91e998bdca01a36ef23698e8eb85db43eeae1d",
+        "raw_byte_start": 1380603,
+        "raw_byte_end": 1424756
+      },
+      "included_context_boundaries": "contiguous raw byte range shown in context_fixture",
+      "expected_physical_display_width": 45,
+      "expected_logical_width": 9,
+      "assertions": {
+        "table_kind": "financial_data",
+        "header_row_indexes": [
+          0,
+          1
+        ],
+        "standalone_marker_count": 0
+      }
+    }
+  ],
+  "positive_continuations": [
+    {
+      "id": "aptv-86-87-88",
+      "ticker": "APTV",
+      "filing": "data/raw/APTV/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001521332-26-000009",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1521332/000152133226000009/aptv-20251231.htm",
+      "filing_date": "2026-02-06",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:6736c71ab066d6db4e6d670b397df8cb8a077826eccb27c218e31c6ced701bc0",
+      "historical_block_ids": [
+        "APTV-2025-001047",
+        "APTV-2025-001048",
+        "APTV-2025-001049"
+      ],
+      "cleaned_table_ordinals_zero_based": [
+        85,
+        86,
+        87
+      ],
+      "html_table_indexes_one_based": [
+        86,
+        87,
+        88
+      ],
+      "cleaned_xpaths": [
+        "/html/body/div[1331]/table",
+        "/html/body/div[1333]/table",
+        "/html/body/div[1335]/table"
+      ],
+      "source_fragment_fingerprints": [
+        "sha256:a26a1d590b53e5956079df4106c6f2febf2fdf6f886beb6e94e60118fa8e2549",
+        "sha256:b4099a53270095f707e6c357974f85abd3c90e51e65e0c6044d48a1d8adb1a48",
+        "sha256:0c36d34efb5fbf466d1a6429403aac36aca802a5640fd912b7986d9cb5edcf53"
+      ],
+      "fixtures": [
+        {
+          "path": "tests/fixtures/tables/APTV/table-0086.html",
+          "sha256": "sha256:59a7f3a25b73782adb676d36e0f5a6acfdc5955b1a6db6399596290d3937276b",
+          "raw_byte_start": 2841668,
+          "raw_byte_end": 2850836
+        },
+        {
+          "path": "tests/fixtures/tables/APTV/table-0087.html",
+          "sha256": "sha256:b4007a235a119d14ba22ff6565a7c1d032539c0cd9b71b262a07d7d8cde03f09",
+          "raw_byte_start": 2851818,
+          "raw_byte_end": 2916143
+        },
+        {
+          "path": "tests/fixtures/tables/APTV/table-0088.html",
+          "sha256": "sha256:867fd8ae4116e1309a1181cb16808b14338264992d1c2120935241a1c9bf29ef",
+          "raw_byte_start": 2917102,
+          "raw_byte_end": 2930136
+        }
+      ],
+      "context_fixture": {
+        "path": "tests/fixtures/tables/APTV/context-continuation-0086-0088.html",
+        "sha256": "sha256:6d3642851db32536522150cdf8d1350160d777f2870092bae7f350c4caab911e",
+        "raw_byte_start": 2791139,
+        "raw_byte_end": 2956834
+      },
+      "expected_shared_logical_table_id": true,
+      "expected_composition_mode": "vertical"
+    },
+    {
+      "id": "aur-20-21",
+      "ticker": "AUR",
+      "filing": "data/raw/AUR/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001828108-26-000016",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1828108/000182810826000016/aur-20251231.htm",
+      "filing_date": "2026-02-11",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:6746492a9b782b90faec089cd4a1d5f7d8178df4ca1d9454dec59d1a4c54c0d7",
+      "historical_block_ids": [
+        "AUR-2025-000746",
+        "AUR-2025-000747"
+      ],
+      "cleaned_table_ordinals_zero_based": [
+        19,
+        20
+      ],
+      "html_table_indexes_one_based": [
+        20,
+        21
+      ],
+      "cleaned_xpaths": [
+        "/html/body/div[932]/table",
+        "/html/body/div[933]/table"
+      ],
+      "source_fragment_fingerprints": [
+        "sha256:75386fca7af73e099fd10c4bb1acec7f0ba4e7930a28a03bded00b79080757ea",
+        "sha256:32c82a4c2b5960066bf480a15ef14262991f42caf93eb93be105611b8f0701b8"
+      ],
+      "fixtures": [
+        {
+          "path": "tests/fixtures/tables/AUR/table-0020.html",
+          "sha256": "sha256:ef7f33a0807f361b5339a0a2e1d7f1ee2c902d79c9da185cbb899e4a187661e3",
+          "raw_byte_start": 995769,
+          "raw_byte_end": 1008227
+        },
+        {
+          "path": "tests/fixtures/tables/AUR/table-0021.html",
+          "sha256": "sha256:7f273ab5a6c52541c4bb82ea2a75da1fa75701876a090997ef52923b66a4cad8",
+          "raw_byte_start": 1008261,
+          "raw_byte_end": 1020721
+        }
+      ],
+      "context_fixture": {
+        "path": "tests/fixtures/tables/AUR/context-continuation-0020-0021.html",
+        "sha256": "sha256:12c03c5149a5e5bc79dd4948ac78c8353d2ff4a5575709f346b6cbbddcbad9c5",
+        "raw_byte_start": 995467,
+        "raw_byte_end": 1020727
+      },
+      "expected_shared_logical_table_id": true,
+      "expected_composition_mode": "horizontal"
+    },
+    {
+      "id": "googl-103-104",
+      "ticker": "GOOGL",
+      "filing": "data/raw/GOOGL/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001652044-26-000018",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+      "filing_date": "2026-02-05",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:c2f6301004f35411a20611c14ff01d80a85c0bcbab6053c80d8cc7f6fc747161",
+      "historical_block_ids": [
+        "GOOGL-2025-000884",
+        "GOOGL-2025-000885"
+      ],
+      "cleaned_table_ordinals_zero_based": [
+        102,
+        103
+      ],
+      "html_table_indexes_one_based": [
+        103,
+        104
+      ],
+      "cleaned_xpaths": [
+        "/html/body/div[1029]/table",
+        "/html/body/div[1030]/table"
+      ],
+      "source_fragment_fingerprints": [
+        "sha256:926f304bd77d1b714e9a7323c80ea01256272832c4f914546092c452235f74fe",
+        "sha256:1562b441d33828a28810202f84077ddf8c51cea100d0285115decf06317bcb12"
+      ],
+      "fixtures": [
+        {
+          "path": "tests/fixtures/tables/GOOGL/table-0103.html",
+          "sha256": "sha256:66dc1b01758467d5524942b7209a3f19f49b2e3b5c19e70832fe3eab95d9c715",
+          "raw_byte_start": 1336802,
+          "raw_byte_end": 1354785
+        },
+        {
+          "path": "tests/fixtures/tables/GOOGL/table-0104.html",
+          "sha256": "sha256:566053a15b253b6667d5233f315a6fd65bcfbe055ea24e535d6b8531f5a69f03",
+          "raw_byte_start": 1354858,
+          "raw_byte_end": 1372916
+        }
+      ],
+      "context_fixture": {
+        "path": "tests/fixtures/tables/GOOGL/context-continuation-0103-0104.html",
+        "sha256": "sha256:ef6053b43c52cc1dafb5834264b558567474b776592f9f1401e81270eab9d4f9",
+        "raw_byte_start": 1336735,
+        "raw_byte_end": 1372922
+      },
+      "expected_shared_logical_table_id": true,
+      "expected_composition_mode": "horizontal"
+    },
+    {
+      "id": "mbly-180-181",
+      "ticker": "MBLY",
+      "filing": "data/raw/MBLY/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001104659-26-014300",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1910139/000110465926014300/mbly-20251227x10k.htm",
+      "filing_date": "2026-02-12",
+      "reporting_period": "2025-12-27",
+      "raw_sha256": "sha256:fd30bf23b6d500166c51d2e465cc12fa3c00da2780d6a82290024d7d72405738",
+      "historical_block_ids": [
+        "MBLY-2025-001170",
+        "MBLY-2025-001171"
+      ],
+      "cleaned_table_ordinals_zero_based": [
+        179,
+        180
+      ],
+      "html_table_indexes_one_based": [
+        180,
+        181
+      ],
+      "cleaned_xpaths": [
+        "/html/body/div[135]/div[2]/table[3]",
+        "/html/body/div[135]/div[2]/table[4]"
+      ],
+      "source_fragment_fingerprints": [
+        "sha256:30f4274a7c51adec7c015867237f7013c4abd3731c5ed73622bf898e511777ed",
+        "sha256:4575f8f8597ff1264ebfb7d291dac3250dce77f57ef722fd303df3b15b6feaee"
+      ],
+      "fixtures": [
+        {
+          "path": "tests/fixtures/tables/MBLY/table-0180.html",
+          "sha256": "sha256:993ac8a5f974e437dae8c137b77570b1d87fb62f6c1528fba29e809875209277",
+          "raw_byte_start": 2785720,
+          "raw_byte_end": 2818673
+        },
+        {
+          "path": "tests/fixtures/tables/MBLY/table-0181.html",
+          "sha256": "sha256:d056c7cd010232934d6699d1bc12319164b6cae2bb580c0d96194afe7bd4535a",
+          "raw_byte_start": 2818808,
+          "raw_byte_end": 2851830
+        }
+      ],
+      "context_fixture": {
+        "path": "tests/fixtures/tables/MBLY/context-continuation-0180-0181.html",
+        "sha256": "sha256:931842457a7b8f4878102ca168978f9825c9dcb9e9e540d5ca226e582c999640",
+        "raw_byte_start": 2784277,
+        "raw_byte_end": 2851846
+      },
+      "expected_shared_logical_table_id": true,
+      "expected_composition_mode": "horizontal_or_compound"
+    },
+    {
+      "id": "oust-28-29",
+      "ticker": "OUST",
+      "filing": "data/raw/OUST/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001628280-26-013313",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1816581/000162828026013313/oust-20251231.htm",
+      "filing_date": "2026-03-02",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:0120bd7ecf96187a459e6abd14937ba2a4f8beae0ebc0404feea7a2ee230923d",
+      "historical_block_ids": [
+        "OUST-2025-000797",
+        "OUST-2025-000798"
+      ],
+      "cleaned_table_ordinals_zero_based": [
+        27,
+        28
+      ],
+      "html_table_indexes_one_based": [
+        28,
+        29
+      ],
+      "cleaned_xpaths": [
+        "/html/body/div[977]/table",
+        "/html/body/div[978]/table"
+      ],
+      "source_fragment_fingerprints": [
+        "sha256:23fe927cc0424768ef4ed83d36216ca3694cfba1c005b5254d148bdd0123104a",
+        "sha256:dc44e1c209c20f926df18dccf2dff2922eded75196fd20c1b3e2682661cc1d07"
+      ],
+      "fixtures": [
+        {
+          "path": "tests/fixtures/tables/OUST/table-0028.html",
+          "sha256": "sha256:e1491c8aa26478410b530cd0949a2f2a9b86caea5dadae3cea69dd01ab7cddbe",
+          "raw_byte_start": 1197208,
+          "raw_byte_end": 1217580
+        },
+        {
+          "path": "tests/fixtures/tables/OUST/table-0029.html",
+          "sha256": "sha256:20ef9d1ec1e16e94035d9b7d47aa749a678a6cc126c85333709c30832359fbf2",
+          "raw_byte_start": 1217615,
+          "raw_byte_end": 1245566
+        }
+      ],
+      "context_fixture": {
+        "path": "tests/fixtures/tables/OUST/context-continuation-0028-0029.html",
+        "sha256": "sha256:2f202c8459778286ce45d143e746ef5b4bb0427e21696e4863d8026f7bc6922a",
+        "raw_byte_start": 1196860,
+        "raw_byte_end": 1245572
+      },
+      "expected_shared_logical_table_id": true,
+      "expected_composition_mode": "horizontal"
+    },
+    {
+      "id": "tsla-39-40",
+      "ticker": "TSLA",
+      "filing": "data/raw/TSLA/2025-10-K.html",
+      "filing_year": 2025,
+      "accession_number": "0001628280-26-003952",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026003952/tsla-20251231.htm",
+      "filing_date": "2026-01-29",
+      "reporting_period": "2025-12-31",
+      "raw_sha256": "sha256:90d5d2bc4057df41c645f85dcebe575af9b0953a6a1902d189297bec17fd440a",
+      "historical_block_ids": [
+        "TSLA-2025-000681",
+        "TSLA-2025-000682"
+      ],
+      "cleaned_table_ordinals_zero_based": [
+        38,
+        39
+      ],
+      "html_table_indexes_one_based": [
+        39,
+        40
+      ],
+      "cleaned_xpaths": [
+        "/html/body/div[921]/table",
+        "/html/body/div[922]/table"
+      ],
+      "source_fragment_fingerprints": [
+        "sha256:82d760182dbe7f3371fdd0e21f722f26209f6c2afcc5f2ed326e8bdc0bdf8549",
+        "sha256:cd032f367d065874728725b9ea2e4ae91e79977a69ead1226f5f79490292e6e4"
+      ],
+      "fixtures": [
+        {
+          "path": "tests/fixtures/tables/TSLA/table-0039.html",
+          "sha256": "sha256:ae9838a7af2d2b097e9cc67a9866491bc6ad4c02150638ecd381d1a1f2bc939a",
+          "raw_byte_start": 1426111,
+          "raw_byte_end": 1458000
+        },
+        {
+          "path": "tests/fixtures/tables/TSLA/table-0040.html",
+          "sha256": "sha256:d21f80de822d87fb5c758e1587145f4d566b802d29af745008fdaf8ad1239cb5",
+          "raw_byte_start": 1458035,
+          "raw_byte_end": 1489907
+        }
+      ],
+      "context_fixture": {
+        "path": "tests/fixtures/tables/TSLA/context-continuation-0039-0040.html",
+        "sha256": "sha256:1185a2cd2e2c14375a068166fc734db89c1f09b13d17c68772bdc913c7f61ad1",
+        "raw_byte_start": 1425758,
+        "raw_byte_end": 1489913
+      },
+      "expected_shared_logical_table_id": true,
+      "expected_composition_mode": "horizontal"
+    }
+  ],
+  "nvidia_financial_region_gold_inventory": [
+    {
+      "historical_block_id": "NVDA-2026-000601",
+      "cleaned_table_ordinal_zero_based": 20,
+      "html_table_index_one_based": 21,
+      "cleaned_xpath": "/html/body/div[800]/table",
+      "source_fragment_fingerprint": "sha256:b53a286829c0303eec69f12663823dd4ef3714654ce9ecf197536e17263adeb2",
+      "label": "Consolidated Statements of Income",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000606",
+      "cleaned_table_ordinal_zero_based": 21,
+      "html_table_index_one_based": 22,
+      "cleaned_xpath": "/html/body/div[807]/table",
+      "source_fragment_fingerprint": "sha256:1f1a942b7ae3e543c0017894856b6e82e6378cb511bb4f27b500c6c0e624f3b3",
+      "label": "Consolidated Statements of Comprehensive Income",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000611",
+      "cleaned_table_ordinal_zero_based": 22,
+      "html_table_index_one_based": 23,
+      "cleaned_xpath": "/html/body/div[814]/table",
+      "source_fragment_fingerprint": "sha256:1dba1d6a79ebe35800a1a8cfdadec5b5de1c04634362135cc7bcdf986ad42f79",
+      "label": "Consolidated Balance Sheets",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000615",
+      "cleaned_table_ordinal_zero_based": 23,
+      "html_table_index_one_based": 24,
+      "cleaned_xpath": "/html/body/div[822]/table",
+      "source_fragment_fingerprint": "sha256:a1c594c231a339664875541a3345027506a626eea8dddcf81325e858caee6ba6",
+      "label": "Consolidated Statements of Shareholders' Equity",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000620",
+      "cleaned_table_ordinal_zero_based": 24,
+      "html_table_index_one_based": 25,
+      "cleaned_xpath": "/html/body/div[829]/table",
+      "source_fragment_fingerprint": "sha256:f2b403d58806a56713ea6be4affe1a94f4b3122be762cfd387e74887aed379b7",
+      "label": "Consolidated Statements of Cash Flows",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000717",
+      "cleaned_table_ordinal_zero_based": 25,
+      "html_table_index_one_based": 26,
+      "cleaned_xpath": "/html/body/div[947]/table",
+      "source_fragment_fingerprint": "sha256:ef92f5bc17340758c0998d58ac685c92ca9318f9e4ca86ff74ac65fc6f8200de",
+      "label": "Note 3 - Stock-Based Compensation",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000719",
+      "cleaned_table_ordinal_zero_based": 26,
+      "html_table_index_one_based": 27,
+      "cleaned_xpath": "/html/body/div[950]/table",
+      "source_fragment_fingerprint": "sha256:77a4ef755cc9eb2ab83f51a9030a0525bc04985a457974f01be7a63b36aa7531",
+      "label": "Note 3 - Stock-Based Compensation",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000725",
+      "cleaned_table_ordinal_zero_based": 27,
+      "html_table_index_one_based": 28,
+      "cleaned_xpath": "/html/body/div[955]/table",
+      "source_fragment_fingerprint": "sha256:80c729736d9247356572b14d6d5c6756bee3bb7ce5c60dba905e34c07424999c",
+      "label": "(Using the Black-Scholes model)",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000740",
+      "cleaned_table_ordinal_zero_based": 28,
+      "html_table_index_one_based": 29,
+      "cleaned_xpath": "/html/body/div[969]/table",
+      "source_fragment_fingerprint": "sha256:f0d38f75bd9c3e8b89b07c03c82a2d495a52d7fe04efec5aa0fc8484c07cd67f",
+      "label": "RSUs, PSUs and Market-based PSUs Outstanding",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000745",
+      "cleaned_table_ordinal_zero_based": 29,
+      "html_table_index_one_based": 30,
+      "cleaned_xpath": "/html/body/div[975]/table",
+      "source_fragment_fingerprint": "sha256:c528abc90c9cd87354de688c3831f96312a059444a2506ed698c4b4aa0230038",
+      "label": "Note 4 - Net Income Per Share",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000755",
+      "cleaned_table_ordinal_zero_based": 30,
+      "html_table_index_one_based": 31,
+      "cleaned_xpath": "/html/body/div[986]/table",
+      "source_fragment_fingerprint": "sha256:002afa0f7fcf64b09442c8313bd71636a3e515987340d80f536598fba6540014",
+      "label": "The components of our amortizable intangible assets are as follows",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000758",
+      "cleaned_table_ordinal_zero_based": 31,
+      "html_table_index_one_based": 32,
+      "cleaned_xpath": "/html/body/div[989]/table",
+      "source_fragment_fingerprint": "sha256:2fb9426afee43249af051d1c1bf9c859c898bb67a347e25a059bf8797707aa9b",
+      "label": "The following table outlines the estimated future amortization expense related to the net carrying amount of intangible assets as of January 25, 2026",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000764",
+      "cleaned_table_ordinal_zero_based": 32,
+      "html_table_index_one_based": 33,
+      "cleaned_xpath": "/html/body/div[995]/table",
+      "source_fragment_fingerprint": "sha256:7dbea72d24f90e3da73667535a0ebfc13ed0cb158247245e8d42c1f363e23c93",
+      "label": "Note 7 - Cash Equivalents and Marketable Securities",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000772",
+      "cleaned_table_ordinal_zero_based": 33,
+      "html_table_index_one_based": 34,
+      "cleaned_xpath": "/html/body/div[1002]/table",
+      "source_fragment_fingerprint": "sha256:028c6834ed192db64658aa0a63e6523d06ee492718571f7859402b3613879a07",
+      "label": "Corporate debt securities",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000774",
+      "cleaned_table_ordinal_zero_based": 34,
+      "html_table_index_one_based": 35,
+      "cleaned_xpath": "/html/body/div[1004]/table",
+      "source_fragment_fingerprint": "sha256:abc00ecaba0df988ba7c5e4ed02273c6076b2952df8bb783b9b4e1f3086ae5a6",
+      "label": "The following tables provide the breakdown of unrealized losses, aggregated by investment category and length of time that individual debt securities have been in a continuous loss position",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000777",
+      "cleaned_table_ordinal_zero_based": 35,
+      "html_table_index_one_based": 36,
+      "cleaned_xpath": "/html/body/div[1007]/table",
+      "source_fragment_fingerprint": "sha256:8f1ad511f037ec2ef7592728bb9b7c45624d7dd57d6ca14438f9cdc2cb6aa9dc",
+      "label": "Less than one year",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000785",
+      "cleaned_table_ordinal_zero_based": 36,
+      "html_table_index_one_based": 37,
+      "cleaned_xpath": "/html/body/div[1016]/table",
+      "source_fragment_fingerprint": "sha256:baf8daeba34ab0787e8ab52717ad27b956f617c8d90fc93525a966a15b79cb14",
+      "label": "Adjustments to the carrying value of our non-marketable equity securities during fiscal years 2026 and 2025 were as follows",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000791",
+      "cleaned_table_ordinal_zero_based": 37,
+      "html_table_index_one_based": 38,
+      "cleaned_xpath": "/html/body/div[1025]/table",
+      "source_fragment_fingerprint": "sha256:114f2c5ad48308c9454ffbc6146d01f9ae5e02d45a246912ad68dad180c6f688",
+      "label": "Certain balance sheet components are as follows",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000793",
+      "cleaned_table_ordinal_zero_based": 38,
+      "html_table_index_one_based": 39,
+      "cleaned_xpath": "/html/body/div[1028]/table",
+      "source_fragment_fingerprint": "sha256:6cacbe0959d0c6d2e0f604ecda5447611579dd36de2edbffebd9c22d819293b4",
+      "label": "Land",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000803",
+      "cleaned_table_ordinal_zero_based": 39,
+      "html_table_index_one_based": 40,
+      "cleaned_xpath": "/html/body/div[1039]/table",
+      "source_fragment_fingerprint": "sha256:6b09c93f1a0f8444092cfdf4aafc8a73e1e7af986ed1135a5d701b91e5faaec5",
+      "label": "Customer program accruals",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000806",
+      "cleaned_table_ordinal_zero_based": 40,
+      "html_table_index_one_based": 41,
+      "cleaned_xpath": "/html/body/div[1045]/table",
+      "source_fragment_fingerprint": "sha256:2b2494bce8276f1f05124209f29a120d49aac9196fb2eb50c436bbe5a0271bb1",
+      "label": "Income tax payable (1)",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000811",
+      "cleaned_table_ordinal_zero_based": 41,
+      "html_table_index_one_based": 42,
+      "cleaned_xpath": "/html/body/div[1051]/table",
+      "source_fragment_fingerprint": "sha256:8c540eab8160224ef3357a4008239e039cfc988485faa0aad52585da8ce0c53d",
+      "label": "The following table shows the changes in short- and long-term deferred revenue during fiscal years 2026 and 2025",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000824",
+      "cleaned_table_ordinal_zero_based": 42,
+      "html_table_index_one_based": 43,
+      "cleaned_xpath": "/html/body/div[1065]/table",
+      "source_fragment_fingerprint": "sha256:e40229ffa451ccde8899c489cb92ebe69b1ee26548eb7bb0ca6aa0404b7c0755",
+      "label": "The table below presents the notional value of our foreign currency contracts outstanding",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000833",
+      "cleaned_table_ordinal_zero_based": 43,
+      "html_table_index_one_based": 44,
+      "cleaned_xpath": "/html/body/div[1075]/table",
+      "source_fragment_fingerprint": "sha256:ee40fdec777e183689f4cea9d1aef948c9d35662897b7971a80ce5888d7f2f76",
+      "label": "Note 11 - Debt",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000849",
+      "cleaned_table_ordinal_zero_based": 44,
+      "html_table_index_one_based": 45,
+      "cleaned_xpath": "/html/body/div[1096]/table",
+      "source_fragment_fingerprint": "sha256:25b433038ac6d96252c88347ec1a14c9b8ea1132d3a57a2fea672f297169339b",
+      "label": "Accrual for Product Warranty Liabilities",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000867",
+      "cleaned_table_ordinal_zero_based": 45,
+      "html_table_index_one_based": 46,
+      "cleaned_xpath": "/html/body/div[1115]/table",
+      "source_fragment_fingerprint": "sha256:5f44436beca0d2c7a9d8c16a0ca4951946aa42db77ad89a038466f8ebdb1975b",
+      "label": "Note 13 - Income Taxes",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000871",
+      "cleaned_table_ordinal_zero_based": 46,
+      "html_table_index_one_based": 47,
+      "cleaned_xpath": "/html/body/div[1118]/table",
+      "source_fragment_fingerprint": "sha256:478a21a0c65e935612ceb515a70e06f5b3a5c274d034891ebc0bcc61e61a91ff",
+      "label": "Note 13 - Income Taxes",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000873",
+      "cleaned_table_ordinal_zero_based": 47,
+      "html_table_index_one_based": 48,
+      "cleaned_xpath": "/html/body/div[1120]/table",
+      "source_fragment_fingerprint": "sha256:3996dbe753fcbe834e2e0a57238ed7b9890381f852e8540bb60ad4b8aa061ddd",
+      "label": "Note 13 - Income Taxes",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000880",
+      "cleaned_table_ordinal_zero_based": 48,
+      "html_table_index_one_based": 49,
+      "cleaned_xpath": "/html/body/div[1127]/table",
+      "source_fragment_fingerprint": "sha256:8d39c431c46f41008c2d43dee9886e275bbff578b1a9b573bedb10b19798c27d",
+      "label": "Tax expense computed at federal statutory rate",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000883",
+      "cleaned_table_ordinal_zero_based": 49,
+      "html_table_index_one_based": 50,
+      "cleaned_xpath": "/html/body/div[1130]/table",
+      "source_fragment_fingerprint": "sha256:eb006dc73f839d8df63c9e5f497d003d0d04b9b2b332e0f5e33368c41a773ad1",
+      "label": "The amount of cash paid for income taxes (net of refunds) for the fiscal year ended January 25, 2026 is as follows",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000888",
+      "cleaned_table_ordinal_zero_based": 50,
+      "html_table_index_one_based": 51,
+      "cleaned_xpath": "/html/body/div[1136]/table",
+      "source_fragment_fingerprint": "sha256:5560f6423c8800319836ac5cbf9299e0de268b1275c88859768e03ca92664d6a",
+      "label": "Deferred tax assets:",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000899",
+      "cleaned_table_ordinal_zero_based": 51,
+      "html_table_index_one_based": 52,
+      "cleaned_xpath": "/html/body/div[1146]/table",
+      "source_fragment_fingerprint": "sha256:606942a88e3e07db030548b01edf20ac05b9b279ea774dbc2a395a44b06c217e",
+      "label": "A reconciliation of gross unrecognized tax benefits is as follows",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000921",
+      "cleaned_table_ordinal_zero_based": 52,
+      "html_table_index_one_based": 53,
+      "cleaned_xpath": "/html/body/div[1174]/table",
+      "source_fragment_fingerprint": "sha256:a4814aeb018731798b89de979cb82940f1d1aae565980dc026b349cf008c344b",
+      "label": "The table below presents details of our reportable segments.",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000928",
+      "cleaned_table_ordinal_zero_based": 53,
+      "html_table_index_one_based": 54,
+      "cleaned_xpath": "/html/body/div[1182]/table",
+      "source_fragment_fingerprint": "sha256:c8dddc738f1a4a325a37c909f7b957266819d622a76e3f37d2e8c675222fb247",
+      "label": "A reconciliation of segment operating income to consolidated income before income tax for fiscal years 2026, 2025, and 2024 were as follows",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000930",
+      "cleaned_table_ordinal_zero_based": 54,
+      "html_table_index_one_based": 55,
+      "cleaned_xpath": "/html/body/div[1185]/table",
+      "source_fragment_fingerprint": "sha256:035474bd516fa5d09731495121a2ed0f2d27e14cad0fb2ad34ba2e33e7d305f2",
+      "label": "United States",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000942",
+      "cleaned_table_ordinal_zero_based": 55,
+      "html_table_index_one_based": 56,
+      "cleaned_xpath": "/html/body/div[1198]/table",
+      "source_fragment_fingerprint": "sha256:b0b6123f0000062dda6f26f8334bded23534036c73fd2c3ed3b2ee1209292e3b",
+      "label": "The following table summarizes revenue by specialized markets",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000944",
+      "cleaned_table_ordinal_zero_based": 56,
+      "html_table_index_one_based": 57,
+      "cleaned_xpath": "/html/body/div[1201]/table",
+      "source_fragment_fingerprint": "sha256:a9696a459f41eee76ada495ae05c875cb157ba75b218ab97cd854a7ae42e8b3b",
+      "label": "The following table presents summarized information for long-lived assets by country. Long-lived assets consist of property and equipment and exclude other assets, operating lease assets, goodwill, and intangible assets.",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000948",
+      "cleaned_table_ordinal_zero_based": 57,
+      "html_table_index_one_based": 58,
+      "cleaned_xpath": "/html/body/div[1206]/table",
+      "source_fragment_fingerprint": "sha256:0635ce0ca76dfb5bdd6036559e09d05f8625991aa502a2f5d0d58ee3a8882e40",
+      "label": "Future minimum lease obligations under our non-cancelable lease agreements as of January 25, 2026 were as follows",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000955",
+      "cleaned_table_ordinal_zero_based": 58,
+      "html_table_index_one_based": 59,
+      "cleaned_xpath": "/html/body/div[1212]/table",
+      "source_fragment_fingerprint": "sha256:de5b2af1c5e6072bbcb1967feb5b641e354de0a8e98629bd70ece0452e84f97b",
+      "label": "Other information related to leases was as follows",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000959",
+      "cleaned_table_ordinal_zero_based": 59,
+      "html_table_index_one_based": 60,
+      "cleaned_xpath": "/html/body/div[1219]/table",
+      "source_fragment_fingerprint": "sha256:44cbce6cd0caec252127c80adf2ba809ec8f99e486eb9d783ccca7d332c85c81",
+      "label": "Exhibit No. — Exhibit Description — Incorporated by Reference",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "financial_data",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    },
+    {
+      "historical_block_id": "NVDA-2026-000964",
+      "cleaned_table_ordinal_zero_based": 60,
+      "html_table_index_one_based": 61,
+      "cleaned_xpath": "/html/body/div[1227]/table",
+      "source_fragment_fingerprint": "sha256:d93fd425583ef1bbd245118b04752e071bf4d44d1778acfe37f440f9b5e7968d",
+      "label": "Schedule II – Valuation and Qualifying Accounts",
+      "source_anchor": "i82ea215a7c1f4862b6518f1348ddc832_97",
+      "expected_table_kind": "exhibit_list",
+      "mapping_method": "unique frozen-raw physical-cell sequence match; whitespace-insensitive only for approved boundary repairs"
+    }
+  ]
+}

@@ -1,0 +1,3577 @@
+{
+  "schema_version": 1,
+  "baseline_id": "mobileye-bgebase-table-v2-chunk-v3.20260813-r2",
+  "created_at": "2026-08-13T14:08:41.133274+00:00",
+  "historical_comparison": {
+    "status": "historical_pre-migration_not_recomputed",
+    "source": "notebooks/compare_embeddings.ipynb historical output",
+    "mean_recall_at_10": 0.721,
+    "single_narrative_recall_at_10": 0.833,
+    "single_table_recall_at_10": 0.625,
+    "multi_chunk_recall_at_10": 0.562
+  },
+  "dataset_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/evaluation/mobileye_retrieval_gold_v2.json",
+  "dataset_sha256": "1c7ec7041cb596b18a018f1f0b00df015f3feea5351879ca5d3957497716b301",
+  "chunks_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/MBLY/2025-10-K.chunks.jsonl",
+  "chunks_sha256": "a84fb4c9b6058d84e07b4f8f63479c64696e4608ea67da99fe1fb989b6dc7154",
+  "embedding_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/MBLY/2025-10-K.bgebase.embeddings.npz",
+  "embedding_manifest_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/MBLY/2025-10-K.bgebase.embeddings.manifest.json",
+  "embedding_manifest_sha256": "0b4edf04d40e8c20893436b6c93956ccc73e93c59101187082f02dd3c54b043f",
+  "embedding_integrity": {
+    "chunk_count": 462,
+    "dimension": 768,
+    "dtype": "float32",
+    "normalized": true,
+    "source_chunks_sha256": "a84fb4c9b6058d84e07b4f8f63479c64696e4608ea67da99fe1fb989b6dc7154",
+    "embedding_file_sha256": "833f98294e39e3e6e7acda6e0cb6a94a12d9ebb88663aca097faf51141d8eca0"
+  },
+  "model_name": "bgebase",
+  "top_k": 10,
+  "question_count": 60,
+  "metrics": {
+    "overall": {
+      "question_count": 60,
+      "mean_recall_at_k": 0.6166666666666667,
+      "mean_reciprocal_rank_at_k": 0.4446494708994709,
+      "hit_rate_at_k": 0.6833333333333333
+    },
+    "by_evaluation_set": {
+      "chunk_to_query": {
+        "question_count": 34,
+        "mean_recall_at_k": 0.7205882352941176,
+        "mean_reciprocal_rank_at_k": 0.48786181139122314,
+        "hit_rate_at_k": 0.7352941176470589
+      },
+      "query_to_chunk": {
+        "question_count": 26,
+        "mean_recall_at_k": 0.4807692307692308,
+        "mean_reciprocal_rank_at_k": 0.38814102564102565,
+        "hit_rate_at_k": 0.6153846153846154
+      }
+    },
+    "by_category": {
+      "financials": {
+        "question_count": 10,
+        "mean_recall_at_k": 0.31666666666666665,
+        "mean_reciprocal_rank_at_k": 0.3458333333333333,
+        "hit_rate_at_k": 0.5
+      },
+      "industry_and_business": {
+        "question_count": 5,
+        "mean_recall_at_k": 0.4666666666666667,
+        "mean_reciprocal_rank_at_k": 0.5,
+        "hit_rate_at_k": 0.6
+      },
+      "multi_chunk": {
+        "question_count": 8,
+        "mean_recall_at_k": 0.5625,
+        "mean_reciprocal_rank_at_k": 0.4583333333333333,
+        "hit_rate_at_k": 0.625
+      },
+      "single_narrative": {
+        "question_count": 18,
+        "mean_recall_at_k": 0.8333333333333334,
+        "mean_reciprocal_rank_at_k": 0.5671957671957671,
+        "hit_rate_at_k": 0.8333333333333334
+      },
+      "single_table": {
+        "question_count": 8,
+        "mean_recall_at_k": 0.625,
+        "mean_reciprocal_rank_at_k": 0.3388888888888889,
+        "hit_rate_at_k": 0.625
+      },
+      "strategy_and_risk": {
+        "question_count": 5,
+        "mean_recall_at_k": 0.6,
+        "mean_reciprocal_rank_at_k": 0.49,
+        "hit_rate_at_k": 0.8
+      },
+      "table_lookup": {
+        "question_count": 6,
+        "mean_recall_at_k": 0.6666666666666666,
+        "mean_reciprocal_rank_at_k": 0.28055555555555556,
+        "hit_rate_at_k": 0.6666666666666666
+      }
+    },
+    "by_evidence_type": {
+      "mixed": {
+        "question_count": 9,
+        "mean_recall_at_k": 0.18518518518518517,
+        "mean_reciprocal_rank_at_k": 0.3472222222222222,
+        "hit_rate_at_k": 0.4444444444444444
+      },
+      "narrative": {
+        "question_count": 35,
+        "mean_recall_at_k": 0.7523809523809524,
+        "mean_reciprocal_rank_at_k": 0.5474149659863946,
+        "hit_rate_at_k": 0.8
+      },
+      "table": {
+        "question_count": 16,
+        "mean_recall_at_k": 0.5625,
+        "mean_reciprocal_rank_at_k": 0.2746527777777778,
+        "hit_rate_at_k": 0.5625
+      }
+    }
+  },
+  "latency": {
+    "query_encoding_seconds": 2.8544149069930427,
+    "vector_search_seconds": 0.016432108008302748,
+    "mean_query_encoding_ms": 47.57358178321738,
+    "mean_vector_search_ms": 0.2738684668050458
+  },
+  "regressions_for_review": [
+    {
+      "id": "Q01",
+      "evaluation_set": "query_to_chunk",
+      "category": "industry_and_business",
+      "evidence_type": "narrative",
+      "query": "What role does Mobileye play in the automotive value chain, and which types of companies buy or integrate its products?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000038",
+        "MBLY-2025-CHUNK-000040",
+        "MBLY-2025-CHUNK-000041"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000041",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000034",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000013",
+        "MBLY-2025-CHUNK-000207",
+        "MBLY-2025-CHUNK-000016"
+      ],
+      "retrieved_scores": [
+        0.6990022659301758,
+        0.6845791935920715,
+        0.6735245585441589,
+        0.67228764295578,
+        0.652601957321167,
+        0.6467893123626709,
+        0.6386845707893372,
+        0.6306655406951904,
+        0.6289123296737671,
+        0.6275218725204468
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000041"
+      ],
+      "recall_at_k": 0.3333333333333333,
+      "first_relevant_rank": 2,
+      "reciprocal_rank_at_k": 0.5
+    },
+    {
+      "id": "Q02",
+      "evaluation_set": "query_to_chunk",
+      "category": "industry_and_business",
+      "evidence_type": "narrative",
+      "query": "How does Mobileye's installed base of vehicles improve its mapping data and future driver-assistance products?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000006",
+        "MBLY-2025-CHUNK-000029"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000034",
+        "MBLY-2025-CHUNK-000018",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000015",
+        "MBLY-2025-CHUNK-000013",
+        "MBLY-2025-CHUNK-000041"
+      ],
+      "retrieved_scores": [
+        0.7283821105957031,
+        0.7220943570137024,
+        0.7158528566360474,
+        0.7070751786231995,
+        0.6968218088150024,
+        0.6908987760543823,
+        0.6861646771430969,
+        0.6849342584609985,
+        0.6821586489677429,
+        0.6733381748199463
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q04",
+      "evaluation_set": "query_to_chunk",
+      "category": "industry_and_business",
+      "evidence_type": "narrative",
+      "query": "Why does Mobileye expect consumer autonomous vehicles and autonomous mobility-as-a-service to reach the market through different paths?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000022",
+        "MBLY-2025-CHUNK-000023",
+        "MBLY-2025-CHUNK-000024"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000041",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000011",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000021",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000104",
+        "MBLY-2025-CHUNK-000106",
+        "MBLY-2025-CHUNK-000012"
+      ],
+      "retrieved_scores": [
+        0.7695368528366089,
+        0.7248724699020386,
+        0.7228600978851318,
+        0.7116014957427979,
+        0.7071049213409424,
+        0.6979791522026062,
+        0.6959908604621887,
+        0.6648839712142944,
+        0.6637796759605408,
+        0.663594663143158
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q08",
+      "evaluation_set": "query_to_chunk",
+      "category": "strategy_and_risk",
+      "evidence_type": "narrative",
+      "query": "How could an automaker's decision to build its own driver-assistance system affect Mobileye, based on the examples discussed in the filing?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000084"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000011",
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000106",
+        "MBLY-2025-CHUNK-000034",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000104"
+      ],
+      "retrieved_scores": [
+        0.6833662986755371,
+        0.6792254447937012,
+        0.6782068014144897,
+        0.6768243312835693,
+        0.676567554473877,
+        0.6645851731300354,
+        0.6616231203079224,
+        0.6608445644378662,
+        0.6555206775665283,
+        0.6531870365142822
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q09",
+      "evaluation_set": "query_to_chunk",
+      "category": "strategy_and_risk",
+      "evidence_type": "narrative",
+      "query": "How do Mobileye's dependencies on STMicroelectronics, TSMC, and Quanta expose it to different supply-chain risks?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000087",
+        "MBLY-2025-CHUNK-000089",
+        "MBLY-2025-CHUNK-000090"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000089",
+        "MBLY-2025-CHUNK-000087",
+        "MBLY-2025-CHUNK-000340",
+        "MBLY-2025-CHUNK-000208",
+        "MBLY-2025-CHUNK-000091",
+        "MBLY-2025-CHUNK-000217",
+        "MBLY-2025-CHUNK-000043",
+        "MBLY-2025-CHUNK-000218",
+        "MBLY-2025-CHUNK-000109",
+        "MBLY-2025-CHUNK-000079"
+      ],
+      "retrieved_scores": [
+        0.7204803228378296,
+        0.6952532529830933,
+        0.6849737167358398,
+        0.6731913089752197,
+        0.6724642515182495,
+        0.6602206826210022,
+        0.6578948497772217,
+        0.6533178091049194,
+        0.6497506499290466,
+        0.6494994163513184
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000089",
+        "MBLY-2025-CHUNK-000087"
+      ],
+      "recall_at_k": 0.6666666666666666,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "Q10",
+      "evaluation_set": "query_to_chunk",
+      "category": "strategy_and_risk",
+      "evidence_type": "narrative",
+      "query": "In what ways does Intel's ownership support Mobileye, and where can that relationship create constraints or conflicts?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000042",
+        "MBLY-2025-CHUNK-000061",
+        "MBLY-2025-CHUNK-000158"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000063",
+        "MBLY-2025-CHUNK-000079",
+        "MBLY-2025-CHUNK-000067",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000061",
+        "MBLY-2025-CHUNK-000124",
+        "MBLY-2025-CHUNK-000155",
+        "MBLY-2025-CHUNK-000400",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000066"
+      ],
+      "retrieved_scores": [
+        0.7578426599502563,
+        0.7341098189353943,
+        0.7269051671028137,
+        0.7237975597381592,
+        0.7236963510513306,
+        0.6995157599449158,
+        0.6969719529151917,
+        0.6951203346252441,
+        0.6856177449226379,
+        0.6852816343307495
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000061"
+      ],
+      "recall_at_k": 0.3333333333333333,
+      "first_relevant_rank": 5,
+      "reciprocal_rank_at_k": 0.2
+    },
+    {
+      "id": "Q12",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "narrative",
+      "query": "Was Mobileye's 2025 revenue growth driven more by unit shipments, product mix, or pricing, and what evidence supports that conclusion?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000238"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000207",
+        "MBLY-2025-CHUNK-000419",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000036",
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000444"
+      ],
+      "retrieved_scores": [
+        0.6195697784423828,
+        0.6169811487197876,
+        0.5915442705154419,
+        0.5889636278152466,
+        0.5802897214889526,
+        0.5774240493774414,
+        0.5747203826904297,
+        0.5723382234573364,
+        0.5715591907501221,
+        0.5683426856994629
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q14",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "mixed",
+      "query": "How did research and development spending change from 2024 to 2025 in both dollars and percentage of revenue, and what business priorities explain that level of spending?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000224",
+        "MBLY-2025-CHUNK-000233",
+        "MBLY-2025-CHUNK-000241"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000241",
+        "MBLY-2025-CHUNK-000248",
+        "MBLY-2025-CHUNK-000242",
+        "MBLY-2025-CHUNK-000254",
+        "MBLY-2025-CHUNK-000239",
+        "MBLY-2025-CHUNK-000243",
+        "MBLY-2025-CHUNK-000238",
+        "MBLY-2025-CHUNK-000256",
+        "MBLY-2025-CHUNK-000250",
+        "MBLY-2025-CHUNK-000255"
+      ],
+      "retrieved_scores": [
+        0.7138065099716187,
+        0.6933433413505554,
+        0.636644721031189,
+        0.6288563013076782,
+        0.628851056098938,
+        0.6223351955413818,
+        0.6046855449676514,
+        0.595459520816803,
+        0.5941424369812012,
+        0.5919036269187927
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000241"
+      ],
+      "recall_at_k": 0.3333333333333333,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "Q15",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "mixed",
+      "query": "Why was Mobileye's net loss much smaller in 2025 than in 2024 even though the company remained unprofitable?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000233",
+        "MBLY-2025-CHUNK-000244"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000411",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000249",
+        "MBLY-2025-CHUNK-000444",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000246"
+      ],
+      "retrieved_scores": [
+        0.6396284699440002,
+        0.6327993273735046,
+        0.6276528239250183,
+        0.6208629608154297,
+        0.616416871547699,
+        0.6099647283554077,
+        0.6076277494430542,
+        0.6041331887245178,
+        0.6009290218353271,
+        0.5929664969444275
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000244"
+      ],
+      "recall_at_k": 0.5,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "Q16",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "mixed",
+      "query": "What do Mobileye's operating, investing, and financing cash flows collectively indicate about how it funded the business in 2025?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000253",
+        "MBLY-2025-CHUNK-000254",
+        "MBLY-2025-CHUNK-000255",
+        "MBLY-2025-CHUNK-000256"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000411",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000357",
+        "MBLY-2025-CHUNK-000427",
+        "MBLY-2025-CHUNK-000001",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000415"
+      ],
+      "retrieved_scores": [
+        0.6941972374916077,
+        0.664679765701294,
+        0.6571645140647888,
+        0.6550663709640503,
+        0.6532227993011475,
+        0.6519319415092468,
+        0.6442949771881104,
+        0.6420258283615112,
+        0.6415401101112366,
+        0.6366528272628784
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q17",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "mixed",
+      "query": "How concentrated is Mobileye's revenue among major customers and countries, and what financial risk does that concentration create?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000338",
+        "MBLY-2025-CHUNK-000418",
+        "MBLY-2025-CHUNK-000421"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000079",
+        "MBLY-2025-CHUNK-000207",
+        "MBLY-2025-CHUNK-000109",
+        "MBLY-2025-CHUNK-000073",
+        "MBLY-2025-CHUNK-000419",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000083",
+        "MBLY-2025-CHUNK-000427"
+      ],
+      "retrieved_scores": [
+        0.6618196964263916,
+        0.6283964514732361,
+        0.6275584697723389,
+        0.618860125541687,
+        0.615102231502533,
+        0.610521137714386,
+        0.6086318492889404,
+        0.6082873344421387,
+        0.6061111092567444,
+        0.6034432649612427
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q18",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "table",
+      "query": "How are Mobileye's operating lease obligations distributed over time, and how does the maturity schedule reconcile with current and long-term lease liabilities?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000354",
+        "MBLY-2025-CHUNK-000359"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000357",
+        "MBLY-2025-CHUNK-000333",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000430",
+        "MBLY-2025-CHUNK-000207",
+        "MBLY-2025-CHUNK-000220",
+        "MBLY-2025-CHUNK-000063"
+      ],
+      "retrieved_scores": [
+        0.6830077767372131,
+        0.6779997944831848,
+        0.660354733467102,
+        0.6558047533035278,
+        0.6539995670318604,
+        0.6494447588920593,
+        0.6468369960784912,
+        0.6448078155517578,
+        0.6369895339012146,
+        0.6346039175987244
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q19",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "mixed",
+      "query": "How do restricted stock units affect reported expenses, operating cash flow, and potential shareholder dilution even though they are not ordinary cash salaries?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000294",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000370"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000261",
+        "MBLY-2025-CHUNK-000335",
+        "MBLY-2025-CHUNK-000177",
+        "MBLY-2025-CHUNK-000152",
+        "MBLY-2025-CHUNK-000305",
+        "MBLY-2025-CHUNK-000166",
+        "MBLY-2025-CHUNK-000168",
+        "MBLY-2025-CHUNK-000294",
+        "MBLY-2025-CHUNK-000290",
+        "MBLY-2025-CHUNK-000169"
+      ],
+      "retrieved_scores": [
+        0.6663833856582642,
+        0.6456663608551025,
+        0.6454602479934692,
+        0.640335738658905,
+        0.6396492719650269,
+        0.6391115188598633,
+        0.6321083903312683,
+        0.6296092867851257,
+        0.6249438524246216,
+        0.6234642267227173
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000294"
+      ],
+      "recall_at_k": 0.3333333333333333,
+      "first_relevant_rank": 8,
+      "reciprocal_rank_at_k": 0.125
+    },
+    {
+      "id": "Q20",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "mixed",
+      "query": "Based on its 2025 results and balance sheet, can Mobileye fund its transition from Base ADAS to advanced autonomous systems without near-term external financing? Support the conclusion with growth, margins, R&D spending, cash flows, cash balances, and obligations.",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000224",
+        "MBLY-2025-CHUNK-000233",
+        "MBLY-2025-CHUNK-000251",
+        "MBLY-2025-CHUNK-000253",
+        "MBLY-2025-CHUNK-000288"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000207",
+        "MBLY-2025-CHUNK-000013",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000005",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000083",
+        "MBLY-2025-CHUNK-000009"
+      ],
+      "retrieved_scores": [
+        0.7368030548095703,
+        0.716854989528656,
+        0.6842769384384155,
+        0.6799228191375732,
+        0.6798874139785767,
+        0.6678321361541748,
+        0.6631019711494446,
+        0.6551843881607056,
+        0.651578962802887,
+        0.6508680582046509
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q21",
+      "evaluation_set": "query_to_chunk",
+      "category": "table_lookup",
+      "evidence_type": "table",
+      "query": "Of the amount owed for rented offices and vehicles at year-end 2025, how much was due after the next twelve months?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000354"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000258",
+        "MBLY-2025-CHUNK-000353",
+        "MBLY-2025-CHUNK-000355",
+        "MBLY-2025-CHUNK-000334",
+        "MBLY-2025-CHUNK-000380",
+        "MBLY-2025-CHUNK-000447",
+        "MBLY-2025-CHUNK-000348",
+        "MBLY-2025-CHUNK-000246",
+        "MBLY-2025-CHUNK-000381",
+        "MBLY-2025-CHUNK-000396"
+      ],
+      "retrieved_scores": [
+        0.6261216402053833,
+        0.6167392134666443,
+        0.6107510328292847,
+        0.6104534864425659,
+        0.605282723903656,
+        0.601094126701355,
+        0.6003007888793945,
+        0.5934441089630127,
+        0.5934120416641235,
+        0.593021035194397
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q26",
+      "evaluation_set": "query_to_chunk",
+      "category": "table_lookup",
+      "evidence_type": "table",
+      "query": "After excluding acquisition-related amortization and equity compensation, what were Mobileye's 2025 gross profit and gross margin?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000263"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000411",
+        "MBLY-2025-CHUNK-000357",
+        "MBLY-2025-CHUNK-000249",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000444",
+        "MBLY-2025-CHUNK-000296"
+      ],
+      "retrieved_scores": [
+        0.672792911529541,
+        0.6644108891487122,
+        0.6639701724052429,
+        0.6627935171127319,
+        0.6566621661186218,
+        0.6454039812088013,
+        0.6442238092422485,
+        0.643854022026062,
+        0.6430667638778687,
+        0.6423376798629761
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q12",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "What two concrete advantages does Mobileye receive from its partnership with Intel for radar development and autonomous-vehicle regulation?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000042"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000067",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000063",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000036",
+        "MBLY-2025-CHUNK-000061"
+      ],
+      "retrieved_scores": [
+        0.7264900207519531,
+        0.7256211042404175,
+        0.7164579629898071,
+        0.7162980437278748,
+        0.6956532597541809,
+        0.6842558979988098,
+        0.6774402856826782,
+        0.6758549213409424,
+        0.6722463965415955,
+        0.6687045693397522
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q13",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "How many employees did Mobileye have at fiscal year-end 2025, what share worked in R&D, and where were most employees located?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000059"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000073",
+        "MBLY-2025-CHUNK-000004",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000001",
+        "MBLY-2025-CHUNK-000369",
+        "MBLY-2025-CHUNK-000444"
+      ],
+      "retrieved_scores": [
+        0.644928514957428,
+        0.6267912983894348,
+        0.6255413293838501,
+        0.6187113523483276,
+        0.6080371141433716,
+        0.5990397930145264,
+        0.5970950126647949,
+        0.5915205478668213,
+        0.5904221534729004,
+        0.5900523662567139
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q14",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "Which two automakers are cited as replacing or reducing their use of Mobileye products with internally developed systems?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000084"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000018",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000005",
+        "MBLY-2025-CHUNK-000034"
+      ],
+      "retrieved_scores": [
+        0.6763666868209839,
+        0.6725086569786072,
+        0.6685407161712646,
+        0.6633346080780029,
+        0.6375522613525391,
+        0.6312681436538696,
+        0.6281704902648926,
+        0.6262421607971191,
+        0.6201285123825073,
+        0.6171469688415527
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q20",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "evidence_type": "table",
+      "query": "What revenue did Mobileye report for fiscal 2024?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000233"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000379",
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000246",
+        "MBLY-2025-CHUNK-000249",
+        "MBLY-2025-CHUNK-000001",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000282",
+        "MBLY-2025-CHUNK-000419"
+      ],
+      "retrieved_scores": [
+        0.6924830675125122,
+        0.66627037525177,
+        0.66143798828125,
+        0.653998076915741,
+        0.6490474939346313,
+        0.647232174873352,
+        0.647030234336853,
+        0.6464093327522278,
+        0.645894467830658,
+        0.6406465768814087
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q23",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "evidence_type": "table",
+      "query": "How much of Mobileye's operating lease liability was current and how much was long term at the end of 2025?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000354"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000357",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000411",
+        "MBLY-2025-CHUNK-000444",
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000355",
+        "MBLY-2025-CHUNK-000430",
+        "MBLY-2025-CHUNK-000296"
+      ],
+      "retrieved_scores": [
+        0.6643667817115784,
+        0.6529415249824524,
+        0.6202755570411682,
+        0.6189907789230347,
+        0.6161444187164307,
+        0.6001453995704651,
+        0.5981707572937012,
+        0.5933903455734253,
+        0.5922871828079224,
+        0.5914958119392395
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q26",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "evidence_type": "table",
+      "query": "What percentage of Mobileye's 2025 revenue came from its largest customer?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000421"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000419",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000073",
+        "MBLY-2025-CHUNK-000357",
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000061"
+      ],
+      "retrieved_scores": [
+        0.5899474620819092,
+        0.5728517174720764,
+        0.5727893114089966,
+        0.5625482797622681,
+        0.5601661801338196,
+        0.555554211139679,
+        0.547791063785553,
+        0.5438446402549744,
+        0.540177583694458,
+        0.530747652053833
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q31",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "evidence_type": "mixed",
+      "query": "How much did Mobileye's net loss improve from 2024 to 2025, and which non-cash event explains most of the difference?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000233",
+        "MBLY-2025-CHUNK-000244"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000249",
+        "MBLY-2025-CHUNK-000246",
+        "MBLY-2025-CHUNK-000227",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000411",
+        "MBLY-2025-CHUNK-000250"
+      ],
+      "retrieved_scores": [
+        0.6626304388046265,
+        0.6310255527496338,
+        0.6068608164787292,
+        0.6064550280570984,
+        0.6048983931541443,
+        0.5950156450271606,
+        0.5876086950302124,
+        0.5845355987548828,
+        0.583003044128418,
+        0.5808698534965515
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000244"
+      ],
+      "recall_at_k": 0.5,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q32",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "evidence_type": "mixed",
+      "query": "What evidence from management's funding discussion, 2025 cash flows, and the year-end balance sheet supports or challenges Mobileye's ability to finance its near-term plans internally?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000251",
+        "MBLY-2025-CHUNK-000253",
+        "MBLY-2025-CHUNK-000288"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000283",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000411",
+        "MBLY-2025-CHUNK-000274",
+        "MBLY-2025-CHUNK-000427",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000220",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000430"
+      ],
+      "retrieved_scores": [
+        0.6362225413322449,
+        0.6339403390884399,
+        0.6316173076629639,
+        0.6145033836364746,
+        0.6118209362030029,
+        0.603850781917572,
+        0.6022512316703796,
+        0.6010187864303589,
+        0.5987222194671631,
+        0.5964330434799194
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q33",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "evidence_type": "table",
+      "query": "How does the year-end classification of Mobileye's operating lease liabilities relate to the timing and present value of its future lease payments?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000354",
+        "MBLY-2025-CHUNK-000359"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000333",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000357",
+        "MBLY-2025-CHUNK-000258",
+        "MBLY-2025-CHUNK-000353",
+        "MBLY-2025-CHUNK-000274",
+        "MBLY-2025-CHUNK-000430",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000406"
+      ],
+      "retrieved_scores": [
+        0.6979327201843262,
+        0.6780351400375366,
+        0.6708908677101135,
+        0.6679021716117859,
+        0.6638651490211487,
+        0.6584532260894775,
+        0.658318817615509,
+        0.6570612192153931,
+        0.6558599472045898,
+        0.6497110724449158
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q34",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "evidence_type": "mixed",
+      "query": "How concentrated was Mobileye's 2025 revenue by customer and destination country, and why does that concentration create business risk?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000338",
+        "MBLY-2025-CHUNK-000418",
+        "MBLY-2025-CHUNK-000421"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000109",
+        "MBLY-2025-CHUNK-000083",
+        "MBLY-2025-CHUNK-000104",
+        "MBLY-2025-CHUNK-000207",
+        "MBLY-2025-CHUNK-000079",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000106",
+        "MBLY-2025-CHUNK-000244"
+      ],
+      "retrieved_scores": [
+        0.6602678894996643,
+        0.6327068209648132,
+        0.6282516121864319,
+        0.618820071220398,
+        0.6144540905952454,
+        0.6126711368560791,
+        0.6114774942398071,
+        0.6109721660614014,
+        0.6103318333625793,
+        0.6038089990615845
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    }
+  ],
+  "results": [
+    {
+      "id": "Q01",
+      "evaluation_set": "query_to_chunk",
+      "category": "industry_and_business",
+      "evidence_type": "narrative",
+      "query": "What role does Mobileye play in the automotive value chain, and which types of companies buy or integrate its products?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000038",
+        "MBLY-2025-CHUNK-000040",
+        "MBLY-2025-CHUNK-000041"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000041",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000034",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000013",
+        "MBLY-2025-CHUNK-000207",
+        "MBLY-2025-CHUNK-000016"
+      ],
+      "retrieved_scores": [
+        0.6990022659301758,
+        0.6845791935920715,
+        0.6735245585441589,
+        0.67228764295578,
+        0.652601957321167,
+        0.6467893123626709,
+        0.6386845707893372,
+        0.6306655406951904,
+        0.6289123296737671,
+        0.6275218725204468
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000041"
+      ],
+      "recall_at_k": 0.3333333333333333,
+      "first_relevant_rank": 2,
+      "reciprocal_rank_at_k": 0.5
+    },
+    {
+      "id": "Q02",
+      "evaluation_set": "query_to_chunk",
+      "category": "industry_and_business",
+      "evidence_type": "narrative",
+      "query": "How does Mobileye's installed base of vehicles improve its mapping data and future driver-assistance products?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000006",
+        "MBLY-2025-CHUNK-000029"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000034",
+        "MBLY-2025-CHUNK-000018",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000015",
+        "MBLY-2025-CHUNK-000013",
+        "MBLY-2025-CHUNK-000041"
+      ],
+      "retrieved_scores": [
+        0.7283821105957031,
+        0.7220943570137024,
+        0.7158528566360474,
+        0.7070751786231995,
+        0.6968218088150024,
+        0.6908987760543823,
+        0.6861646771430969,
+        0.6849342584609985,
+        0.6821586489677429,
+        0.6733381748199463
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q03",
+      "evaluation_set": "query_to_chunk",
+      "category": "industry_and_business",
+      "evidence_type": "narrative",
+      "query": "How do Base ADAS and SuperVision differ in driving capability and in what Mobileye supplies to an automaker?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000016"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000017",
+        "MBLY-2025-CHUNK-000034",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000015",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000013",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000018"
+      ],
+      "retrieved_scores": [
+        0.7783923149108887,
+        0.7563046813011169,
+        0.7299649715423584,
+        0.7247850894927979,
+        0.7162237167358398,
+        0.7055145502090454,
+        0.7027952671051025,
+        0.7014088034629822,
+        0.6954435110092163,
+        0.6820553541183472
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000014"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "Q04",
+      "evaluation_set": "query_to_chunk",
+      "category": "industry_and_business",
+      "evidence_type": "narrative",
+      "query": "Why does Mobileye expect consumer autonomous vehicles and autonomous mobility-as-a-service to reach the market through different paths?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000022",
+        "MBLY-2025-CHUNK-000023",
+        "MBLY-2025-CHUNK-000024"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000041",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000011",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000021",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000104",
+        "MBLY-2025-CHUNK-000106",
+        "MBLY-2025-CHUNK-000012"
+      ],
+      "retrieved_scores": [
+        0.7695368528366089,
+        0.7248724699020386,
+        0.7228600978851318,
+        0.7116014957427979,
+        0.7071049213409424,
+        0.6979791522026062,
+        0.6959908604621887,
+        0.6648839712142944,
+        0.6637796759605408,
+        0.663594663143158
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q05",
+      "evaluation_set": "query_to_chunk",
+      "category": "industry_and_business",
+      "evidence_type": "narrative",
+      "query": "How do EyeQ chips, camera-based perception, REM maps, and RSS work together as an autonomous-driving system?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000005",
+        "MBLY-2025-CHUNK-000006",
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000031"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000006",
+        "MBLY-2025-CHUNK-000031",
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000027",
+        "MBLY-2025-CHUNK-000036",
+        "MBLY-2025-CHUNK-000028",
+        "MBLY-2025-CHUNK-000005",
+        "MBLY-2025-CHUNK-000025",
+        "MBLY-2025-CHUNK-000007",
+        "MBLY-2025-CHUNK-000011"
+      ],
+      "retrieved_scores": [
+        0.7040928602218628,
+        0.6954574584960938,
+        0.6903247237205505,
+        0.6852703094482422,
+        0.6797565221786499,
+        0.6767526268959045,
+        0.6641771197319031,
+        0.6600713133811951,
+        0.6578534841537476,
+        0.6553528308868408
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000006",
+        "MBLY-2025-CHUNK-000031",
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000005"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "Q06",
+      "evaluation_set": "query_to_chunk",
+      "category": "strategy_and_risk",
+      "evidence_type": "narrative",
+      "query": "Why are vehicle-model design wins important to future revenue even when they do not produce sales immediately?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000099",
+        "MBLY-2025-CHUNK-000213"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000097",
+        "MBLY-2025-CHUNK-000098",
+        "MBLY-2025-CHUNK-000100",
+        "MBLY-2025-CHUNK-000213",
+        "MBLY-2025-CHUNK-000099",
+        "MBLY-2025-CHUNK-000210",
+        "MBLY-2025-CHUNK-000207",
+        "MBLY-2025-CHUNK-000102",
+        "MBLY-2025-CHUNK-000021",
+        "MBLY-2025-CHUNK-000103"
+      ],
+      "retrieved_scores": [
+        0.7377140522003174,
+        0.7241031527519226,
+        0.7023516297340393,
+        0.6689008474349976,
+        0.6666431427001953,
+        0.6492893695831299,
+        0.6476333141326904,
+        0.6361726522445679,
+        0.6206485033035278,
+        0.6189723610877991
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000213",
+        "MBLY-2025-CHUNK-000099"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 4,
+      "reciprocal_rank_at_k": 0.25
+    },
+    {
+      "id": "Q07",
+      "evaluation_set": "query_to_chunk",
+      "category": "strategy_and_risk",
+      "evidence_type": "narrative",
+      "query": "What advantage does Mobileye gain from offering a modular, customizable platform instead of a fully closed system, and how does DXP divide control between Mobileye and automakers?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000027"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000027",
+        "MBLY-2025-CHUNK-000010",
+        "MBLY-2025-CHUNK-000036",
+        "MBLY-2025-CHUNK-000035",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000011",
+        "MBLY-2025-CHUNK-000041",
+        "MBLY-2025-CHUNK-000005"
+      ],
+      "retrieved_scores": [
+        0.759671688079834,
+        0.6561568975448608,
+        0.6495375633239746,
+        0.6462543606758118,
+        0.6388353109359741,
+        0.6279604434967041,
+        0.6199710369110107,
+        0.6165485382080078,
+        0.6121149063110352,
+        0.6090022325515747
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000027"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "Q08",
+      "evaluation_set": "query_to_chunk",
+      "category": "strategy_and_risk",
+      "evidence_type": "narrative",
+      "query": "How could an automaker's decision to build its own driver-assistance system affect Mobileye, based on the examples discussed in the filing?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000084"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000011",
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000106",
+        "MBLY-2025-CHUNK-000034",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000104"
+      ],
+      "retrieved_scores": [
+        0.6833662986755371,
+        0.6792254447937012,
+        0.6782068014144897,
+        0.6768243312835693,
+        0.676567554473877,
+        0.6645851731300354,
+        0.6616231203079224,
+        0.6608445644378662,
+        0.6555206775665283,
+        0.6531870365142822
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q09",
+      "evaluation_set": "query_to_chunk",
+      "category": "strategy_and_risk",
+      "evidence_type": "narrative",
+      "query": "How do Mobileye's dependencies on STMicroelectronics, TSMC, and Quanta expose it to different supply-chain risks?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000087",
+        "MBLY-2025-CHUNK-000089",
+        "MBLY-2025-CHUNK-000090"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000089",
+        "MBLY-2025-CHUNK-000087",
+        "MBLY-2025-CHUNK-000340",
+        "MBLY-2025-CHUNK-000208",
+        "MBLY-2025-CHUNK-000091",
+        "MBLY-2025-CHUNK-000217",
+        "MBLY-2025-CHUNK-000043",
+        "MBLY-2025-CHUNK-000218",
+        "MBLY-2025-CHUNK-000109",
+        "MBLY-2025-CHUNK-000079"
+      ],
+      "retrieved_scores": [
+        0.7204803228378296,
+        0.6952532529830933,
+        0.6849737167358398,
+        0.6731913089752197,
+        0.6724642515182495,
+        0.6602206826210022,
+        0.6578948497772217,
+        0.6533178091049194,
+        0.6497506499290466,
+        0.6494994163513184
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000089",
+        "MBLY-2025-CHUNK-000087"
+      ],
+      "recall_at_k": 0.6666666666666666,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "Q10",
+      "evaluation_set": "query_to_chunk",
+      "category": "strategy_and_risk",
+      "evidence_type": "narrative",
+      "query": "In what ways does Intel's ownership support Mobileye, and where can that relationship create constraints or conflicts?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000042",
+        "MBLY-2025-CHUNK-000061",
+        "MBLY-2025-CHUNK-000158"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000063",
+        "MBLY-2025-CHUNK-000079",
+        "MBLY-2025-CHUNK-000067",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000061",
+        "MBLY-2025-CHUNK-000124",
+        "MBLY-2025-CHUNK-000155",
+        "MBLY-2025-CHUNK-000400",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000066"
+      ],
+      "retrieved_scores": [
+        0.7578426599502563,
+        0.7341098189353943,
+        0.7269051671028137,
+        0.7237975597381592,
+        0.7236963510513306,
+        0.6995157599449158,
+        0.6969719529151917,
+        0.6951203346252441,
+        0.6856177449226379,
+        0.6852816343307495
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000061"
+      ],
+      "recall_at_k": 0.3333333333333333,
+      "first_relevant_rank": 5,
+      "reciprocal_rank_at_k": 0.2
+    },
+    {
+      "id": "Q11",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "narrative",
+      "query": "Why can a higher mix of SuperVision and other complete systems increase revenue while reducing gross margin?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000216"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000264",
+        "MBLY-2025-CHUNK-000240",
+        "MBLY-2025-CHUNK-000216",
+        "MBLY-2025-CHUNK-000223",
+        "MBLY-2025-CHUNK-000238",
+        "MBLY-2025-CHUNK-000217",
+        "MBLY-2025-CHUNK-000082",
+        "MBLY-2025-CHUNK-000267",
+        "MBLY-2025-CHUNK-000239",
+        "MBLY-2025-CHUNK-000270"
+      ],
+      "retrieved_scores": [
+        0.6933347582817078,
+        0.6605921983718872,
+        0.6435282230377197,
+        0.5940890312194824,
+        0.5871151685714722,
+        0.5745522975921631,
+        0.5732899904251099,
+        0.5672910213470459,
+        0.5639816522598267,
+        0.5567190647125244
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000216"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 3,
+      "reciprocal_rank_at_k": 0.3333333333333333
+    },
+    {
+      "id": "Q12",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "narrative",
+      "query": "Was Mobileye's 2025 revenue growth driven more by unit shipments, product mix, or pricing, and what evidence supports that conclusion?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000238"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000207",
+        "MBLY-2025-CHUNK-000419",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000036",
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000444"
+      ],
+      "retrieved_scores": [
+        0.6195697784423828,
+        0.6169811487197876,
+        0.5915442705154419,
+        0.5889636278152466,
+        0.5802897214889526,
+        0.5774240493774414,
+        0.5747203826904297,
+        0.5723382234573364,
+        0.5715591907501221,
+        0.5683426856994629
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q13",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "narrative",
+      "query": "Did gross profit improve at the same pace as revenue from 2024 to 2025, and what explains the difference?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000238",
+        "MBLY-2025-CHUNK-000240"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000240",
+        "MBLY-2025-CHUNK-000264",
+        "MBLY-2025-CHUNK-000239",
+        "MBLY-2025-CHUNK-000270",
+        "MBLY-2025-CHUNK-000245",
+        "MBLY-2025-CHUNK-000238",
+        "MBLY-2025-CHUNK-000250",
+        "MBLY-2025-CHUNK-000243",
+        "MBLY-2025-CHUNK-000254",
+        "MBLY-2025-CHUNK-000267"
+      ],
+      "retrieved_scores": [
+        0.7257115840911865,
+        0.6459915041923523,
+        0.6412373781204224,
+        0.6327835321426392,
+        0.6325938701629639,
+        0.6316795349121094,
+        0.6302196979522705,
+        0.6197307109832764,
+        0.6180528402328491,
+        0.6108123064041138
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000240",
+        "MBLY-2025-CHUNK-000238"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "Q14",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "mixed",
+      "query": "How did research and development spending change from 2024 to 2025 in both dollars and percentage of revenue, and what business priorities explain that level of spending?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000224",
+        "MBLY-2025-CHUNK-000233",
+        "MBLY-2025-CHUNK-000241"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000241",
+        "MBLY-2025-CHUNK-000248",
+        "MBLY-2025-CHUNK-000242",
+        "MBLY-2025-CHUNK-000254",
+        "MBLY-2025-CHUNK-000239",
+        "MBLY-2025-CHUNK-000243",
+        "MBLY-2025-CHUNK-000238",
+        "MBLY-2025-CHUNK-000256",
+        "MBLY-2025-CHUNK-000250",
+        "MBLY-2025-CHUNK-000255"
+      ],
+      "retrieved_scores": [
+        0.7138065099716187,
+        0.6933433413505554,
+        0.636644721031189,
+        0.6288563013076782,
+        0.628851056098938,
+        0.6223351955413818,
+        0.6046855449676514,
+        0.595459520816803,
+        0.5941424369812012,
+        0.5919036269187927
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000241"
+      ],
+      "recall_at_k": 0.3333333333333333,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "Q15",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "mixed",
+      "query": "Why was Mobileye's net loss much smaller in 2025 than in 2024 even though the company remained unprofitable?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000233",
+        "MBLY-2025-CHUNK-000244"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000411",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000249",
+        "MBLY-2025-CHUNK-000444",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000246"
+      ],
+      "retrieved_scores": [
+        0.6396284699440002,
+        0.6327993273735046,
+        0.6276528239250183,
+        0.6208629608154297,
+        0.616416871547699,
+        0.6099647283554077,
+        0.6076277494430542,
+        0.6041331887245178,
+        0.6009290218353271,
+        0.5929664969444275
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000244"
+      ],
+      "recall_at_k": 0.5,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "Q16",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "mixed",
+      "query": "What do Mobileye's operating, investing, and financing cash flows collectively indicate about how it funded the business in 2025?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000253",
+        "MBLY-2025-CHUNK-000254",
+        "MBLY-2025-CHUNK-000255",
+        "MBLY-2025-CHUNK-000256"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000411",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000357",
+        "MBLY-2025-CHUNK-000427",
+        "MBLY-2025-CHUNK-000001",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000415"
+      ],
+      "retrieved_scores": [
+        0.6941972374916077,
+        0.664679765701294,
+        0.6571645140647888,
+        0.6550663709640503,
+        0.6532227993011475,
+        0.6519319415092468,
+        0.6442949771881104,
+        0.6420258283615112,
+        0.6415401101112366,
+        0.6366528272628784
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q17",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "mixed",
+      "query": "How concentrated is Mobileye's revenue among major customers and countries, and what financial risk does that concentration create?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000338",
+        "MBLY-2025-CHUNK-000418",
+        "MBLY-2025-CHUNK-000421"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000079",
+        "MBLY-2025-CHUNK-000207",
+        "MBLY-2025-CHUNK-000109",
+        "MBLY-2025-CHUNK-000073",
+        "MBLY-2025-CHUNK-000419",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000083",
+        "MBLY-2025-CHUNK-000427"
+      ],
+      "retrieved_scores": [
+        0.6618196964263916,
+        0.6283964514732361,
+        0.6275584697723389,
+        0.618860125541687,
+        0.615102231502533,
+        0.610521137714386,
+        0.6086318492889404,
+        0.6082873344421387,
+        0.6061111092567444,
+        0.6034432649612427
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q18",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "table",
+      "query": "How are Mobileye's operating lease obligations distributed over time, and how does the maturity schedule reconcile with current and long-term lease liabilities?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000354",
+        "MBLY-2025-CHUNK-000359"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000357",
+        "MBLY-2025-CHUNK-000333",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000430",
+        "MBLY-2025-CHUNK-000207",
+        "MBLY-2025-CHUNK-000220",
+        "MBLY-2025-CHUNK-000063"
+      ],
+      "retrieved_scores": [
+        0.6830077767372131,
+        0.6779997944831848,
+        0.660354733467102,
+        0.6558047533035278,
+        0.6539995670318604,
+        0.6494447588920593,
+        0.6468369960784912,
+        0.6448078155517578,
+        0.6369895339012146,
+        0.6346039175987244
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q19",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "mixed",
+      "query": "How do restricted stock units affect reported expenses, operating cash flow, and potential shareholder dilution even though they are not ordinary cash salaries?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000294",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000370"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000261",
+        "MBLY-2025-CHUNK-000335",
+        "MBLY-2025-CHUNK-000177",
+        "MBLY-2025-CHUNK-000152",
+        "MBLY-2025-CHUNK-000305",
+        "MBLY-2025-CHUNK-000166",
+        "MBLY-2025-CHUNK-000168",
+        "MBLY-2025-CHUNK-000294",
+        "MBLY-2025-CHUNK-000290",
+        "MBLY-2025-CHUNK-000169"
+      ],
+      "retrieved_scores": [
+        0.6663833856582642,
+        0.6456663608551025,
+        0.6454602479934692,
+        0.640335738658905,
+        0.6396492719650269,
+        0.6391115188598633,
+        0.6321083903312683,
+        0.6296092867851257,
+        0.6249438524246216,
+        0.6234642267227173
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000294"
+      ],
+      "recall_at_k": 0.3333333333333333,
+      "first_relevant_rank": 8,
+      "reciprocal_rank_at_k": 0.125
+    },
+    {
+      "id": "Q20",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "evidence_type": "mixed",
+      "query": "Based on its 2025 results and balance sheet, can Mobileye fund its transition from Base ADAS to advanced autonomous systems without near-term external financing? Support the conclusion with growth, margins, R&D spending, cash flows, cash balances, and obligations.",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000224",
+        "MBLY-2025-CHUNK-000233",
+        "MBLY-2025-CHUNK-000251",
+        "MBLY-2025-CHUNK-000253",
+        "MBLY-2025-CHUNK-000288"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000207",
+        "MBLY-2025-CHUNK-000013",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000005",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000083",
+        "MBLY-2025-CHUNK-000009"
+      ],
+      "retrieved_scores": [
+        0.7368030548095703,
+        0.716854989528656,
+        0.6842769384384155,
+        0.6799228191375732,
+        0.6798874139785767,
+        0.6678321361541748,
+        0.6631019711494446,
+        0.6551843881607056,
+        0.651578962802887,
+        0.6508680582046509
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q21",
+      "evaluation_set": "query_to_chunk",
+      "category": "table_lookup",
+      "evidence_type": "table",
+      "query": "Of the amount owed for rented offices and vehicles at year-end 2025, how much was due after the next twelve months?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000354"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000258",
+        "MBLY-2025-CHUNK-000353",
+        "MBLY-2025-CHUNK-000355",
+        "MBLY-2025-CHUNK-000334",
+        "MBLY-2025-CHUNK-000380",
+        "MBLY-2025-CHUNK-000447",
+        "MBLY-2025-CHUNK-000348",
+        "MBLY-2025-CHUNK-000246",
+        "MBLY-2025-CHUNK-000381",
+        "MBLY-2025-CHUNK-000396"
+      ],
+      "retrieved_scores": [
+        0.6261216402053833,
+        0.6167392134666443,
+        0.6107510328292847,
+        0.6104534864425659,
+        0.605282723903656,
+        0.601094126701355,
+        0.6003007888793945,
+        0.5934441089630127,
+        0.5934120416641235,
+        0.593021035194397
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "Q22",
+      "evaluation_set": "query_to_chunk",
+      "category": "table_lookup",
+      "evidence_type": "table",
+      "query": "What payment was scheduled for 2028 under the company's office and vehicle rental commitments?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000359"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000353",
+        "MBLY-2025-CHUNK-000258",
+        "MBLY-2025-CHUNK-000396",
+        "MBLY-2025-CHUNK-000395",
+        "MBLY-2025-CHUNK-000259",
+        "MBLY-2025-CHUNK-000333",
+        "MBLY-2025-CHUNK-000453",
+        "MBLY-2025-CHUNK-000349",
+        "MBLY-2025-CHUNK-000356",
+        "MBLY-2025-CHUNK-000359"
+      ],
+      "retrieved_scores": [
+        0.6394867300987244,
+        0.6288232207298279,
+        0.6119838953018188,
+        0.5922855138778687,
+        0.5892613530158997,
+        0.5892408490180969,
+        0.5793060064315796,
+        0.5786165595054626,
+        0.5784779787063599,
+        0.5774774551391602
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000359"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 10,
+      "reciprocal_rank_at_k": 0.1
+    },
+    {
+      "id": "Q23",
+      "evaluation_set": "query_to_chunk",
+      "category": "table_lookup",
+      "evidence_type": "table",
+      "query": "What proportion of 2025 sales came from the company's largest customer?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000421"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000420",
+        "MBLY-2025-CHUNK-000238",
+        "MBLY-2025-CHUNK-000421",
+        "MBLY-2025-CHUNK-000338",
+        "MBLY-2025-CHUNK-000419",
+        "MBLY-2025-CHUNK-000423",
+        "MBLY-2025-CHUNK-000242",
+        "MBLY-2025-CHUNK-000239",
+        "MBLY-2025-CHUNK-000240",
+        "MBLY-2025-CHUNK-000098"
+      ],
+      "retrieved_scores": [
+        0.5621452927589417,
+        0.5383832454681396,
+        0.5322753190994263,
+        0.5305947661399841,
+        0.5280072689056396,
+        0.5251787900924683,
+        0.5178581476211548,
+        0.5082933902740479,
+        0.5079948306083679,
+        0.5076637268066406
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000421"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 3,
+      "reciprocal_rank_at_k": 0.3333333333333333
+    },
+    {
+      "id": "Q24",
+      "evaluation_set": "query_to_chunk",
+      "category": "table_lookup",
+      "evidence_type": "table",
+      "query": "How much of 2025 sales came from products delivered to Germany?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000418"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000213",
+        "MBLY-2025-CHUNK-000242",
+        "MBLY-2025-CHUNK-000417",
+        "MBLY-2025-CHUNK-000418",
+        "MBLY-2025-CHUNK-000210",
+        "MBLY-2025-CHUNK-000419",
+        "MBLY-2025-CHUNK-000256",
+        "MBLY-2025-CHUNK-000100",
+        "MBLY-2025-CHUNK-000254",
+        "MBLY-2025-CHUNK-000134"
+      ],
+      "retrieved_scores": [
+        0.5455672144889832,
+        0.5373069047927856,
+        0.5307474136352539,
+        0.5284609794616699,
+        0.5193275213241577,
+        0.49840760231018066,
+        0.49543485045433044,
+        0.49261361360549927,
+        0.4883101284503937,
+        0.48424527049064636
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000418"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 4,
+      "reciprocal_rank_at_k": 0.25
+    },
+    {
+      "id": "Q25",
+      "evaluation_set": "query_to_chunk",
+      "category": "table_lookup",
+      "evidence_type": "table",
+      "query": "At the end of 2025, how many employee stock units remained outstanding, and what was their average grant-date value per share?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000364"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000364",
+        "MBLY-2025-CHUNK-000370",
+        "MBLY-2025-CHUNK-000241",
+        "MBLY-2025-CHUNK-000363",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000288",
+        "MBLY-2025-CHUNK-000401",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000292",
+        "MBLY-2025-CHUNK-000365"
+      ],
+      "retrieved_scores": [
+        0.6486988067626953,
+        0.6202727556228638,
+        0.5944479703903198,
+        0.593693733215332,
+        0.5931522846221924,
+        0.5898298025131226,
+        0.5796905159950256,
+        0.5787878036499023,
+        0.578679084777832,
+        0.5756964683532715
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000364"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "Q26",
+      "evaluation_set": "query_to_chunk",
+      "category": "table_lookup",
+      "evidence_type": "table",
+      "query": "After excluding acquisition-related amortization and equity compensation, what were Mobileye's 2025 gross profit and gross margin?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000263"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000411",
+        "MBLY-2025-CHUNK-000357",
+        "MBLY-2025-CHUNK-000249",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000444",
+        "MBLY-2025-CHUNK-000296"
+      ],
+      "retrieved_scores": [
+        0.672792911529541,
+        0.6644108891487122,
+        0.6639701724052429,
+        0.6627935171127319,
+        0.6566621661186218,
+        0.6454039812088013,
+        0.6442238092422485,
+        0.643854022026062,
+        0.6430667638778687,
+        0.6423376798629761
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q01",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "Which company did Mobileye acquire in February 2026, and which new technology market did the acquisition add to its business?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000002"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000402",
+        "MBLY-2025-CHUNK-000204",
+        "MBLY-2025-CHUNK-000004",
+        "MBLY-2025-CHUNK-000191",
+        "MBLY-2025-CHUNK-000041",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000444"
+      ],
+      "retrieved_scores": [
+        0.66117262840271,
+        0.6532095074653625,
+        0.6483212113380432,
+        0.6391271352767944,
+        0.6364809274673462,
+        0.5847257375717163,
+        0.5788562893867493,
+        0.5742476582527161,
+        0.5740624666213989,
+        0.5716477632522583
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000002"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q02",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "By the end of 2025, approximately how many vehicle models used Mobileye solutions and how many vehicles contained its chips?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000004"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000004",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000207",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000005",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000019"
+      ],
+      "retrieved_scores": [
+        0.7067177295684814,
+        0.6779487729072571,
+        0.647348165512085,
+        0.6442442536354065,
+        0.6154010891914368,
+        0.6017712950706482,
+        0.5965889692306519,
+        0.5940757989883423,
+        0.5925682783126831,
+        0.5871783494949341
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000004"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q03",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "How does Mobileye turn data collected by production vehicles into high-precision maps for driver-assistance and autonomous systems?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000006"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000011",
+        "MBLY-2025-CHUNK-000018",
+        "MBLY-2025-CHUNK-000030",
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000007",
+        "MBLY-2025-CHUNK-000023",
+        "MBLY-2025-CHUNK-000006"
+      ],
+      "retrieved_scores": [
+        0.7583292126655579,
+        0.7251980304718018,
+        0.7047417759895325,
+        0.7029799222946167,
+        0.7017468810081482,
+        0.696538507938385,
+        0.6957404017448425,
+        0.6955581307411194,
+        0.6924105286598206,
+        0.6917017698287964
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000006"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 10,
+      "reciprocal_rank_at_k": 0.1
+    },
+    {
+      "id": "C2Q04",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "What automotive requirements are Mobileye's purpose-built EyeQ processors designed to satisfy?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000009"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000036",
+        "MBLY-2025-CHUNK-000018",
+        "MBLY-2025-CHUNK-000010",
+        "MBLY-2025-CHUNK-000027",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000005",
+        "MBLY-2025-CHUNK-000043",
+        "MBLY-2025-CHUNK-000020"
+      ],
+      "retrieved_scores": [
+        0.7843631505966187,
+        0.7493853569030762,
+        0.7235978841781616,
+        0.7215712070465088,
+        0.7079431414604187,
+        0.701386034488678,
+        0.6965122818946838,
+        0.6840333342552185,
+        0.6800224781036377,
+        0.6657154560089111
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000009"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q05",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "Which basic safety functions can Mobileye's windshield-mounted driver-assistance product provide from a front-facing view?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000014"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000018",
+        "MBLY-2025-CHUNK-000011",
+        "MBLY-2025-CHUNK-000015",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000034",
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000002"
+      ],
+      "retrieved_scores": [
+        0.7491718530654907,
+        0.7230135202407837,
+        0.7159722447395325,
+        0.7048949599266052,
+        0.6937146186828613,
+        0.6934435367584229,
+        0.668460488319397,
+        0.6648313403129578,
+        0.6474040746688843,
+        0.6419448852539062
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000014"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 2,
+      "reciprocal_rank_at_k": 0.5
+    },
+    {
+      "id": "C2Q06",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "What level of driver attention does SuperVision require, and what camera and EyeQ configuration powers it?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000016"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000017",
+        "MBLY-2025-CHUNK-000018",
+        "MBLY-2025-CHUNK-000034",
+        "MBLY-2025-CHUNK-000015",
+        "MBLY-2025-CHUNK-000035",
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000011",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000031"
+      ],
+      "retrieved_scores": [
+        0.7030051946640015,
+        0.6522338390350342,
+        0.6487263441085815,
+        0.6363641023635864,
+        0.6326972246170044,
+        0.626232385635376,
+        0.6139131784439087,
+        0.6112321615219116,
+        0.6012932062149048,
+        0.5983104705810547
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000016"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q07",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "Which operators and transportation use cases is Mobileye's driverless fleet product intended to support?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000019"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000041",
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000018",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000011",
+        "MBLY-2025-CHUNK-000017"
+      ],
+      "retrieved_scores": [
+        0.7440305948257446,
+        0.7100130319595337,
+        0.7075139284133911,
+        0.6775842308998108,
+        0.6735345125198364,
+        0.6689351797103882,
+        0.6640728712081909,
+        0.6615337133407593,
+        0.653130292892456,
+        0.6461051106452942
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000019"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q08",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "Why does Mobileye believe regulators can authorize robotaxi fleets sooner than autonomous vehicles owned by individual consumers?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000022"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000106",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000104",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000011",
+        "MBLY-2025-CHUNK-000022",
+        "MBLY-2025-CHUNK-000041",
+        "MBLY-2025-CHUNK-000105",
+        "MBLY-2025-CHUNK-000050",
+        "MBLY-2025-CHUNK-000021"
+      ],
+      "retrieved_scores": [
+        0.7177718281745911,
+        0.6924891471862793,
+        0.6922610402107239,
+        0.6844727993011475,
+        0.683875560760498,
+        0.6818242073059082,
+        0.6658254861831665,
+        0.6591628789901733,
+        0.6541593670845032,
+        0.6483573913574219
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000022"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 6,
+      "reciprocal_rank_at_k": 0.16666666666666666
+    },
+    {
+      "id": "C2Q09",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "Why is today's self-driving hardware cost viable for robotaxi services but too high for mass-market passenger cars?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000024"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000024",
+        "MBLY-2025-CHUNK-000028",
+        "MBLY-2025-CHUNK-000022",
+        "MBLY-2025-CHUNK-000023",
+        "MBLY-2025-CHUNK-000011",
+        "MBLY-2025-CHUNK-000106",
+        "MBLY-2025-CHUNK-000021",
+        "MBLY-2025-CHUNK-000012",
+        "MBLY-2025-CHUNK-000105",
+        "MBLY-2025-CHUNK-000055"
+      ],
+      "retrieved_scores": [
+        0.8189881443977356,
+        0.6658951640129089,
+        0.6642910838127136,
+        0.660392701625824,
+        0.6541770696640015,
+        0.6526537537574768,
+        0.6490074396133423,
+        0.6478086709976196,
+        0.646645188331604,
+        0.6456272006034851
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000024"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q10",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "How does the growing fleet of REM-enabled vehicles create a network effect for Mobileye and its customers?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000029"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000029",
+        "MBLY-2025-CHUNK-000006",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000041",
+        "MBLY-2025-CHUNK-000018",
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000014"
+      ],
+      "retrieved_scores": [
+        0.7307430505752563,
+        0.6887674331665039,
+        0.6755548715591431,
+        0.662948727607727,
+        0.6618390679359436,
+        0.6596205234527588,
+        0.65226149559021,
+        0.649053156375885,
+        0.6384146809577942,
+        0.633824348449707
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000029"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q11",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "Who are Mobileye's main customer types, and through which intermediaries does it generally sell to automakers?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000038"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000041",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000038",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000017",
+        "MBLY-2025-CHUNK-000207"
+      ],
+      "retrieved_scores": [
+        0.6551300287246704,
+        0.6352519392967224,
+        0.6066204309463501,
+        0.5896881818771362,
+        0.588141143321991,
+        0.5827019214630127,
+        0.5799562931060791,
+        0.5794148445129395,
+        0.5764850378036499,
+        0.5726664066314697
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000038"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 5,
+      "reciprocal_rank_at_k": 0.2
+    },
+    {
+      "id": "C2Q12",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "What two concrete advantages does Mobileye receive from its partnership with Intel for radar development and autonomous-vehicle regulation?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000042"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000067",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000063",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000036",
+        "MBLY-2025-CHUNK-000061"
+      ],
+      "retrieved_scores": [
+        0.7264900207519531,
+        0.7256211042404175,
+        0.7164579629898071,
+        0.7162980437278748,
+        0.6956532597541809,
+        0.6842558979988098,
+        0.6774402856826782,
+        0.6758549213409424,
+        0.6722463965415955,
+        0.6687045693397522
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q13",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "How many employees did Mobileye have at fiscal year-end 2025, what share worked in R&D, and where were most employees located?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000059"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000073",
+        "MBLY-2025-CHUNK-000004",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000001",
+        "MBLY-2025-CHUNK-000369",
+        "MBLY-2025-CHUNK-000444"
+      ],
+      "retrieved_scores": [
+        0.644928514957428,
+        0.6267912983894348,
+        0.6255413293838501,
+        0.6187113523483276,
+        0.6080371141433716,
+        0.5990397930145264,
+        0.5970950126647949,
+        0.5915205478668213,
+        0.5904221534729004,
+        0.5900523662567139
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q14",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "Which two automakers are cited as replacing or reducing their use of Mobileye products with internally developed systems?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000084"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000020",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000009",
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000018",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000005",
+        "MBLY-2025-CHUNK-000034"
+      ],
+      "retrieved_scores": [
+        0.6763666868209839,
+        0.6725086569786072,
+        0.6685407161712646,
+        0.6633346080780029,
+        0.6375522613525391,
+        0.6312681436538696,
+        0.6281704902648926,
+        0.6262421607971191,
+        0.6201285123825073,
+        0.6171469688415527
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q15",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "Why would delayed deliveries from Mobileye's chip and ECU suppliers threaten its ability to fulfill customer orders?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000087"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000087",
+        "MBLY-2025-CHUNK-000218",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000079",
+        "MBLY-2025-CHUNK-000340",
+        "MBLY-2025-CHUNK-000091",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000217",
+        "MBLY-2025-CHUNK-000083",
+        "MBLY-2025-CHUNK-000339"
+      ],
+      "retrieved_scores": [
+        0.6522864103317261,
+        0.6398522853851318,
+        0.6385257244110107,
+        0.6232620477676392,
+        0.6171535849571228,
+        0.6140480041503906,
+        0.6115729808807373,
+        0.6105214357376099,
+        0.6005309820175171,
+        0.6001736521720886
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000087"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q16",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "What primarily drove Mobileye's revenue increase in 2025, and what happened to its average system price?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000238"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000419",
+        "MBLY-2025-CHUNK-000238",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000246",
+        "MBLY-2025-CHUNK-000411"
+      ],
+      "retrieved_scores": [
+        0.6356692314147949,
+        0.5957052707672119,
+        0.5923033356666565,
+        0.5880881547927856,
+        0.5866473317146301,
+        0.5824699401855469,
+        0.5821024179458618,
+        0.5776834487915039,
+        0.5744800567626953,
+        0.5726687908172607
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000238"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 7,
+      "reciprocal_rank_at_k": 0.14285714285714285
+    },
+    {
+      "id": "C2Q17",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "How did Mobileye's gross margin change in 2025, and which two mix effects explain the improvement?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000240"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000246",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000249",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000411",
+        "MBLY-2025-CHUNK-000264",
+        "MBLY-2025-CHUNK-000240"
+      ],
+      "retrieved_scores": [
+        0.6286579370498657,
+        0.620959997177124,
+        0.6113036274909973,
+        0.607498288154602,
+        0.6041648387908936,
+        0.6039913892745972,
+        0.5930280685424805,
+        0.5914965271949768,
+        0.589718222618103,
+        0.5883494019508362
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000240"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 10,
+      "reciprocal_rank_at_k": 0.1
+    },
+    {
+      "id": "C2Q18",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "evidence_type": "narrative",
+      "query": "What explains the large goodwill impairment recorded in 2024 and why was no comparable charge recorded in 2025?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000244"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000249",
+        "MBLY-2025-CHUNK-000405",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000227",
+        "MBLY-2025-CHUNK-000314",
+        "MBLY-2025-CHUNK-000404",
+        "MBLY-2025-CHUNK-000273",
+        "MBLY-2025-CHUNK-000246",
+        "MBLY-2025-CHUNK-000403"
+      ],
+      "retrieved_scores": [
+        0.700815737247467,
+        0.687770426273346,
+        0.6852011680603027,
+        0.6716184616088867,
+        0.6700833439826965,
+        0.651411771774292,
+        0.6505273580551147,
+        0.6409260034561157,
+        0.633115291595459,
+        0.6319464445114136
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000244"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q19",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "evidence_type": "table",
+      "query": "How old was Mobileye's chief executive officer according to the executive officer listing?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000071"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000073",
+        "MBLY-2025-CHUNK-000075",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000444",
+        "MBLY-2025-CHUNK-000074",
+        "MBLY-2025-CHUNK-000072",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000187",
+        "MBLY-2025-CHUNK-000071"
+      ],
+      "retrieved_scores": [
+        0.7376878261566162,
+        0.6447906494140625,
+        0.6360011696815491,
+        0.6262235641479492,
+        0.6212188005447388,
+        0.6180719137191772,
+        0.6008017063140869,
+        0.5980042815208435,
+        0.5970513820648193,
+        0.5801584720611572
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000071"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 10,
+      "reciprocal_rank_at_k": 0.1
+    },
+    {
+      "id": "C2Q20",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "evidence_type": "table",
+      "query": "What revenue did Mobileye report for fiscal 2024?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000233"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000379",
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000246",
+        "MBLY-2025-CHUNK-000249",
+        "MBLY-2025-CHUNK-000001",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000282",
+        "MBLY-2025-CHUNK-000419"
+      ],
+      "retrieved_scores": [
+        0.6924830675125122,
+        0.66627037525177,
+        0.66143798828125,
+        0.653998076915741,
+        0.6490474939346313,
+        0.647232174873352,
+        0.647030234336853,
+        0.6464093327522278,
+        0.645894467830658,
+        0.6406465768814087
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q21",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "evidence_type": "table",
+      "query": "How much net cash did operating activities provide in 2025?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000253"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000255",
+        "MBLY-2025-CHUNK-000256",
+        "MBLY-2025-CHUNK-000254",
+        "MBLY-2025-CHUNK-000245",
+        "MBLY-2025-CHUNK-000243",
+        "MBLY-2025-CHUNK-000250",
+        "MBLY-2025-CHUNK-000241",
+        "MBLY-2025-CHUNK-000246",
+        "MBLY-2025-CHUNK-000253",
+        "MBLY-2025-CHUNK-000240"
+      ],
+      "retrieved_scores": [
+        0.7454527616500854,
+        0.7152622938156128,
+        0.7037628889083862,
+        0.7005412578582764,
+        0.6664422750473022,
+        0.6600840091705322,
+        0.657690167427063,
+        0.6509066224098206,
+        0.6466473340988159,
+        0.6380503177642822
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000253"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 9,
+      "reciprocal_rank_at_k": 0.1111111111111111
+    },
+    {
+      "id": "C2Q22",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "evidence_type": "table",
+      "query": "At the end of 2025, how much inventory consisted of raw materials and how much consisted of finished goods?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000345"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000345",
+        "MBLY-2025-CHUNK-000403",
+        "MBLY-2025-CHUNK-000346",
+        "MBLY-2025-CHUNK-000254",
+        "MBLY-2025-CHUNK-000404",
+        "MBLY-2025-CHUNK-000348",
+        "MBLY-2025-CHUNK-000242",
+        "MBLY-2025-CHUNK-000263",
+        "MBLY-2025-CHUNK-000405",
+        "MBLY-2025-CHUNK-000255"
+      ],
+      "retrieved_scores": [
+        0.6139053106307983,
+        0.5874661207199097,
+        0.5788224935531616,
+        0.5736269950866699,
+        0.5586360692977905,
+        0.5574208498001099,
+        0.5557544231414795,
+        0.551388680934906,
+        0.5473222732543945,
+        0.5449034571647644
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000345"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q23",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "evidence_type": "table",
+      "query": "How much of Mobileye's operating lease liability was current and how much was long term at the end of 2025?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000354"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000357",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000411",
+        "MBLY-2025-CHUNK-000444",
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000355",
+        "MBLY-2025-CHUNK-000430",
+        "MBLY-2025-CHUNK-000296"
+      ],
+      "retrieved_scores": [
+        0.6643667817115784,
+        0.6529415249824524,
+        0.6202755570411682,
+        0.6189907789230347,
+        0.6161444187164307,
+        0.6001453995704651,
+        0.5981707572937012,
+        0.5933903455734253,
+        0.5922871828079224,
+        0.5914958119392395
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q24",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "evidence_type": "table",
+      "query": "How many restricted stock units remained outstanding at the end of 2025, and what was their weighted-average grant-date value per share?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000364"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000364",
+        "MBLY-2025-CHUNK-000370",
+        "MBLY-2025-CHUNK-000363",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000355",
+        "MBLY-2025-CHUNK-000288",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000371",
+        "MBLY-2025-CHUNK-000365",
+        "MBLY-2025-CHUNK-000335"
+      ],
+      "retrieved_scores": [
+        0.6326944231987,
+        0.6218644380569458,
+        0.6027519702911377,
+        0.5917956829071045,
+        0.5910956859588623,
+        0.5731854438781738,
+        0.5682281255722046,
+        0.5661826133728027,
+        0.566132128238678,
+        0.5659606456756592
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000364"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q25",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "evidence_type": "table",
+      "query": "How much revenue came from products shipped to Germany during 2024?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000418"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000417",
+        "MBLY-2025-CHUNK-000418",
+        "MBLY-2025-CHUNK-000242",
+        "MBLY-2025-CHUNK-000250",
+        "MBLY-2025-CHUNK-000213",
+        "MBLY-2025-CHUNK-000248",
+        "MBLY-2025-CHUNK-000254",
+        "MBLY-2025-CHUNK-000247",
+        "MBLY-2025-CHUNK-000210",
+        "MBLY-2025-CHUNK-000238"
+      ],
+      "retrieved_scores": [
+        0.5903797745704651,
+        0.5833012461662292,
+        0.5752952098846436,
+        0.5722727179527283,
+        0.5702199935913086,
+        0.5655012130737305,
+        0.5598715543746948,
+        0.5569469928741455,
+        0.5534279346466064,
+        0.5509988069534302
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000418"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 2,
+      "reciprocal_rank_at_k": 0.5
+    },
+    {
+      "id": "C2Q26",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "evidence_type": "table",
+      "query": "What percentage of Mobileye's 2025 revenue came from its largest customer?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000421"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000419",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000296",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000073",
+        "MBLY-2025-CHUNK-000357",
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000061"
+      ],
+      "retrieved_scores": [
+        0.5899474620819092,
+        0.5728517174720764,
+        0.5727893114089966,
+        0.5625482797622681,
+        0.5601661801338196,
+        0.555554211139679,
+        0.547791063785553,
+        0.5438446402549744,
+        0.540177583694458,
+        0.530747652053833
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q27",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "evidence_type": "narrative",
+      "query": "How do Base ADAS and SuperVision differ in driver responsibility, supported functions, sensing coverage, and onboard computing?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000016"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000015",
+        "MBLY-2025-CHUNK-000017",
+        "MBLY-2025-CHUNK-000014",
+        "MBLY-2025-CHUNK-000034",
+        "MBLY-2025-CHUNK-000013",
+        "MBLY-2025-CHUNK-000018",
+        "MBLY-2025-CHUNK-000026",
+        "MBLY-2025-CHUNK-000028",
+        "MBLY-2025-CHUNK-000025"
+      ],
+      "retrieved_scores": [
+        0.7045536041259766,
+        0.6864884495735168,
+        0.6858557462692261,
+        0.672260046005249,
+        0.6660093069076538,
+        0.6622204184532166,
+        0.6516637206077576,
+        0.649085521697998,
+        0.6368634700775146,
+        0.633432149887085
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000014"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q28",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "evidence_type": "narrative",
+      "query": "Why does Mobileye expect robotaxi fleets to scale before privately owned autonomous cars when regulation, geographic coverage, and hardware cost are considered together?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000022",
+        "MBLY-2025-CHUNK-000023",
+        "MBLY-2025-CHUNK-000024"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000106",
+        "MBLY-2025-CHUNK-000019",
+        "MBLY-2025-CHUNK-000023",
+        "MBLY-2025-CHUNK-000024",
+        "MBLY-2025-CHUNK-000011",
+        "MBLY-2025-CHUNK-000104",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000022",
+        "MBLY-2025-CHUNK-000105",
+        "MBLY-2025-CHUNK-000041"
+      ],
+      "retrieved_scores": [
+        0.7355520725250244,
+        0.7168028354644775,
+        0.7137479782104492,
+        0.7090054154396057,
+        0.7064268589019775,
+        0.6961638927459717,
+        0.6904479265213013,
+        0.6854943037033081,
+        0.6828758716583252,
+        0.6809309720993042
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000023",
+        "MBLY-2025-CHUNK-000024",
+        "MBLY-2025-CHUNK-000022"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 3,
+      "reciprocal_rank_at_k": 0.3333333333333333
+    },
+    {
+      "id": "C2Q29",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "evidence_type": "narrative",
+      "query": "What roles do STMicroelectronics, Quanta, and TSMC play in Mobileye's production chain, and what delivery and geopolitical risks follow from those dependencies?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000043",
+        "MBLY-2025-CHUNK-000087",
+        "MBLY-2025-CHUNK-000090"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000089",
+        "MBLY-2025-CHUNK-000208",
+        "MBLY-2025-CHUNK-000043",
+        "MBLY-2025-CHUNK-000087",
+        "MBLY-2025-CHUNK-000340",
+        "MBLY-2025-CHUNK-000217",
+        "MBLY-2025-CHUNK-000218",
+        "MBLY-2025-CHUNK-000042",
+        "MBLY-2025-CHUNK-000090",
+        "MBLY-2025-CHUNK-000091"
+      ],
+      "retrieved_scores": [
+        0.6572872400283813,
+        0.6553828716278076,
+        0.6386815309524536,
+        0.6302621364593506,
+        0.6194171905517578,
+        0.6161618828773499,
+        0.6108219027519226,
+        0.6106300354003906,
+        0.6058660745620728,
+        0.6007618308067322
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000043",
+        "MBLY-2025-CHUNK-000087",
+        "MBLY-2025-CHUNK-000090"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 3,
+      "reciprocal_rank_at_k": 0.3333333333333333
+    },
+    {
+      "id": "C2Q30",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "evidence_type": "narrative",
+      "query": "How did shipment volume and product mix affect both revenue growth and gross margin in 2025?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000238",
+        "MBLY-2025-CHUNK-000240"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000240",
+        "MBLY-2025-CHUNK-000264",
+        "MBLY-2025-CHUNK-000216",
+        "MBLY-2025-CHUNK-000267",
+        "MBLY-2025-CHUNK-000238",
+        "MBLY-2025-CHUNK-000213",
+        "MBLY-2025-CHUNK-000242",
+        "MBLY-2025-CHUNK-000247",
+        "MBLY-2025-CHUNK-000210",
+        "MBLY-2025-CHUNK-000270"
+      ],
+      "retrieved_scores": [
+        0.6915649175643921,
+        0.6787328720092773,
+        0.6425573825836182,
+        0.6288939118385315,
+        0.6246354579925537,
+        0.6244701743125916,
+        0.6234353184700012,
+        0.6199101805686951,
+        0.6146168112754822,
+        0.6140301823616028
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000240",
+        "MBLY-2025-CHUNK-000238"
+      ],
+      "recall_at_k": 1.0,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q31",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "evidence_type": "mixed",
+      "query": "How much did Mobileye's net loss improve from 2024 to 2025, and which non-cash event explains most of the difference?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000233",
+        "MBLY-2025-CHUNK-000244"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000244",
+        "MBLY-2025-CHUNK-000249",
+        "MBLY-2025-CHUNK-000246",
+        "MBLY-2025-CHUNK-000227",
+        "MBLY-2025-CHUNK-000406",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000411",
+        "MBLY-2025-CHUNK-000250"
+      ],
+      "retrieved_scores": [
+        0.6626304388046265,
+        0.6310255527496338,
+        0.6068608164787292,
+        0.6064550280570984,
+        0.6048983931541443,
+        0.5950156450271606,
+        0.5876086950302124,
+        0.5845355987548828,
+        0.583003044128418,
+        0.5808698534965515
+      ],
+      "hit_chunk_ids": [
+        "MBLY-2025-CHUNK-000244"
+      ],
+      "recall_at_k": 0.5,
+      "first_relevant_rank": 1,
+      "reciprocal_rank_at_k": 1.0
+    },
+    {
+      "id": "C2Q32",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "evidence_type": "mixed",
+      "query": "What evidence from management's funding discussion, 2025 cash flows, and the year-end balance sheet supports or challenges Mobileye's ability to finance its near-term plans internally?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000251",
+        "MBLY-2025-CHUNK-000253",
+        "MBLY-2025-CHUNK-000288"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000283",
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000411",
+        "MBLY-2025-CHUNK-000274",
+        "MBLY-2025-CHUNK-000427",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000220",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000430"
+      ],
+      "retrieved_scores": [
+        0.6362225413322449,
+        0.6339403390884399,
+        0.6316173076629639,
+        0.6145033836364746,
+        0.6118209362030029,
+        0.603850781917572,
+        0.6022512316703796,
+        0.6010187864303589,
+        0.5987222194671631,
+        0.5964330434799194
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q33",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "evidence_type": "table",
+      "query": "How does the year-end classification of Mobileye's operating lease liabilities relate to the timing and present value of its future lease payments?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000354",
+        "MBLY-2025-CHUNK-000359"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000333",
+        "MBLY-2025-CHUNK-000362",
+        "MBLY-2025-CHUNK-000327",
+        "MBLY-2025-CHUNK-000357",
+        "MBLY-2025-CHUNK-000258",
+        "MBLY-2025-CHUNK-000353",
+        "MBLY-2025-CHUNK-000274",
+        "MBLY-2025-CHUNK-000430",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000406"
+      ],
+      "retrieved_scores": [
+        0.6979327201843262,
+        0.6780351400375366,
+        0.6708908677101135,
+        0.6679021716117859,
+        0.6638651490211487,
+        0.6584532260894775,
+        0.658318817615509,
+        0.6570612192153931,
+        0.6558599472045898,
+        0.6497110724449158
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    },
+    {
+      "id": "C2Q34",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "evidence_type": "mixed",
+      "query": "How concentrated was Mobileye's 2025 revenue by customer and destination country, and why does that concentration create business risk?",
+      "relevant_chunk_ids": [
+        "MBLY-2025-CHUNK-000338",
+        "MBLY-2025-CHUNK-000418",
+        "MBLY-2025-CHUNK-000421"
+      ],
+      "retrieved_chunk_ids": [
+        "MBLY-2025-CHUNK-000201",
+        "MBLY-2025-CHUNK-000109",
+        "MBLY-2025-CHUNK-000083",
+        "MBLY-2025-CHUNK-000104",
+        "MBLY-2025-CHUNK-000207",
+        "MBLY-2025-CHUNK-000079",
+        "MBLY-2025-CHUNK-000389",
+        "MBLY-2025-CHUNK-000002",
+        "MBLY-2025-CHUNK-000106",
+        "MBLY-2025-CHUNK-000244"
+      ],
+      "retrieved_scores": [
+        0.6602678894996643,
+        0.6327068209648132,
+        0.6282516121864319,
+        0.618820071220398,
+        0.6144540905952454,
+        0.6126711368560791,
+        0.6114774942398071,
+        0.6109721660614014,
+        0.6103318333625793,
+        0.6038089990615845
+      ],
+      "hit_chunk_ids": [],
+      "recall_at_k": 0.0,
+      "first_relevant_rank": null,
+      "reciprocal_rank_at_k": 0.0
+    }
+  ]
+}

@@ -1,12 +1,16 @@
 {
-  "schema_version": 1,
+  "schema_version": 3,
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
   "strategy": "recursive",
-  "chunk_size": 1200,
-  "chunk_overlap": 150,
-  "length_function": "characters",
+  "chunk_size": 500,
+  "chunk_overlap": 32,
+  "length_function": "tokens",
+  "tokenizer_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "tokenizer_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
   "separators": ["\n\n", "\n", ". ", " ", ""],
   "excluded_content_types": ["navigation"],
   "narrative_content_types": ["heading", "paragraph", "list_item"],
   "table_content_types": ["data_table", "text_table", "unknown_table"],
-  "table_policy": "one complete table per chunk with title, units, column units, and headers"
+  "table_policy": "one complete non-navigation logical table per chunk; linked HTML fragments compose vertically, horizontally, or as valid Markdown subtables"
 }

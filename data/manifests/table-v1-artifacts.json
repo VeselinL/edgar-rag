@@ -1,0 +1,408 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-08-13T12:14:52.047888+00:00",
+  "purpose": "rollback inventory captured immediately before table-v2 promotion",
+  "backup_root": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813",
+  "files": [
+    {
+      "ticker": "APTV",
+      "filing_year": 2025,
+      "artifact_type": "processed_blocks",
+      "target_relative_path": "data/processed/APTV/2025-10-K.blocks.jsonl",
+      "existed": true,
+      "sha256": "f9fec97053afec191997b1ac449228899a54714de213c7b54219b1c0e91bbf49",
+      "size_bytes": 5224672,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/processed/APTV/2025-10-K.blocks.jsonl",
+      "backup_sha256": "f9fec97053afec191997b1ac449228899a54714de213c7b54219b1c0e91bbf49"
+    },
+    {
+      "ticker": "APTV",
+      "filing_year": 2025,
+      "artifact_type": "processed_qa",
+      "target_relative_path": "data/processed/APTV/2025-10-K.blocks.qa.json",
+      "existed": false
+    },
+    {
+      "ticker": "APTV",
+      "filing_year": 2025,
+      "artifact_type": "chunks",
+      "target_relative_path": "data/chunks/APTV/2025-10-K.chunks.jsonl",
+      "existed": true,
+      "sha256": "cbe338a08c0ae20c0669d59b2bc4e416b648cf027c26c24a32adbf95a08927d9",
+      "size_bytes": 1489627,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/APTV/2025-10-K.chunks.jsonl",
+      "backup_sha256": "cbe338a08c0ae20c0669d59b2bc4e416b648cf027c26c24a32adbf95a08927d9"
+    },
+    {
+      "ticker": "APTV",
+      "filing_year": 2025,
+      "artifact_type": "chunk_statistics",
+      "target_relative_path": "data/chunks/APTV/2025-10-K.chunks.stats.json",
+      "existed": true,
+      "sha256": "956ba3fff0d1b37d03d11b08134e7e376c1b685acc4d785d093175843e4d031e",
+      "size_bytes": 498,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/APTV/2025-10-K.chunks.stats.json",
+      "backup_sha256": "956ba3fff0d1b37d03d11b08134e7e376c1b685acc4d785d093175843e4d031e"
+    },
+    {
+      "ticker": "AUR",
+      "filing_year": 2025,
+      "artifact_type": "processed_blocks",
+      "target_relative_path": "data/processed/AUR/2025-10-K.blocks.jsonl",
+      "existed": true,
+      "sha256": "67b52ee02a0f77b6c30bb6384692ad36c11982cf558f1f0eedb6c4f74cfb51e5",
+      "size_bytes": 1550288,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/processed/AUR/2025-10-K.blocks.jsonl",
+      "backup_sha256": "67b52ee02a0f77b6c30bb6384692ad36c11982cf558f1f0eedb6c4f74cfb51e5"
+    },
+    {
+      "ticker": "AUR",
+      "filing_year": 2025,
+      "artifact_type": "processed_qa",
+      "target_relative_path": "data/processed/AUR/2025-10-K.blocks.qa.json",
+      "existed": false
+    },
+    {
+      "ticker": "AUR",
+      "filing_year": 2025,
+      "artifact_type": "chunks",
+      "target_relative_path": "data/chunks/AUR/2025-10-K.chunks.jsonl",
+      "existed": true,
+      "sha256": "b6d9afd491789aed0a42e350e159318757ac92868e76d65144773848fd1e877d",
+      "size_bytes": 661009,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/AUR/2025-10-K.chunks.jsonl",
+      "backup_sha256": "b6d9afd491789aed0a42e350e159318757ac92868e76d65144773848fd1e877d"
+    },
+    {
+      "ticker": "AUR",
+      "filing_year": 2025,
+      "artifact_type": "chunk_statistics",
+      "target_relative_path": "data/chunks/AUR/2025-10-K.chunks.stats.json",
+      "existed": true,
+      "sha256": "037036c824999c7de7eb6818e73e178351b02c9d41093ab6ac986d52ed2f06d0",
+      "size_bytes": 497,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/AUR/2025-10-K.chunks.stats.json",
+      "backup_sha256": "037036c824999c7de7eb6818e73e178351b02c9d41093ab6ac986d52ed2f06d0"
+    },
+    {
+      "ticker": "F",
+      "filing_year": 2025,
+      "artifact_type": "processed_blocks",
+      "target_relative_path": "data/processed/F/2025-10-K.blocks.jsonl",
+      "existed": true,
+      "sha256": "e9a7d7997d9d23b5eac1d618337cafa6ade1b5dc5c03d24eca8543823a90a0de",
+      "size_bytes": 6374994,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/processed/F/2025-10-K.blocks.jsonl",
+      "backup_sha256": "e9a7d7997d9d23b5eac1d618337cafa6ade1b5dc5c03d24eca8543823a90a0de"
+    },
+    {
+      "ticker": "F",
+      "filing_year": 2025,
+      "artifact_type": "processed_qa",
+      "target_relative_path": "data/processed/F/2025-10-K.blocks.qa.json",
+      "existed": false
+    },
+    {
+      "ticker": "F",
+      "filing_year": 2025,
+      "artifact_type": "chunks",
+      "target_relative_path": "data/chunks/F/2025-10-K.chunks.jsonl",
+      "existed": true,
+      "sha256": "e8167c520e049f48c12c2916c2b12936a7fc977c371f52276b25ef5d8d749f0e",
+      "size_bytes": 1540526,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/F/2025-10-K.chunks.jsonl",
+      "backup_sha256": "e8167c520e049f48c12c2916c2b12936a7fc977c371f52276b25ef5d8d749f0e"
+    },
+    {
+      "ticker": "F",
+      "filing_year": 2025,
+      "artifact_type": "chunk_statistics",
+      "target_relative_path": "data/chunks/F/2025-10-K.chunks.stats.json",
+      "existed": true,
+      "sha256": "ac601af2f3c538b20cd5d257c73ac89ff6a88d2396fcbc7fe0feade969781724",
+      "size_bytes": 501,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/F/2025-10-K.chunks.stats.json",
+      "backup_sha256": "ac601af2f3c538b20cd5d257c73ac89ff6a88d2396fcbc7fe0feade969781724"
+    },
+    {
+      "ticker": "GM",
+      "filing_year": 2025,
+      "artifact_type": "processed_blocks",
+      "target_relative_path": "data/processed/GM/2025-10-K.blocks.jsonl",
+      "existed": true,
+      "sha256": "bc30ab4adfdddfdc937a82bb5ca17ea387c39d7837a460273ee6ab6af6578447",
+      "size_bytes": 4929632,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/processed/GM/2025-10-K.blocks.jsonl",
+      "backup_sha256": "bc30ab4adfdddfdc937a82bb5ca17ea387c39d7837a460273ee6ab6af6578447"
+    },
+    {
+      "ticker": "GM",
+      "filing_year": 2025,
+      "artifact_type": "processed_qa",
+      "target_relative_path": "data/processed/GM/2025-10-K.blocks.qa.json",
+      "existed": false
+    },
+    {
+      "ticker": "GM",
+      "filing_year": 2025,
+      "artifact_type": "chunks",
+      "target_relative_path": "data/chunks/GM/2025-10-K.chunks.jsonl",
+      "existed": true,
+      "sha256": "58f64f29d11263d989eb533d17512a1813b9e58f24279b2c9d3f30d5a29a2193",
+      "size_bytes": 1171987,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/GM/2025-10-K.chunks.jsonl",
+      "backup_sha256": "58f64f29d11263d989eb533d17512a1813b9e58f24279b2c9d3f30d5a29a2193"
+    },
+    {
+      "ticker": "GM",
+      "filing_year": 2025,
+      "artifact_type": "chunk_statistics",
+      "target_relative_path": "data/chunks/GM/2025-10-K.chunks.stats.json",
+      "existed": true,
+      "sha256": "b8f031108dd709f8be9e230cfbc6392c559b68dd6443ff2b9552e18ce9609a69",
+      "size_bytes": 501,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/GM/2025-10-K.chunks.stats.json",
+      "backup_sha256": "b8f031108dd709f8be9e230cfbc6392c559b68dd6443ff2b9552e18ce9609a69"
+    },
+    {
+      "ticker": "GOOGL",
+      "filing_year": 2025,
+      "artifact_type": "processed_blocks",
+      "target_relative_path": "data/processed/GOOGL/2025-10-K.blocks.jsonl",
+      "existed": true,
+      "sha256": "9ff1a23edc7d05f751372e7d9f533e51941b5a4b7c33bcd87138fea096d08e46",
+      "size_bytes": 3312138,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/processed/GOOGL/2025-10-K.blocks.jsonl",
+      "backup_sha256": "9ff1a23edc7d05f751372e7d9f533e51941b5a4b7c33bcd87138fea096d08e46"
+    },
+    {
+      "ticker": "GOOGL",
+      "filing_year": 2025,
+      "artifact_type": "processed_qa",
+      "target_relative_path": "data/processed/GOOGL/2025-10-K.blocks.qa.json",
+      "existed": false
+    },
+    {
+      "ticker": "GOOGL",
+      "filing_year": 2025,
+      "artifact_type": "chunks",
+      "target_relative_path": "data/chunks/GOOGL/2025-10-K.chunks.jsonl",
+      "existed": true,
+      "sha256": "8882a155871464d80e92fd4bfa2af14032c1fbc4a016f3e38c5725fb8c1a0f89",
+      "size_bytes": 1018062,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/GOOGL/2025-10-K.chunks.jsonl",
+      "backup_sha256": "8882a155871464d80e92fd4bfa2af14032c1fbc4a016f3e38c5725fb8c1a0f89"
+    },
+    {
+      "ticker": "GOOGL",
+      "filing_year": 2025,
+      "artifact_type": "chunk_statistics",
+      "target_relative_path": "data/chunks/GOOGL/2025-10-K.chunks.stats.json",
+      "existed": true,
+      "sha256": "5595b643800a6e51dc5a4ed9a89f3f722ff333ea0abed13a241f0f7ec1d077e6",
+      "size_bytes": 500,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/GOOGL/2025-10-K.chunks.stats.json",
+      "backup_sha256": "5595b643800a6e51dc5a4ed9a89f3f722ff333ea0abed13a241f0f7ec1d077e6"
+    },
+    {
+      "ticker": "MBLY",
+      "filing_year": 2025,
+      "artifact_type": "processed_blocks",
+      "target_relative_path": "data/processed/MBLY/2025-10-K.blocks.jsonl",
+      "existed": true,
+      "sha256": "f17905722777d2e4d4a02d108734b2a9c1c7968dcd74de54610b53fc651ab25a",
+      "size_bytes": 2641713,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/processed/MBLY/2025-10-K.blocks.jsonl",
+      "backup_sha256": "f17905722777d2e4d4a02d108734b2a9c1c7968dcd74de54610b53fc651ab25a"
+    },
+    {
+      "ticker": "MBLY",
+      "filing_year": 2025,
+      "artifact_type": "processed_qa",
+      "target_relative_path": "data/processed/MBLY/2025-10-K.blocks.qa.json",
+      "existed": false
+    },
+    {
+      "ticker": "MBLY",
+      "filing_year": 2025,
+      "artifact_type": "chunks",
+      "target_relative_path": "data/chunks/MBLY/2025-10-K.chunks.jsonl",
+      "existed": true,
+      "sha256": "af41b65b5259a88f00654773adc711b974903f6a6310c40817b1b1063713ca06",
+      "size_bytes": 1111749,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/MBLY/2025-10-K.chunks.jsonl",
+      "backup_sha256": "af41b65b5259a88f00654773adc711b974903f6a6310c40817b1b1063713ca06"
+    },
+    {
+      "ticker": "MBLY",
+      "filing_year": 2025,
+      "artifact_type": "chunk_statistics",
+      "target_relative_path": "data/chunks/MBLY/2025-10-K.chunks.stats.json",
+      "existed": true,
+      "sha256": "63d89f5c6be0f8fa663d76f9d45c5a4381310c9240e82199cb1c59b0ab12c02b",
+      "size_bytes": 497,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/MBLY/2025-10-K.chunks.stats.json",
+      "backup_sha256": "63d89f5c6be0f8fa663d76f9d45c5a4381310c9240e82199cb1c59b0ab12c02b"
+    },
+    {
+      "ticker": "NVDA",
+      "filing_year": 2026,
+      "artifact_type": "processed_blocks",
+      "target_relative_path": "data/processed/NVDA/2026-10-K.blocks.jsonl",
+      "existed": true,
+      "sha256": "70c2a7253958c6183e5177adcca3fa9d66ae00b4ff23c6279d2c8d9035ae9188",
+      "size_bytes": 2396452,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/processed/NVDA/2026-10-K.blocks.jsonl",
+      "backup_sha256": "70c2a7253958c6183e5177adcca3fa9d66ae00b4ff23c6279d2c8d9035ae9188"
+    },
+    {
+      "ticker": "NVDA",
+      "filing_year": 2026,
+      "artifact_type": "processed_qa",
+      "target_relative_path": "data/processed/NVDA/2026-10-K.blocks.qa.json",
+      "existed": false
+    },
+    {
+      "ticker": "NVDA",
+      "filing_year": 2026,
+      "artifact_type": "chunks",
+      "target_relative_path": "data/chunks/NVDA/2026-10-K.chunks.jsonl",
+      "existed": true,
+      "sha256": "0f6cac3d744ef70b0eb3e1d7b1e5b629bbad55c152045a88ce26e018c7dceca5",
+      "size_bytes": 784244,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/NVDA/2026-10-K.chunks.jsonl",
+      "backup_sha256": "0f6cac3d744ef70b0eb3e1d7b1e5b629bbad55c152045a88ce26e018c7dceca5"
+    },
+    {
+      "ticker": "NVDA",
+      "filing_year": 2026,
+      "artifact_type": "chunk_statistics",
+      "target_relative_path": "data/chunks/NVDA/2026-10-K.chunks.stats.json",
+      "existed": true,
+      "sha256": "f357214fdf4f1941f8f4b20acfe60f8f1ce48c4c4592bea926aa8884152fcfef",
+      "size_bytes": 500,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/NVDA/2026-10-K.chunks.stats.json",
+      "backup_sha256": "f357214fdf4f1941f8f4b20acfe60f8f1ce48c4c4592bea926aa8884152fcfef"
+    },
+    {
+      "ticker": "OUST",
+      "filing_year": 2025,
+      "artifact_type": "processed_blocks",
+      "target_relative_path": "data/processed/OUST/2025-10-K.blocks.jsonl",
+      "existed": true,
+      "sha256": "8dd0abbb331289a2ab50d057ce07e8c15fe50997b4501dea1685c67cbe7ff91a",
+      "size_bytes": 2442449,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/processed/OUST/2025-10-K.blocks.jsonl",
+      "backup_sha256": "8dd0abbb331289a2ab50d057ce07e8c15fe50997b4501dea1685c67cbe7ff91a"
+    },
+    {
+      "ticker": "OUST",
+      "filing_year": 2025,
+      "artifact_type": "processed_qa",
+      "target_relative_path": "data/processed/OUST/2025-10-K.blocks.qa.json",
+      "existed": false
+    },
+    {
+      "ticker": "OUST",
+      "filing_year": 2025,
+      "artifact_type": "chunks",
+      "target_relative_path": "data/chunks/OUST/2025-10-K.chunks.jsonl",
+      "existed": true,
+      "sha256": "95540f5a84eec590b7395d31a280c7927012b26530ca454744b0ee00b6027b15",
+      "size_bytes": 912949,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/OUST/2025-10-K.chunks.jsonl",
+      "backup_sha256": "95540f5a84eec590b7395d31a280c7927012b26530ca454744b0ee00b6027b15"
+    },
+    {
+      "ticker": "OUST",
+      "filing_year": 2025,
+      "artifact_type": "chunk_statistics",
+      "target_relative_path": "data/chunks/OUST/2025-10-K.chunks.stats.json",
+      "existed": true,
+      "sha256": "7169471f2e407ce7e8e28b5b06e6a86237d4ad0e8054a73650905ab2e919786b",
+      "size_bytes": 496,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/OUST/2025-10-K.chunks.stats.json",
+      "backup_sha256": "7169471f2e407ce7e8e28b5b06e6a86237d4ad0e8054a73650905ab2e919786b"
+    },
+    {
+      "ticker": "QCOM",
+      "filing_year": 2025,
+      "artifact_type": "processed_blocks",
+      "target_relative_path": "data/processed/QCOM/2025-10-K.blocks.jsonl",
+      "existed": true,
+      "sha256": "c476194b21f993513774949b61977130ba2f8f3c84f60fb9b99ab29832349bc3",
+      "size_bytes": 2243874,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/processed/QCOM/2025-10-K.blocks.jsonl",
+      "backup_sha256": "c476194b21f993513774949b61977130ba2f8f3c84f60fb9b99ab29832349bc3"
+    },
+    {
+      "ticker": "QCOM",
+      "filing_year": 2025,
+      "artifact_type": "processed_qa",
+      "target_relative_path": "data/processed/QCOM/2025-10-K.blocks.qa.json",
+      "existed": false
+    },
+    {
+      "ticker": "QCOM",
+      "filing_year": 2025,
+      "artifact_type": "chunks",
+      "target_relative_path": "data/chunks/QCOM/2025-10-K.chunks.jsonl",
+      "existed": true,
+      "sha256": "cc4a25249d70ba9082f8eeb8311f75fa33cb0731e30bff571566a71bcd486f08",
+      "size_bytes": 806105,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/QCOM/2025-10-K.chunks.jsonl",
+      "backup_sha256": "cc4a25249d70ba9082f8eeb8311f75fa33cb0731e30bff571566a71bcd486f08"
+    },
+    {
+      "ticker": "QCOM",
+      "filing_year": 2025,
+      "artifact_type": "chunk_statistics",
+      "target_relative_path": "data/chunks/QCOM/2025-10-K.chunks.stats.json",
+      "existed": true,
+      "sha256": "2117b332dc33612557bef9696eda0e4aec3593143888d84a86db0657b1eb4e87",
+      "size_bytes": 500,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/QCOM/2025-10-K.chunks.stats.json",
+      "backup_sha256": "2117b332dc33612557bef9696eda0e4aec3593143888d84a86db0657b1eb4e87"
+    },
+    {
+      "ticker": "TSLA",
+      "filing_year": 2025,
+      "artifact_type": "processed_blocks",
+      "target_relative_path": "data/processed/TSLA/2025-10-K.blocks.jsonl",
+      "existed": true,
+      "sha256": "cadeaff23512de9dcfa4a413605a3ede1e2fcd61a4201a366f3e36f247c83bae",
+      "size_bytes": 2388139,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/processed/TSLA/2025-10-K.blocks.jsonl",
+      "backup_sha256": "cadeaff23512de9dcfa4a413605a3ede1e2fcd61a4201a366f3e36f247c83bae"
+    },
+    {
+      "ticker": "TSLA",
+      "filing_year": 2025,
+      "artifact_type": "processed_qa",
+      "target_relative_path": "data/processed/TSLA/2025-10-K.blocks.qa.json",
+      "existed": false
+    },
+    {
+      "ticker": "TSLA",
+      "filing_year": 2025,
+      "artifact_type": "chunks",
+      "target_relative_path": "data/chunks/TSLA/2025-10-K.chunks.jsonl",
+      "existed": true,
+      "sha256": "5cc01e8d196fbc230701f201561cd8e8425839998f8ba7a4bb6b28c9e9c33a82",
+      "size_bytes": 880421,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/TSLA/2025-10-K.chunks.jsonl",
+      "backup_sha256": "5cc01e8d196fbc230701f201561cd8e8425839998f8ba7a4bb6b28c9e9c33a82"
+    },
+    {
+      "ticker": "TSLA",
+      "filing_year": 2025,
+      "artifact_type": "chunk_statistics",
+      "target_relative_path": "data/chunks/TSLA/2025-10-K.chunks.stats.json",
+      "existed": true,
+      "sha256": "45a12d088c1460011f900ee5444fcb4e9eb743339788ea14cf4821db9402740f",
+      "size_bytes": 496,
+      "backup_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v1-backup.20260813/chunks/TSLA/2025-10-K.chunks.stats.json",
+      "backup_sha256": "45a12d088c1460011f900ee5444fcb4e9eb743339788ea14cf4821db9402740f"
+    }
+  ]
+}

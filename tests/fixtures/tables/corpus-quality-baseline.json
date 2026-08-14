@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "approved_on": "2026-08-13",
+  "approval_note": "Reviewed table-v2 corpus gate; updates require manual fixture and audit review.",
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "table_fragment_count": 914,
+  "logical_table_count": 889,
+  "table_kind_counts": {
+    "exhibit_list": 37,
+    "financial_data": 708,
+    "index_navigation": 12,
+    "layout": 127,
+    "structured_text": 30
+  },
+  "table_class_counts": {
+    "data": 708,
+    "navigation": 12,
+    "text": 194
+  },
+  "maximum_widths": {
+    "source_coordinate": 69,
+    "physical_display": 69,
+    "logical": 12
+  },
+  "empty_density": {
+    "source_coordinate": {
+      "min": 0.0,
+      "median": 0.4930555555555556,
+      "p95": 0.6222222222222222,
+      "max": 0.7222222222222222
+    },
+    "physical_display": {
+      "min": 0.0,
+      "median": 0.7272142272142272,
+      "p95": 0.8333333333333334,
+      "max": 0.8760330578512396
+    },
+    "logical": {
+      "min": 0.0,
+      "median": 0.0,
+      "p95": 0.19047619047619047,
+      "max": 0.5178571428571429
+    }
+  },
+  "standalone_marker_count": 0,
+  "normalization_collision_count": 0,
+  "unmapped_nonempty_cell_count": 0,
+  "raw_cell_accounting_min": 1.0,
+  "title_quality_counts": {
+    "accepted": 643,
+    "missing": 270,
+    "overlong": 1
+  },
+  "continuation_link_count": 25,
+  "fixture_outcomes": {
+    "priority_fixture_count": 15,
+    "positive_continuation_group_count": 6,
+    "nvidia_gold_count": 41
+  },
+  "by_ticker": {
+    "APTV": {"table_fragment_count": 138, "logical_table_count": 135},
+    "AUR": {"table_fragment_count": 36, "logical_table_count": 35},
+    "F": {"table_fragment_count": 143, "logical_table_count": 134},
+    "GM": {"table_fragment_count": 126, "logical_table_count": 125},
+    "GOOGL": {"table_fragment_count": 172, "logical_table_count": 169},
+    "MBLY": {"table_fragment_count": 53, "logical_table_count": 51},
+    "NVDA": {"table_fragment_count": 58, "logical_table_count": 57},
+    "OUST": {"table_fragment_count": 62, "logical_table_count": 61},
+    "QCOM": {"table_fragment_count": 57, "logical_table_count": 55},
+    "TSLA": {"table_fragment_count": 69, "logical_table_count": 67}
+  }
+}

@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 
 from .dom_processing import (
+    collect_visible_text,
     find_source_anchor,
     identify_item_section,
     is_leaf_content_div,
@@ -11,16 +12,40 @@ from .dom_processing import (
     text_excluding_descendants,
 )
 from .table_processing import (
+    HTML_TABLE_FINGERPRINT_VERSION,
+    TABLE_HEURISTICS_VERSION,
+    TABLE_SCHEMA_VERSION,
+    apply_inherited_context,
     build_column_headers,
-    classify_table,
+    build_row_profiles,
+    classify_logical_table,
     detect_table_header_rows,
     extract_column_units,
     extract_table_structure,
-    extract_table_units,
-    find_table_title,
+    finalize_logical_headers,
     group_list_rows,
-    render_table_text,
+    has_explicit_continued_cue,
+    identify_promoted_rows,
+    infer_logical_column_units,
+    is_semantic_bullet_table,
+    link_table_continuation,
+    native_fragment_context,
+    normalize_logical_columns,
+    project_logical_headers,
+    render_logical_table,
+    select_table_title,
+    table_fingerprint,
 )
+
+
+REGION_LABELS = {
+    "filing_body": "Filing body",
+    "financial_statements": "Financial statements",
+    "financial_statement_notes": "Financial statement notes",
+    "financial_statement_schedules": "Financial statement schedules",
+    "exhibits": "Exhibits",
+    "signatures": "Signatures",
+}
 
 
 @dataclass
@@ -37,8 +62,27 @@ class ExtractionContext:
     section: str = "Cover"
     subsection: str | None = None
     section_anchor: str | None = None
+    document_region: str = "filing_body"
     blocks: list[dict] = field(default_factory=list)
     content_started: bool = False
+    html_table_index: int = 0
+    last_table_block: dict | None = None
+    meaningful_blocks_since_last_table: int = 0
+
+
+def effective_section_path(context: ExtractionContext) -> list[str]:
+    path = [context.section]
+    include_subsection = bool(context.subsection)
+    if context.document_region in {"exhibits", "signatures"} and context.subsection:
+        region_token = context.document_region.removesuffix("s")
+        include_subsection = region_token in context.subsection.casefold()
+    if include_subsection:
+        path.append(context.subsection)
+    if context.document_region != "filing_body":
+        region_label = REGION_LABELS[context.document_region]
+        if all(region_label.casefold() not in value.casefold() for value in path):
+            path.append(region_label)
+    return path
 
 
 def append_block(
@@ -69,6 +113,8 @@ def append_block(
         "accession_number": context.accession_number,
         "section": context.section,
         "section_path": section_path,
+        "document_region": context.document_region,
+        "effective_section_path": effective_section_path(context),
         "content_type": content_type,
         "text": text,
         "source_tag": source_tag,
@@ -80,12 +126,63 @@ def append_block(
     if extra:
         block.update(extra)
     context.blocks.append(block)
+    if content_type not in {"data_table", "text_table", "unknown_table", "navigation"}:
+        if context.last_table_block is not None:
+            context.meaningful_blocks_since_last_table += 1
     return block
 
 
+def _region_for_item(section: str) -> str:
+    number = section.split("—", 1)[0].strip().casefold()
+    if number == "item 8":
+        return "financial_statements"
+    return "filing_body"
+
+
+def update_document_region(text: str, context: ExtractionContext, *, item_heading: bool = False) -> None:
+    """Update effective context without rewriting literal SEC Item provenance."""
+    value = normalize_text(text).strip().rstrip(":")
+    upper = value.upper()
+    if item_heading:
+        context.document_region = _region_for_item(context.section)
+        return
+    if not value or len(value) > 250:
+        return
+    if upper in {"SIGNATURES", "POWER OF ATTORNEY"}:
+        context.document_region = "signatures"
+        return
+    if re_match(r"^(?:EXHIBITS?|EXHIBIT INDEX)$", upper):
+        context.document_region = "exhibits"
+        return
+    if re_match(r"^(?:FINANCIAL STATEMENT SCHEDULES|SCHEDULE II\b.*)$", upper):
+        context.document_region = "financial_statement_schedules"
+        return
+    if re_match(r"^NOTES? TO (?:THE )?(?:CONSOLIDATED )?FINANCIAL STATEMENTS(?: \(CONTINUED\))?$", upper):
+        context.document_region = "financial_statement_notes"
+        return
+    if re_match(
+        r"^(?:CONSOLIDATED |COMBINED )?(?:STATEMENTS? OF .+|BALANCE SHEETS?|STATEMENTS? OF CASH FLOWS|STATEMENTS? OF STOCKHOLDERS['’]? EQUITY)$",
+        upper,
+    ):
+        context.document_region = "financial_statements"
+        return
+    if context.document_region in {
+        "financial_statements",
+        "financial_statement_notes",
+        "financial_statement_schedules",
+    } and re_match(r"^NOTE\s+\d+[A-Z]?(?:\.|\s*[-—–])\s*.+", upper):
+        context.document_region = "financial_statement_notes"
+
+
+def re_match(pattern: str, value: str) -> bool:
+    import re
+
+    return bool(re.match(pattern, value, re.IGNORECASE))
+
+
 def emit_paragraph(node, context: ExtractionContext) -> dict | None:
-    """Emit one paragraph boundary, including all of its inline descendant text."""
-    text = normalize_text(node.text_content())
+    """Emit one paragraph boundary, including all inline descendant text."""
+    text = collect_visible_text(node)
     if not text:
         return None
 
@@ -97,10 +194,12 @@ def emit_paragraph(node, context: ExtractionContext) -> dict | None:
         context.section = section
         context.subsection = None
         context.section_anchor = source_anchor
+        update_document_region(text, context, item_heading=True)
         content_type = "heading"
         extra = {"heading_kind": "item", "heading_level": 1}
     elif is_subheading_candidate(node, text):
         context.subsection = text
+        update_document_region(text, context)
         content_type = "heading"
         extra = {"heading_kind": "subsection", "heading_level": 2}
 
@@ -115,8 +214,8 @@ def emit_paragraph(node, context: ExtractionContext) -> dict | None:
 
 
 def emit_heading(node, context: ExtractionContext) -> dict | None:
-    """Emit a semantic HTML heading and update the current Item when relevant."""
-    text = normalize_text(node.text_content())
+    """Emit a semantic HTML heading and update Item and region state."""
+    text = collect_visible_text(node)
     if not text:
         return None
 
@@ -126,10 +225,12 @@ def emit_heading(node, context: ExtractionContext) -> dict | None:
         context.section = section
         context.subsection = None
         context.section_anchor = source_anchor
+        update_document_region(text, context, item_heading=True)
         heading_kind = "item"
         heading_level = 1
     else:
         context.subsection = text
+        update_document_region(text, context)
         heading_kind = "subsection"
         heading_level = 2
 
@@ -156,21 +257,35 @@ def emit_list_item(node, context: ExtractionContext) -> dict | None:
     )
 
 
-def emit_table(node, context: ExtractionContext) -> dict | list[dict] | None:
-    """Classify and emit a span-aware table or its semantic list items."""
-    structure = extract_table_structure(node)
-    rows = structure["rows"]
+def _html_table_identity(node, context: ExtractionContext, html_table_index: int) -> dict:
+    html_table_id = f"{context.ticker}-{context.filing_year}-HTMLTABLE-{html_table_index:04d}"
+    return {
+        "html_table_id": html_table_id,
+        "html_table_index": html_table_index,
+        "html_table_xpath": node.getroottree().getpath(node),
+        "html_table_fingerprint": table_fingerprint(node),
+        "html_table_fingerprint_version": HTML_TABLE_FINGERPRINT_VERSION,
+    }
+
+
+def emit_table(
+    node,
+    context: ExtractionContext,
+    *,
+    html_table_index: int | None = None,
+) -> dict | list[dict] | None:
+    """Normalize, classify, contextualize, and emit one source table fragment."""
+    if html_table_index is None:
+        context.html_table_index += 1
+        html_table_index = context.html_table_index
+    identity = _html_table_identity(node, context, html_table_index)
+    structure = extract_table_structure(node, identity["html_table_id"])
+    rows = structure["physical_rows"]
     if not rows:
         return None
 
-    table_class, classification_reasons = classify_table(
-        node,
-        structure,
-        context.section,
-    )
     source_anchor = find_source_anchor(node)
-
-    if table_class == "list":
+    if is_semantic_bullet_table(structure):
         blocks = []
         for item in group_list_rows(rows):
             blocks.append(
@@ -181,54 +296,237 @@ def emit_table(node, context: ExtractionContext) -> dict | list[dict] | None:
                     source_tag="table",
                     source_anchor=source_anchor,
                     extra={
-                        "table_class": table_class,
-                        "classification_reasons": classification_reasons,
+                        **identity,
+                        "table_class": "list",
+                        "table_kind": "semantic_list",
+                        "classification_reasons": ["semantic_bullets"],
                         "table_row_indexes": item["row_indexes"],
                         "rows": [rows[index] for index in item["row_indexes"]],
                     },
                 )
             )
+        context.last_table_block = None
+        context.meaningful_blocks_since_last_table = 0
         return blocks
 
-    header_rows = detect_table_header_rows(structure)
-    title = find_table_title(node) if table_class == "data" else None
-    column_units = extract_column_units(rows) if table_class == "data" else []
-    units = extract_table_units(rows, column_units) if table_class == "data" else None
-    content_type = {
-        "navigation": "navigation",
-        "data": "data_table",
-        "text": "text_table",
-        "unknown": "unknown_table",
-    }[table_class]
-    extra = {
-        "table_class": table_class,
-        "classification_reasons": classification_reasons,
-        "raw_rows": structure["raw_rows"],
-        "raw_cells": structure["raw_cells"],
-        "rows": rows,
+    promoted = identify_promoted_rows(structure)
+    excluded_rows = set(promoted["internal_title_rows"] + promoted["unit_rows"])
+    row_profiles = build_row_profiles(structure, excluded_rows=excluded_rows)
+    header = detect_table_header_rows(
+        structure,
+        row_profiles,
+        excluded_rows=excluded_rows,
+    )
+    logical = normalize_logical_columns(
+        structure,
+        header,
+        row_profiles,
+        promoted_rows=promoted,
+    )
+    header_projection = project_logical_headers(structure, logical, header)
+    source_rows = {
+        row_index: [
+            cell
+            for cell in structure["raw_cells"]
+            if cell["row"] == row_index and cell["text"]
+        ]
+        for row_index in promoted["internal_title_rows"]
     }
-    if table_class == "data":
-        extra.update(
+    internal_title_cells = [cell for cells in source_rows.values() for cell in cells]
+    title = select_table_title(
+        node,
+        context.blocks,
+        internal_title_cells,
+        company=context.company,
+        document_region=context.document_region,
+    )
+    units = infer_logical_column_units(
+        structure,
+        logical,
+        header_projection,
+        title=title["title"],
+        title_source_block_id=title["title_source_block_id"],
+    )
+    logical_headers = finalize_logical_headers(
+        logical,
+        header_projection,
+        units["logical_column_units"],
+    )
+    predicted_block_id = f"{context.ticker}-{context.filing_year}-{len(context.blocks) + 1:06d}"
+    fragment = {
+        **identity,
+        **logical,
+        **header,
+        **logical_headers,
+        **units,
+        **title,
+        "table_schema_version": TABLE_SCHEMA_VERSION,
+        "table_heuristics_version": TABLE_HEURISTICS_VERSION,
+        "document_region": context.document_region,
+        "effective_section_path": effective_section_path(context),
+        "section": context.section,
+        "block_id": predicted_block_id,
+        "header_source_block_id": None,
+        "continuation_cues": [
+            block["text"]
+            for block in context.blocks[-2:]
+            if has_explicit_continued_cue(block.get("text"))
+        ],
+    }
+    provisional = classify_logical_table(
+        node,
+        structure,
+        fragment,
+        section=context.section,
+        document_region=context.document_region,
+        title=fragment.get("title"),
+    )
+    fragment.update(provisional)
+    if provisional["table_kind"] == "exhibit_list" and context.document_region != "exhibits":
+        # An exhibit registry is itself high-confidence region evidence.  This
+        # handles filings that begin the registry without a separate "Exhibits"
+        # heading and prevents the preceding financial-schedule heading from
+        # leaking into the registry title or later exhibit fragments.
+        previous_region = context.document_region
+        context.document_region = "exhibits"
+        fragment["document_region"] = "exhibits"
+        fragment["effective_section_path"] = effective_section_path(context)
+        title_source_id = fragment.get("title_source_block_id")
+        title_source_block = next(
+            (
+                block
+                for block in context.blocks
+                if block.get("block_id") == title_source_id
+            ),
+            None,
+        )
+        if (
+            title_source_block is not None
+            and title_source_block.get("document_region") != "exhibits"
+            and fragment.get("title_source") != "prose_caption"
+        ):
+            fragment["rejected_title_candidates"] = [
+                {
+                    "text": fragment.get("title"),
+                    "source": fragment.get("title_source"),
+                    "reason_codes": [
+                        f"region_kind_conflict:{previous_region}->exhibits"
+                    ],
+                },
+                *fragment.get("rejected_title_candidates", []),
+            ][:5]
+            fragment.update(
+                title=None,
+                title_source="none",
+                title_source_block_id=None,
+                title_source_raw_cell_ids=[],
+                title_source_locator=None,
+                title_confidence=0.0,
+                title_quality_status="missing",
+            )
+    fragment["native_context"] = native_fragment_context(fragment)
+
+    continuation = link_table_continuation(
+        fragment,
+        context.last_table_block,
+        intervening_meaningful_blocks=context.meaningful_blocks_since_last_table,
+    )
+    previous = context.last_table_block
+    if continuation["accepted"] and previous is not None:
+        logical_table_id = previous["logical_table_id"]
+        fragment_index = previous["table_fragment_index"] + 1
+        inherited = apply_inherited_context(fragment, previous, continuation)
+        continued_from = previous["block_id"]
+    else:
+        logical_table_id = f"{context.ticker}-{context.filing_year}-TABLE-{html_table_index:04d}"
+        fragment_index = 1
+        inherited = {
+            "title_from_block_id": None,
+            "header_from_block_id": None,
+            "units_from_block_id": None,
+        }
+        continued_from = None
+    fragment.update(
+        {
+            "logical_table_id": logical_table_id,
+            "table_fragment_index": fragment_index,
+            "is_continuation": continuation["accepted"],
+            "continued_from_block_id": continued_from,
+            "continuation_mode_hint": None,
+            "continuation_reasons": continuation["reasons"],
+            "continuation_rejection_reasons": continuation["rejection_reasons"],
+            "inherited_context": inherited,
+        }
+    )
+    final_classification = classify_logical_table(
+        node,
+        structure,
+        fragment,
+        section=context.section,
+        document_region=context.document_region,
+        title=fragment.get("title"),
+    )
+    fragment.update(final_classification)
+    fragment["text"] = render_logical_table(fragment)
+
+    # Header cells that could not project are still explicit header evidence and
+    # remain auditable rather than disappearing from source accounting.
+    existing_ignored = fragment["normalization_diagnostics"]["ignored_raw_cells"]
+    for raw_id in header_projection["unprojected_header_raw_cell_ids"]:
+        existing_ignored.append(
             {
-                "title": title,
-                "units": units,
-                "column_units": column_units,
-                "header_row_indexes": header_rows,
-                "column_headers": build_column_headers(structure, header_rows),
-                "data_rows": [
-                    row for index, row in enumerate(rows) if index not in header_rows
-                ],
+                "raw_cell_id": raw_id,
+                "reason_code": "promoted_header_context",
+                "equivalent_raw_cell_id": None,
+                "promoted_to": "header",
+                "note": "Header evidence did not intersect a body-supported lane.",
+            }
+        )
+    for raw_id in header_projection["unit_header_raw_cell_ids"]:
+        existing_ignored.append(
+            {
+                "raw_cell_id": raw_id,
+                "reason_code": "promoted_unit_row",
+                "equivalent_raw_cell_id": None,
+                "promoted_to": "unit",
+                "note": None,
             }
         )
 
-    return append_block(
+    physical_header_indexes = set(header["header_row_indexes"])
+    extra = {
+        **fragment,
+        "raw_rows": structure["raw_rows"],
+        "raw_cells": structure["raw_cells"],
+        "physical_rows": structure["physical_rows"],
+        "physical_expanded_rows": structure["physical_expanded_rows"],
+        "physical_source_row_indexes": structure["physical_source_row_indexes"],
+        "physical_source_column_indexes": structure["physical_source_column_indexes"],
+        # Deprecated aliases remain explicitly physical during the transition.
+        "rows": structure["physical_rows"],
+        "expanded_rows": structure["physical_expanded_rows"],
+        "source_row_indexes": structure["physical_source_row_indexes"],
+        "source_column_indexes": structure["physical_source_column_indexes"],
+        "header_row_indexes": header["header_row_indexes"],
+        "column_headers": build_column_headers(structure, header),
+        "column_units": extract_column_units(structure["physical_rows"]),
+        "data_rows": [
+            row
+            for index, row in enumerate(structure["physical_rows"])
+            if index not in physical_header_indexes
+        ],
+    }
+    block = append_block(
         context,
-        content_type=content_type,
-        text=render_table_text(rows, title=title, units=units),
+        content_type=fragment["content_type"],
+        text=fragment["text"],
         source_tag="table",
         source_anchor=source_anchor,
         extra=extra,
     )
+    context.last_table_block = block
+    context.meaningful_blocks_since_last_table = 0
+    return block
 
 
 def visit_node(node, context: ExtractionContext) -> None:
@@ -239,19 +537,20 @@ def visit_node(node, context: ExtractionContext) -> None:
         return
 
     if tag == "table":
+        context.html_table_index += 1
         if context.content_started:
-            emit_table(node, context)
+            emit_table(node, context, html_table_index=context.html_table_index)
         return
 
     is_text_block = (
-            tag in {"p", "h1", "h2", "h3", "h4", "h5", "h6"}
-            or (tag == "div" and is_leaf_content_div(node))
+        tag in {"p", "h1", "h2", "h3", "h4", "h5", "h6"}
+        or (tag == "div" and is_leaf_content_div(node))
     )
 
     if is_text_block and not context.content_started:
-        text = normalize_text(node.text_content())
+        text = collect_visible_text(node)
         section = identify_item_section(node, text)
-        is_toc_link = bool(node.xpath(".//a[starts-with(@href, '#')]"))
+        is_toc_link = bool(node.xpath(".//a[starts-with(@href, '#')]") )
 
         if section and section.startswith("Item 1 —") and not is_toc_link:
             context.content_started = True
@@ -267,7 +566,6 @@ def visit_node(node, context: ExtractionContext) -> None:
     if tag == "li":
         if not context.content_started:
             return
-
         emit_list_item(node, context)
         for nested_list in node.xpath("./ul | ./ol"):
             visit_node(nested_list, context)

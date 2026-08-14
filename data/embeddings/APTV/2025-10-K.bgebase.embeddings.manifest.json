@@ -1,0 +1,100 @@
+{
+  "schema_version": 3,
+  "created_at": "2026-08-13T13:19:34.857007+00:00",
+  "source_chunks": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/APTV/2025-10-K.chunks.jsonl",
+  "source_chunks_sha256": "2bd10e5f4b9d4e0ed8c67bfc6e265362d1a1d6cf33e811bb21be3e4c14095558",
+  "embedding_file": "2025-10-K.bgebase.embeddings.npz",
+  "embedding_file_sha256": "fcc1ecd6baf44d4d9e4a97c51cec638ed14696fe7ecf61bfd7ed727f29fd9cdd",
+  "model_name": "bgebase",
+  "model_repository": "BAAI/bge-base-en-v1.5",
+  "requested_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "resolved_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "sentence_transformers_version": "5.6.1",
+  "numpy_version": "2.5.2",
+  "dimension": 768,
+  "dtype": "float32",
+  "normalized": true,
+  "document_encoder": "SentenceTransformer.encode",
+  "query_prefix": "Represent this sentence for searching relevant passages: ",
+  "document_prefix": "",
+  "max_sequence_length": 512,
+  "embedding_text_policy": {
+    "narrative": "complete chunk text",
+    "table": "logical-table-schema-v2: effective section/region, title, units, source header context and period/measure paths, plus descriptive logical row labels; numeric matrices remain in the complete source chunk"
+  },
+  "chunk_schema_version": 3,
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+  "source_processed_sha256": "4dd5c3633ab588648ad700b37836298ac986449d6a29b3fc3a500e735a5a7cad",
+  "logical_table_policy": "one-logical-table-per-chunk-v1",
+  "table_renderer_policy": "logical-markdown-v1",
+  "chunk_count": 528,
+  "ordered_text_hashes_sha256": "a5681d15f3b7ebf5ac969bba36f0eec90d2e907877ba7959aad0f778c7ba254b",
+  "input_token_length_max": 1044,
+  "truncated_input_count": 6,
+  "truncated_table_count": 6,
+  "truncated_narrative_count": 0,
+  "truncated_chunk_ids": [
+    "APTV-2025-CHUNK-000228",
+    "APTV-2025-CHUNK-000241",
+    "APTV-2025-CHUNK-000322",
+    "APTV-2025-CHUNK-000520",
+    "APTV-2025-CHUNK-000521",
+    "APTV-2025-CHUNK-000522"
+  ],
+  "truncated_content_type_counts": {
+    "table": 6
+  },
+  "truncated_table_kind_counts": {
+    "exhibit_list": 3,
+    "financial_data": 2,
+    "structured_text": 1
+  },
+  "truncated_inputs": [
+    {
+      "chunk_id": "APTV-2025-CHUNK-000228",
+      "content_type": "table",
+      "table_kind": "structured_text",
+      "logical_table_id": "APTV-2025-TABLE-0038",
+      "token_count": 763
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000241",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0043",
+      "token_count": 527
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000322",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0066",
+      "token_count": 521
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000520",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "APTV-2025-TABLE-0139",
+      "token_count": 923
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000521",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "APTV-2025-TABLE-0140",
+      "token_count": 1044
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000522",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "APTV-2025-TABLE-0141",
+      "token_count": 750
+    }
+  ],
+  "batch_size": 32,
+  "device": "cpu"
+}

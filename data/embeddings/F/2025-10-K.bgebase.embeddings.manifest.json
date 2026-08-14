@@ -1,0 +1,82 @@
+{
+  "schema_version": 3,
+  "created_at": "2026-08-13T13:24:45.395613+00:00",
+  "source_chunks": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/F/2025-10-K.chunks.jsonl",
+  "source_chunks_sha256": "c5b227f6dc7147a498ad4bd655d5b8442325a9e45e77eab9eaf4d9dc41bf8121",
+  "embedding_file": "2025-10-K.bgebase.embeddings.npz",
+  "embedding_file_sha256": "3945da9dc7695dce4f8cbc7cdcfdf7ba37b9e41798daea7b39e2ad5589c7be68",
+  "model_name": "bgebase",
+  "model_repository": "BAAI/bge-base-en-v1.5",
+  "requested_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "resolved_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "sentence_transformers_version": "5.6.1",
+  "numpy_version": "2.5.2",
+  "dimension": 768,
+  "dtype": "float32",
+  "normalized": true,
+  "document_encoder": "SentenceTransformer.encode",
+  "query_prefix": "Represent this sentence for searching relevant passages: ",
+  "document_prefix": "",
+  "max_sequence_length": 512,
+  "embedding_text_policy": {
+    "narrative": "complete chunk text",
+    "table": "logical-table-schema-v2: effective section/region, title, units, source header context and period/measure paths, plus descriptive logical row labels; numeric matrices remain in the complete source chunk"
+  },
+  "chunk_schema_version": 3,
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+  "source_processed_sha256": "da66102d7aae13d4bf6bf35a10da3ca70d4fea59892bc0d8f9d0d4c9dafde031",
+  "logical_table_policy": "one-logical-table-per-chunk-v1",
+  "table_renderer_policy": "logical-markdown-v1",
+  "chunk_count": 576,
+  "ordered_text_hashes_sha256": "96bf91bf877f288c6cbbaa66a2e347d66805309601fcfc5c74b4e41237ea8aef",
+  "input_token_length_max": 1724,
+  "truncated_input_count": 4,
+  "truncated_table_count": 4,
+  "truncated_narrative_count": 0,
+  "truncated_chunk_ids": [
+    "F-2025-CHUNK-000310",
+    "F-2025-CHUNK-000311",
+    "F-2025-CHUNK-000312",
+    "F-2025-CHUNK-000313"
+  ],
+  "truncated_content_type_counts": {
+    "table": 4
+  },
+  "truncated_table_kind_counts": {
+    "exhibit_list": 4
+  },
+  "truncated_inputs": [
+    {
+      "chunk_id": "F-2025-CHUNK-000310",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "F-2025-TABLE-0068",
+      "token_count": 1523
+    },
+    {
+      "chunk_id": "F-2025-CHUNK-000311",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "F-2025-TABLE-0069",
+      "token_count": 1724
+    },
+    {
+      "chunk_id": "F-2025-CHUNK-000312",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "F-2025-TABLE-0070",
+      "token_count": 1382
+    },
+    {
+      "chunk_id": "F-2025-CHUNK-000313",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "F-2025-TABLE-0071",
+      "token_count": 1199
+    }
+  ],
+  "batch_size": 32,
+  "device": "cpu"
+}

@@ -9,6 +9,8 @@ from .chunk_documents import (
     PROJECT_ROOT,
     chunk_blocks,
     chunk_statistics,
+    count_tokens,
+    get_tokenizer,
     load_chunk_config,
     load_jsonl,
 )
@@ -18,17 +20,16 @@ DEFAULT_INPUTS = (
     PROJECT_ROOT / "data" / "processed" / "MBLY" / "2025-10-K.blocks.jsonl",
     PROJECT_ROOT / "data" / "processed" / "TSLA" / "2025-10-K.blocks.jsonl",
 )
+# format: (chunking strategy, token count, token overlap)
 EXPERIMENTS = (
-    ("recursive", 250, 25),
-    ("recursive", 500, 50),
-    ("recursive", 800, 100),
-    ("recursive", 1200, 150),
-    ("recursive", 1600, 200),
-    ("fixed", 250, 25),
-    ("fixed", 500, 50),
-    ("fixed", 800, 100),
-    ("fixed", 1200, 150),
-    ("fixed", 1600, 200),
+    ("recursive", 128, 16),
+    ("recursive", 192, 24),
+    ("recursive", 250, 32),
+    ("recursive", 500, 32),
+    ("fixed", 128, 16),
+    ("fixed", 192, 24),
+    ("fixed", 250, 32),
+    ("fixed", 500, 32)
 )
 
 
@@ -37,6 +38,7 @@ def percentage(value: float) -> str:
 
 
 def run_experiments(input_path: Path, base_config: dict) -> dict:
+    input_path = input_path.resolve()
     blocks = load_jsonl(input_path)
     results = []
     for strategy, size, overlap in EXPERIMENTS:
@@ -65,13 +67,18 @@ def run_experiments(input_path: Path, base_config: dict) -> dict:
                     "error": str(error),
                 }
             )
-    return {"input": input_path, "blocks": blocks, "results": results}
+    return {
+        "input": input_path,
+        "blocks": blocks,
+        "config": base_config,
+        "results": results,
+    }
 
 
 def result_table(results: list[dict]) -> list[str]:
     lines = [
-        "| Strategy | Size | Config overlap | Actual overlap | Chunks | Narrative | Tables | Min | Median | P95 | Max | Boundary accuracy | Coverage | Section accuracy | Table context | Time |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Strategy | Size (tokens) | Config overlap (tokens) | Actual overlap (tokens) | Chunks | Narrative | Logical tables | HTML fragments | Fallback warnings | Min tokens | Median tokens | P95 tokens | Max tokens | Boundary accuracy | Coverage | Section accuracy | Context copy | Markdown | Time |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for result in results:
         if result["status"] != "ok":
@@ -79,14 +86,17 @@ def result_table(results: list[dict]) -> list[str]:
         lines.append(
             "| {strategy} | {chunk_size} | {configured_overlap} | "
             "{actual_overlap_median:g} | {chunk_count} | {narrative_chunks} | "
-            "{table_chunks} | {length_min} | {length_median:g} | {length_p95} | "
-            "{length_max} | {boundary} | {coverage} | {section} | {table_context} | "
+            "{logical_table_count} | {table_fragment_count} | "
+            "{normalization_fallback_fragment_count} | {length_min} | "
+            "{length_median:g} | {length_p95} | "
+            "{length_max} | {boundary} | {coverage} | {section} | {table_context} | {markdown} | "
             "{elapsed_ms:.1f} ms |".format(
                 **result,
                 boundary=percentage(result["boundary_accuracy"]),
                 coverage=percentage(result["source_block_coverage"]),
                 section=percentage(result["section_accuracy"]),
-                table_context=percentage(result["table_context_accuracy"]),
+                table_context=percentage(result["table_context_copy_completeness"]),
+                markdown=percentage(result["table_markdown_validity"]),
             )
         )
     return lines
@@ -94,6 +104,7 @@ def result_table(results: list[dict]) -> list[str]:
 
 def filing_section(run: dict) -> list[str]:
     blocks = run["blocks"]
+    tokenizer = get_tokenizer(run["config"])
     failed = [result for result in run["results"] if result["status"] == "infeasible"]
     lines = [
         f"## {blocks[0]['company']}",
@@ -101,7 +112,7 @@ def filing_section(run: dict) -> list[str]:
         f"- Input: `{run['input'].relative_to(PROJECT_ROOT)}`",
         f"- Filing: {blocks[0]['filing_year']} {blocks[0]['form']}",
         f"- Structured blocks: {len(blocks)}",
-        f"- Longest source block: {max(len(block['text']) for block in blocks):,} characters",
+        f"- Longest source block: {max(count_tokens(block['text'], tokenizer) for block in blocks):,} tokens",
         "",
         "### Results",
         "",
@@ -132,7 +143,8 @@ def baseline_result(run: dict) -> dict:
         for result in run["results"]
         if result["status"] == "ok"
         and result["strategy"] == "recursive"
-        and result["chunk_size"] == 1200
+        and result["chunk_size"] == 500
+        and result["configured_overlap"] == 32
     )
 
 
@@ -143,13 +155,17 @@ def build_report(runs: list[dict]) -> str:
         "## Method",
         "",
         f"- Splitter package: `langchain-text-splitters=={version('langchain-text-splitters')}`",
+        f"- Tokenizer: `{runs[0]['config']['tokenizer_model']}`",
         "- Every retained table stays complete in one table chunk in every run.",
-        "- The configured size limit applies to narrative chunks, not table chunks.",
+        "- Size and overlap are measured in tokenizer tokens.",
+        "- The configured size limit applies to narrative chunks, not complete table chunks.",
         "- Navigation is excluded and chunks never cross `section_path` boundaries.",
         "- `Boundary accuracy` is the share of narrative chunks ending at sentence punctuation.",
         "- Boundary accuracy is not retrieval accuracy; retrieval requires embeddings and labels.",
-        "- `Actual overlap` is median source-character overlap between narrative chunks.",
+        "- `Actual overlap` is median source-token overlap between narrative chunks.",
         "- `Coverage` is the share of evidence blocks represented in at least one chunk.",
+        "- `Context copy` is a serialization smoke test, not semantic table quality.",
+        "- Table quality is measured from logical width, source accounting, marker, fallback, and Markdown invariants.",
         "",
     ]
     for run in runs:
@@ -157,7 +173,7 @@ def build_report(runs: list[dict]) -> str:
 
     lines.extend(
         [
-            "## Recursive 1,200 / 150 Comparison",
+            "## Selected Recursive 500 / 32 Comparison",
             "",
             "| Filing | Source blocks | Chunks | Median | Min | Max | Boundary accuracy | Actual overlap |",
             "|---|---:|---:|---:|---:|---:|---:|---:|",
@@ -180,16 +196,16 @@ def build_report(runs: list[dict]) -> str:
             "",
             "- Recursive splitting consistently preserves sentence boundaries better than fixed slicing.",
             "- Recursive overlap is not guaranteed; separator-aware runs can have actual overlap 0.",
-            "- Fixed splitting produces the configured overlap exactly but often cuts sentences.",
+            "- Fixed token splitting produces the configured overlap exactly but often cuts sentences.",
             "- Complete table chunks may exceed the configured narrative chunk size by design.",
-            "- The current baseline remains recursive splitting with size 1,200 and overlap 150.",
+            "- The selected baseline is recursive splitting with a 500-token narrative limit and 32-token configured overlap.",
             "",
             "## Reproduce",
             "",
             "```bash",
-            "python -m src.chunking.benchmark_chunking",
-            "python -m src.chunking.chunk_documents --overwrite",
-            "python -m src.chunking.chunk_documents data/processed/TSLA/2025-10-K.blocks.jsonl --overwrite",
+            ".venv/bin/python -m src.chunking.benchmark_chunking",
+            ".venv/bin/python -m src.chunking.chunk_documents mobileye --overwrite",
+            ".venv/bin/python -m src.chunking.chunk_documents tesla --overwrite",
             "```",
             "",
         ]

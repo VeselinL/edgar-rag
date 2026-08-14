@@ -1,0 +1,66 @@
+{
+  "schema_version": 3,
+  "created_at": "2026-08-13T13:33:43.441618+00:00",
+  "source_chunks": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/NVDA/2026-10-K.chunks.jsonl",
+  "source_chunks_sha256": "9c540a847da9e12a671cf77f0be4728f42e5d6bc5e47c2e43f5b2260e63635f1",
+  "embedding_file": "2026-10-K.bgebase.embeddings.npz",
+  "embedding_file_sha256": "9d5c558c061a302c6e0aea583559d55fa339173408a3e74f0914cb34d457c451",
+  "model_name": "bgebase",
+  "model_repository": "BAAI/bge-base-en-v1.5",
+  "requested_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "resolved_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "sentence_transformers_version": "5.6.1",
+  "numpy_version": "2.5.2",
+  "dimension": 768,
+  "dtype": "float32",
+  "normalized": true,
+  "document_encoder": "SentenceTransformer.encode",
+  "query_prefix": "Represent this sentence for searching relevant passages: ",
+  "document_prefix": "",
+  "max_sequence_length": 512,
+  "embedding_text_policy": {
+    "narrative": "complete chunk text",
+    "table": "logical-table-schema-v2: effective section/region, title, units, source header context and period/measure paths, plus descriptive logical row labels; numeric matrices remain in the complete source chunk"
+  },
+  "chunk_schema_version": 3,
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+  "source_processed_sha256": "e9071218303ec971052aea8f4b25fc91abafe12fd9873654ccce9d79c06416f8",
+  "logical_table_policy": "one-logical-table-per-chunk-v1",
+  "table_renderer_policy": "logical-markdown-v1",
+  "chunk_count": 329,
+  "ordered_text_hashes_sha256": "9ecfaf7b6fdf478007d4801da6790565e42d610e8a0721e9eb409825a6723878",
+  "input_token_length_max": 610,
+  "truncated_input_count": 2,
+  "truncated_table_count": 2,
+  "truncated_narrative_count": 0,
+  "truncated_chunk_ids": [
+    "NVDA-2026-CHUNK-000322",
+    "NVDA-2026-CHUNK-000323"
+  ],
+  "truncated_content_type_counts": {
+    "table": 2
+  },
+  "truncated_table_kind_counts": {
+    "exhibit_list": 2
+  },
+  "truncated_inputs": [
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000322",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "NVDA-2026-TABLE-0061",
+      "token_count": 610
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000323",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "NVDA-2026-TABLE-0062",
+      "token_count": 518
+    }
+  ],
+  "batch_size": 32,
+  "device": "cpu"
+}

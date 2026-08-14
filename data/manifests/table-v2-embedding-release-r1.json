@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "release_id": "bgebase-table-v2-chunk-v3.20260813",
+  "created_at": "2026-08-13T12:40:51.794700+00:00",
+  "model_name": "bgebase",
+  "model_repository": "BAAI/bge-base-en-v1.5",
+  "requested_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "query_prefix": "Represent this sentence for searching relevant passages: ",
+  "document_prefix": "",
+  "expected_dimension": 768,
+  "expected_max_sequence_length": 512,
+  "input_manifest": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/manifests/table-v2-inputs.json",
+  "input_manifest_sha256": "22243bccf0dcacb91126ef521f619299f387608e02035ff1cc72d4106ce15296",
+  "company_count": 10,
+  "vector_count": 4117,
+  "truncated_input_count": 28,
+  "truncated_table_count": 28,
+  "truncated_narrative_count": 0,
+  "truncated_table_kind_counts": {
+    "exhibit_list": 25,
+    "financial_data": 1,
+    "structured_text": 2
+  },
+  "records": [
+    {
+      "ticker": "APTV",
+      "filing_year": 2025,
+      "chunks_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/APTV/2025-10-K.chunks.jsonl",
+      "embedding_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/APTV/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/APTV/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_count": 529,
+      "dimension": 768,
+      "dtype": "float32",
+      "normalized": true,
+      "source_chunks_sha256": "beb3d43a80aa6e93c151c08146890b41f7b61c6a96dd4ad4950d77629a80c97f",
+      "embedding_file_sha256": "0bb94df809a5a3be4673018e26930c37a5acd92d0a998aff2d5d07d01d22f3d5",
+      "manifest_sha256": "57521dc745ed2b0b40f4a1e8dbfbe30988e87fcc2e5ad4e79cfbfa7576f1896b",
+      "manifest_schema_version": 3,
+      "chunk_schema_version": 3,
+      "table_schema_version": 2,
+      "table_heuristics_version": "sec-logical-v2",
+      "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+      "ordered_text_hashes_sha256": "cd79e7e6038d6458e10f0c243391e1d67fa7432f77420e395ee0998dad35bb96",
+      "truncated_input_count": 5,
+      "truncated_table_count": 5,
+      "truncated_narrative_count": 0,
+      "truncated_content_type_counts": {
+        "table": 5
+      },
+      "truncated_table_kind_counts": {
+        "exhibit_list": 3,
+        "financial_data": 1,
+        "structured_text": 1
+      }
+    },
+    {
+      "ticker": "AUR",
+      "filing_year": 2025,
+      "chunks_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/AUR/2025-10-K.chunks.jsonl",
+      "embedding_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/AUR/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/AUR/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_count": 261,
+      "dimension": 768,
+      "dtype": "float32",
+      "normalized": true,
+      "source_chunks_sha256": "e5aeddfb2e582a3ed895ff2ba1204a3235b956debfc954d1785f9ee646ce967b",
+      "embedding_file_sha256": "3445d68472e7dbc4576bee352a16060b0ff0a3f0973e089f819d957545b4a6d4",
+      "manifest_sha256": "138be713b8dd627b7500845a6f40fa89b5668c71c829051ca730fa44b4442e3d",
+      "manifest_schema_version": 3,
+      "chunk_schema_version": 3,
+      "table_schema_version": 2,
+      "table_heuristics_version": "sec-logical-v2",
+      "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+      "ordered_text_hashes_sha256": "0fdd39d0e9e4801db7b4097afd3306ae7614b0ad1e348359062ff3243fd431a5",
+      "truncated_input_count": 2,
+      "truncated_table_count": 2,
+      "truncated_narrative_count": 0,
+      "truncated_content_type_counts": {
+        "table": 2
+      },
+      "truncated_table_kind_counts": {
+        "exhibit_list": 2
+      }
+    },
+    {
+      "ticker": "F",
+      "filing_year": 2025,
+      "chunks_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/F/2025-10-K.chunks.jsonl",
+      "embedding_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/F/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/F/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_count": 576,
+      "dimension": 768,
+      "dtype": "float32",
+      "normalized": true,
+      "source_chunks_sha256": "f52b73ebe3a0caea889a1f126c40f1ea4adf95656a480aea732caa3386c39bff",
+      "embedding_file_sha256": "0b8aa67241196ad8ffa56010227f66046d617acfcc778dfadb8eb9ce7f81a79c",
+      "manifest_sha256": "fd8370b315e36631b78cb4219983dc1df333c86390e66861856d2c7c237f73be",
+      "manifest_schema_version": 3,
+      "chunk_schema_version": 3,
+      "table_schema_version": 2,
+      "table_heuristics_version": "sec-logical-v2",
+      "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+      "ordered_text_hashes_sha256": "fa338588ca94eed195fc58b33387519e98b3bc41270c931a4c9ce8fe527d76e8",
+      "truncated_input_count": 4,
+      "truncated_table_count": 4,
+      "truncated_narrative_count": 0,
+      "truncated_content_type_counts": {
+        "table": 4
+      },
+      "truncated_table_kind_counts": {
+        "exhibit_list": 4
+      }
+    },
+    {
+      "ticker": "GM",
+      "filing_year": 2025,
+      "chunks_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/GM/2025-10-K.chunks.jsonl",
+      "embedding_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/GM/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/GM/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_count": 410,
+      "dimension": 768,
+      "dtype": "float32",
+      "normalized": true,
+      "source_chunks_sha256": "201bddbd53e48705cc674c59d43cd88037758b29c173b27b80b7a85427583363",
+      "embedding_file_sha256": "fd95ab138e4fff524d46179cbe27baf831aa96b82c4474fcfc53590bc9dcaab4",
+      "manifest_sha256": "938ce7f7a1caf9bb8b30bef3c583dd4491b7fbf1315e3cf40217e6fb859c72e4",
+      "manifest_schema_version": 3,
+      "chunk_schema_version": 3,
+      "table_schema_version": 2,
+      "table_heuristics_version": "sec-logical-v2",
+      "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+      "ordered_text_hashes_sha256": "8672de1c347e91c5c9c602a0668aab9b0af5bbff884b606555eab14fdcd77ff5",
+      "truncated_input_count": 4,
+      "truncated_table_count": 4,
+      "truncated_narrative_count": 0,
+      "truncated_content_type_counts": {
+        "table": 4
+      },
+      "truncated_table_kind_counts": {
+        "exhibit_list": 3,
+        "structured_text": 1
+      }
+    },
+    {
+      "ticker": "GOOGL",
+      "filing_year": 2025,
+      "chunks_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/GOOGL/2025-10-K.chunks.jsonl",
+      "embedding_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/GOOGL/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/GOOGL/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_count": 512,
+      "dimension": 768,
+      "dtype": "float32",
+      "normalized": true,
+      "source_chunks_sha256": "f3f28b68c9fa4edf90858d8aa57cf2635a0c5e10c4979072c2fb80b52d4e2f7e",
+      "embedding_file_sha256": "60dbd784a08c42188d74e5665c482274c69060c9a2335bf0032022df8af539b7",
+      "manifest_sha256": "3c976d308185be853d7108df842226993327635c06492aec3c8926212ef99f55",
+      "manifest_schema_version": 3,
+      "chunk_schema_version": 3,
+      "table_schema_version": 2,
+      "table_heuristics_version": "sec-logical-v2",
+      "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+      "ordered_text_hashes_sha256": "d01165bd4363e32b48feeca2d52dde99422eabddf825107103d855d86fc25b1c",
+      "truncated_input_count": 3,
+      "truncated_table_count": 3,
+      "truncated_narrative_count": 0,
+      "truncated_content_type_counts": {
+        "table": 3
+      },
+      "truncated_table_kind_counts": {
+        "exhibit_list": 3
+      }
+    },
+    {
+      "ticker": "MBLY",
+      "filing_year": 2025,
+      "chunks_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/MBLY/2025-10-K.chunks.jsonl",
+      "embedding_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/MBLY/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/MBLY/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_count": 462,
+      "dimension": 768,
+      "dtype": "float32",
+      "normalized": true,
+      "source_chunks_sha256": "67d1dcff4702221e9b37b42cc5e6ffe58bff69dc4cca86f8137e439e717fdb04",
+      "embedding_file_sha256": "833f98294e39e3e6e7acda6e0cb6a94a12d9ebb88663aca097faf51141d8eca0",
+      "manifest_sha256": "65b0a321af04ad1f7a91002b1f84030e74b837660f3dd3c0d5306ea70f71c76e",
+      "manifest_schema_version": 3,
+      "chunk_schema_version": 3,
+      "table_schema_version": 2,
+      "table_heuristics_version": "sec-logical-v2",
+      "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+      "ordered_text_hashes_sha256": "a428915d78fa8b38910d356c0446517993ab21dc7684bac243b966e2186a3102",
+      "truncated_input_count": 2,
+      "truncated_table_count": 2,
+      "truncated_narrative_count": 0,
+      "truncated_content_type_counts": {
+        "table": 2
+      },
+      "truncated_table_kind_counts": {
+        "exhibit_list": 2
+      }
+    },
+    {
+      "ticker": "NVDA",
+      "filing_year": 2026,
+      "chunks_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/NVDA/2026-10-K.chunks.jsonl",
+      "embedding_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/NVDA/2026-10-K.bgebase.embeddings.npz",
+      "manifest_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/NVDA/2026-10-K.bgebase.embeddings.manifest.json",
+      "chunk_count": 329,
+      "dimension": 768,
+      "dtype": "float32",
+      "normalized": true,
+      "source_chunks_sha256": "c2845d9ffcfa9d9d99daa89f7d1a6b789053f32c5fbc9c903575e185e2d83a05",
+      "embedding_file_sha256": "150a2cdb15f63949fdce3d11f224696a607db89248850c4f82f0cd4b51b3e709",
+      "manifest_sha256": "006118f89e55108e564fa4db99f714c4ba27cc72f9d8639776082a703d513dfc",
+      "manifest_schema_version": 3,
+      "chunk_schema_version": 3,
+      "table_schema_version": 2,
+      "table_heuristics_version": "sec-logical-v2",
+      "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+      "ordered_text_hashes_sha256": "db81551b5b00c6aedc875fd39bf555a20f859f6e495a3d871843baaf6e8fef8e",
+      "truncated_input_count": 2,
+      "truncated_table_count": 2,
+      "truncated_narrative_count": 0,
+      "truncated_content_type_counts": {
+        "table": 2
+      },
+      "truncated_table_kind_counts": {
+        "exhibit_list": 2
+      }
+    },
+    {
+      "ticker": "OUST",
+      "filing_year": 2025,
+      "chunks_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/OUST/2025-10-K.chunks.jsonl",
+      "embedding_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/OUST/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/OUST/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_count": 375,
+      "dimension": 768,
+      "dtype": "float32",
+      "normalized": true,
+      "source_chunks_sha256": "9ff064902fc5e42c38dfd707982d5ebb517bd7057b1a5a50f80f32a14fb167ca",
+      "embedding_file_sha256": "3f52f8eecf6ed7aa39028d2040dd8131fb56ac5dff5af1478c16577a47e563ed",
+      "manifest_sha256": "16a3797ad9ba8edba4688a1692683102eaa66e3182894231a687324e8fde65c3",
+      "manifest_schema_version": 3,
+      "chunk_schema_version": 3,
+      "table_schema_version": 2,
+      "table_heuristics_version": "sec-logical-v2",
+      "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+      "ordered_text_hashes_sha256": "06138de66d8b3ddba585bf843bf5a84616abccb9689400128ecbe6839c868333",
+      "truncated_input_count": 1,
+      "truncated_table_count": 1,
+      "truncated_narrative_count": 0,
+      "truncated_content_type_counts": {
+        "table": 1
+      },
+      "truncated_table_kind_counts": {
+        "exhibit_list": 1
+      }
+    },
+    {
+      "ticker": "QCOM",
+      "filing_year": 2025,
+      "chunks_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/QCOM/2025-10-K.chunks.jsonl",
+      "embedding_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/QCOM/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/QCOM/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_count": 322,
+      "dimension": 768,
+      "dtype": "float32",
+      "normalized": true,
+      "source_chunks_sha256": "ee62d14e83d2705b6bb71b288d31b475d52106c8d096cb1f63d554ef3b7856c3",
+      "embedding_file_sha256": "d67434d336bdd383b30cd41ac2322a028ba3b9f8442da9a8a3e3b0639ef10943",
+      "manifest_sha256": "ee3d8f10e734cc146aaff57c3c2f6d94edfae97321445cab77376f17376bb116",
+      "manifest_schema_version": 3,
+      "chunk_schema_version": 3,
+      "table_schema_version": 2,
+      "table_heuristics_version": "sec-logical-v2",
+      "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+      "ordered_text_hashes_sha256": "fb63db7ba61fadc91dbb8a8e11cada8d2be82831d69f03554dd07c104ef07135",
+      "truncated_input_count": 3,
+      "truncated_table_count": 3,
+      "truncated_narrative_count": 0,
+      "truncated_content_type_counts": {
+        "table": 3
+      },
+      "truncated_table_kind_counts": {
+        "exhibit_list": 3
+      }
+    },
+    {
+      "ticker": "TSLA",
+      "filing_year": 2025,
+      "chunks_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/TSLA/2025-10-K.chunks.jsonl",
+      "embedding_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/TSLA/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/embeddings/TSLA/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_count": 341,
+      "dimension": 768,
+      "dtype": "float32",
+      "normalized": true,
+      "source_chunks_sha256": "af410624ec2ebc3f73ad5ee0677d705da9fd00750d4570e7f95c4c0ba606ecef",
+      "embedding_file_sha256": "b48e56f1162fedee250ecb7ecdb7fe8168cce4e90bcde5bf0e8d253ffc5ca44e",
+      "manifest_sha256": "2cd6360959fab9e45726ccf36aa7f614b9f0c1b8182ce3a8b2e71eb7bf4e0c32",
+      "manifest_schema_version": 3,
+      "chunk_schema_version": 3,
+      "table_schema_version": 2,
+      "table_heuristics_version": "sec-logical-v2",
+      "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+      "ordered_text_hashes_sha256": "5d2dd4d270361a4d29921a74b8bc7dbdf5b6984d8f03deff40e53b6598c9a51d",
+      "truncated_input_count": 2,
+      "truncated_table_count": 2,
+      "truncated_narrative_count": 0,
+      "truncated_content_type_counts": {
+        "table": 2
+      },
+      "truncated_table_kind_counts": {
+        "exhibit_list": 2
+      }
+    }
+  ],
+  "failures": [],
+  "failure_count": 0
+}

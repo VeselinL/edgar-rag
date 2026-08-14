@@ -1,0 +1,66 @@
+{
+  "schema_version": 3,
+  "created_at": "2026-08-13T13:21:23.646328+00:00",
+  "source_chunks": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/AUR/2025-10-K.chunks.jsonl",
+  "source_chunks_sha256": "e4b37bb683d1a956a9c13a29a61480b8b706263cb518d4e0083cee15ce611658",
+  "embedding_file": "2025-10-K.bgebase.embeddings.npz",
+  "embedding_file_sha256": "3445d68472e7dbc4576bee352a16060b0ff0a3f0973e089f819d957545b4a6d4",
+  "model_name": "bgebase",
+  "model_repository": "BAAI/bge-base-en-v1.5",
+  "requested_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "resolved_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "sentence_transformers_version": "5.6.1",
+  "numpy_version": "2.5.2",
+  "dimension": 768,
+  "dtype": "float32",
+  "normalized": true,
+  "document_encoder": "SentenceTransformer.encode",
+  "query_prefix": "Represent this sentence for searching relevant passages: ",
+  "document_prefix": "",
+  "max_sequence_length": 512,
+  "embedding_text_policy": {
+    "narrative": "complete chunk text",
+    "table": "logical-table-schema-v2: effective section/region, title, units, source header context and period/measure paths, plus descriptive logical row labels; numeric matrices remain in the complete source chunk"
+  },
+  "chunk_schema_version": 3,
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+  "source_processed_sha256": "edd5181f36ee46d196609948d64d92616d1dfbc96863eb02c3318d2beb2312d8",
+  "logical_table_policy": "one-logical-table-per-chunk-v1",
+  "table_renderer_policy": "logical-markdown-v1",
+  "chunk_count": 261,
+  "ordered_text_hashes_sha256": "0fdd39d0e9e4801db7b4097afd3306ae7614b0ad1e348359062ff3243fd431a5",
+  "input_token_length_max": 649,
+  "truncated_input_count": 2,
+  "truncated_table_count": 2,
+  "truncated_narrative_count": 0,
+  "truncated_chunk_ids": [
+    "AUR-2025-CHUNK-000254",
+    "AUR-2025-CHUNK-000255"
+  ],
+  "truncated_content_type_counts": {
+    "table": 2
+  },
+  "truncated_table_kind_counts": {
+    "exhibit_list": 2
+  },
+  "truncated_inputs": [
+    {
+      "chunk_id": "AUR-2025-CHUNK-000254",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "AUR-2025-TABLE-0041",
+      "token_count": 649
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000255",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "AUR-2025-TABLE-0042",
+      "token_count": 539
+    }
+  ],
+  "batch_size": 32,
+  "device": "cpu"
+}

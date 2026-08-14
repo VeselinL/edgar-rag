@@ -16,3 +16,9 @@ __pycache__/
 
 # Generated embedding vectors
 data/embeddings/**/*.npz
+
+# Experimental notebooks
+notebooks/
+
+# Internal documents, architectures..
+docs/

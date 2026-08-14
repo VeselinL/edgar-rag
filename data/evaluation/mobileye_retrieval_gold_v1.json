@@ -1,0 +1,3102 @@
+{
+  "schema_version": 1,
+  "dataset_version": "mobileye-retrieval-gold-v1-historical",
+  "frozen_at": "2026-08-13",
+  "status": "historical_pre_table-v2_labels",
+  "authoritative_source": "exported from notebooks/compare_embeddings.ipynb before chunk-schema-v3 promotion",
+  "source_notebook": "notebooks/compare_embeddings.ipynb",
+  "source_notebook_sha256": "sha256:3abd8995eb6c89ef6f175d96080fa0826782f09a24c7139bd9182dad1949e51c",
+  "historical_500_chunk_artifact": "data/chunks/MBLY/2025-10-K.chunks.jsonl",
+  "historical_500_chunk_sha256": "sha256:af41b65b5259a88f00654773adc711b974903f6a6310c40817b1b1063713ca06",
+  "chunking_config_at_export": "data/chunks/chunking-config.json",
+  "chunking_config_sha256_at_export": "sha256:09ce7624e3117d6115453beac998bbff2bf5be44f41b2f06ca4bd7862f556de7",
+  "mapping_labels": [
+    "legacy_1600_character",
+    "recursive_token_250",
+    "recursive_token_500"
+  ],
+  "record_count": 60,
+  "records": [
+    {
+      "id": "Q01",
+      "evaluation_set": "query_to_chunk",
+      "category": "industry_and_business",
+      "query": "What role does Mobileye play in the automotive value chain, and which types of companies buy or integrate its products?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000062",
+          "MBLY-2025-CHUNK-000064",
+          "MBLY-2025-CHUNK-000065"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000083",
+          "MBLY-2025-CHUNK-000085",
+          "MBLY-2025-CHUNK-000086"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000038",
+          "MBLY-2025-CHUNK-000040",
+          "MBLY-2025-CHUNK-000041"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000038",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000098",
+            "MBLY-2025-000099"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 190,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Customers\n\nOur customers include leading OEMs, which we primarily sell to through Tier 1 automotive suppliers that implement our product into automotive vehicles, as well as fleet owners and operators."
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000040",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000102",
+            "MBLY-2025-000103"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 273,
+          "expected_evidence_excerpt": "Item 1 — Business\nTier 1 Automotive Suppliers\n\nWe supply certain OEMs with the EyeQ™ platform through our arrangements with automotive system integrators, known as Tier 1 automotive suppliers, which are direct suppliers to OEMs. Our Tier 1 customers include Aptiv, Magna, Valeo, ZF, Imotion, HL Klemov, Mobis and others."
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000041",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000104",
+            "MBLY-2025-000105"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 474,
+          "expected_evidence_excerpt": "Item 1 — Business\nAutonomous Mobility-as-a-Service\n\nWe, along with commercialization partners such as MOIA and Holon, expect to sell or deploy Mobileye Drive™-equipped self-driving vehicles to a range of transportation network companies, public transit operators, other mobility service companies and vehicle OEMs which intend to operate a variety of services (e.g., consumer-facing AMaaS, transportation on demand, delivery). These partners could produce vehicles themselves and integrate Mobileye Drive™ with our assistance."
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q02",
+      "evaluation_set": "query_to_chunk",
+      "category": "industry_and_business",
+      "query": "How does Mobileye's installed base of vehicles improve its mapping data and future driver-assistance products?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000010",
+          "MBLY-2025-CHUNK-000047"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000013",
+          "MBLY-2025-CHUNK-000014",
+          "MBLY-2025-CHUNK-000062"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000006",
+          "MBLY-2025-CHUNK-000029"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000006",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000013",
+            "MBLY-2025-000016"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 2346,
+          "source_text_end": 4060,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Technology Platform is Built to Enable the Full-Stack of Autonomous Solutions\n\n●Road Experience Management™. Our Road Experience Management™ (“REM™”) technology generates high-precision maps to support advanced ADAS and autonomous vehicle systems from crowd-sourced data that is uploaded and analyzed in the cloud from REM™-equipped production ADAS solutions deployed on vehicles on the road. REM™ is a cloud-based system that leverages the broad installed-base of REM™-equipped vehicles to build Mobileye Roadbook™, our crowd-sourced, high-precision definition maps of roads fr"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000029",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000069",
+            "MBLY-2025-000078"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 7249,
+          "source_text_end": 9162,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Competitive Strengths\n\n●Road Experience Management™ creates a powerful network effect and long-term competitive advantage - Our REM™ system is a crucial ingredient that we believe allows for: (1) defining a new category of cloud-enhanced ADAS that we call Cloud-Enhanced ADAS™, where information in Mobileye Roadbook™ enhances existing ADAS functions such as lane keeping assist and lane-centering and allows for new functions such as the analysis of behavior patterns in intersections and near traffic signs and lights; (2) evolving ADAS to an eyes-on/hands-off point-to-point "
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q03",
+      "evaluation_set": "query_to_chunk",
+      "category": "industry_and_business",
+      "query": "How do Base ADAS and SuperVision differ in driving capability and in what Mobileye supplies to an automaker?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000023",
+          "MBLY-2025-CHUNK-000025"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000030",
+          "MBLY-2025-CHUNK-000035"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000014",
+          "MBLY-2025-CHUNK-000016"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000014",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000040",
+            "MBLY-2025-000041",
+            "MBLY-2025-000042",
+            "MBLY-2025-000043",
+            "MBLY-2025-000044"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 1467,
+          "expected_evidence_excerpt": "Item 1 — Business\nMobileye Base ADAS\n\nMobileye’s Base ADAS, powered by our purpose built, on-windshield EyeQ™ SoC devices and our expertise in computer vision, brings our core ADAS solutions to millions of vehicles on the road today and is foundational to our spectrum of ADAS and autonomous vehicle solutions. Our EyeQ™ SoC provides drivers with basic safety features covered by front-facing sensing, such as collision warning, lane departure warnings, pedestrian and cyclist collision warning, headway monitoring and warning, speed limit indicator, blind spot detection, and many more. Our software"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000016",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000040",
+            "MBLY-2025-000046",
+            "MBLY-2025-000047"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 2788,
+          "source_text_end": 4841,
+          "expected_evidence_excerpt": "Item 1 — Business\nMobileye Base ADAS\n\nMobileye SuperVision™\n\nMobileye SuperVision™, our eyes-on/hands-off Premium Driver Assist offering, is our most advanced driver assist system on the market and is the bridge to consumer autonomous vehicles. It is designed to handle standard driving functions across various road types, offering “hands-off” navigation capabilities under certain ODDs, while still requiring the driver to pay full attention and keep eyes on the road. Derived from our autonomous vehicle research and development, Mobileye SuperVision™ leverages cloud-based enhancements such as RE"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q04",
+      "evaluation_set": "query_to_chunk",
+      "category": "industry_and_business",
+      "query": "Why does Mobileye expect consumer autonomous vehicles and autonomous mobility-as-a-service to reach the market through different paths?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000036",
+          "MBLY-2025-CHUNK-000038",
+          "MBLY-2025-CHUNK-000039"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000047",
+          "MBLY-2025-CHUNK-000049",
+          "MBLY-2025-CHUNK-000051"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000022",
+          "MBLY-2025-CHUNK-000023",
+          "MBLY-2025-CHUNK-000024"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000022",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000064",
+            "MBLY-2025-000065",
+            "MBLY-2025-000066"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 2061,
+          "expected_evidence_excerpt": "Item 1 — Business\nChallenges to Making Autonomous Vehicles Ubiquitous\n\nTo make autonomous vehicles at scale a reality, we believe that there are three core challenges that must be addressed beyond optimization of safety and performance:\n\n●Regulatory Endorsement - Autonomous driving solutions must be architected, by design, to be verifiably safe, in a manner that fosters broad societal and regulatory endorsement. Regulation is an often-overlooked factor. While laws and regulations are specific to human drivers, there are challenges to balance safety and practicality of an AV in a manner that is"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000023",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000064",
+            "MBLY-2025-000067"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 2063,
+          "source_text_end": 3571,
+          "expected_evidence_excerpt": "Item 1 — Business\nChallenges to Making Autonomous Vehicles Ubiquitous\n\n●Geographic Scale - Geographic scale refers to the challenge of creating high-definition maps with great detail and accuracy through our REM™ technology, and keeping those maps continuously updated, which is crucial for series production AVs. AMaaS vehicles can be confined to geofenced areas, which allows AVs to reach prominence through the robotaxi industry before expanding the ODD to outside of those areas. While robotaxi operators may be successful providing their services in limited geofenced areas, broad-based consumer"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000024",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000064",
+            "MBLY-2025-000068"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 3573,
+          "source_text_end": 4443,
+          "expected_evidence_excerpt": "Item 1 — Business\nChallenges to Making Autonomous Vehicles Ubiquitous\n\n●Cost - The cost of a self-driving system commonly employed by robotaxis, with its cameras, radars, specialized lidars, and high-performance computing is currently in the tens of thousands of dollars. This cost level is acceptable for the monetization model of a driverless ride-hailing service, but is far too expensive for series-production passenger cars. In order for autonomous driving consumer vehicles to scale in volume, we believe the cost of self-driving systems needs to be reduced significantly, such as to several th"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q05",
+      "evaluation_set": "query_to_chunk",
+      "category": "industry_and_business",
+      "query": "How do EyeQ chips, camera-based perception, REM maps, and RSS work together as an autonomous-driving system?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000008",
+          "MBLY-2025-CHUNK-000010",
+          "MBLY-2025-CHUNK-000016",
+          "MBLY-2025-CHUNK-000050"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000011",
+          "MBLY-2025-CHUNK-000012",
+          "MBLY-2025-CHUNK-000013",
+          "MBLY-2025-CHUNK-000014",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000066"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000005",
+          "MBLY-2025-CHUNK-000006",
+          "MBLY-2025-CHUNK-000009",
+          "MBLY-2025-CHUNK-000031"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000005",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000013",
+            "MBLY-2025-000014",
+            "MBLY-2025-000015"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 2344,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Technology Platform is Built to Enable the Full-Stack of Autonomous Solutions\n\nOur technology platform, which includes our software and hardware intellectual property, leverages our decades of experience as a technology leader for sensing and perception solutions for the automotive industry and our focused efforts to build highly scalable, compute-efficient and cost-efficient autonomous solutions. Our technologies are foundational to the development and deployment of our ADAS and AV capabilities. Our platform is built on five fundamental pillars:\n\n●Computer Vision Process"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000006",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000013",
+            "MBLY-2025-000016"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 2346,
+          "source_text_end": 4060,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Technology Platform is Built to Enable the Full-Stack of Autonomous Solutions\n\n●Road Experience Management™. Our Road Experience Management™ (“REM™”) technology generates high-precision maps to support advanced ADAS and autonomous vehicle systems from crowd-sourced data that is uploaded and analyzed in the cloud from REM™-equipped production ADAS solutions deployed on vehicles on the road. REM™ is a cloud-based system that leverages the broad installed-base of REM™-equipped vehicles to build Mobileye Roadbook™, our crowd-sourced, high-precision definition maps of roads fr"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000009",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000013",
+            "MBLY-2025-000020",
+            "MBLY-2025-000021",
+            "MBLY-2025-000022"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 8060,
+          "source_text_end": 9558,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Technology Platform is Built to Enable the Full-Stack of Autonomous Solutions\n\nDuring 2025, a leading global automaker chose Mobileye Imaging Radar™ as a key component of its upcoming eyes-off, hands-off automated driving system in personal vehicles, following an extensive, years-long evaluation of Mobileye’s technology and competing systems. Starting in 2028, this new customer for Mobileye plans to use the imaging radar to deliver SAE Level 3 automated driving at highway speeds, designed to provide exceptional detection of vehicles, people and objects in conditions such "
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000031",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000069",
+            "MBLY-2025-000080",
+            "MBLY-2025-000081",
+            "MBLY-2025-000082"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 11541,
+          "source_text_end": 14056,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Competitive Strengths\n\n●RSS: Our Technology Safety Concept for Deploying AV at Scale - Responsibility Sensitive Safety (“RSS”), published in 2017, is a key component of our safety model, intended to specifically address the regulatory and public debate regarding, and enable the acceptance of, eyes-off/hands-off autonomous solutions. It is a formal, explicit, machine interpretable model governing the safety of our autonomous driving solutions’ driving policy. RSS articulates a set of plausible-worst-case assumptions regarding the behavior of other road-users, thereby enabl"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q06",
+      "evaluation_set": "query_to_chunk",
+      "category": "strategy_and_risk",
+      "query": "Why are vehicle-model design wins important to future revenue even when they do not produce sales immediately?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000354",
+          "MBLY-2025-CHUNK-000157"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000444",
+          "MBLY-2025-CHUNK-000195"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000213",
+          "MBLY-2025-CHUNK-000099"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000213",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000584",
+            "MBLY-2025-000589",
+            "MBLY-2025-000590",
+            "MBLY-2025-000591"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 6310,
+          "source_text_end": 8854,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nKey Factors Affecting Our Performance\n\nDuring 2025, the United States implemented a series of broad-based and sector-specific tariffs affecting passenger vehicles, automotive components and other industrial inputs, as well as country-specific tariff regimes and reciprocal trade measures. These actions were accompanied by ongoing bilateral and multilateral negotiations, interim trade agreements, pauses, delays and retaliatory measures by certain countries, resulting in significant uncertainty regardin"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000099",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000213",
+            "MBLY-2025-000260"
+          ],
+          "source_anchors": [
+            "Item1ARiskFactors_325291"
+          ],
+          "source_text_start": 36785,
+          "source_text_end": 37983,
+          "expected_evidence_excerpt": "Item 1A — Risk Factors\nRisks Related to Our Business\n\nFurthermore, our solutions are technologically complex, incorporate many technological innovations, and are typically subject to significant safety testing, and OEMs generally must make significant commitments of resources to test and validate our solutions before including them in any particular vehicle model. The integration cycles of our solutions with new OEMs are approximately one to three years after a design win, depending on the OEM and the complexity of the solution. These integration cycles result in our investment of resources pr"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q07",
+      "evaluation_set": "query_to_chunk",
+      "category": "strategy_and_risk",
+      "query": "What advantage does Mobileye gain from offering a modular, customizable platform instead of a fully closed system, and how does DXP divide control between Mobileye and automakers?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000043",
+          "MBLY-2025-CHUNK-000044"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000057",
+          "MBLY-2025-CHUNK-000058"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000027"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000027",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000069",
+            "MBLY-2025-000075"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 3810,
+          "source_text_end": 5844,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Competitive Strengths\n\n●We offer solutions for developing and deploying differentiated features on top of EyeQ™ SoC - Our platform is modular by design, enabling our customers to productize our most advanced solutions today and then leverage those investments to launch even more advanced systems in a modular and incremental manner. Our systems are also highly customizable, which allows our customers to benefit from our cutting-edge, verified, and validated core technologies such as computer vision, radar, and lidar processing, Compound AI system architecture (including Tr"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q08",
+      "evaluation_set": "query_to_chunk",
+      "category": "strategy_and_risk",
+      "query": "How could an automaker's decision to build its own driver-assistance system affect Mobileye, based on the examples discussed in the filing?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000128"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000160"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000084"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000084",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000213",
+            "MBLY-2025-000224",
+            "MBLY-2025-000225",
+            "MBLY-2025-000226"
+          ],
+          "source_anchors": [
+            "Item1ARiskFactors_325291"
+          ],
+          "source_text_start": 5789,
+          "source_text_end": 8454,
+          "expected_evidence_excerpt": "Item 1A — Risk Factors\nRisks Related to Our Business\n\nWe operate in a highly competitive market.\n\nThe ADAS and autonomous driving industries as well as the emergent humanoid robotics industry, are highly competitive, and we expect they will become even more competitive in the future. Our future success will depend on, among other things, our ability to continue developing superior advanced technology to remain competitive with our existing and any new competitors. Competition is based on, among other things, cost efficiency, reliability, the ability to develop and deploy increasingly complex t"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q09",
+      "evaluation_set": "query_to_chunk",
+      "category": "strategy_and_risk",
+      "query": "How do Mobileye's dependencies on STMicroelectronics, TSMC, and Quanta expose it to different supply-chain risks?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000133",
+          "MBLY-2025-CHUNK-000136",
+          "MBLY-2025-CHUNK-000138"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000167",
+          "MBLY-2025-CHUNK-000169",
+          "MBLY-2025-CHUNK-000170",
+          "MBLY-2025-CHUNK-000171"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000087",
+          "MBLY-2025-CHUNK-000089",
+          "MBLY-2025-CHUNK-000090"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000087",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000213",
+            "MBLY-2025-000233"
+          ],
+          "source_anchors": [
+            "Item1ARiskFactors_325291"
+          ],
+          "source_text_start": 11443,
+          "source_text_end": 13319,
+          "expected_evidence_excerpt": "Item 1A — Risk Factors\nRisks Related to Our Business\n\nIn 2021 and 2022, the semiconductor industry experienced widespread shortages of substrates and other components and available foundry manufacturing capacity. These factors, combined with the long lead times associated with wafer production, contributed to a shortage of semiconductors. During 2021 and 2022, STMicroelectronics, our sole supplier of EyeQ™ SoCs, was not able to meet our demand for EyeQ™ SoCs, causing a significant reduction in our inventory level, and we entered 2022 with significantly lower inventories of our EyeQ™ SoCs as a "
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000089",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000213",
+            "MBLY-2025-000235",
+            "MBLY-2025-000236"
+          ],
+          "source_anchors": [
+            "Item1ARiskFactors_325291"
+          ],
+          "source_text_start": 14449,
+          "source_text_end": 16616,
+          "expected_evidence_excerpt": "Item 1A — Risk Factors\nRisks Related to Our Business\n\nWe depend on STMicroelectronics to manufacture our EyeQ™ SoCs.\n\nWe currently purchase all of our EyeQ™ SoCs from STMicroelectronics. Because of the complex proprietary nature of our EyeQ™ SoCs, any transition from STMicroelectronics to a new supplier or, if there were a disaster at any of STMicroelectronics’ facilities involved in manufacturing our EyeQ™ SoCs, bringing new facilities online, would take a significant period of time to complete and would likely result in our having insufficient inventory and adversely affect our business, res"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000090",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000213",
+            "MBLY-2025-000237",
+            "MBLY-2025-000238"
+          ],
+          "source_anchors": [
+            "Item1ARiskFactors_325291"
+          ],
+          "source_text_start": 16618,
+          "source_text_end": 17495,
+          "expected_evidence_excerpt": "Item 1A — Risk Factors\nRisks Related to Our Business\n\nTSMC is located in Taiwan, and our ability to receive sufficient supplies of our EyeQ™ SoCs could be adversely affected by events in Taiwan, China and the broader region, such as natural disasters in Taiwan, including earthquakes, drought and typhoons, escalations of tensions between the People’s Republic of China and Taiwan, including resulting from the People’s Republic of China’s step up of military exercises around Taiwan, political unrest, trade restrictions, war, or other geopolitical issues. These same factors may also adversely affe"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q10",
+      "evaluation_set": "query_to_chunk",
+      "category": "strategy_and_risk",
+      "query": "In what ways does Intel's ownership support Mobileye, and where can that relationship create constraints or conflicts?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000066",
+          "MBLY-2025-CHUNK-000095",
+          "MBLY-2025-CHUNK-000265"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000087",
+          "MBLY-2025-CHUNK-000119",
+          "MBLY-2025-CHUNK-000333"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000042",
+          "MBLY-2025-CHUNK-000061",
+          "MBLY-2025-CHUNK-000158"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000042",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000106",
+            "MBLY-2025-000107",
+            "MBLY-2025-000108"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 1162,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Partnerships with STMicroelectronics and Intel\n\nOur long-standing relationship with STMicroelectronics N.V. (“STMicroelectronics”) continues to strengthen with the complexity of our solutions. Our partnership includes close collaboration in product development, design, and manufacturing. For example, we have co-developed six EyeQ™ generations, including the EyeQ™6. We also benefit from STMicroelectronics’ advanced packaging and testing capabilities and automotive expertise. Together with STMicroelectronics, we are working on developing and productizing next-generation aut"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000061",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000166",
+            "MBLY-2025-000167"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 884,
+          "expected_evidence_excerpt": "Item 1 — Business\nRelationship with Intel\n\nPrior to the Mobileye IPO, Intel beneficially owned 100% of our outstanding shares of common stock and we operated as Intel’s wholly owned subsidiary. As of December 27, 2025, Intel beneficially owns 50,000,000 shares of our Class A common stock and all of the outstanding shares of our Class B common stock, representing approximately 79.5% of our outstanding common stock and 97.3% of the voting power of our common stock. Due to the issuance of shares of Class A common stock in connection with the acquisition of Mentee Robotics, Intel beneficially owns"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000158",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000372",
+            "MBLY-2025-000391",
+            "MBLY-2025-000392",
+            "MBLY-2025-000393"
+          ],
+          "source_anchors": [
+            "Item1ARiskFactors_325291"
+          ],
+          "source_text_start": 13464,
+          "source_text_end": 15565,
+          "expected_evidence_excerpt": "Item 1A — Risk Factors\nRisks Related to our Relationship with Intel and our Dual Class Structure\n\nWe are licensed to sell the radar products only for ADAS and AV solutions for automobiles and to certain types of customers (Tier 1s, OEMs, MaaS). The Technology and Services Agreement has a term of two years and will automatically renew for one-year renewal periods, unless the agreement is terminated for a party’s material breach, a party’s bankruptcy or insolvency, or advance notice of nonrenewal is given, however, termination of the agreement does not affect certain licenses granted to us by In"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q11",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "query": "Why can a higher mix of SuperVision and other complete systems increase revenue while reducing gross margin?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000359"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000451"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000216"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000216",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000584",
+            "MBLY-2025-000596",
+            "MBLY-2025-000597",
+            "MBLY-2025-000598"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 13490,
+          "source_text_end": 16034,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nKey Factors Affecting Our Performance\n\nSolution mix, pricing, and product costs. Solution mix is among the most important factors affecting our revenue and gross margin, as our prices vary significantly across our solutions. The price of our solutions depends on the bundle of applications that are included in the specific product. Our solutions have different margin profiles. As we develop, bundle, and sell full systems that include third-party hardware beyond EyeQ™ SoCs, we expect that our gross mar"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q12",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "query": "Was Mobileye's 2025 revenue growth driven more by unit shipments, product mix, or pricing, and what evidence supports that conclusion?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000388"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000482"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000238"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000238",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000639",
+            "MBLY-2025-000640"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 703,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nRevenue\n\nIn 2025, revenue was $1,894 million, up $240 million, or 15%, compared to 2024. This increase in revenue was primarily due to an increase of $308 million, or 22%, in EyeQ™ SoC revenue attributable mainly to a 23% increase in volume, resulting mainly from the normalization of excess inventory by our Tier 1 customers that was previously used to satisfy demand during the first half of 2024. This was slightly offset by a decrease in SuperVision™ related revenue. Average System Price, calculated "
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q13",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "query": "Did gross profit improve at the same pace as revenue from 2024 to 2025, and what explains the difference?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000388",
+          "MBLY-2025-CHUNK-000390"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000482",
+          "MBLY-2025-CHUNK-000484"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000238",
+          "MBLY-2025-CHUNK-000240"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000238",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000639",
+            "MBLY-2025-000640"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 703,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nRevenue\n\nIn 2025, revenue was $1,894 million, up $240 million, or 15%, compared to 2024. This increase in revenue was primarily due to an increase of $308 million, or 22%, in EyeQ™ SoC revenue attributable mainly to a 23% increase in volume, resulting mainly from the normalization of excess inventory by our Tier 1 customers that was previously used to satisfy demand during the first half of 2024. This was slightly offset by a decrease in SuperVision™ related revenue. Average System Price, calculated "
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000240",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000643",
+            "MBLY-2025-000644",
+            "MBLY-2025-000645"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 508,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nGross Profit and margin\n\nIn 2025, our gross profit increased by $163 million, or 22%, compared to 2024. This increase was primarily due to the increase in revenue from sales of EyeQ™ systems, which was slightly offset by the decrease in sales of SuperVision™ systems.\n\nOur gross margin increased from 45% during 2024, to 48% during 2025. This increase was primarily due to the lower impact of amortization of intangible assets as a percentage of revenue as well as an increase in the percentage of revenue"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q14",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "query": "How did research and development spending change from 2024 to 2025 in both dollars and percentage of revenue, and what business priorities explain that level of spending?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000383",
+          "MBLY-2025-CHUNK-000371",
+          "MBLY-2025-CHUNK-000391"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000477",
+          "MBLY-2025-CHUNK-000465",
+          "MBLY-2025-CHUNK-000485"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000233",
+          "MBLY-2025-CHUNK-000224",
+          "MBLY-2025-CHUNK-000241"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "mixed",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000233",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000633"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nResults of Operations\nUnits: mixed\nColumn units: U.S. dollars in millions | dollars | dollars |  | percent | percent | dollars | dollars |  | percent | percent | dollars | dollars |  | percent | percent\n | Year Ended |  |  |  |  |  |  |  |  |  |  |  |  |  |\n | December 27, |  |  |  |  | December 28, |  |  |  |  | December 30, |  |  |  |\n | 2025 |  |  |  |  | 2024 |  |  |  |  | 2023 |  |  |  |\nU.S. dollars in millions | Amount |  |  | % of Revenue |  | Amount |  |  | % of Revenue |  | Amount |  |  | %"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000224",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000610",
+            "MBLY-2025-000611",
+            "MBLY-2025-000612",
+            "MBLY-2025-000613"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 1620,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nResearch and Development Expenses, net\n\nResearch and development expenses primarily consist of expenses associated with personnel related expenses, facilities, equipment and supplies for research and development activities, materials, parts and other prototype development, cloud computing services, consulting and other professional services, quality assurance within the development programs, and allocated overhead costs.\n\nWe enter into best-efforts nonrefundable non-recurring engineering (“NRE”) arra"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000241",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000646",
+            "MBLY-2025-000647"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 585,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nResearch and Development Expenses, net\n\nResearch and development expenses, net, in 2025, increased by $68 million, or 6%, compared to 2024. This increase was primarily due to an increase in payroll and related expenses, resulting from an increase in average research and development headcount of 147 employees and the costs related to the reduction in workforce implemented during the fourth quarter of 2025. This was partially offset by a decrease in direct expenses including professional services mostl"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q15",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "query": "Why was Mobileye's net loss much smaller in 2025 than in 2024 even though the company remained unprofitable?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000383",
+          "MBLY-2025-CHUNK-000394"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000477",
+          "MBLY-2025-CHUNK-000488"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000233",
+          "MBLY-2025-CHUNK-000244"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "mixed",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000233",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000633"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nResults of Operations\nUnits: mixed\nColumn units: U.S. dollars in millions | dollars | dollars |  | percent | percent | dollars | dollars |  | percent | percent | dollars | dollars |  | percent | percent\n | Year Ended |  |  |  |  |  |  |  |  |  |  |  |  |  |\n | December 27, |  |  |  |  | December 28, |  |  |  |  | December 30, |  |  |  |\n | 2025 |  |  |  |  | 2024 |  |  |  |  | 2023 |  |  |  |\nU.S. dollars in millions | Amount |  |  | % of Revenue |  | Amount |  |  | % of Revenue |  | Amount |  |  | %"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000244",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000652",
+            "MBLY-2025-000653"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 358,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nGoodwill Impairment\n\nGoodwill impairment expenses were zero in 2025 and $2,695 million in 2024. During the third quarter of 2024, the Company performed an interim quantitative goodwill impairment analysis for the “Mobileye” reporting unit, resulting in a non-cash impairment loss. For further details, see Note 10 to the Consolidated Financial Statements included in this report."
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q16",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "query": "What do Mobileye's operating, investing, and financing cash flows collectively indicate about how it funded the business in 2025?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000404",
+          "MBLY-2025-CHUNK-000405",
+          "MBLY-2025-CHUNK-000406",
+          "MBLY-2025-CHUNK-000407"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000499",
+          "MBLY-2025-CHUNK-000500",
+          "MBLY-2025-CHUNK-000501",
+          "MBLY-2025-CHUNK-000502"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000253",
+          "MBLY-2025-CHUNK-000254",
+          "MBLY-2025-CHUNK-000255",
+          "MBLY-2025-CHUNK-000256"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "mixed",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000253",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000685"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nCash Flows\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars |  | dollars | dollars |  | dollars | dollars\n | Year Ended |  |  |  |  |  |  |\n | December 27, |  |  | December 28, |  |  | December 30, |\nU.S. dollars in millions | 2025 |  |  | 2024 |  |  | 2023 |\nNet cash provided by operating activities | $ | 602 |  | $ | 400 |  | $ | 394\nNet cash used in investing activities |  | (91) |  |  | (120) |  |  | (98)\nNet cash used in financing activities |  | (106) |"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000254",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000686",
+            "MBLY-2025-000687",
+            "MBLY-2025-000688"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 776,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nOperating activities\n\nFor 2025 compared to 2024, the $202 million increase in cash provided by operating activities was mainly due to an increase in revenue as well as a decrease in inventories compared to an increase in the prior year period, partially offset by a decrease in trade accounts receivable compared to the prior year period.\n\nFor 2024 compared to 2023, the $6 million increase in cash provided by operating activities was mainly due to a lower increase in inventories compared to the prior y"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000255",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000689",
+            "MBLY-2025-000690",
+            "MBLY-2025-000691",
+            "MBLY-2025-000692"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 447,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nInvesting activities\n\nNet cash used in investing activities in 2025 was $91 million, consisting of capital expenditures and debt investments.\n\nNet cash used in investing activities in 2024 was $120 million, consisting mostly of capital expenditures and purchases of debt and equity investments.\n\nNet cash used in investing activities in 2023 was $98 million, consisting of capital expenditures in connection with the construction of our campus and electronic equipment."
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000256",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000693",
+            "MBLY-2025-000694",
+            "MBLY-2025-000695"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 360,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nFinancing activities\n\nNet cash used in financing activities in 2025 was $106 million, consisting of the $100 million Share Repurchase from Intel and share-based compensation recharge payments made to Intel.\n\nNet cash used in financing activities in 2024 and 2023 was $66 million and $100 million, respectively, consisting of share-based compensation recharge payments made to Intel."
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q17",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "query": "How concentrated is Mobileye's revenue among major customers and countries, and what financial risk does that concentration create?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000604",
+          "MBLY-2025-CHUNK-000607",
+          "MBLY-2025-CHUNK-000515"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000718",
+          "MBLY-2025-CHUNK-000721",
+          "MBLY-2025-CHUNK-000623"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000419",
+          "MBLY-2025-CHUNK-000422",
+          "MBLY-2025-CHUNK-000338"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "mixed",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000419",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001155"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nNOTES TO CONSOLIDATED FINANCIAL STATEMENTS\nTotal revenues based on the country that the product was shipped to were as follows\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars |  | dollars | dollars |  | dollars | dollars\n | Year ended |  |  |  |  |  |  |\n | December 27, |  |  | December 28, |  |  | December 30, |\nU.S. dollars in millions | 2025 |  |  | 2024 |  |  | 2023 |\nChina | $ | 428 |  | $ | 424 |  | $ | 640\nUSA |  | 416 |  |  | 304 |  |  | 437\nGermany |  | 297 |  |  | 269 |  |  | 353\nSouth Korea |  | 192 |  |  | 219"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000422",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001161"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nMajor Customers\nUnits: percent\nColumn units: percent | percent | percent | percent | percent | percent | percent\n | Year ended |  |  |  |  |\n | December 27, |  | December 28, |  | December 30, |\n | 2025 |  | 2024 |  | 2023 |\nPercent of total revenues |  |  |  |  |  |\nCustomer A | 30 | % | 27 | % | 30 | %\nCustomer B | 17 | % | 20 | % | 24 | %\nCustomer C | 15 | % | 14 | % | 14 | %\nCustomer D | 14 | % | * |  | * |\nCustomer E | * |  | 13 | % | * |"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000338",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000962",
+            "MBLY-2025-000963"
+          ],
+          "source_anchors": [
+            "_Hlk219434731",
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 1225,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nCustomer concentration risk\n\nThe Company’s business, results of operations, and financial condition for the foreseeable future will likely continue to depend on sales to a relatively small number of customers. In the future, these customers may decide not to purchase the Company’s products, may purchase fewer products than in previous years, or may alter their purchasing patterns. Further, the amount of revenue attributable to any single customer or customer concentration generally may fluctuate in any given period. In addition, a decline in the production levels "
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q18",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "query": "How are Mobileye's operating lease obligations distributed over time, and how does the maturity schedule reconcile with current and long-term lease liabilities?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000532",
+          "MBLY-2025-CHUNK-000537"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000644",
+          "MBLY-2025-CHUNK-000649"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000354",
+          "MBLY-2025-CHUNK-000359"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000354",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001006"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nNOTE 5 - LEASES\nThe balances for the operating leases, which are presented on the consolidated balance sheets in other long-term assets, other current liabilities and long-term liabilities, were as follows\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars |  | dollars | dollars\n | As of |  |  |  |\n | December 27, |  |  | December 28, |\nU.S. dollars in millions | 2025 |  |  | 2024 |\nOperating lease right-of-use assets | $ | 50 |  | $ | 47\nOperating lease liabilities: |  |  |  |  |\nCurrent portion of lease liabilities |  | 18"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000359",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001013"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nNOTES TO CONSOLIDATED FINANCIAL STATEMENTS\nMaturities of operating lease liabilities were as follows\nUnits: U.S. Dollars in millions\nColumn units: U.S. Dollars in millions | dollars | dollars\n | December 27, |\nU.S. Dollars in millions | 2025 |\n2026 | $ | 20\n2027 |  | 17\n2028 |  | 14\n2029 |  | 9\n2030 and thereafter |  | 8\nTotal operating lease payments |  | 68\nImputed interest |  | (6)\nPresent value of lease liabilities | $ | 62"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q19",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "query": "How do restricted stock units affect reported expenses, operating cash flow, and potential shareholder dilution even though they are not ordinary cash salaries?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000500",
+          "MBLY-2025-CHUNK-000459",
+          "MBLY-2025-CHUNK-000549"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000606",
+          "MBLY-2025-CHUNK-000561",
+          "MBLY-2025-CHUNK-000661"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000327",
+          "MBLY-2025-CHUNK-000294",
+          "MBLY-2025-CHUNK-000370"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "mixed",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000327",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000926",
+            "MBLY-2025-000927"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 783,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nShare-based compensation\n\nIn June 2025, the stockholders of the Company approved the Amended and Restated Mobileye Global Inc. 2022 Equity Incentive Plan (the “2022 Plan”), which allows the compensation committee of the Company to make equity-based incentive awards to our employees, consultants and outside directors. Equity awards granted to employees are accounted for using the estimated grant date fair value. The Company values RSUs based on the market value of the underlying share of Mobileye common stock (as applicable) at the date of grant. The Company recogn"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000294",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000821"
+          ],
+          "source_anchors": [
+            "Tc_4pr3vNEijUyDUiF_rtGxWQ_44_8"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nCONSOLIDATED STATEMENTS OF CASH FLOWS\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars |  | dollars | dollars |  | dollars | dollars\n | Year ended |  |  |  |  |  |  |\n | December 27, |  |  | December 28, |  |  | December 30, |\nU.S. dollars in millions | 2025 |  |  | 2024 |  |  | 2023 |\nCASH FLOWS FROM OPERATING ACTIVITIES |  |  |  |  |  |  |  |\nNet income (loss) | $ | (392) |  | $ | (3,090) |  | $ | (27)\nAdjustments to reconcile net income (loss) to net cash provided by operating activities: |  |  |  |  |  |  |  |\nDeprecia"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000370",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-001038",
+            "MBLY-2025-001039",
+            "MBLY-2025-001040",
+            "MBLY-2025-001041"
+          ],
+          "source_anchors": [
+            "Tc_RzpWbaTBY0WiT2EMBqGriQ_9_8",
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 889,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nNOTE 7 - EARNINGS (LOSS) PER SHARE\n\nAs of December 27, 2025, we have 597,768,015 Class B shares, all held by Intel, and 216,980,847 Class A shares out of which 50,000,000 shares are held by Intel, both of which are utilized for the calculation of basic and diluted EPS. The outstanding Class A shares also include shares issued upon vesting of outstanding RSUs, see Note 6 Equity.\n\nFor the years ended December 27, 2025, December 28, 2024 and December 30, 2023, the computation of diluted earnings (loss) per share attributable to common stockholders does not include 27"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q20",
+      "evaluation_set": "query_to_chunk",
+      "category": "financials",
+      "query": "Based on its 2025 results and balance sheet, can Mobileye fund its transition from Base ADAS to advanced autonomous systems without near-term external financing? Support the conclusion with growth, margins, R&D spending, cash flows, cash balances, and obligations.",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000383",
+          "MBLY-2025-CHUNK-000371",
+          "MBLY-2025-CHUNK-000401",
+          "MBLY-2025-CHUNK-000404",
+          "MBLY-2025-CHUNK-000453"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000477",
+          "MBLY-2025-CHUNK-000465",
+          "MBLY-2025-CHUNK-000496",
+          "MBLY-2025-CHUNK-000499",
+          "MBLY-2025-CHUNK-000555"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000233",
+          "MBLY-2025-CHUNK-000224",
+          "MBLY-2025-CHUNK-000251",
+          "MBLY-2025-CHUNK-000253",
+          "MBLY-2025-CHUNK-000288"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "mixed",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000233",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000633"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nResults of Operations\nUnits: mixed\nColumn units: U.S. dollars in millions | dollars | dollars |  | percent | percent | dollars | dollars |  | percent | percent | dollars | dollars |  | percent | percent\n | Year Ended |  |  |  |  |  |  |  |  |  |  |  |  |  |\n | December 27, |  |  |  |  | December 28, |  |  |  |  | December 30, |  |  |  |\n | 2025 |  |  |  |  | 2024 |  |  |  |  | 2023 |  |  |  |\nU.S. dollars in millions | Amount |  |  | % of Revenue |  | Amount |  |  | % of Revenue |  | Amount |  |  | %"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000224",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000610",
+            "MBLY-2025-000611",
+            "MBLY-2025-000612",
+            "MBLY-2025-000613"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 1620,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nResearch and Development Expenses, net\n\nResearch and development expenses primarily consist of expenses associated with personnel related expenses, facilities, equipment and supplies for research and development activities, materials, parts and other prototype development, cloud computing services, consulting and other professional services, quality assurance within the development programs, and allocated overhead costs.\n\nWe enter into best-efforts nonrefundable non-recurring engineering (“NRE”) arra"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000251",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000678",
+            "MBLY-2025-000679",
+            "MBLY-2025-000680",
+            "MBLY-2025-000681",
+            "MBLY-2025-000682"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 1826,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nLiquidity and Capital Resources\n\nWe believe we have sufficient sources of funding to meet our business requirements and plans for the next 12 months and in the longer term. Cash generated by operations is our primary source of liquidity for funding our strategic business requirements.\n\nOur primary uses of funds have been for funding increases in headcount in our research and development departments, investments attributable to new product development, as well as for funding our capital expenditures. "
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000253",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000685"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nCash Flows\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars |  | dollars | dollars |  | dollars | dollars\n | Year Ended |  |  |  |  |  |  |\n | December 27, |  |  | December 28, |  |  | December 30, |\nU.S. dollars in millions | 2025 |  |  | 2024 |  |  | 2023 |\nNet cash provided by operating activities | $ | 602 |  | $ | 400 |  | $ | 394\nNet cash used in investing activities |  | (91) |  |  | (120) |  |  | (98)\nNet cash used in financing activities |  | (106) |"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000288",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000808"
+          ],
+          "source_anchors": [
+            "Tc_VIoc-D7Gj0WgPS9LeJzUdA_38_5"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nCONSOLIDATED BALANCE SHEETS\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars | dollars | dollars\n | December 27, |  | December 28, |\nU.S. dollars in millions, except share and per share data | 2025 |  | 2024 |\nAssets |  |  |  |\nCurrent assets |  |  |  |\nCash and cash equivalents | $ | 1,836 | $ | 1,426\nTrade accounts receivable, net |  | 131 |  | 212\nInventories |  | 327 |  | 415\nOther current assets |  | 184 |  | 121\nTotal current assets | $ | 2,478 | $ | 2,174\nNon-current assets |  |  |  |\nProperty and equipment, net |  "
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q21",
+      "evaluation_set": "query_to_chunk",
+      "category": "table_lookup",
+      "query": "Of the amount owed for rented offices and vehicles at year-end 2025, how much was due after the next twelve months?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000532"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000644"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000354"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000354",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001006"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nNOTE 5 - LEASES\nThe balances for the operating leases, which are presented on the consolidated balance sheets in other long-term assets, other current liabilities and long-term liabilities, were as follows\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars |  | dollars | dollars\n | As of |  |  |  |\n | December 27, |  |  | December 28, |\nU.S. dollars in millions | 2025 |  |  | 2024 |\nOperating lease right-of-use assets | $ | 50 |  | $ | 47\nOperating lease liabilities: |  |  |  |  |\nCurrent portion of lease liabilities |  | 18"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q22",
+      "evaluation_set": "query_to_chunk",
+      "category": "table_lookup",
+      "query": "What payment was scheduled for 2028 under the company's office and vehicle rental commitments?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000537"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000649"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000359"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000359",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001013"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nNOTES TO CONSOLIDATED FINANCIAL STATEMENTS\nMaturities of operating lease liabilities were as follows\nUnits: U.S. Dollars in millions\nColumn units: U.S. Dollars in millions | dollars | dollars\n | December 27, |\nU.S. Dollars in millions | 2025 |\n2026 | $ | 20\n2027 |  | 17\n2028 |  | 14\n2029 |  | 9\n2030 and thereafter |  | 8\nTotal operating lease payments |  | 68\nImputed interest |  | (6)\nPresent value of lease liabilities | $ | 62"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q23",
+      "evaluation_set": "query_to_chunk",
+      "category": "table_lookup",
+      "query": "What proportion of 2025 sales came from the company's largest customer?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000607"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000721"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000422"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000422",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001161"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nMajor Customers\nUnits: percent\nColumn units: percent | percent | percent | percent | percent | percent | percent\n | Year ended |  |  |  |  |\n | December 27, |  | December 28, |  | December 30, |\n | 2025 |  | 2024 |  | 2023 |\nPercent of total revenues |  |  |  |  |  |\nCustomer A | 30 | % | 27 | % | 30 | %\nCustomer B | 17 | % | 20 | % | 24 | %\nCustomer C | 15 | % | 14 | % | 14 | %\nCustomer D | 14 | % | * |  | * |\nCustomer E | * |  | 13 | % | * |"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q24",
+      "evaluation_set": "query_to_chunk",
+      "category": "table_lookup",
+      "query": "How much of 2025 sales came from products delivered to Germany?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000604"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000718"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000419"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000419",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001155"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nNOTES TO CONSOLIDATED FINANCIAL STATEMENTS\nTotal revenues based on the country that the product was shipped to were as follows\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars |  | dollars | dollars |  | dollars | dollars\n | Year ended |  |  |  |  |  |  |\n | December 27, |  |  | December 28, |  |  | December 30, |\nU.S. dollars in millions | 2025 |  |  | 2024 |  |  | 2023 |\nChina | $ | 428 |  | $ | 424 |  | $ | 640\nUSA |  | 416 |  |  | 304 |  |  | 437\nGermany |  | 297 |  |  | 269 |  |  | 353\nSouth Korea |  | 192 |  |  | 219"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q25",
+      "evaluation_set": "query_to_chunk",
+      "category": "table_lookup",
+      "query": "At the end of 2025, how many employee stock units remained outstanding, and what was their average grant-date value per share?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000543"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000655"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000364"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000364",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001028"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nNOTES TO CONSOLIDATED FINANCIAL STATEMENTS\nRestricted Stock Units\nUnits: mixed\nColumn units:  | In thousands | dollars | dollars\n |  | Weighted average grant |\n | Number of RSUs | date fair value per share |\n | In thousands | U.S. dollars |\nOutstanding as of December 31, 2022 | 12,564 | $ | 21\nGranted | 6,782 |  | 40\nVested | (4,240) |  | 21\nForfeited | (328) |  | 26\nOutstanding as of December 30, 2023 | 14,778 |  | 30\nGranted | 13,542 |  | 25\nVested | (5,574) |  | 29\nForfeited | (1,293) |  | 30\nOutstanding as of December 28, 2024 | 21,453 |  | 27\nGranted | 22,985"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "Q26",
+      "evaluation_set": "query_to_chunk",
+      "category": "table_lookup",
+      "query": "After excluding acquisition-related amortization and equity compensation, what were Mobileye's 2025 gross profit and gross margin?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000418"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000513"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000263"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000263",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000713"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nAdjusted Gross Profit and Margin\nUnits: mixed\nColumn units: U.S. dollars in millions | dollars | dollars |  | percent | percent | dollars | dollars |  | percent | percent | dollars | dollars |  | percent | percent\n | Year Ended |  |  |  |  |  |  |  |  |  |  |  |  |  |\n | December 27, |  |  |  |  | December 28, |  |  |  |  | December 30, |  |  |  |\n | 2025 |  |  |  |  | 2024 |  |  |  |  | 2023 |  |  |  |\n |  |  |  | % of |  |  |  |  | % of |  |  |  |  | % of |\nU.S. dollars in millions | Amount |  |  |"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q01",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "Which company did Mobileye acquire in February 2026, and which new technology market did the acquisition add to its business?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000002"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000003"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000002"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000002",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000004",
+            "MBLY-2025-000005",
+            "MBLY-2025-000006",
+            "MBLY-2025-000007"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 2297,
+          "expected_evidence_excerpt": "Item 1 — Business\nCompany Overview\n\nMobileye is a leader in the development and deployment of advanced driver assistance systems (“ADAS”) and autonomous driving technologies and solutions. We pioneered ADAS technology more than 25 years ago and have continuously expanded the scope of our ADAS offerings, while leading the evolution to autonomous driving solutions. On February 3, 2026, we completed the acquisition of Mentee Robotics Ltd. (“Mentee Robotics”), a humanoid robotics company. This acquisition combines Mobileye’s advanced artificial intelligence (“AI”) technology and global production "
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q02",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "By the end of 2025, approximately how many vehicle models used Mobileye solutions and how many vehicles contained its chips?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000006"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000008"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000004"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000004",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000004",
+            "MBLY-2025-000011",
+            "MBLY-2025-000012"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 4485,
+          "source_text_end": 5673,
+          "expected_evidence_excerpt": "Item 1 — Business\nCompany Overview\n\nAs of December 27, 2025, our solutions have been installed in approximately 1,400 vehicle models (including local country, year, and other vehicle model variations), and our System-on-Chips (“SoCs”) have been deployed in more than 230 million vehicles. We are actively working with more than 50 Original Equipment Manufacturers (“OEMs”) worldwide on the implementation of our ADAS solutions. For the year ended December 27, 2025, we shipped approximately 35.7 million of our EyeQ™ SoC and SuperVision™ systems, of which the substantial majority were EyeQ™ SoCs. Th"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q03",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "How does Mobileye turn data collected by production vehicles into high-precision maps for driver-assistance and autonomous systems?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000010"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000013",
+          "MBLY-2025-CHUNK-000014"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000006"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000006",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000013",
+            "MBLY-2025-000016"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 2346,
+          "source_text_end": 4060,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Technology Platform is Built to Enable the Full-Stack of Autonomous Solutions\n\n●Road Experience Management™. Our Road Experience Management™ (“REM™”) technology generates high-precision maps to support advanced ADAS and autonomous vehicle systems from crowd-sourced data that is uploaded and analyzed in the cloud from REM™-equipped production ADAS solutions deployed on vehicles on the road. REM™ is a cloud-based system that leverages the broad installed-base of REM™-equipped vehicles to build Mobileye Roadbook™, our crowd-sourced, high-precision definition maps of roads fr"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q04",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "What automotive requirements are Mobileye's purpose-built EyeQ processors designed to satisfy?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000016"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000021"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000009"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000009",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000013",
+            "MBLY-2025-000020",
+            "MBLY-2025-000021",
+            "MBLY-2025-000022"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 8060,
+          "source_text_end": 9558,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Technology Platform is Built to Enable the Full-Stack of Autonomous Solutions\n\nDuring 2025, a leading global automaker chose Mobileye Imaging Radar™ as a key component of its upcoming eyes-off, hands-off automated driving system in personal vehicles, following an extensive, years-long evaluation of Mobileye’s technology and competing systems. Starting in 2028, this new customer for Mobileye plans to use the imaging radar to deliver SAE Level 3 automated driving at highway speeds, designed to provide exceptional detection of vehicles, people and objects in conditions such "
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q05",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "Which basic safety functions can Mobileye's windshield-mounted driver-assistance product provide from a front-facing view?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000023"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000030"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000014"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000014",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000040",
+            "MBLY-2025-000041",
+            "MBLY-2025-000042",
+            "MBLY-2025-000043",
+            "MBLY-2025-000044"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 1467,
+          "expected_evidence_excerpt": "Item 1 — Business\nMobileye Base ADAS\n\nMobileye’s Base ADAS, powered by our purpose built, on-windshield EyeQ™ SoC devices and our expertise in computer vision, brings our core ADAS solutions to millions of vehicles on the road today and is foundational to our spectrum of ADAS and autonomous vehicle solutions. Our EyeQ™ SoC provides drivers with basic safety features covered by front-facing sensing, such as collision warning, lane departure warnings, pedestrian and cyclist collision warning, headway monitoring and warning, speed limit indicator, blind spot detection, and many more. Our software"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q06",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "What level of driver attention does SuperVision require, and what camera and EyeQ configuration powers it?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000025"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000035"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000016"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000016",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000040",
+            "MBLY-2025-000046",
+            "MBLY-2025-000047"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 2788,
+          "source_text_end": 4841,
+          "expected_evidence_excerpt": "Item 1 — Business\nMobileye Base ADAS\n\nMobileye SuperVision™\n\nMobileye SuperVision™, our eyes-on/hands-off Premium Driver Assist offering, is our most advanced driver assist system on the market and is the bridge to consumer autonomous vehicles. It is designed to handle standard driving functions across various road types, offering “hands-off” navigation capabilities under certain ODDs, while still requiring the driver to pay full attention and keep eyes on the road. Derived from our autonomous vehicle research and development, Mobileye SuperVision™ leverages cloud-based enhancements such as RE"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q07",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "Which operators and transportation use cases is Mobileye's driverless fleet product intended to support?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000030"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000040"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000019"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000019",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000040",
+            "MBLY-2025-000052",
+            "MBLY-2025-000053",
+            "MBLY-2025-000054",
+            "MBLY-2025-000055",
+            "MBLY-2025-000056"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 7422,
+          "source_text_end": 9354,
+          "expected_evidence_excerpt": "Item 1 — Business\nMobileye Base ADAS\n\nMobileye Drive™ is our fleet-focused end-to-end self-driving system that enables automakers, public transportation companies, and transportation network operators to offer a no-driver solution for robotaxis, ride-pooling, public transport, and goods delivery. This eyes-off/hands-off/no driver solution will build upon our core autonomous driving technologies found in Mobileye Chauffeur™ and will deliver driving functions without the need for any in-vehicle human intervention by adding teleoperability and by minimizing cases where human input would be requir"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q08",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "Why does Mobileye believe regulators can authorize robotaxi fleets sooner than autonomous vehicles owned by individual consumers?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000036"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000047"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000022"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000022",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000064",
+            "MBLY-2025-000065",
+            "MBLY-2025-000066"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 2061,
+          "expected_evidence_excerpt": "Item 1 — Business\nChallenges to Making Autonomous Vehicles Ubiquitous\n\nTo make autonomous vehicles at scale a reality, we believe that there are three core challenges that must be addressed beyond optimization of safety and performance:\n\n●Regulatory Endorsement - Autonomous driving solutions must be architected, by design, to be verifiably safe, in a manner that fosters broad societal and regulatory endorsement. Regulation is an often-overlooked factor. While laws and regulations are specific to human drivers, there are challenges to balance safety and practicality of an AV in a manner that is"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q09",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "Why is today's self-driving hardware cost viable for robotaxi services but too high for mass-market passenger cars?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000039"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000051"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000024"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000024",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000064",
+            "MBLY-2025-000068"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 3573,
+          "source_text_end": 4443,
+          "expected_evidence_excerpt": "Item 1 — Business\nChallenges to Making Autonomous Vehicles Ubiquitous\n\n●Cost - The cost of a self-driving system commonly employed by robotaxis, with its cameras, radars, specialized lidars, and high-performance computing is currently in the tens of thousands of dollars. This cost level is acceptable for the monetization model of a driverless ride-hailing service, but is far too expensive for series-production passenger cars. In order for autonomous driving consumer vehicles to scale in volume, we believe the cost of self-driving systems needs to be reduced significantly, such as to several th"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q10",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "How does the growing fleet of REM-enabled vehicles create a network effect for Mobileye and its customers?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000046"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000062"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000029"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000029",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000069",
+            "MBLY-2025-000078"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 7249,
+          "source_text_end": 9162,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Competitive Strengths\n\n●Road Experience Management™ creates a powerful network effect and long-term competitive advantage - Our REM™ system is a crucial ingredient that we believe allows for: (1) defining a new category of cloud-enhanced ADAS that we call Cloud-Enhanced ADAS™, where information in Mobileye Roadbook™ enhances existing ADAS functions such as lane keeping assist and lane-centering and allows for new functions such as the analysis of behavior patterns in intersections and near traffic signs and lights; (2) evolving ADAS to an eyes-on/hands-off point-to-point "
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q11",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "Who are Mobileye's main customer types, and through which intermediaries does it generally sell to automakers?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000062"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000083"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000038"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000038",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000098",
+            "MBLY-2025-000099"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 190,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Customers\n\nOur customers include leading OEMs, which we primarily sell to through Tier 1 automotive suppliers that implement our product into automotive vehicles, as well as fleet owners and operators."
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q12",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "What two concrete advantages does Mobileye receive from its partnership with Intel for radar development and autonomous-vehicle regulation?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000066"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000087"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000042"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000042",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000106",
+            "MBLY-2025-000107",
+            "MBLY-2025-000108"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 1162,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Partnerships with STMicroelectronics and Intel\n\nOur long-standing relationship with STMicroelectronics N.V. (“STMicroelectronics”) continues to strengthen with the complexity of our solutions. Our partnership includes close collaboration in product development, design, and manufacturing. For example, we have co-developed six EyeQ™ generations, including the EyeQ™6. We also benefit from STMicroelectronics’ advanced packaging and testing capabilities and automotive expertise. Together with STMicroelectronics, we are working on developing and productizing next-generation aut"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q13",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "How many employees did Mobileye have at fiscal year-end 2025, what share worked in R&D, and where were most employees located?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000092"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000116"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000059"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000059",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000160",
+            "MBLY-2025-000161"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 784,
+          "expected_evidence_excerpt": "Item 1 — Business\nOur Employees\n\nAs of December 27, 2025, we had approximately 4,200 employees operating across seven countries, with approximately 85% of such employees involved in research and development and approximately 3,900 of such employees operating in Israel. As of February 3, 2026, following a workforce reduction and the acquisition of Mentee Robotics, we had approximately 4,130 employees. None of our employees is represented by a labor union with respect to his, her or their employment. In certain countries in which we operate, we are subject to, and comply with, local labor law re"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q14",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "Which two automakers are cited as replacing or reducing their use of Mobileye products with internally developed systems?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000128"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000160"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000084"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000084",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000213",
+            "MBLY-2025-000224",
+            "MBLY-2025-000225",
+            "MBLY-2025-000226"
+          ],
+          "source_anchors": [
+            "Item1ARiskFactors_325291"
+          ],
+          "source_text_start": 5789,
+          "source_text_end": 8454,
+          "expected_evidence_excerpt": "Item 1A — Risk Factors\nRisks Related to Our Business\n\nWe operate in a highly competitive market.\n\nThe ADAS and autonomous driving industries as well as the emergent humanoid robotics industry, are highly competitive, and we expect they will become even more competitive in the future. Our future success will depend on, among other things, our ability to continue developing superior advanced technology to remain competitive with our existing and any new competitors. Competition is based on, among other things, cost efficiency, reliability, the ability to develop and deploy increasingly complex t"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q15",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "Why would delayed deliveries from Mobileye's chip and ECU suppliers threaten its ability to fulfill customer orders?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000133"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000167"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000087"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000087",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000213",
+            "MBLY-2025-000233"
+          ],
+          "source_anchors": [
+            "Item1ARiskFactors_325291"
+          ],
+          "source_text_start": 11443,
+          "source_text_end": 13319,
+          "expected_evidence_excerpt": "Item 1A — Risk Factors\nRisks Related to Our Business\n\nIn 2021 and 2022, the semiconductor industry experienced widespread shortages of substrates and other components and available foundry manufacturing capacity. These factors, combined with the long lead times associated with wafer production, contributed to a shortage of semiconductors. During 2021 and 2022, STMicroelectronics, our sole supplier of EyeQ™ SoCs, was not able to meet our demand for EyeQ™ SoCs, causing a significant reduction in our inventory level, and we entered 2022 with significantly lower inventories of our EyeQ™ SoCs as a "
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q16",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "What primarily drove Mobileye's revenue increase in 2025, and what happened to its average system price?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000388"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000482"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000238"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000238",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000639",
+            "MBLY-2025-000640"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 703,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nRevenue\n\nIn 2025, revenue was $1,894 million, up $240 million, or 15%, compared to 2024. This increase in revenue was primarily due to an increase of $308 million, or 22%, in EyeQ™ SoC revenue attributable mainly to a 23% increase in volume, resulting mainly from the normalization of excess inventory by our Tier 1 customers that was previously used to satisfy demand during the first half of 2024. This was slightly offset by a decrease in SuperVision™ related revenue. Average System Price, calculated "
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q17",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "How did Mobileye's gross margin change in 2025, and which two mix effects explain the improvement?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000390"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000484"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000240"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000240",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000643",
+            "MBLY-2025-000644",
+            "MBLY-2025-000645"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 508,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nGross Profit and margin\n\nIn 2025, our gross profit increased by $163 million, or 22%, compared to 2024. This increase was primarily due to the increase in revenue from sales of EyeQ™ systems, which was slightly offset by the decrease in sales of SuperVision™ systems.\n\nOur gross margin increased from 45% during 2024, to 48% during 2025. This increase was primarily due to the lower impact of amortization of intangible assets as a percentage of revenue as well as an increase in the percentage of revenue"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q18",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_narrative",
+      "query": "What explains the large goodwill impairment recorded in 2024 and why was no comparable charge recorded in 2025?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000394"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000488"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000244"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000244",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000652",
+            "MBLY-2025-000653"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 358,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nGoodwill Impairment\n\nGoodwill impairment expenses were zero in 2025 and $2,695 million in 2024. During the third quarter of 2024, the Company performed an interim quantitative goodwill impairment analysis for the “Mobileye” reporting unit, resulting in a non-cash impairment loss. For further details, see Note 10 to the Consolidated Financial Statements included in this report."
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q19",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "query": "How old was Mobileye's chief executive officer according to the executive officer listing?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000108"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000136"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000071"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000071",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000178"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 1 — Business\nInformation about our Executive Officers\nName | Age | Position\nAmnon Shashua | 65 | Chief Executive Officer, President, and Director\nMoran Shemesh Rojansky | 45 | Chief Financial Officer\nShai Shalev-Shwartz | 50 | Chief Technology Officer\nNimrod Nehushtan | 36 | Executive Vice President Business Development & Strategy\nBoaz Ouriel | 52 | Executive Vice President, EPG Software"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q20",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "query": "What revenue did Mobileye report for fiscal 2024?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000383"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000477"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000233"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000233",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000633"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nResults of Operations\nUnits: mixed\nColumn units: U.S. dollars in millions | dollars | dollars |  | percent | percent | dollars | dollars |  | percent | percent | dollars | dollars |  | percent | percent\n | Year Ended |  |  |  |  |  |  |  |  |  |  |  |  |  |\n | December 27, |  |  |  |  | December 28, |  |  |  |  | December 30, |  |  |  |\n | 2025 |  |  |  |  | 2024 |  |  |  |  | 2023 |  |  |  |\nU.S. dollars in millions | Amount |  |  | % of Revenue |  | Amount |  |  | % of Revenue |  | Amount |  |  | %"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q21",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "query": "How much net cash did operating activities provide in 2025?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000404"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000499"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000253"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000253",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000685"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nCash Flows\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars |  | dollars | dollars |  | dollars | dollars\n | Year Ended |  |  |  |  |  |  |\n | December 27, |  |  | December 28, |  |  | December 30, |\nU.S. dollars in millions | 2025 |  |  | 2024 |  |  | 2023 |\nNet cash provided by operating activities | $ | 602 |  | $ | 400 |  | $ | 394\nNet cash used in investing activities |  | (91) |  |  | (120) |  |  | (98)\nNet cash used in financing activities |  | (106) |"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q22",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "query": "At the end of 2025, how much inventory consisted of raw materials and how much consisted of finished goods?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000523"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000633"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000345"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000345",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000980"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nInventories\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars |  | dollars | dollars\n | As of |  |  |  |\n | December 27, |  |  | December 28, |\nU.S. dollars in millions | 2025 |  |  | 2024 |\nRaw materials | $ | 21 |  | $ | 35\nWork in process |  | — |  |  | 1\nFinished goods |  | 306 |  |  | 379\nTotal inventories | $ | 327 |  | $ | 415"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q23",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "query": "How much of Mobileye's operating lease liability was current and how much was long term at the end of 2025?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000532"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000644"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000354"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000354",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001006"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nNOTE 5 - LEASES\nThe balances for the operating leases, which are presented on the consolidated balance sheets in other long-term assets, other current liabilities and long-term liabilities, were as follows\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars |  | dollars | dollars\n | As of |  |  |  |\n | December 27, |  |  | December 28, |\nU.S. dollars in millions | 2025 |  |  | 2024 |\nOperating lease right-of-use assets | $ | 50 |  | $ | 47\nOperating lease liabilities: |  |  |  |  |\nCurrent portion of lease liabilities |  | 18"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q24",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "query": "How many restricted stock units remained outstanding at the end of 2025, and what was their weighted-average grant-date value per share?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000543"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000655"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000364"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000364",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001028"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nNOTES TO CONSOLIDATED FINANCIAL STATEMENTS\nRestricted Stock Units\nUnits: mixed\nColumn units:  | In thousands | dollars | dollars\n |  | Weighted average grant |\n | Number of RSUs | date fair value per share |\n | In thousands | U.S. dollars |\nOutstanding as of December 31, 2022 | 12,564 | $ | 21\nGranted | 6,782 |  | 40\nVested | (4,240) |  | 21\nForfeited | (328) |  | 26\nOutstanding as of December 30, 2023 | 14,778 |  | 30\nGranted | 13,542 |  | 25\nVested | (5,574) |  | 29\nForfeited | (1,293) |  | 30\nOutstanding as of December 28, 2024 | 21,453 |  | 27\nGranted | 22,985"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q25",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "query": "How much revenue came from products shipped to Germany during 2024?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000604"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000718"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000419"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000419",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001155"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nNOTES TO CONSOLIDATED FINANCIAL STATEMENTS\nTotal revenues based on the country that the product was shipped to were as follows\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars |  | dollars | dollars |  | dollars | dollars\n | Year ended |  |  |  |  |  |  |\n | December 27, |  |  | December 28, |  |  | December 30, |\nU.S. dollars in millions | 2025 |  |  | 2024 |  |  | 2023 |\nChina | $ | 428 |  | $ | 424 |  | $ | 640\nUSA |  | 416 |  |  | 304 |  |  | 437\nGermany |  | 297 |  |  | 269 |  |  | 353\nSouth Korea |  | 192 |  |  | 219"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q26",
+      "evaluation_set": "chunk_to_query",
+      "category": "single_table",
+      "query": "What percentage of Mobileye's 2025 revenue came from its largest customer?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000607"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000721"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000422"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000422",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001161"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nMajor Customers\nUnits: percent\nColumn units: percent | percent | percent | percent | percent | percent | percent\n | Year ended |  |  |  |  |\n | December 27, |  | December 28, |  | December 30, |\n | 2025 |  | 2024 |  | 2023 |\nPercent of total revenues |  |  |  |  |  |\nCustomer A | 30 | % | 27 | % | 30 | %\nCustomer B | 17 | % | 20 | % | 24 | %\nCustomer C | 15 | % | 14 | % | 14 | %\nCustomer D | 14 | % | * |  | * |\nCustomer E | * |  | 13 | % | * |"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q27",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "query": "How do Base ADAS and SuperVision differ in driver responsibility, supported functions, sensing coverage, and onboard computing?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000023",
+          "MBLY-2025-CHUNK-000025"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000030",
+          "MBLY-2025-CHUNK-000035",
+          "MBLY-2025-CHUNK-000036"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000014",
+          "MBLY-2025-CHUNK-000016"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000014",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000040",
+            "MBLY-2025-000041",
+            "MBLY-2025-000042",
+            "MBLY-2025-000043",
+            "MBLY-2025-000044"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 1467,
+          "expected_evidence_excerpt": "Item 1 — Business\nMobileye Base ADAS\n\nMobileye’s Base ADAS, powered by our purpose built, on-windshield EyeQ™ SoC devices and our expertise in computer vision, brings our core ADAS solutions to millions of vehicles on the road today and is foundational to our spectrum of ADAS and autonomous vehicle solutions. Our EyeQ™ SoC provides drivers with basic safety features covered by front-facing sensing, such as collision warning, lane departure warnings, pedestrian and cyclist collision warning, headway monitoring and warning, speed limit indicator, blind spot detection, and many more. Our software"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000016",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000040",
+            "MBLY-2025-000046",
+            "MBLY-2025-000047"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 2788,
+          "source_text_end": 4841,
+          "expected_evidence_excerpt": "Item 1 — Business\nMobileye Base ADAS\n\nMobileye SuperVision™\n\nMobileye SuperVision™, our eyes-on/hands-off Premium Driver Assist offering, is our most advanced driver assist system on the market and is the bridge to consumer autonomous vehicles. It is designed to handle standard driving functions across various road types, offering “hands-off” navigation capabilities under certain ODDs, while still requiring the driver to pay full attention and keep eyes on the road. Derived from our autonomous vehicle research and development, Mobileye SuperVision™ leverages cloud-based enhancements such as RE"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q28",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "query": "Why does Mobileye expect robotaxi fleets to scale before privately owned autonomous cars when regulation, geographic coverage, and hardware cost are considered together?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000036",
+          "MBLY-2025-CHUNK-000038",
+          "MBLY-2025-CHUNK-000039"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000047",
+          "MBLY-2025-CHUNK-000049",
+          "MBLY-2025-CHUNK-000051"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000022",
+          "MBLY-2025-CHUNK-000023",
+          "MBLY-2025-CHUNK-000024"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000022",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000064",
+            "MBLY-2025-000065",
+            "MBLY-2025-000066"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 2061,
+          "expected_evidence_excerpt": "Item 1 — Business\nChallenges to Making Autonomous Vehicles Ubiquitous\n\nTo make autonomous vehicles at scale a reality, we believe that there are three core challenges that must be addressed beyond optimization of safety and performance:\n\n●Regulatory Endorsement - Autonomous driving solutions must be architected, by design, to be verifiably safe, in a manner that fosters broad societal and regulatory endorsement. Regulation is an often-overlooked factor. While laws and regulations are specific to human drivers, there are challenges to balance safety and practicality of an AV in a manner that is"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000023",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000064",
+            "MBLY-2025-000067"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 2063,
+          "source_text_end": 3571,
+          "expected_evidence_excerpt": "Item 1 — Business\nChallenges to Making Autonomous Vehicles Ubiquitous\n\n●Geographic Scale - Geographic scale refers to the challenge of creating high-definition maps with great detail and accuracy through our REM™ technology, and keeping those maps continuously updated, which is crucial for series production AVs. AMaaS vehicles can be confined to geofenced areas, which allows AVs to reach prominence through the robotaxi industry before expanding the ODD to outside of those areas. While robotaxi operators may be successful providing their services in limited geofenced areas, broad-based consumer"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000024",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000064",
+            "MBLY-2025-000068"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 3573,
+          "source_text_end": 4443,
+          "expected_evidence_excerpt": "Item 1 — Business\nChallenges to Making Autonomous Vehicles Ubiquitous\n\n●Cost - The cost of a self-driving system commonly employed by robotaxis, with its cameras, radars, specialized lidars, and high-performance computing is currently in the tens of thousands of dollars. This cost level is acceptable for the monetization model of a driverless ride-hailing service, but is far too expensive for series-production passenger cars. In order for autonomous driving consumer vehicles to scale in volume, we believe the cost of self-driving systems needs to be reduced significantly, such as to several th"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q29",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "query": "What roles do STMicroelectronics, Quanta, and TSMC play in Mobileye's production chain, and what delivery and geopolitical risks follow from those dependencies?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000067",
+          "MBLY-2025-CHUNK-000133",
+          "MBLY-2025-CHUNK-000138"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000088",
+          "MBLY-2025-CHUNK-000167",
+          "MBLY-2025-CHUNK-000170",
+          "MBLY-2025-CHUNK-000171"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000043",
+          "MBLY-2025-CHUNK-000087",
+          "MBLY-2025-CHUNK-000090"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000043",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000109",
+            "MBLY-2025-000110",
+            "MBLY-2025-000111",
+            "MBLY-2025-000112"
+          ],
+          "source_anchors": [
+            "Item1Business_168069"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 1122,
+          "expected_evidence_excerpt": "Item 1 — Business\nManufacturing\n\nOur products are designed and manufactured specifically for automotive applications after extensive validation tests under stringent automotive environmental conditions.\n\nWe partner with STMicroelectronics, a leading supplier and innovator of semiconductor devices for automotive applications, in manufacturing, design and research and development. We have co-developed six generations of our automotive grade SoC, EyeQ™, with STMicroelectronics including EyeQ™5 and EyeQ™6. We design the front-end and STMicroelectronics designs the back-end package. These design pr"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000087",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000213",
+            "MBLY-2025-000233"
+          ],
+          "source_anchors": [
+            "Item1ARiskFactors_325291"
+          ],
+          "source_text_start": 11443,
+          "source_text_end": 13319,
+          "expected_evidence_excerpt": "Item 1A — Risk Factors\nRisks Related to Our Business\n\nIn 2021 and 2022, the semiconductor industry experienced widespread shortages of substrates and other components and available foundry manufacturing capacity. These factors, combined with the long lead times associated with wafer production, contributed to a shortage of semiconductors. During 2021 and 2022, STMicroelectronics, our sole supplier of EyeQ™ SoCs, was not able to meet our demand for EyeQ™ SoCs, causing a significant reduction in our inventory level, and we entered 2022 with significantly lower inventories of our EyeQ™ SoCs as a "
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000090",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000213",
+            "MBLY-2025-000237",
+            "MBLY-2025-000238"
+          ],
+          "source_anchors": [
+            "Item1ARiskFactors_325291"
+          ],
+          "source_text_start": 16618,
+          "source_text_end": 17495,
+          "expected_evidence_excerpt": "Item 1A — Risk Factors\nRisks Related to Our Business\n\nTSMC is located in Taiwan, and our ability to receive sufficient supplies of our EyeQ™ SoCs could be adversely affected by events in Taiwan, China and the broader region, such as natural disasters in Taiwan, including earthquakes, drought and typhoons, escalations of tensions between the People’s Republic of China and Taiwan, including resulting from the People’s Republic of China’s step up of military exercises around Taiwan, political unrest, trade restrictions, war, or other geopolitical issues. These same factors may also adversely affe"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q30",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "query": "How did shipment volume and product mix affect both revenue growth and gross margin in 2025?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000388",
+          "MBLY-2025-CHUNK-000390"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000482",
+          "MBLY-2025-CHUNK-000484"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000238",
+          "MBLY-2025-CHUNK-000240"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "narrative",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000238",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000639",
+            "MBLY-2025-000640"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 703,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nRevenue\n\nIn 2025, revenue was $1,894 million, up $240 million, or 15%, compared to 2024. This increase in revenue was primarily due to an increase of $308 million, or 22%, in EyeQ™ SoC revenue attributable mainly to a 23% increase in volume, resulting mainly from the normalization of excess inventory by our Tier 1 customers that was previously used to satisfy demand during the first half of 2024. This was slightly offset by a decrease in SuperVision™ related revenue. Average System Price, calculated "
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000240",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000643",
+            "MBLY-2025-000644",
+            "MBLY-2025-000645"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 508,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nGross Profit and margin\n\nIn 2025, our gross profit increased by $163 million, or 22%, compared to 2024. This increase was primarily due to the increase in revenue from sales of EyeQ™ systems, which was slightly offset by the decrease in sales of SuperVision™ systems.\n\nOur gross margin increased from 45% during 2024, to 48% during 2025. This increase was primarily due to the lower impact of amortization of intangible assets as a percentage of revenue as well as an increase in the percentage of revenue"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q31",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "query": "How much did Mobileye's net loss improve from 2024 to 2025, and which non-cash event explains most of the difference?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000383",
+          "MBLY-2025-CHUNK-000394"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000477",
+          "MBLY-2025-CHUNK-000488"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000233",
+          "MBLY-2025-CHUNK-000244"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "mixed",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000233",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000633"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nResults of Operations\nUnits: mixed\nColumn units: U.S. dollars in millions | dollars | dollars |  | percent | percent | dollars | dollars |  | percent | percent | dollars | dollars |  | percent | percent\n | Year Ended |  |  |  |  |  |  |  |  |  |  |  |  |  |\n | December 27, |  |  |  |  | December 28, |  |  |  |  | December 30, |  |  |  |\n | 2025 |  |  |  |  | 2024 |  |  |  |  | 2023 |  |  |  |\nU.S. dollars in millions | Amount |  |  | % of Revenue |  | Amount |  |  | % of Revenue |  | Amount |  |  | %"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000244",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000652",
+            "MBLY-2025-000653"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 358,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nGoodwill Impairment\n\nGoodwill impairment expenses were zero in 2025 and $2,695 million in 2024. During the third quarter of 2024, the Company performed an interim quantitative goodwill impairment analysis for the “Mobileye” reporting unit, resulting in a non-cash impairment loss. For further details, see Note 10 to the Consolidated Financial Statements included in this report."
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q32",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "query": "What evidence from management's funding discussion, 2025 cash flows, and the year-end balance sheet supports or challenges Mobileye's ability to finance its near-term plans internally?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000401",
+          "MBLY-2025-CHUNK-000404",
+          "MBLY-2025-CHUNK-000453"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000496",
+          "MBLY-2025-CHUNK-000499",
+          "MBLY-2025-CHUNK-000555"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000251",
+          "MBLY-2025-CHUNK-000253",
+          "MBLY-2025-CHUNK-000288"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "mixed",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000251",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000678",
+            "MBLY-2025-000679",
+            "MBLY-2025-000680",
+            "MBLY-2025-000681",
+            "MBLY-2025-000682"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 1826,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nLiquidity and Capital Resources\n\nWe believe we have sufficient sources of funding to meet our business requirements and plans for the next 12 months and in the longer term. Cash generated by operations is our primary source of liquidity for funding our strategic business requirements.\n\nOur primary uses of funds have been for funding increases in headcount in our research and development departments, investments attributable to new product development, as well as for funding our capital expenditures. "
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000253",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000685"
+          ],
+          "source_anchors": [
+            "Item7ManagementsDiscussionandAnalysis_34"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 7 — Management’s Discussion and Analysis of Financial Condition and Results of Operations\nCash Flows\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars |  | dollars | dollars |  | dollars | dollars\n | Year Ended |  |  |  |  |  |  |\n | December 27, |  |  | December 28, |  |  | December 30, |\nU.S. dollars in millions | 2025 |  |  | 2024 |  |  | 2023 |\nNet cash provided by operating activities | $ | 602 |  | $ | 400 |  | $ | 394\nNet cash used in investing activities |  | (91) |  |  | (120) |  |  | (98)\nNet cash used in financing activities |  | (106) |"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000288",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-000808"
+          ],
+          "source_anchors": [
+            "Tc_VIoc-D7Gj0WgPS9LeJzUdA_38_5"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nCONSOLIDATED BALANCE SHEETS\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars | dollars | dollars\n | December 27, |  | December 28, |\nU.S. dollars in millions, except share and per share data | 2025 |  | 2024 |\nAssets |  |  |  |\nCurrent assets |  |  |  |\nCash and cash equivalents | $ | 1,836 | $ | 1,426\nTrade accounts receivable, net |  | 131 |  | 212\nInventories |  | 327 |  | 415\nOther current assets |  | 184 |  | 121\nTotal current assets | $ | 2,478 | $ | 2,174\nNon-current assets |  |  |  |\nProperty and equipment, net |  "
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q33",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "query": "How does the year-end classification of Mobileye's operating lease liabilities relate to the timing and present value of its future lease payments?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000532",
+          "MBLY-2025-CHUNK-000537"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000644",
+          "MBLY-2025-CHUNK-000649"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000354",
+          "MBLY-2025-CHUNK-000359"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "table",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000354",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001006"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nNOTE 5 - LEASES\nThe balances for the operating leases, which are presented on the consolidated balance sheets in other long-term assets, other current liabilities and long-term liabilities, were as follows\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars |  | dollars | dollars\n | As of |  |  |  |\n | December 27, |  |  | December 28, |\nU.S. dollars in millions | 2025 |  |  | 2024 |\nOperating lease right-of-use assets | $ | 50 |  | $ | 47\nOperating lease liabilities: |  |  |  |  |\nCurrent portion of lease liabilities |  | 18"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000359",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001013"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nNOTES TO CONSOLIDATED FINANCIAL STATEMENTS\nMaturities of operating lease liabilities were as follows\nUnits: U.S. Dollars in millions\nColumn units: U.S. Dollars in millions | dollars | dollars\n | December 27, |\nU.S. Dollars in millions | 2025 |\n2026 | $ | 20\n2027 |  | 17\n2028 |  | 14\n2029 |  | 9\n2030 and thereafter |  | 8\nTotal operating lease payments |  | 68\nImputed interest |  | (6)\nPresent value of lease liabilities | $ | 62"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    },
+    {
+      "id": "C2Q34",
+      "evaluation_set": "chunk_to_query",
+      "category": "multi_chunk",
+      "query": "How concentrated was Mobileye's 2025 revenue by customer and destination country, and why does that concentration create business risk?",
+      "answerable": true,
+      "historical_mappings": {
+        "legacy_1600_character": [
+          "MBLY-2025-CHUNK-000515",
+          "MBLY-2025-CHUNK-000604",
+          "MBLY-2025-CHUNK-000607"
+        ],
+        "recursive_token_250": [
+          "MBLY-2025-CHUNK-000623",
+          "MBLY-2025-CHUNK-000718",
+          "MBLY-2025-CHUNK-000721"
+        ],
+        "recursive_token_500": [
+          "MBLY-2025-CHUNK-000338",
+          "MBLY-2025-CHUNK-000419",
+          "MBLY-2025-CHUNK-000422"
+        ]
+      },
+      "original_artifact_config_label": "mobileye-2025 historical physical-table chunks; recursive tokens 500/32",
+      "evidence_type": "mixed",
+      "historical_500_evidence": [
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000338",
+          "artifact_available": true,
+          "content_type": "narrative",
+          "source_block_ids": [
+            "MBLY-2025-000962",
+            "MBLY-2025-000963"
+          ],
+          "source_anchors": [
+            "_Hlk219434731",
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": 0,
+          "source_text_end": 1225,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nCustomer concentration risk\n\nThe Company’s business, results of operations, and financial condition for the foreseeable future will likely continue to depend on sales to a relatively small number of customers. In the future, these customers may decide not to purchase the Company’s products, may purchase fewer products than in previous years, or may alter their purchasing patterns. Further, the amount of revenue attributable to any single customer or customer concentration generally may fluctuate in any given period. In addition, a decline in the production levels "
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000419",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001155"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nNOTES TO CONSOLIDATED FINANCIAL STATEMENTS\nTotal revenues based on the country that the product was shipped to were as follows\nUnits: U.S. dollars in millions\nColumn units: U.S. dollars in millions | dollars | dollars |  | dollars | dollars |  | dollars | dollars\n | Year ended |  |  |  |  |  |  |\n | December 27, |  |  | December 28, |  |  | December 30, |\nU.S. dollars in millions | 2025 |  |  | 2024 |  |  | 2023 |\nChina | $ | 428 |  | $ | 424 |  | $ | 640\nUSA |  | 416 |  |  | 304 |  |  | 437\nGermany |  | 297 |  |  | 269 |  |  | 353\nSouth Korea |  | 192 |  |  | 219"
+        },
+        {
+          "old_chunk_id": "MBLY-2025-CHUNK-000422",
+          "artifact_available": true,
+          "content_type": "table",
+          "source_block_ids": [
+            "MBLY-2025-001161"
+          ],
+          "source_anchors": [
+            "_b56f8966_ab8b_4ddc_887c_59627660229a"
+          ],
+          "source_text_start": null,
+          "source_text_end": null,
+          "expected_evidence_excerpt": "Item 8 — Financial Statements\nMajor Customers\nUnits: percent\nColumn units: percent | percent | percent | percent | percent | percent | percent\n | Year ended |  |  |  |  |\n | December 27, |  | December 28, |  | December 30, |\n | 2025 |  | 2024 |  | 2023 |\nPercent of total revenues |  |  |  |  |  |\nCustomer A | 30 | % | 27 | % | 30 | %\nCustomer B | 17 | % | 20 | % | 24 | %\nCustomer C | 15 | % | 14 | % | 14 | %\nCustomer D | 14 | % | * |  | * |\nCustomer E | * |  | 13 | % | * |"
+        }
+      ],
+      "evidence_note": "The historical notebook contained chunk IDs but no separate reviewer evidence note; excerpts and stable block provenance were frozen from the matching on-disk 500-token artifact before migration."
+    }
+  ]
+}

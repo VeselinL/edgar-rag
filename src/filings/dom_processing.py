@@ -8,6 +8,37 @@ ITEM_HEADING_PATTERN = re.compile(
     re.IGNORECASE,
 )
 PAGE_NUMBER_PATTERN = re.compile(r"^(?:\d{1,3}|[ivxlcdm]{1,8})$", re.IGNORECASE)
+TEXT_BOUNDARY = "\ufdd0"
+BLOCK_BOUNDARY_TAGS = {
+    "address",
+    "article",
+    "aside",
+    "blockquote",
+    "dd",
+    "div",
+    "dl",
+    "dt",
+    "figcaption",
+    "figure",
+    "footer",
+    "form",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "header",
+    "hr",
+    "li",
+    "main",
+    "nav",
+    "ol",
+    "p",
+    "pre",
+    "section",
+    "ul",
+}
 
 
 def raw_tag(node):
@@ -51,6 +82,30 @@ def drop_xbrl_tags(root):
                 or tag.endswith("}nonfraction")
                 or tag.endswith("}continuation")
         ):
+            if tag in {"ix:nonfraction"} or tag.endswith("}nonfraction"):
+                cell = next(
+                    (
+                        ancestor
+                        for ancestor in node.iterancestors()
+                        if raw_tag(ancestor) in {"td", "th"}
+                    ),
+                    None,
+                )
+                if cell is not None:
+                    for source_name, target_name in (
+                        ("unitref", "data-sec-xbrl-unitrefs"),
+                        ("scale", "data-sec-xbrl-scales"),
+                    ):
+                        value = node.get(source_name)
+                        if not value:
+                            continue
+                        existing = {
+                            item
+                            for item in cell.get(target_name, "").split("|")
+                            if item
+                        }
+                        existing.add(value)
+                        cell.set(target_name, "|".join(sorted(existing)))
             node.drop_tag()
 
 
@@ -63,6 +118,85 @@ def normalize_text(text):
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\n\s*\n+", "\n\n", text)
     return text.strip()
+
+
+def _normalize_visible_fragment(text: str) -> str:
+    """Normalize characters without discarding soft-hyphen boundary evidence."""
+    text = html_lib.unescape(text)
+    text = unicodedata.normalize("NFC", text)
+    text = text.replace("\xa0", " ").replace("\u200b", "")
+    text = re.sub(r"[ \t\r\f\v]+", " ", text)
+    return text
+
+
+def _join_visible_boundaries(text: str) -> str:
+    """Resolve explicit HTML text boundaries without splitting inline words."""
+    parts = text.split(TEXT_BOUNDARY)
+    if len(parts) == 1:
+        return normalize_text(parts[0])
+
+    result = _normalize_visible_fragment(parts[0])
+    for raw_part in parts[1:]:
+        right = _normalize_visible_fragment(raw_part)
+        left = result.rstrip()
+        right = right.lstrip()
+        if not left:
+            result = right
+            continue
+        if not right:
+            result = left
+            continue
+        if left.endswith("\u00ad"):
+            result = left[:-1] + right
+        elif left.endswith("-"):
+            result = left + right
+        elif right[0] in ",.;:!?%)]}\u2019\u201d":
+            result = left + right
+        else:
+            result = left + " " + right
+    return normalize_text(result)
+
+
+def collect_visible_text(
+    node,
+    *,
+    excluded_descendant_tags: set[str] | tuple[str, ...] = (),
+) -> str:
+    """Collect visible text while preserving only genuine HTML boundaries.
+
+    Inline elements remain transparent so markup-split words stay intact. ``br``
+    and nested block elements introduce a boundary that is resolved with SEC
+    hyphenation and punctuation rules. DOM cleanup remains responsible for
+    removing hidden nodes before this function is called.
+    """
+    excluded = {tag.casefold() for tag in excluded_descendant_tags}
+    fragments: list[str] = []
+
+    def boundary() -> None:
+        if not fragments or fragments[-1] != TEXT_BOUNDARY:
+            fragments.append(TEXT_BOUNDARY)
+
+    def collect(current_node, *, is_root: bool = False) -> None:
+        if current_node.text:
+            fragments.append(current_node.text)
+        for child in current_node:
+            tag = raw_tag(child)
+            if tag in excluded:
+                pass
+            elif tag == "br":
+                boundary()
+            else:
+                is_block = tag in BLOCK_BOUNDARY_TAGS
+                if is_block and fragments:
+                    boundary()
+                collect(child)
+                if is_block:
+                    boundary()
+            if child.tail:
+                fragments.append(child.tail)
+
+    collect(node, is_root=True)
+    return _join_visible_boundaries("".join(fragments))
 
 
 def compact_style(node) -> str:
@@ -159,19 +293,10 @@ def find_source_anchor(node) -> str | None:
 
 def text_excluding_descendants(node, excluded_tags: set[str]) -> str:
     """Collect text in order while omitting selected nested structures."""
-    fragments = []
-
-    def collect(current_node) -> None:
-        if current_node.text:
-            fragments.append(current_node.text)
-        for child in current_node:
-            if raw_tag(child) not in excluded_tags:
-                collect(child)
-            if child.tail:
-                fragments.append(child.tail)
-
-    collect(node)
-    return normalize_text("".join(fragments))
+    return collect_visible_text(
+        node,
+        excluded_descendant_tags=excluded_tags,
+    )
 
 
 def has_heading_style(node) -> bool:
