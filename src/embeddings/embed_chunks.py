@@ -2,7 +2,6 @@ import argparse
 import hashlib
 import json
 import os
-import re
 import tempfile
 from collections import Counter
 from datetime import datetime, timezone
@@ -49,11 +48,9 @@ MODEL_CONFIGS = {
         "document_prefix": "search_document: ",
     },
 }
-YEAR_PATTERN = re.compile(r"^(?:19|20)\d{2}$")
 TABLE_EMBEDDING_POLICY = (
-    "logical-table-schema-v2: effective section/region, title, units, source "
-    "header context and period/measure paths, plus descriptive logical row "
-    "labels; numeric matrices remain in the complete source chunk"
+    "logical-table-schema-v2: effective section/region, title, units, and "
+    "deterministic logical row/header/value statements for every non-empty cell"
 )
 TABLE_RENDERER_POLICY = "logical-markdown-v1"
 LOGICAL_TABLE_POLICY = "one-logical-table-per-chunk-v1"
@@ -183,33 +180,31 @@ def render_row(row: list) -> str:
     ).rstrip()
 
 
-def is_descriptive_table_value(value: object) -> bool:
-    text = str(value).strip()
-    return bool(
-        text
-        and (
-            any(character.isalpha() for character in text)
-            or YEAR_PATTERN.fullmatch(text)
-        )
-    )
-
-
 def table_embedding_text(chunk: dict) -> str:
     if chunk.get("table_schema_version") != TABLE_SCHEMA_VERSION:
         raise ValueError("Table embedding input requires logical table schema version 2")
-    parts = list(
+    parts = []
+    if chunk.get("company"):
+        parts.append(f"Company: {chunk['company']}")
+    if chunk.get("ticker"):
+        parts.append(f"Ticker: {chunk['ticker']}")
+
+    section_path = (
         chunk.get("effective_section_path")
         or chunk.get("section_path")
         or [chunk.get("section", "")]
     )
+    section = " — ".join(value for value in section_path if value)
+    if section:
+        parts.append(f"Section: {section}")
     region = chunk.get("document_region")
     if region and region != "filing_body":
         label = region.replace("_", " ").title()
-        if label not in parts:
-            parts.append(label)
+        if label not in section_path:
+            parts.append(f"Document region: {label}")
     title = chunk.get("title")
-    if title and title not in parts:
-        parts.append(title)
+    if title and title not in section_path:
+        parts.append(f"Title: {title}")
     if chunk.get("units"):
         parts.append(f"Units: {chunk['units']}")
     if any(chunk.get("logical_column_units") or []):
@@ -223,7 +218,7 @@ def table_embedding_text(chunk: dict) -> str:
         else [chunk]
     )
     header_lines = []
-    descriptors = []
+    cell_statements = []
     for fragment in fragments or []:
         context = fragment.get("logical_header_context") or []
         if context:
@@ -236,18 +231,40 @@ def table_embedding_text(chunk: dict) -> str:
             if header and header not in header_lines:
                 header_lines.append(header)
         for row in fragment.get("logical_rows") or []:
-            values = [
-                str(value).strip()
-                for value in row
-                if is_descriptive_table_value(value)
-            ]
-            descriptor = " | ".join(dict.fromkeys(values))
-            if descriptor and descriptor not in descriptors:
-                descriptors.append(descriptor)
+            row_label = str(row[0]).strip() if row else ""
+            for column_index, value in enumerate(row[1:], start=1):
+                value_text = "" if value is None else str(value).strip()
+                if not value_text:
+                    continue
+                header_path = (
+                    (fragment.get("logical_header_paths") or [])[column_index]
+                    if column_index < len(fragment.get("logical_header_paths") or [])
+                    else []
+                )
+                header = " — ".join(str(part).strip() for part in header_path if part)
+                if not header:
+                    headers = fragment.get("logical_column_headers") or []
+                    header = (
+                        str(headers[column_index]).strip()
+                        if column_index < len(headers) and headers[column_index]
+                        else ""
+                    )
+                context_prefix = " — ".join(str(part).strip() for part in context if part)
+                column_context = " — ".join(
+                    part for part in (context_prefix, header) if part
+                )
+                if row_label and column_context:
+                    cell_statements.append(
+                        f"{row_label} for {column_context} was {value_text}."
+                    )
+                elif row_label:
+                    cell_statements.append(f"{row_label} was {value_text}.")
+                elif column_context:
+                    cell_statements.append(f"{column_context} was {value_text}.")
     if header_lines:
         parts.append("Headers:\n" + "\n".join(header_lines))
-    if descriptors:
-        parts.append("Rows:\n" + "\n".join(descriptors))
+    if cell_statements:
+        parts.append("Table values:\n" + "\n".join(cell_statements))
     return "\n".join(part for part in parts if part)
 
 
