@@ -50,11 +50,12 @@ for company in "${companies[@]}"; do
     mapfile -t chunk_paths < <(printf '%s\n' "${chunk_paths[@]}" | sort -r)
     chunk_path="${chunk_paths[0]}"
     chunk_name="$(basename "${chunk_path%.chunks.jsonl}")"
-    output_path="$OUTPUT_ROOT/$ticker/$chunk_name.bgebase.embeddings.npz"
+    output_path="$OUTPUT_ROOT/$ticker/$chunk_name.bgebase.npz"
 
     "$PYTHON" -m src.embeddings.embed_chunks "$company" \
         --chunks-directory "$CHUNKS_DIRECTORY" \
         --output "$output_path" \
         --model-name bgebase \
+        --overwrite \
         "$@"
 done
