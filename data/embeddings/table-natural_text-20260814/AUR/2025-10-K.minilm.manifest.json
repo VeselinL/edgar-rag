@@ -1,0 +1,1197 @@
+{
+  "schema_version": 3,
+  "created_at": "2026-08-16T19:42:17.215965+00:00",
+  "source_chunks": "/data/Programiranje/Sixsentix/edgar_insight_rag/data/chunks/AUR/2025-10-K.chunks.jsonl",
+  "source_chunks_sha256": "e4b37bb683d1a956a9c13a29a61480b8b706263cb518d4e0083cee15ce611658",
+  "embedding_file": "2025-10-K.minilm.npz",
+  "embedding_file_sha256": "b0ff02cb14b8baa402b990d462ec92297c5dfc585724a290c64153b4ab2dc87f",
+  "model_name": "minilm",
+  "model_repository": "sentence-transformers/all-MiniLM-L6-v2",
+  "requested_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "resolved_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "sentence_transformers_version": "5.6.1",
+  "numpy_version": "2.5.2",
+  "dimension": 384,
+  "dtype": "float32",
+  "normalized": true,
+  "document_encoder": "SentenceTransformer.encode",
+  "query_prefix": "",
+  "document_prefix": "",
+  "max_sequence_length": 256,
+  "embedding_text_policy": {
+    "narrative": "complete chunk text",
+    "table": "logical-table-schema-v2: effective section/region, title, units, and deterministic logical row/header/value statements for every non-empty cell"
+  },
+  "chunk_schema_version": 3,
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+  "source_processed_sha256": "edd5181f36ee46d196609948d64d92616d1dfbc96863eb02c3318d2beb2312d8",
+  "logical_table_policy": "one-logical-table-per-chunk-v1",
+  "table_renderer_policy": "logical-markdown-v1",
+  "chunk_count": 261,
+  "ordered_text_hashes_sha256": "74787a41a996fa2a8682fea4d2ddb9118ae59ae63356385e84f64cae62ed2fe5",
+  "input_token_length_max": 2098,
+  "truncated_input_count": 143,
+  "truncated_table_count": 26,
+  "truncated_narrative_count": 117,
+  "truncated_chunk_ids": [
+    "AUR-2025-CHUNK-000002",
+    "AUR-2025-CHUNK-000003",
+    "AUR-2025-CHUNK-000004",
+    "AUR-2025-CHUNK-000005",
+    "AUR-2025-CHUNK-000006",
+    "AUR-2025-CHUNK-000008",
+    "AUR-2025-CHUNK-000009",
+    "AUR-2025-CHUNK-000010",
+    "AUR-2025-CHUNK-000011",
+    "AUR-2025-CHUNK-000014",
+    "AUR-2025-CHUNK-000021",
+    "AUR-2025-CHUNK-000022",
+    "AUR-2025-CHUNK-000023",
+    "AUR-2025-CHUNK-000024",
+    "AUR-2025-CHUNK-000025",
+    "AUR-2025-CHUNK-000026",
+    "AUR-2025-CHUNK-000027",
+    "AUR-2025-CHUNK-000035",
+    "AUR-2025-CHUNK-000036",
+    "AUR-2025-CHUNK-000040",
+    "AUR-2025-CHUNK-000044",
+    "AUR-2025-CHUNK-000045",
+    "AUR-2025-CHUNK-000046",
+    "AUR-2025-CHUNK-000047",
+    "AUR-2025-CHUNK-000048",
+    "AUR-2025-CHUNK-000049",
+    "AUR-2025-CHUNK-000050",
+    "AUR-2025-CHUNK-000051",
+    "AUR-2025-CHUNK-000052",
+    "AUR-2025-CHUNK-000053",
+    "AUR-2025-CHUNK-000054",
+    "AUR-2025-CHUNK-000055",
+    "AUR-2025-CHUNK-000057",
+    "AUR-2025-CHUNK-000058",
+    "AUR-2025-CHUNK-000059",
+    "AUR-2025-CHUNK-000060",
+    "AUR-2025-CHUNK-000061",
+    "AUR-2025-CHUNK-000062",
+    "AUR-2025-CHUNK-000063",
+    "AUR-2025-CHUNK-000064",
+    "AUR-2025-CHUNK-000066",
+    "AUR-2025-CHUNK-000067",
+    "AUR-2025-CHUNK-000068",
+    "AUR-2025-CHUNK-000069",
+    "AUR-2025-CHUNK-000070",
+    "AUR-2025-CHUNK-000071",
+    "AUR-2025-CHUNK-000072",
+    "AUR-2025-CHUNK-000074",
+    "AUR-2025-CHUNK-000075",
+    "AUR-2025-CHUNK-000077",
+    "AUR-2025-CHUNK-000078",
+    "AUR-2025-CHUNK-000079",
+    "AUR-2025-CHUNK-000081",
+    "AUR-2025-CHUNK-000082",
+    "AUR-2025-CHUNK-000083",
+    "AUR-2025-CHUNK-000084",
+    "AUR-2025-CHUNK-000085",
+    "AUR-2025-CHUNK-000086",
+    "AUR-2025-CHUNK-000087",
+    "AUR-2025-CHUNK-000088",
+    "AUR-2025-CHUNK-000089",
+    "AUR-2025-CHUNK-000090",
+    "AUR-2025-CHUNK-000091",
+    "AUR-2025-CHUNK-000092",
+    "AUR-2025-CHUNK-000093",
+    "AUR-2025-CHUNK-000094",
+    "AUR-2025-CHUNK-000095",
+    "AUR-2025-CHUNK-000096",
+    "AUR-2025-CHUNK-000097",
+    "AUR-2025-CHUNK-000098",
+    "AUR-2025-CHUNK-000099",
+    "AUR-2025-CHUNK-000100",
+    "AUR-2025-CHUNK-000102",
+    "AUR-2025-CHUNK-000103",
+    "AUR-2025-CHUNK-000104",
+    "AUR-2025-CHUNK-000105",
+    "AUR-2025-CHUNK-000106",
+    "AUR-2025-CHUNK-000107",
+    "AUR-2025-CHUNK-000108",
+    "AUR-2025-CHUNK-000109",
+    "AUR-2025-CHUNK-000110",
+    "AUR-2025-CHUNK-000111",
+    "AUR-2025-CHUNK-000112",
+    "AUR-2025-CHUNK-000113",
+    "AUR-2025-CHUNK-000114",
+    "AUR-2025-CHUNK-000115",
+    "AUR-2025-CHUNK-000116",
+    "AUR-2025-CHUNK-000117",
+    "AUR-2025-CHUNK-000118",
+    "AUR-2025-CHUNK-000120",
+    "AUR-2025-CHUNK-000123",
+    "AUR-2025-CHUNK-000132",
+    "AUR-2025-CHUNK-000134",
+    "AUR-2025-CHUNK-000138",
+    "AUR-2025-CHUNK-000139",
+    "AUR-2025-CHUNK-000140",
+    "AUR-2025-CHUNK-000142",
+    "AUR-2025-CHUNK-000143",
+    "AUR-2025-CHUNK-000144",
+    "AUR-2025-CHUNK-000146",
+    "AUR-2025-CHUNK-000147",
+    "AUR-2025-CHUNK-000149",
+    "AUR-2025-CHUNK-000155",
+    "AUR-2025-CHUNK-000156",
+    "AUR-2025-CHUNK-000157",
+    "AUR-2025-CHUNK-000158",
+    "AUR-2025-CHUNK-000159",
+    "AUR-2025-CHUNK-000161",
+    "AUR-2025-CHUNK-000163",
+    "AUR-2025-CHUNK-000165",
+    "AUR-2025-CHUNK-000167",
+    "AUR-2025-CHUNK-000175",
+    "AUR-2025-CHUNK-000178",
+    "AUR-2025-CHUNK-000180",
+    "AUR-2025-CHUNK-000185",
+    "AUR-2025-CHUNK-000186",
+    "AUR-2025-CHUNK-000188",
+    "AUR-2025-CHUNK-000190",
+    "AUR-2025-CHUNK-000192",
+    "AUR-2025-CHUNK-000195",
+    "AUR-2025-CHUNK-000198",
+    "AUR-2025-CHUNK-000205",
+    "AUR-2025-CHUNK-000207",
+    "AUR-2025-CHUNK-000211",
+    "AUR-2025-CHUNK-000214",
+    "AUR-2025-CHUNK-000215",
+    "AUR-2025-CHUNK-000218",
+    "AUR-2025-CHUNK-000222",
+    "AUR-2025-CHUNK-000226",
+    "AUR-2025-CHUNK-000228",
+    "AUR-2025-CHUNK-000230",
+    "AUR-2025-CHUNK-000231",
+    "AUR-2025-CHUNK-000232",
+    "AUR-2025-CHUNK-000234",
+    "AUR-2025-CHUNK-000239",
+    "AUR-2025-CHUNK-000240",
+    "AUR-2025-CHUNK-000243",
+    "AUR-2025-CHUNK-000245",
+    "AUR-2025-CHUNK-000253",
+    "AUR-2025-CHUNK-000254",
+    "AUR-2025-CHUNK-000255",
+    "AUR-2025-CHUNK-000260",
+    "AUR-2025-CHUNK-000261"
+  ],
+  "truncated_content_type_counts": {
+    "narrative": 117,
+    "table": 26
+  },
+  "truncated_table_kind_counts": {
+    "exhibit_list": 3,
+    "financial_data": 22,
+    "layout": 1
+  },
+  "truncated_inputs": [
+    {
+      "chunk_id": "AUR-2025-CHUNK-000002",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 400
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000003",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 342
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000004",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 322
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000005",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 326
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000006",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 323
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000008",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 317
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000009",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 393
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000010",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 370
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000011",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 271
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000014",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 274
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000021",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 330
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000022",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 323
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000023",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 475
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000024",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 501
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000025",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 502
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000026",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 345
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000027",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 372
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000035",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 501
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000036",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 266
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000040",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 273
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000044",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 492
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000045",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 481
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000046",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 475
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000047",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 417
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000048",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 493
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000049",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 451
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000050",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 367
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000051",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 410
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000052",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 383
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000053",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 408
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000054",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 346
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000055",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 449
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000057",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 411
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000058",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 466
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000059",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 487
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000060",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 462
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000061",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 293
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000062",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 351
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000063",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 453
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000064",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 451
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000066",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 444
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000067",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 432
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000068",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 432
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000069",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 443
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000070",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 465
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000071",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 464
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000072",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 316
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000074",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 464
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000075",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 485
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000077",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 456
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000078",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 352
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000079",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 447
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000081",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 473
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000082",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 486
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000083",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 500
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000084",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 360
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000085",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 404
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000086",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 408
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000087",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 282
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000088",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 382
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000089",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 354
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000090",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 456
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000091",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 402
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000092",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 459
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000093",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 282
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000094",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 455
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000095",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 475
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000096",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 433
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000097",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 335
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000098",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 451
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000099",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 307
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000100",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 378
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000102",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 384
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000103",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 272
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000104",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 454
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000105",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 422
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000106",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 492
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000107",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 454
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000108",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 478
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000109",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 422
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000110",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 502
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000111",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 417
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000112",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 493
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000113",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 473
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000114",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 315
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000115",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 463
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000116",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 457
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000117",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 482
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000118",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 288
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000120",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 421
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000123",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 262
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000132",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 325
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000134",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 472
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000138",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 274
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000139",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0009",
+      "token_count": 698
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000140",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 441
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000142",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0010",
+      "token_count": 659
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000143",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 363
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000144",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 324
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000146",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0011",
+      "token_count": 518
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000147",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 425
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000149",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 441
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000155",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 285
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000156",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 400
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000157",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 257
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000158",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 436
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000159",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0013",
+      "token_count": 797
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000161",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0014",
+      "token_count": 767
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000163",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0015",
+      "token_count": 296
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000165",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0016",
+      "token_count": 2014
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000167",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0017",
+      "token_count": 1514
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000175",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 262
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000178",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 395
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000180",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 258
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000185",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 342
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000186",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 329
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000188",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0018",
+      "token_count": 265
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000190",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0019",
+      "token_count": 523
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000192",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0020",
+      "token_count": 699
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000195",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 277
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000198",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 413
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000205",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0024",
+      "token_count": 391
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000207",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0025",
+      "token_count": 364
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000211",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 389
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000214",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0027",
+      "token_count": 299
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000215",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 286
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000218",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0029",
+      "token_count": 290
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000222",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0031",
+      "token_count": 334
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000226",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0033",
+      "token_count": 391
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000228",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0034",
+      "token_count": 994
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000230",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0035",
+      "token_count": 600
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000231",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 268
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000232",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0036",
+      "token_count": 295
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000234",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0037",
+      "token_count": 393
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000239",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 325
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000240",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "AUR-2025-TABLE-0039",
+      "token_count": 365
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000243",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 489
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000245",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 486
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000253",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "AUR-2025-TABLE-0040",
+      "token_count": 1114
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000254",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "AUR-2025-TABLE-0041",
+      "token_count": 2098
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000255",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "AUR-2025-TABLE-0042",
+      "token_count": 1116
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000260",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 265
+    },
+    {
+      "chunk_id": "AUR-2025-CHUNK-000261",
+      "content_type": "table",
+      "table_kind": "layout",
+      "logical_table_id": "AUR-2025-TABLE-0044",
+      "token_count": 336
+    }
+  ],
+  "batch_size": 32,
+  "device": "cpu"
+}

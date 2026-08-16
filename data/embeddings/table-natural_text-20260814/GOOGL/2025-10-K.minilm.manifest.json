@@ -1,0 +1,1134 @@
+{
+  "schema_version": 3,
+  "created_at": "2026-08-16T19:43:01.331771+00:00",
+  "source_chunks": "/data/Programiranje/Sixsentix/edgar_insight_rag/data/chunks/GOOGL/2025-10-K.chunks.jsonl",
+  "source_chunks_sha256": "5b469395854eeacce94b2a45aaebe00a46d274863040315ab6a92b47c0d24353",
+  "embedding_file": "2025-10-K.minilm.npz",
+  "embedding_file_sha256": "638c890e2522ac0064910226b2426448578fc2497e45efc5b7d2df375fcec2a4",
+  "model_name": "minilm",
+  "model_repository": "sentence-transformers/all-MiniLM-L6-v2",
+  "requested_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "resolved_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "sentence_transformers_version": "5.6.1",
+  "numpy_version": "2.5.2",
+  "dimension": 384,
+  "dtype": "float32",
+  "normalized": true,
+  "document_encoder": "SentenceTransformer.encode",
+  "query_prefix": "",
+  "document_prefix": "",
+  "max_sequence_length": 256,
+  "embedding_text_policy": {
+    "narrative": "complete chunk text",
+    "table": "logical-table-schema-v2: effective section/region, title, units, and deterministic logical row/header/value statements for every non-empty cell"
+  },
+  "chunk_schema_version": 3,
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+  "source_processed_sha256": "dbe559c8df553e6774ace618f0e0121e546b6b75cafd5afc69796ecd38f7734c",
+  "logical_table_policy": "one-logical-table-per-chunk-v1",
+  "table_renderer_policy": "logical-markdown-v1",
+  "chunk_count": 512,
+  "ordered_text_hashes_sha256": "788c0ada05b43c7e2857bb9ac54500a2e875b6aede0db4bbfe6c5a1bb24c48bd",
+  "input_token_length_max": 2974,
+  "truncated_input_count": 135,
+  "truncated_table_count": 55,
+  "truncated_narrative_count": 80,
+  "truncated_chunk_ids": [
+    "GOOGL-2025-CHUNK-000004",
+    "GOOGL-2025-CHUNK-000010",
+    "GOOGL-2025-CHUNK-000011",
+    "GOOGL-2025-CHUNK-000014",
+    "GOOGL-2025-CHUNK-000019",
+    "GOOGL-2025-CHUNK-000020",
+    "GOOGL-2025-CHUNK-000023",
+    "GOOGL-2025-CHUNK-000026",
+    "GOOGL-2025-CHUNK-000027",
+    "GOOGL-2025-CHUNK-000029",
+    "GOOGL-2025-CHUNK-000030",
+    "GOOGL-2025-CHUNK-000033",
+    "GOOGL-2025-CHUNK-000034",
+    "GOOGL-2025-CHUNK-000035",
+    "GOOGL-2025-CHUNK-000037",
+    "GOOGL-2025-CHUNK-000038",
+    "GOOGL-2025-CHUNK-000041",
+    "GOOGL-2025-CHUNK-000042",
+    "GOOGL-2025-CHUNK-000045",
+    "GOOGL-2025-CHUNK-000046",
+    "GOOGL-2025-CHUNK-000049",
+    "GOOGL-2025-CHUNK-000051",
+    "GOOGL-2025-CHUNK-000054",
+    "GOOGL-2025-CHUNK-000055",
+    "GOOGL-2025-CHUNK-000056",
+    "GOOGL-2025-CHUNK-000058",
+    "GOOGL-2025-CHUNK-000059",
+    "GOOGL-2025-CHUNK-000060",
+    "GOOGL-2025-CHUNK-000062",
+    "GOOGL-2025-CHUNK-000063",
+    "GOOGL-2025-CHUNK-000066",
+    "GOOGL-2025-CHUNK-000067",
+    "GOOGL-2025-CHUNK-000070",
+    "GOOGL-2025-CHUNK-000071",
+    "GOOGL-2025-CHUNK-000074",
+    "GOOGL-2025-CHUNK-000076",
+    "GOOGL-2025-CHUNK-000078",
+    "GOOGL-2025-CHUNK-000080",
+    "GOOGL-2025-CHUNK-000082",
+    "GOOGL-2025-CHUNK-000083",
+    "GOOGL-2025-CHUNK-000087",
+    "GOOGL-2025-CHUNK-000097",
+    "GOOGL-2025-CHUNK-000109",
+    "GOOGL-2025-CHUNK-000110",
+    "GOOGL-2025-CHUNK-000112",
+    "GOOGL-2025-CHUNK-000113",
+    "GOOGL-2025-CHUNK-000116",
+    "GOOGL-2025-CHUNK-000122",
+    "GOOGL-2025-CHUNK-000129",
+    "GOOGL-2025-CHUNK-000133",
+    "GOOGL-2025-CHUNK-000135",
+    "GOOGL-2025-CHUNK-000143",
+    "GOOGL-2025-CHUNK-000161",
+    "GOOGL-2025-CHUNK-000167",
+    "GOOGL-2025-CHUNK-000172",
+    "GOOGL-2025-CHUNK-000182",
+    "GOOGL-2025-CHUNK-000186",
+    "GOOGL-2025-CHUNK-000193",
+    "GOOGL-2025-CHUNK-000200",
+    "GOOGL-2025-CHUNK-000201",
+    "GOOGL-2025-CHUNK-000206",
+    "GOOGL-2025-CHUNK-000208",
+    "GOOGL-2025-CHUNK-000213",
+    "GOOGL-2025-CHUNK-000220",
+    "GOOGL-2025-CHUNK-000224",
+    "GOOGL-2025-CHUNK-000231",
+    "GOOGL-2025-CHUNK-000236",
+    "GOOGL-2025-CHUNK-000240",
+    "GOOGL-2025-CHUNK-000244",
+    "GOOGL-2025-CHUNK-000248",
+    "GOOGL-2025-CHUNK-000252",
+    "GOOGL-2025-CHUNK-000260",
+    "GOOGL-2025-CHUNK-000272",
+    "GOOGL-2025-CHUNK-000280",
+    "GOOGL-2025-CHUNK-000288",
+    "GOOGL-2025-CHUNK-000294",
+    "GOOGL-2025-CHUNK-000297",
+    "GOOGL-2025-CHUNK-000300",
+    "GOOGL-2025-CHUNK-000306",
+    "GOOGL-2025-CHUNK-000308",
+    "GOOGL-2025-CHUNK-000315",
+    "GOOGL-2025-CHUNK-000318",
+    "GOOGL-2025-CHUNK-000319",
+    "GOOGL-2025-CHUNK-000324",
+    "GOOGL-2025-CHUNK-000326",
+    "GOOGL-2025-CHUNK-000330",
+    "GOOGL-2025-CHUNK-000332",
+    "GOOGL-2025-CHUNK-000335",
+    "GOOGL-2025-CHUNK-000344",
+    "GOOGL-2025-CHUNK-000346",
+    "GOOGL-2025-CHUNK-000350",
+    "GOOGL-2025-CHUNK-000352",
+    "GOOGL-2025-CHUNK-000356",
+    "GOOGL-2025-CHUNK-000359",
+    "GOOGL-2025-CHUNK-000364",
+    "GOOGL-2025-CHUNK-000365",
+    "GOOGL-2025-CHUNK-000369",
+    "GOOGL-2025-CHUNK-000371",
+    "GOOGL-2025-CHUNK-000376",
+    "GOOGL-2025-CHUNK-000377",
+    "GOOGL-2025-CHUNK-000385",
+    "GOOGL-2025-CHUNK-000389",
+    "GOOGL-2025-CHUNK-000392",
+    "GOOGL-2025-CHUNK-000395",
+    "GOOGL-2025-CHUNK-000397",
+    "GOOGL-2025-CHUNK-000402",
+    "GOOGL-2025-CHUNK-000405",
+    "GOOGL-2025-CHUNK-000408",
+    "GOOGL-2025-CHUNK-000409",
+    "GOOGL-2025-CHUNK-000410",
+    "GOOGL-2025-CHUNK-000412",
+    "GOOGL-2025-CHUNK-000415",
+    "GOOGL-2025-CHUNK-000422",
+    "GOOGL-2025-CHUNK-000427",
+    "GOOGL-2025-CHUNK-000430",
+    "GOOGL-2025-CHUNK-000433",
+    "GOOGL-2025-CHUNK-000436",
+    "GOOGL-2025-CHUNK-000442",
+    "GOOGL-2025-CHUNK-000444",
+    "GOOGL-2025-CHUNK-000448",
+    "GOOGL-2025-CHUNK-000452",
+    "GOOGL-2025-CHUNK-000453",
+    "GOOGL-2025-CHUNK-000456",
+    "GOOGL-2025-CHUNK-000458",
+    "GOOGL-2025-CHUNK-000459",
+    "GOOGL-2025-CHUNK-000462",
+    "GOOGL-2025-CHUNK-000463",
+    "GOOGL-2025-CHUNK-000475",
+    "GOOGL-2025-CHUNK-000481",
+    "GOOGL-2025-CHUNK-000489",
+    "GOOGL-2025-CHUNK-000492",
+    "GOOGL-2025-CHUNK-000495",
+    "GOOGL-2025-CHUNK-000498",
+    "GOOGL-2025-CHUNK-000501",
+    "GOOGL-2025-CHUNK-000511"
+  ],
+  "truncated_content_type_counts": {
+    "narrative": 80,
+    "table": 55
+  },
+  "truncated_table_kind_counts": {
+    "exhibit_list": 4,
+    "financial_data": 49,
+    "layout": 1,
+    "structured_text": 1
+  },
+  "truncated_inputs": [
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000004",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 476
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000010",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 377
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000011",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 502
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000014",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 359
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000019",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 294
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000020",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 409
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000023",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 391
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000026",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 447
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000027",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 432
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000029",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 438
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000030",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 500
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000033",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 396
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000034",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 431
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000035",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 269
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000037",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 365
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000038",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 494
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000041",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 478
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000042",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 431
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000045",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 315
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000046",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 483
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000049",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 475
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000051",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 374
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000054",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 380
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000055",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 337
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000056",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 484
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000058",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 344
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000059",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 358
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000060",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 325
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000062",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 438
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000063",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 419
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000066",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 497
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000067",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 470
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000070",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 500
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000071",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 487
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000074",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 501
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000076",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 439
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000078",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 466
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000080",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 347
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000082",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 493
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000083",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 346
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000087",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 496
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000097",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0036",
+      "token_count": 700
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000109",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 341
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000110",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 347
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000112",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 384
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000113",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 297
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000116",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 500
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000122",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 272
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000129",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0044",
+      "token_count": 581
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000133",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 500
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000135",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0046",
+      "token_count": 446
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000143",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0049",
+      "token_count": 266
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000161",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0056",
+      "token_count": 278
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000167",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0057",
+      "token_count": 427
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000172",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 308
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000182",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 471
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000186",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 474
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000193",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 418
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000200",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 281
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000201",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 281
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000206",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0066",
+      "token_count": 278
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000208",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 332
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000213",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 473
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000220",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 265
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000224",
+      "content_type": "table",
+      "table_kind": "structured_text",
+      "logical_table_id": "GOOGL-2025-TABLE-0073",
+      "token_count": 311
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000231",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 257
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000236",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0078",
+      "token_count": 1466
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000240",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0080",
+      "token_count": 823
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000244",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0082",
+      "token_count": 920
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000248",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0084",
+      "token_count": 2974
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000252",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0086",
+      "token_count": 2325
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000260",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 329
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000272",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 290
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000280",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 315
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000288",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 298
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000294",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 425
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000297",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 281
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000300",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 363
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000306",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0095",
+      "token_count": 645
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000308",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0096",
+      "token_count": 777
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000315",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0098",
+      "token_count": 1052
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000318",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0100",
+      "token_count": 1018
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000319",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 286
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000324",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0103",
+      "token_count": 1090
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000326",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0105",
+      "token_count": 1535
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000330",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0108",
+      "token_count": 471
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000332",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0109",
+      "token_count": 367
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000335",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0111",
+      "token_count": 696
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000344",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0113",
+      "token_count": 316
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000346",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0114",
+      "token_count": 564
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000350",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0116",
+      "token_count": 411
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000352",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0117",
+      "token_count": 1563
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000356",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0119",
+      "token_count": 1211
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000359",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0120",
+      "token_count": 412
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000364",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0123",
+      "token_count": 445
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000365",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0124",
+      "token_count": 381
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000369",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0126",
+      "token_count": 289
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000371",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 389
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000376",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 303
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000377",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0128",
+      "token_count": 655
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000385",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0131",
+      "token_count": 360
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000389",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0133",
+      "token_count": 391
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000392",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0134",
+      "token_count": 1539
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000395",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0136",
+      "token_count": 578
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000397",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0137",
+      "token_count": 614
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000402",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0139",
+      "token_count": 439
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000405",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 307
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000408",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 401
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000409",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 305
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000410",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 427
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000412",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 477
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000415",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 264
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000422",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0143",
+      "token_count": 553
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000427",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 438
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000430",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0146",
+      "token_count": 1470
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000433",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0148",
+      "token_count": 1440
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000436",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0150",
+      "token_count": 1439
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000442",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0152",
+      "token_count": 291
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000444",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0153",
+      "token_count": 592
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000448",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0156",
+      "token_count": 2146
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000452",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0158",
+      "token_count": 740
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000453",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 395
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000456",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0160",
+      "token_count": 435
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000458",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0161",
+      "token_count": 508
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000459",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 355
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000462",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 363
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000463",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0163",
+      "token_count": 1003
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000475",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 352
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000481",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 281
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000489",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "GOOGL-2025-TABLE-0171",
+      "token_count": 334
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000492",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "GOOGL-2025-TABLE-0173",
+      "token_count": 700
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000495",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "GOOGL-2025-TABLE-0175",
+      "token_count": 1899
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000498",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "GOOGL-2025-TABLE-0177",
+      "token_count": 1798
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000501",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "GOOGL-2025-TABLE-0179",
+      "token_count": 1015
+    },
+    {
+      "chunk_id": "GOOGL-2025-CHUNK-000511",
+      "content_type": "table",
+      "table_kind": "layout",
+      "logical_table_id": "GOOGL-2025-TABLE-0185",
+      "token_count": 439
+    }
+  ],
+  "batch_size": 32,
+  "device": "cpu"
+}
