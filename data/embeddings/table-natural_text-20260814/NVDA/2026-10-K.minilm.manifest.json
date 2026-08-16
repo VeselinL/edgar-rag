@@ -1,0 +1,1245 @@
+{
+  "schema_version": 3,
+  "created_at": "2026-08-16T19:43:25.924532+00:00",
+  "source_chunks": "/data/Programiranje/Sixsentix/edgar_insight_rag/data/chunks/NVDA/2026-10-K.chunks.jsonl",
+  "source_chunks_sha256": "9c540a847da9e12a671cf77f0be4728f42e5d6bc5e47c2e43f5b2260e63635f1",
+  "embedding_file": "2026-10-K.minilm.npz",
+  "embedding_file_sha256": "59154b05d858432c99ca7b43d969d88ca4ccd787cbf0259e4b56109b0eb2ae79",
+  "model_name": "minilm",
+  "model_repository": "sentence-transformers/all-MiniLM-L6-v2",
+  "requested_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "resolved_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "sentence_transformers_version": "5.6.1",
+  "numpy_version": "2.5.2",
+  "dimension": 384,
+  "dtype": "float32",
+  "normalized": true,
+  "document_encoder": "SentenceTransformer.encode",
+  "query_prefix": "",
+  "document_prefix": "",
+  "max_sequence_length": 256,
+  "embedding_text_policy": {
+    "narrative": "complete chunk text",
+    "table": "logical-table-schema-v2: effective section/region, title, units, and deterministic logical row/header/value statements for every non-empty cell"
+  },
+  "chunk_schema_version": 3,
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+  "source_processed_sha256": "e9071218303ec971052aea8f4b25fc91abafe12fd9873654ccce9d79c06416f8",
+  "logical_table_policy": "one-logical-table-per-chunk-v1",
+  "table_renderer_policy": "logical-markdown-v1",
+  "chunk_count": 329,
+  "ordered_text_hashes_sha256": "9adf42800aacc568abae8db494ab508c0eef40eb142e92ec37db1f7fca674f13",
+  "input_token_length_max": 2789,
+  "truncated_input_count": 149,
+  "truncated_table_count": 42,
+  "truncated_narrative_count": 107,
+  "truncated_chunk_ids": [
+    "NVDA-2026-CHUNK-000001",
+    "NVDA-2026-CHUNK-000003",
+    "NVDA-2026-CHUNK-000005",
+    "NVDA-2026-CHUNK-000009",
+    "NVDA-2026-CHUNK-000010",
+    "NVDA-2026-CHUNK-000011",
+    "NVDA-2026-CHUNK-000014",
+    "NVDA-2026-CHUNK-000015",
+    "NVDA-2026-CHUNK-000016",
+    "NVDA-2026-CHUNK-000017",
+    "NVDA-2026-CHUNK-000019",
+    "NVDA-2026-CHUNK-000020",
+    "NVDA-2026-CHUNK-000022",
+    "NVDA-2026-CHUNK-000023",
+    "NVDA-2026-CHUNK-000024",
+    "NVDA-2026-CHUNK-000025",
+    "NVDA-2026-CHUNK-000026",
+    "NVDA-2026-CHUNK-000030",
+    "NVDA-2026-CHUNK-000031",
+    "NVDA-2026-CHUNK-000036",
+    "NVDA-2026-CHUNK-000037",
+    "NVDA-2026-CHUNK-000038",
+    "NVDA-2026-CHUNK-000039",
+    "NVDA-2026-CHUNK-000041",
+    "NVDA-2026-CHUNK-000042",
+    "NVDA-2026-CHUNK-000043",
+    "NVDA-2026-CHUNK-000044",
+    "NVDA-2026-CHUNK-000046",
+    "NVDA-2026-CHUNK-000047",
+    "NVDA-2026-CHUNK-000048",
+    "NVDA-2026-CHUNK-000049",
+    "NVDA-2026-CHUNK-000050",
+    "NVDA-2026-CHUNK-000051",
+    "NVDA-2026-CHUNK-000053",
+    "NVDA-2026-CHUNK-000056",
+    "NVDA-2026-CHUNK-000058",
+    "NVDA-2026-CHUNK-000059",
+    "NVDA-2026-CHUNK-000060",
+    "NVDA-2026-CHUNK-000061",
+    "NVDA-2026-CHUNK-000062",
+    "NVDA-2026-CHUNK-000063",
+    "NVDA-2026-CHUNK-000064",
+    "NVDA-2026-CHUNK-000066",
+    "NVDA-2026-CHUNK-000067",
+    "NVDA-2026-CHUNK-000068",
+    "NVDA-2026-CHUNK-000069",
+    "NVDA-2026-CHUNK-000070",
+    "NVDA-2026-CHUNK-000071",
+    "NVDA-2026-CHUNK-000072",
+    "NVDA-2026-CHUNK-000073",
+    "NVDA-2026-CHUNK-000074",
+    "NVDA-2026-CHUNK-000075",
+    "NVDA-2026-CHUNK-000076",
+    "NVDA-2026-CHUNK-000077",
+    "NVDA-2026-CHUNK-000078",
+    "NVDA-2026-CHUNK-000079",
+    "NVDA-2026-CHUNK-000080",
+    "NVDA-2026-CHUNK-000081",
+    "NVDA-2026-CHUNK-000082",
+    "NVDA-2026-CHUNK-000083",
+    "NVDA-2026-CHUNK-000084",
+    "NVDA-2026-CHUNK-000085",
+    "NVDA-2026-CHUNK-000086",
+    "NVDA-2026-CHUNK-000087",
+    "NVDA-2026-CHUNK-000088",
+    "NVDA-2026-CHUNK-000089",
+    "NVDA-2026-CHUNK-000090",
+    "NVDA-2026-CHUNK-000091",
+    "NVDA-2026-CHUNK-000092",
+    "NVDA-2026-CHUNK-000094",
+    "NVDA-2026-CHUNK-000095",
+    "NVDA-2026-CHUNK-000099",
+    "NVDA-2026-CHUNK-000100",
+    "NVDA-2026-CHUNK-000101",
+    "NVDA-2026-CHUNK-000106",
+    "NVDA-2026-CHUNK-000109",
+    "NVDA-2026-CHUNK-000110",
+    "NVDA-2026-CHUNK-000111",
+    "NVDA-2026-CHUNK-000112",
+    "NVDA-2026-CHUNK-000113",
+    "NVDA-2026-CHUNK-000115",
+    "NVDA-2026-CHUNK-000116",
+    "NVDA-2026-CHUNK-000121",
+    "NVDA-2026-CHUNK-000122",
+    "NVDA-2026-CHUNK-000123",
+    "NVDA-2026-CHUNK-000125",
+    "NVDA-2026-CHUNK-000126",
+    "NVDA-2026-CHUNK-000127",
+    "NVDA-2026-CHUNK-000129",
+    "NVDA-2026-CHUNK-000131",
+    "NVDA-2026-CHUNK-000132",
+    "NVDA-2026-CHUNK-000134",
+    "NVDA-2026-CHUNK-000135",
+    "NVDA-2026-CHUNK-000139",
+    "NVDA-2026-CHUNK-000141",
+    "NVDA-2026-CHUNK-000142",
+    "NVDA-2026-CHUNK-000167",
+    "NVDA-2026-CHUNK-000168",
+    "NVDA-2026-CHUNK-000169",
+    "NVDA-2026-CHUNK-000170",
+    "NVDA-2026-CHUNK-000172",
+    "NVDA-2026-CHUNK-000174",
+    "NVDA-2026-CHUNK-000176",
+    "NVDA-2026-CHUNK-000178",
+    "NVDA-2026-CHUNK-000180",
+    "NVDA-2026-CHUNK-000187",
+    "NVDA-2026-CHUNK-000195",
+    "NVDA-2026-CHUNK-000197",
+    "NVDA-2026-CHUNK-000198",
+    "NVDA-2026-CHUNK-000206",
+    "NVDA-2026-CHUNK-000207",
+    "NVDA-2026-CHUNK-000213",
+    "NVDA-2026-CHUNK-000215",
+    "NVDA-2026-CHUNK-000218",
+    "NVDA-2026-CHUNK-000225",
+    "NVDA-2026-CHUNK-000228",
+    "NVDA-2026-CHUNK-000233",
+    "NVDA-2026-CHUNK-000238",
+    "NVDA-2026-CHUNK-000239",
+    "NVDA-2026-CHUNK-000241",
+    "NVDA-2026-CHUNK-000243",
+    "NVDA-2026-CHUNK-000248",
+    "NVDA-2026-CHUNK-000253",
+    "NVDA-2026-CHUNK-000256",
+    "NVDA-2026-CHUNK-000269",
+    "NVDA-2026-CHUNK-000271",
+    "NVDA-2026-CHUNK-000274",
+    "NVDA-2026-CHUNK-000276",
+    "NVDA-2026-CHUNK-000278",
+    "NVDA-2026-CHUNK-000279",
+    "NVDA-2026-CHUNK-000282",
+    "NVDA-2026-CHUNK-000284",
+    "NVDA-2026-CHUNK-000286",
+    "NVDA-2026-CHUNK-000289",
+    "NVDA-2026-CHUNK-000293",
+    "NVDA-2026-CHUNK-000294",
+    "NVDA-2026-CHUNK-000295",
+    "NVDA-2026-CHUNK-000297",
+    "NVDA-2026-CHUNK-000298",
+    "NVDA-2026-CHUNK-000303",
+    "NVDA-2026-CHUNK-000306",
+    "NVDA-2026-CHUNK-000308",
+    "NVDA-2026-CHUNK-000309",
+    "NVDA-2026-CHUNK-000311",
+    "NVDA-2026-CHUNK-000320",
+    "NVDA-2026-CHUNK-000322",
+    "NVDA-2026-CHUNK-000323",
+    "NVDA-2026-CHUNK-000328",
+    "NVDA-2026-CHUNK-000329"
+  ],
+  "truncated_content_type_counts": {
+    "narrative": 107,
+    "table": 42
+  },
+  "truncated_table_kind_counts": {
+    "exhibit_list": 2,
+    "financial_data": 39,
+    "layout": 1
+  },
+  "truncated_inputs": [
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000001",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 447
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000003",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 474
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000005",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 499
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000009",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 446
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000010",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 425
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000011",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 298
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000014",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 363
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000015",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 306
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000016",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 498
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000017",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 450
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000019",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 384
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000020",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 462
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000022",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 278
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000023",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 479
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000024",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 490
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000025",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 494
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000026",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 379
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000030",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 360
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000031",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 475
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000036",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 292
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000037",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 258
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000038",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 438
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000039",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 499
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000041",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 382
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000042",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 502
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000043",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 453
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000044",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 449
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000046",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 415
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000047",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 502
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000048",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 334
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000049",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 441
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000050",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 501
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000051",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 479
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000053",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 481
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000056",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 447
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000058",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 496
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000059",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 326
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000060",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 424
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000061",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 408
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000062",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 482
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000063",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 336
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000064",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 478
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000066",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 437
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000067",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 476
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000068",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 257
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000069",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 329
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000070",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 294
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000071",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 304
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000072",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 481
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000073",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 463
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000074",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 493
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000075",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 410
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000076",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 419
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000077",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 257
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000078",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 355
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000079",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 461
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000080",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 492
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000081",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 468
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000082",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 290
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000083",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 490
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000084",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 380
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000085",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 406
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000086",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 347
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000087",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 276
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000088",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 500
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000089",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 429
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000090",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 467
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000091",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 449
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000092",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 258
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000094",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 417
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000095",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 317
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000099",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 262
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000100",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 273
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000101",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0008",
+      "token_count": 544
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000106",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0009",
+      "token_count": 414
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000109",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 438
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000110",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 431
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000111",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 284
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000112",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0010",
+      "token_count": 382
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000113",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 278
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000115",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 406
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000116",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 339
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000121",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0011",
+      "token_count": 580
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000122",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0012",
+      "token_count": 270
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000123",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0013",
+      "token_count": 269
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000125",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 452
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000126",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 341
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000127",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0014",
+      "token_count": 295
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000129",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0015",
+      "token_count": 297
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000131",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 354
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000132",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0016",
+      "token_count": 315
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000134",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 387
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000135",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 348
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000139",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 341
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000141",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 391
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000142",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 434
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000167",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 305
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000168",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 401
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000169",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 257
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000170",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 404
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000172",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0021",
+      "token_count": 1033
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000174",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0022",
+      "token_count": 383
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000176",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0023",
+      "token_count": 1132
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000178",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0024",
+      "token_count": 2789
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000180",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0025",
+      "token_count": 2320
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000187",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 275
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000195",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 310
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000197",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 371
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000198",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 264
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000206",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 275
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000207",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 315
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000213",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0026",
+      "token_count": 300
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000215",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0027",
+      "token_count": 447
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000218",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0028",
+      "token_count": 357
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000225",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0029",
+      "token_count": 437
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000228",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0030",
+      "token_count": 510
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000233",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0031",
+      "token_count": 549
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000238",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0033",
+      "token_count": 1382
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000239",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 263
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000241",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0034",
+      "token_count": 1195
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000243",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0035",
+      "token_count": 606
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000248",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0037",
+      "token_count": 339
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000253",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0039",
+      "token_count": 407
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000256",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0040",
+      "token_count": 373
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000269",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0044",
+      "token_count": 753
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000271",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 315
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000274",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0045",
+      "token_count": 298
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000276",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 490
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000278",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 354
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000279",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 420
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000282",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0046",
+      "token_count": 534
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000284",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0047",
+      "token_count": 259
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000286",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0048",
+      "token_count": 567
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000289",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0049",
+      "token_count": 788
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000293",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0051",
+      "token_count": 668
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000294",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 336
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000295",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 322
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000297",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0052",
+      "token_count": 448
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000298",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 394
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000303",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0053",
+      "token_count": 414
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000306",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0054",
+      "token_count": 577
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000308",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0055",
+      "token_count": 370
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000309",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 429
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000311",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0056",
+      "token_count": 502
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000320",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "NVDA-2026-TABLE-0060",
+      "token_count": 750
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000322",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "NVDA-2026-TABLE-0061",
+      "token_count": 1887
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000323",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "NVDA-2026-TABLE-0062",
+      "token_count": 915
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000328",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 273
+    },
+    {
+      "chunk_id": "NVDA-2026-CHUNK-000329",
+      "content_type": "table",
+      "table_kind": "layout",
+      "logical_table_id": "NVDA-2026-TABLE-0064",
+      "token_count": 423
+    }
+  ],
+  "batch_size": 32,
+  "device": "cpu"
+}

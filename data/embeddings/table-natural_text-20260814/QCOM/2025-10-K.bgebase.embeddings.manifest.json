@@ -1,0 +1,180 @@
+{
+  "schema_version": 3,
+  "created_at": "2026-08-14T18:06:34.997501+00:00",
+  "source_chunks": "/data/Programiranje/Sixsentix/edgar_insight_rag/data/chunks/QCOM/2025-10-K.chunks.jsonl",
+  "source_chunks_sha256": "20210e30da13a2f57ee813119e31d46d60547017ee762818ea7ac565522711e1",
+  "embedding_file": "2025-10-K.bgebase.embeddings.npz",
+  "embedding_file_sha256": "26d359cd90d157a696700fa7b6380438318e8c5e676506158cbd2a69fc25938e",
+  "model_name": "bgebase",
+  "model_repository": "BAAI/bge-base-en-v1.5",
+  "requested_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "resolved_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "sentence_transformers_version": "5.6.1",
+  "numpy_version": "2.5.2",
+  "dimension": 768,
+  "dtype": "float32",
+  "normalized": true,
+  "document_encoder": "SentenceTransformer.encode",
+  "query_prefix": "Represent this sentence for searching relevant passages: ",
+  "document_prefix": "",
+  "max_sequence_length": 512,
+  "embedding_text_policy": {
+    "narrative": "complete chunk text",
+    "table": "logical-table-schema-v2: effective section/region, title, units, and deterministic logical row/header/value statements for every non-empty cell"
+  },
+  "chunk_schema_version": 3,
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+  "source_processed_sha256": "1218fd4e6900fa782b3d04b5edd71c90186d7539efc5ae8431dfabed4e104a6d",
+  "logical_table_policy": "one-logical-table-per-chunk-v1",
+  "table_renderer_policy": "logical-markdown-v1",
+  "chunk_count": 321,
+  "ordered_text_hashes_sha256": "9d5e40f98239dda62d42fdfafc18950e16d84ba07fe153e30224d9e90ed9dd2a",
+  "input_token_length_max": 2824,
+  "truncated_input_count": 16,
+  "truncated_table_count": 16,
+  "truncated_narrative_count": 0,
+  "truncated_chunk_ids": [
+    "QCOM-2025-CHUNK-000143",
+    "QCOM-2025-CHUNK-000192",
+    "QCOM-2025-CHUNK-000193",
+    "QCOM-2025-CHUNK-000198",
+    "QCOM-2025-CHUNK-000205",
+    "QCOM-2025-CHUNK-000207",
+    "QCOM-2025-CHUNK-000209",
+    "QCOM-2025-CHUNK-000211",
+    "QCOM-2025-CHUNK-000213",
+    "QCOM-2025-CHUNK-000248",
+    "QCOM-2025-CHUNK-000270",
+    "QCOM-2025-CHUNK-000274",
+    "QCOM-2025-CHUNK-000289",
+    "QCOM-2025-CHUNK-000306",
+    "QCOM-2025-CHUNK-000309",
+    "QCOM-2025-CHUNK-000315"
+  ],
+  "truncated_content_type_counts": {
+    "table": 16
+  },
+  "truncated_table_kind_counts": {
+    "exhibit_list": 2,
+    "financial_data": 13,
+    "layout": 1
+  },
+  "truncated_inputs": [
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000143",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0017",
+      "token_count": 586
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000192",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "QCOM-2025-TABLE-0026",
+      "token_count": 1684
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000193",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "QCOM-2025-TABLE-0027",
+      "token_count": 2608
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000198",
+      "content_type": "table",
+      "table_kind": "layout",
+      "logical_table_id": "QCOM-2025-TABLE-0030",
+      "token_count": 563
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000205",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0031",
+      "token_count": 1047
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000207",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0032",
+      "token_count": 1361
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000209",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0033",
+      "token_count": 586
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000211",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0034",
+      "token_count": 2824
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000213",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0035",
+      "token_count": 1430
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000248",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0043",
+      "token_count": 522
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000270",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0052",
+      "token_count": 797
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000274",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0053",
+      "token_count": 663
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000289",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0058",
+      "token_count": 580
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000306",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0061",
+      "token_count": 528
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000309",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0062",
+      "token_count": 634
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000315",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0064",
+      "token_count": 548
+    }
+  ],
+  "batch_size": 32,
+  "device": "cpu"
+}

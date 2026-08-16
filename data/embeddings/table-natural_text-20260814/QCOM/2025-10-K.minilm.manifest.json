@@ -1,0 +1,1357 @@
+{
+  "schema_version": 3,
+  "created_at": "2026-08-16T19:43:57.653009+00:00",
+  "source_chunks": "/data/Programiranje/Sixsentix/edgar_insight_rag/data/chunks/QCOM/2025-10-K.chunks.jsonl",
+  "source_chunks_sha256": "20210e30da13a2f57ee813119e31d46d60547017ee762818ea7ac565522711e1",
+  "embedding_file": "2025-10-K.minilm.npz",
+  "embedding_file_sha256": "46df668dedf559f82c7fcb8a9efe2d66ae40c6a6365dbc33dc1f81a2b2655255",
+  "model_name": "minilm",
+  "model_repository": "sentence-transformers/all-MiniLM-L6-v2",
+  "requested_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "resolved_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "sentence_transformers_version": "5.6.1",
+  "numpy_version": "2.5.2",
+  "dimension": 384,
+  "dtype": "float32",
+  "normalized": true,
+  "document_encoder": "SentenceTransformer.encode",
+  "query_prefix": "",
+  "document_prefix": "",
+  "max_sequence_length": 256,
+  "embedding_text_policy": {
+    "narrative": "complete chunk text",
+    "table": "logical-table-schema-v2: effective section/region, title, units, and deterministic logical row/header/value statements for every non-empty cell"
+  },
+  "chunk_schema_version": 3,
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+  "source_processed_sha256": "1218fd4e6900fa782b3d04b5edd71c90186d7539efc5ae8431dfabed4e104a6d",
+  "logical_table_policy": "one-logical-table-per-chunk-v1",
+  "table_renderer_policy": "logical-markdown-v1",
+  "chunk_count": 321,
+  "ordered_text_hashes_sha256": "9d5e40f98239dda62d42fdfafc18950e16d84ba07fe153e30224d9e90ed9dd2a",
+  "input_token_length_max": 2824,
+  "truncated_input_count": 163,
+  "truncated_table_count": 32,
+  "truncated_narrative_count": 131,
+  "truncated_chunk_ids": [
+    "QCOM-2025-CHUNK-000002",
+    "QCOM-2025-CHUNK-000003",
+    "QCOM-2025-CHUNK-000004",
+    "QCOM-2025-CHUNK-000005",
+    "QCOM-2025-CHUNK-000006",
+    "QCOM-2025-CHUNK-000007",
+    "QCOM-2025-CHUNK-000008",
+    "QCOM-2025-CHUNK-000009",
+    "QCOM-2025-CHUNK-000010",
+    "QCOM-2025-CHUNK-000011",
+    "QCOM-2025-CHUNK-000014",
+    "QCOM-2025-CHUNK-000015",
+    "QCOM-2025-CHUNK-000017",
+    "QCOM-2025-CHUNK-000019",
+    "QCOM-2025-CHUNK-000021",
+    "QCOM-2025-CHUNK-000022",
+    "QCOM-2025-CHUNK-000023",
+    "QCOM-2025-CHUNK-000024",
+    "QCOM-2025-CHUNK-000028",
+    "QCOM-2025-CHUNK-000030",
+    "QCOM-2025-CHUNK-000031",
+    "QCOM-2025-CHUNK-000032",
+    "QCOM-2025-CHUNK-000033",
+    "QCOM-2025-CHUNK-000034",
+    "QCOM-2025-CHUNK-000035",
+    "QCOM-2025-CHUNK-000049",
+    "QCOM-2025-CHUNK-000050",
+    "QCOM-2025-CHUNK-000051",
+    "QCOM-2025-CHUNK-000052",
+    "QCOM-2025-CHUNK-000053",
+    "QCOM-2025-CHUNK-000054",
+    "QCOM-2025-CHUNK-000055",
+    "QCOM-2025-CHUNK-000056",
+    "QCOM-2025-CHUNK-000057",
+    "QCOM-2025-CHUNK-000058",
+    "QCOM-2025-CHUNK-000059",
+    "QCOM-2025-CHUNK-000061",
+    "QCOM-2025-CHUNK-000062",
+    "QCOM-2025-CHUNK-000063",
+    "QCOM-2025-CHUNK-000064",
+    "QCOM-2025-CHUNK-000065",
+    "QCOM-2025-CHUNK-000066",
+    "QCOM-2025-CHUNK-000068",
+    "QCOM-2025-CHUNK-000069",
+    "QCOM-2025-CHUNK-000070",
+    "QCOM-2025-CHUNK-000072",
+    "QCOM-2025-CHUNK-000073",
+    "QCOM-2025-CHUNK-000074",
+    "QCOM-2025-CHUNK-000075",
+    "QCOM-2025-CHUNK-000076",
+    "QCOM-2025-CHUNK-000078",
+    "QCOM-2025-CHUNK-000079",
+    "QCOM-2025-CHUNK-000080",
+    "QCOM-2025-CHUNK-000081",
+    "QCOM-2025-CHUNK-000082",
+    "QCOM-2025-CHUNK-000083",
+    "QCOM-2025-CHUNK-000085",
+    "QCOM-2025-CHUNK-000086",
+    "QCOM-2025-CHUNK-000089",
+    "QCOM-2025-CHUNK-000090",
+    "QCOM-2025-CHUNK-000091",
+    "QCOM-2025-CHUNK-000092",
+    "QCOM-2025-CHUNK-000093",
+    "QCOM-2025-CHUNK-000095",
+    "QCOM-2025-CHUNK-000096",
+    "QCOM-2025-CHUNK-000098",
+    "QCOM-2025-CHUNK-000099",
+    "QCOM-2025-CHUNK-000100",
+    "QCOM-2025-CHUNK-000101",
+    "QCOM-2025-CHUNK-000102",
+    "QCOM-2025-CHUNK-000103",
+    "QCOM-2025-CHUNK-000104",
+    "QCOM-2025-CHUNK-000105",
+    "QCOM-2025-CHUNK-000106",
+    "QCOM-2025-CHUNK-000108",
+    "QCOM-2025-CHUNK-000111",
+    "QCOM-2025-CHUNK-000113",
+    "QCOM-2025-CHUNK-000114",
+    "QCOM-2025-CHUNK-000116",
+    "QCOM-2025-CHUNK-000117",
+    "QCOM-2025-CHUNK-000118",
+    "QCOM-2025-CHUNK-000119",
+    "QCOM-2025-CHUNK-000127",
+    "QCOM-2025-CHUNK-000129",
+    "QCOM-2025-CHUNK-000131",
+    "QCOM-2025-CHUNK-000143",
+    "QCOM-2025-CHUNK-000146",
+    "QCOM-2025-CHUNK-000147",
+    "QCOM-2025-CHUNK-000149",
+    "QCOM-2025-CHUNK-000156",
+    "QCOM-2025-CHUNK-000157",
+    "QCOM-2025-CHUNK-000159",
+    "QCOM-2025-CHUNK-000162",
+    "QCOM-2025-CHUNK-000163",
+    "QCOM-2025-CHUNK-000164",
+    "QCOM-2025-CHUNK-000165",
+    "QCOM-2025-CHUNK-000166",
+    "QCOM-2025-CHUNK-000167",
+    "QCOM-2025-CHUNK-000168",
+    "QCOM-2025-CHUNK-000169",
+    "QCOM-2025-CHUNK-000170",
+    "QCOM-2025-CHUNK-000173",
+    "QCOM-2025-CHUNK-000175",
+    "QCOM-2025-CHUNK-000181",
+    "QCOM-2025-CHUNK-000192",
+    "QCOM-2025-CHUNK-000193",
+    "QCOM-2025-CHUNK-000198",
+    "QCOM-2025-CHUNK-000200",
+    "QCOM-2025-CHUNK-000201",
+    "QCOM-2025-CHUNK-000202",
+    "QCOM-2025-CHUNK-000203",
+    "QCOM-2025-CHUNK-000205",
+    "QCOM-2025-CHUNK-000207",
+    "QCOM-2025-CHUNK-000209",
+    "QCOM-2025-CHUNK-000211",
+    "QCOM-2025-CHUNK-000213",
+    "QCOM-2025-CHUNK-000215",
+    "QCOM-2025-CHUNK-000216",
+    "QCOM-2025-CHUNK-000217",
+    "QCOM-2025-CHUNK-000219",
+    "QCOM-2025-CHUNK-000220",
+    "QCOM-2025-CHUNK-000221",
+    "QCOM-2025-CHUNK-000223",
+    "QCOM-2025-CHUNK-000224",
+    "QCOM-2025-CHUNK-000225",
+    "QCOM-2025-CHUNK-000227",
+    "QCOM-2025-CHUNK-000228",
+    "QCOM-2025-CHUNK-000229",
+    "QCOM-2025-CHUNK-000231",
+    "QCOM-2025-CHUNK-000232",
+    "QCOM-2025-CHUNK-000233",
+    "QCOM-2025-CHUNK-000235",
+    "QCOM-2025-CHUNK-000236",
+    "QCOM-2025-CHUNK-000237",
+    "QCOM-2025-CHUNK-000244",
+    "QCOM-2025-CHUNK-000246",
+    "QCOM-2025-CHUNK-000248",
+    "QCOM-2025-CHUNK-000255",
+    "QCOM-2025-CHUNK-000262",
+    "QCOM-2025-CHUNK-000263",
+    "QCOM-2025-CHUNK-000266",
+    "QCOM-2025-CHUNK-000270",
+    "QCOM-2025-CHUNK-000272",
+    "QCOM-2025-CHUNK-000274",
+    "QCOM-2025-CHUNK-000277",
+    "QCOM-2025-CHUNK-000278",
+    "QCOM-2025-CHUNK-000283",
+    "QCOM-2025-CHUNK-000284",
+    "QCOM-2025-CHUNK-000286",
+    "QCOM-2025-CHUNK-000289",
+    "QCOM-2025-CHUNK-000292",
+    "QCOM-2025-CHUNK-000295",
+    "QCOM-2025-CHUNK-000296",
+    "QCOM-2025-CHUNK-000298",
+    "QCOM-2025-CHUNK-000300",
+    "QCOM-2025-CHUNK-000301",
+    "QCOM-2025-CHUNK-000305",
+    "QCOM-2025-CHUNK-000306",
+    "QCOM-2025-CHUNK-000309",
+    "QCOM-2025-CHUNK-000311",
+    "QCOM-2025-CHUNK-000312",
+    "QCOM-2025-CHUNK-000315",
+    "QCOM-2025-CHUNK-000320"
+  ],
+  "truncated_content_type_counts": {
+    "narrative": 131,
+    "table": 32
+  },
+  "truncated_table_kind_counts": {
+    "exhibit_list": 2,
+    "financial_data": 29,
+    "layout": 1
+  },
+  "truncated_inputs": [
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000002",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 432
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000003",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 422
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000004",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 395
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000005",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 431
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000006",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 438
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000007",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 386
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000008",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 428
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000009",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 394
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000010",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 484
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000011",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 478
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000014",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 363
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000015",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 462
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000017",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 465
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000019",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 378
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000021",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 294
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000022",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 323
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000023",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 470
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000024",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 450
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000028",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 488
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000030",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 479
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000031",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 288
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000032",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 357
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000033",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 269
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000034",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 394
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000035",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 398
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000049",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 491
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000050",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 483
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000051",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 438
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000052",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 485
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000053",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 494
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000054",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 431
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000055",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 280
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000056",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 457
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000057",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 299
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000058",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 349
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000059",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 467
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000061",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 493
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000062",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 280
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000063",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 408
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000064",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 314
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000065",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 389
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000066",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 413
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000068",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 406
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000069",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 458
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000070",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 470
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000072",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 409
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000073",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 280
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000074",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 449
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000075",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 263
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000076",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 339
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000078",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 489
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000079",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 300
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000080",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 403
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000081",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 476
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000082",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 417
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000083",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 420
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000085",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 259
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000086",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 462
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000089",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 482
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000090",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 488
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000091",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 335
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000092",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 448
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000093",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 333
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000095",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 350
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000096",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 416
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000098",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 456
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000099",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 419
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000100",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 385
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000101",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 383
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000102",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 320
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000103",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 446
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000104",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 412
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000105",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 386
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000106",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 438
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000108",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 452
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000111",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 482
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000113",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 375
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000114",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 448
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000116",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 415
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000117",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 339
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000118",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 266
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000119",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 451
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000127",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0011",
+      "token_count": 496
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000129",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 273
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000131",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 391
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000143",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0017",
+      "token_count": 586
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000146",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0018",
+      "token_count": 487
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000147",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 500
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000149",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0019",
+      "token_count": 294
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000156",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 447
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000157",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 438
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000159",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0022",
+      "token_count": 321
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000162",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 445
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000163",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 405
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000164",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0024",
+      "token_count": 278
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000165",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 473
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000166",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 298
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000167",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 388
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000168",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 444
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000169",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 356
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000170",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 257
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000173",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 327
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000175",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 407
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000181",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 276
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000192",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "QCOM-2025-TABLE-0026",
+      "token_count": 1684
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000193",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "QCOM-2025-TABLE-0027",
+      "token_count": 2608
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000198",
+      "content_type": "table",
+      "table_kind": "layout",
+      "logical_table_id": "QCOM-2025-TABLE-0030",
+      "token_count": 563
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000200",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 306
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000201",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 400
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000202",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 257
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000203",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 415
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000205",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0031",
+      "token_count": 1047
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000207",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0032",
+      "token_count": 1361
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000209",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0033",
+      "token_count": 586
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000211",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0034",
+      "token_count": 2824
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000213",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0035",
+      "token_count": 1430
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000215",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 422
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000216",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 267
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000217",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 319
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000219",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 476
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000220",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 342
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000221",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0036",
+      "token_count": 302
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000223",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 489
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000224",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 293
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000225",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 338
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000227",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 343
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000228",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 346
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000229",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 458
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000231",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 328
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000232",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 290
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000233",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 475
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000235",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 421
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000236",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 386
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000237",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 455
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000244",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0041",
+      "token_count": 348
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000246",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0042",
+      "token_count": 374
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000248",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0043",
+      "token_count": 522
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000255",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0046",
+      "token_count": 268
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000262",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 419
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000263",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0049",
+      "token_count": 321
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000266",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0050",
+      "token_count": 347
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000270",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0052",
+      "token_count": 797
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000272",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 441
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000274",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0053",
+      "token_count": 663
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000277",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0054",
+      "token_count": 328
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000278",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 497
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000283",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0056",
+      "token_count": 265
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000284",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 474
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000286",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0057",
+      "token_count": 294
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000289",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0058",
+      "token_count": 580
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000292",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 473
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000295",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 361
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000296",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 499
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000298",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 425
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000300",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 284
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000301",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 331
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000305",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 455
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000306",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0061",
+      "token_count": 528
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000309",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0062",
+      "token_count": 634
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000311",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0063",
+      "token_count": 436
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000312",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 304
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000315",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0064",
+      "token_count": 548
+    },
+    {
+      "chunk_id": "QCOM-2025-CHUNK-000320",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "QCOM-2025-TABLE-0066",
+      "token_count": 338
+    }
+  ],
+  "batch_size": 32,
+  "device": "cpu"
+}

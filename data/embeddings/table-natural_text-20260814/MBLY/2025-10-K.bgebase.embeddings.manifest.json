@@ -1,0 +1,203 @@
+{
+  "schema_version": 3,
+  "created_at": "2026-08-14T18:03:38.079022+00:00",
+  "source_chunks": "/data/Programiranje/Sixsentix/edgar_insight_rag/data/chunks/MBLY/2025-10-K.chunks.jsonl",
+  "source_chunks_sha256": "a84fb4c9b6058d84e07b4f8f63479c64696e4608ea67da99fe1fb989b6dc7154",
+  "embedding_file": "2025-10-K.bgebase.embeddings.npz",
+  "embedding_file_sha256": "32fa231e71460f74b555b66a9506d7f537c62d6bc0f381ebd7cc99a19b1b3dc2",
+  "model_name": "bgebase",
+  "model_repository": "BAAI/bge-base-en-v1.5",
+  "requested_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "resolved_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "sentence_transformers_version": "5.6.1",
+  "numpy_version": "2.5.2",
+  "dimension": 768,
+  "dtype": "float32",
+  "normalized": true,
+  "document_encoder": "SentenceTransformer.encode",
+  "query_prefix": "Represent this sentence for searching relevant passages: ",
+  "document_prefix": "",
+  "max_sequence_length": 512,
+  "embedding_text_policy": {
+    "narrative": "complete chunk text",
+    "table": "logical-table-schema-v2: effective section/region, title, units, and deterministic logical row/header/value statements for every non-empty cell"
+  },
+  "chunk_schema_version": 3,
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+  "source_processed_sha256": "ff40c103e969c84013dc85ae21da2b3513ba3deb058edfd88bb70983b328d882",
+  "logical_table_policy": "one-logical-table-per-chunk-v1",
+  "table_renderer_policy": "logical-markdown-v1",
+  "chunk_count": 462,
+  "ordered_text_hashes_sha256": "02978a408807b6fb342fe0b9c6ae4065602d9cf2e949ab353c2d3cdc5231e714",
+  "input_token_length_max": 2808,
+  "truncated_input_count": 19,
+  "truncated_table_count": 19,
+  "truncated_narrative_count": 0,
+  "truncated_chunk_ids": [
+    "MBLY-2025-CHUNK-000233",
+    "MBLY-2025-CHUNK-000263",
+    "MBLY-2025-CHUNK-000266",
+    "MBLY-2025-CHUNK-000269",
+    "MBLY-2025-CHUNK-000288",
+    "MBLY-2025-CHUNK-000290",
+    "MBLY-2025-CHUNK-000292",
+    "MBLY-2025-CHUNK-000294",
+    "MBLY-2025-CHUNK-000364",
+    "MBLY-2025-CHUNK-000376",
+    "MBLY-2025-CHUNK-000378",
+    "MBLY-2025-CHUNK-000385",
+    "MBLY-2025-CHUNK-000408",
+    "MBLY-2025-CHUNK-000414",
+    "MBLY-2025-CHUNK-000416",
+    "MBLY-2025-CHUNK-000418",
+    "MBLY-2025-CHUNK-000426",
+    "MBLY-2025-CHUNK-000452",
+    "MBLY-2025-CHUNK-000453"
+  ],
+  "truncated_content_type_counts": {
+    "table": 19
+  },
+  "truncated_table_kind_counts": {
+    "exhibit_list": 2,
+    "financial_data": 17
+  },
+  "truncated_inputs": [
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000233",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0139",
+      "token_count": 1529
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000263",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0143",
+      "token_count": 618
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000266",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0144",
+      "token_count": 766
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000269",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0145",
+      "token_count": 862
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000288",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0147",
+      "token_count": 1178
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000290",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0148",
+      "token_count": 1161
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000292",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0149",
+      "token_count": 2808
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000294",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0150",
+      "token_count": 2374
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000364",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0160",
+      "token_count": 614
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000376",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0164",
+      "token_count": 583
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000378",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0165",
+      "token_count": 2107
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000385",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0167",
+      "token_count": 624
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000408",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0171",
+      "token_count": 513
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000414",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0174",
+      "token_count": 539
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000416",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0175",
+      "token_count": 1071
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000418",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0177",
+      "token_count": 645
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000426",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "MBLY-2025-TABLE-0180",
+      "token_count": 931
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000452",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "MBLY-2025-TABLE-0182",
+      "token_count": 921
+    },
+    {
+      "chunk_id": "MBLY-2025-CHUNK-000453",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "MBLY-2025-TABLE-0183",
+      "token_count": 980
+    }
+  ],
+  "batch_size": 32,
+  "device": "cpu"
+}

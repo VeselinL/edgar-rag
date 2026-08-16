@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-08-13T13:10:45.461164+00:00",
+  "source_raw": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/raw/NVDA/2026-10-K.html",
+  "source_raw_sha256": "73d81f5a111abcf72426c840871e76f5f5edc9631f436d495a86b6f87306d58b",
+  "processed_blocks": "/home/veselin/Documents/Programiranje/edgar-insight-rag/table-v2-chunk-v3.20260813-r2/processed/NVDA/2026-10-K.blocks.jsonl",
+  "processed_blocks_sha256": "e9071218303ec971052aea8f4b25fc91abafe12fd9873654ccce9d79c06416f8",
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "html_table_fingerprint_version": "cleaned-lxml-html-v1",
+  "lxml_version": "6.1.1",
+  "block_count": 980,
+  "table_fragment_count": 58,
+  "raw_cell_accounting_min": 1.0,
+  "standalone_marker_count": 0,
+  "markdown_valid_count": 58,
+  "normalization_fallback_count": 1
+}

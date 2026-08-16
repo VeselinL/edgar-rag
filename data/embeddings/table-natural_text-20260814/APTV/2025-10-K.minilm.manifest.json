@@ -1,0 +1,2437 @@
+{
+  "schema_version": 3,
+  "created_at": "2026-08-16T19:42:07.152429+00:00",
+  "source_chunks": "/data/Programiranje/Sixsentix/edgar_insight_rag/data/chunks/APTV/2025-10-K.chunks.jsonl",
+  "source_chunks_sha256": "2bd10e5f4b9d4e0ed8c67bfc6e265362d1a1d6cf33e811bb21be3e4c14095558",
+  "embedding_file": "2025-10-K.minilm.npz",
+  "embedding_file_sha256": "e81f4b42b99ebeb22fb530f5fa4f5a5c4d7ac7f6251e313c31f9054cb8cabecb",
+  "model_name": "minilm",
+  "model_repository": "sentence-transformers/all-MiniLM-L6-v2",
+  "requested_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "resolved_model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "sentence_transformers_version": "5.6.1",
+  "numpy_version": "2.5.2",
+  "dimension": 384,
+  "dtype": "float32",
+  "normalized": true,
+  "document_encoder": "SentenceTransformer.encode",
+  "query_prefix": "",
+  "document_prefix": "",
+  "max_sequence_length": 256,
+  "embedding_text_policy": {
+    "narrative": "complete chunk text",
+    "table": "logical-table-schema-v2: effective section/region, title, units, and deterministic logical row/header/value statements for every non-empty cell"
+  },
+  "chunk_schema_version": 3,
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+  "source_processed_sha256": "4dd5c3633ab588648ad700b37836298ac986449d6a29b3fc3a500e735a5a7cad",
+  "logical_table_policy": "one-logical-table-per-chunk-v1",
+  "table_renderer_policy": "logical-markdown-v1",
+  "chunk_count": 528,
+  "ordered_text_hashes_sha256": "fff8612350aa9912c44a502e8793b750e6df34218768794181a31d09fe00f82a",
+  "input_token_length_max": 4561,
+  "truncated_input_count": 298,
+  "truncated_table_count": 93,
+  "truncated_narrative_count": 205,
+  "truncated_chunk_ids": [
+    "APTV-2025-CHUNK-000001",
+    "APTV-2025-CHUNK-000002",
+    "APTV-2025-CHUNK-000003",
+    "APTV-2025-CHUNK-000006",
+    "APTV-2025-CHUNK-000008",
+    "APTV-2025-CHUNK-000009",
+    "APTV-2025-CHUNK-000010",
+    "APTV-2025-CHUNK-000011",
+    "APTV-2025-CHUNK-000014",
+    "APTV-2025-CHUNK-000018",
+    "APTV-2025-CHUNK-000020",
+    "APTV-2025-CHUNK-000022",
+    "APTV-2025-CHUNK-000023",
+    "APTV-2025-CHUNK-000024",
+    "APTV-2025-CHUNK-000030",
+    "APTV-2025-CHUNK-000031",
+    "APTV-2025-CHUNK-000032",
+    "APTV-2025-CHUNK-000033",
+    "APTV-2025-CHUNK-000035",
+    "APTV-2025-CHUNK-000036",
+    "APTV-2025-CHUNK-000037",
+    "APTV-2025-CHUNK-000038",
+    "APTV-2025-CHUNK-000039",
+    "APTV-2025-CHUNK-000040",
+    "APTV-2025-CHUNK-000041",
+    "APTV-2025-CHUNK-000042",
+    "APTV-2025-CHUNK-000043",
+    "APTV-2025-CHUNK-000044",
+    "APTV-2025-CHUNK-000045",
+    "APTV-2025-CHUNK-000046",
+    "APTV-2025-CHUNK-000047",
+    "APTV-2025-CHUNK-000048",
+    "APTV-2025-CHUNK-000049",
+    "APTV-2025-CHUNK-000050",
+    "APTV-2025-CHUNK-000052",
+    "APTV-2025-CHUNK-000053",
+    "APTV-2025-CHUNK-000054",
+    "APTV-2025-CHUNK-000055",
+    "APTV-2025-CHUNK-000056",
+    "APTV-2025-CHUNK-000057",
+    "APTV-2025-CHUNK-000058",
+    "APTV-2025-CHUNK-000059",
+    "APTV-2025-CHUNK-000060",
+    "APTV-2025-CHUNK-000061",
+    "APTV-2025-CHUNK-000062",
+    "APTV-2025-CHUNK-000063",
+    "APTV-2025-CHUNK-000064",
+    "APTV-2025-CHUNK-000065",
+    "APTV-2025-CHUNK-000066",
+    "APTV-2025-CHUNK-000067",
+    "APTV-2025-CHUNK-000068",
+    "APTV-2025-CHUNK-000069",
+    "APTV-2025-CHUNK-000071",
+    "APTV-2025-CHUNK-000072",
+    "APTV-2025-CHUNK-000073",
+    "APTV-2025-CHUNK-000074",
+    "APTV-2025-CHUNK-000075",
+    "APTV-2025-CHUNK-000077",
+    "APTV-2025-CHUNK-000081",
+    "APTV-2025-CHUNK-000083",
+    "APTV-2025-CHUNK-000085",
+    "APTV-2025-CHUNK-000088",
+    "APTV-2025-CHUNK-000093",
+    "APTV-2025-CHUNK-000094",
+    "APTV-2025-CHUNK-000096",
+    "APTV-2025-CHUNK-000099",
+    "APTV-2025-CHUNK-000103",
+    "APTV-2025-CHUNK-000104",
+    "APTV-2025-CHUNK-000105",
+    "APTV-2025-CHUNK-000106",
+    "APTV-2025-CHUNK-000107",
+    "APTV-2025-CHUNK-000108",
+    "APTV-2025-CHUNK-000109",
+    "APTV-2025-CHUNK-000110",
+    "APTV-2025-CHUNK-000111",
+    "APTV-2025-CHUNK-000112",
+    "APTV-2025-CHUNK-000113",
+    "APTV-2025-CHUNK-000114",
+    "APTV-2025-CHUNK-000115",
+    "APTV-2025-CHUNK-000116",
+    "APTV-2025-CHUNK-000117",
+    "APTV-2025-CHUNK-000118",
+    "APTV-2025-CHUNK-000119",
+    "APTV-2025-CHUNK-000120",
+    "APTV-2025-CHUNK-000121",
+    "APTV-2025-CHUNK-000122",
+    "APTV-2025-CHUNK-000123",
+    "APTV-2025-CHUNK-000125",
+    "APTV-2025-CHUNK-000126",
+    "APTV-2025-CHUNK-000128",
+    "APTV-2025-CHUNK-000130",
+    "APTV-2025-CHUNK-000131",
+    "APTV-2025-CHUNK-000132",
+    "APTV-2025-CHUNK-000139",
+    "APTV-2025-CHUNK-000145",
+    "APTV-2025-CHUNK-000149",
+    "APTV-2025-CHUNK-000150",
+    "APTV-2025-CHUNK-000151",
+    "APTV-2025-CHUNK-000154",
+    "APTV-2025-CHUNK-000156",
+    "APTV-2025-CHUNK-000160",
+    "APTV-2025-CHUNK-000162",
+    "APTV-2025-CHUNK-000164",
+    "APTV-2025-CHUNK-000165",
+    "APTV-2025-CHUNK-000166",
+    "APTV-2025-CHUNK-000168",
+    "APTV-2025-CHUNK-000169",
+    "APTV-2025-CHUNK-000170",
+    "APTV-2025-CHUNK-000171",
+    "APTV-2025-CHUNK-000172",
+    "APTV-2025-CHUNK-000173",
+    "APTV-2025-CHUNK-000176",
+    "APTV-2025-CHUNK-000177",
+    "APTV-2025-CHUNK-000179",
+    "APTV-2025-CHUNK-000182",
+    "APTV-2025-CHUNK-000184",
+    "APTV-2025-CHUNK-000186",
+    "APTV-2025-CHUNK-000188",
+    "APTV-2025-CHUNK-000190",
+    "APTV-2025-CHUNK-000193",
+    "APTV-2025-CHUNK-000195",
+    "APTV-2025-CHUNK-000196",
+    "APTV-2025-CHUNK-000199",
+    "APTV-2025-CHUNK-000201",
+    "APTV-2025-CHUNK-000202",
+    "APTV-2025-CHUNK-000204",
+    "APTV-2025-CHUNK-000205",
+    "APTV-2025-CHUNK-000206",
+    "APTV-2025-CHUNK-000207",
+    "APTV-2025-CHUNK-000208",
+    "APTV-2025-CHUNK-000210",
+    "APTV-2025-CHUNK-000211",
+    "APTV-2025-CHUNK-000212",
+    "APTV-2025-CHUNK-000213",
+    "APTV-2025-CHUNK-000215",
+    "APTV-2025-CHUNK-000216",
+    "APTV-2025-CHUNK-000218",
+    "APTV-2025-CHUNK-000219",
+    "APTV-2025-CHUNK-000220",
+    "APTV-2025-CHUNK-000222",
+    "APTV-2025-CHUNK-000224",
+    "APTV-2025-CHUNK-000228",
+    "APTV-2025-CHUNK-000229",
+    "APTV-2025-CHUNK-000234",
+    "APTV-2025-CHUNK-000235",
+    "APTV-2025-CHUNK-000237",
+    "APTV-2025-CHUNK-000239",
+    "APTV-2025-CHUNK-000241",
+    "APTV-2025-CHUNK-000243",
+    "APTV-2025-CHUNK-000245",
+    "APTV-2025-CHUNK-000247",
+    "APTV-2025-CHUNK-000248",
+    "APTV-2025-CHUNK-000249",
+    "APTV-2025-CHUNK-000250",
+    "APTV-2025-CHUNK-000251",
+    "APTV-2025-CHUNK-000252",
+    "APTV-2025-CHUNK-000253",
+    "APTV-2025-CHUNK-000254",
+    "APTV-2025-CHUNK-000255",
+    "APTV-2025-CHUNK-000256",
+    "APTV-2025-CHUNK-000257",
+    "APTV-2025-CHUNK-000258",
+    "APTV-2025-CHUNK-000259",
+    "APTV-2025-CHUNK-000260",
+    "APTV-2025-CHUNK-000261",
+    "APTV-2025-CHUNK-000262",
+    "APTV-2025-CHUNK-000263",
+    "APTV-2025-CHUNK-000264",
+    "APTV-2025-CHUNK-000265",
+    "APTV-2025-CHUNK-000266",
+    "APTV-2025-CHUNK-000267",
+    "APTV-2025-CHUNK-000268",
+    "APTV-2025-CHUNK-000269",
+    "APTV-2025-CHUNK-000270",
+    "APTV-2025-CHUNK-000271",
+    "APTV-2025-CHUNK-000272",
+    "APTV-2025-CHUNK-000273",
+    "APTV-2025-CHUNK-000274",
+    "APTV-2025-CHUNK-000278",
+    "APTV-2025-CHUNK-000280",
+    "APTV-2025-CHUNK-000281",
+    "APTV-2025-CHUNK-000282",
+    "APTV-2025-CHUNK-000288",
+    "APTV-2025-CHUNK-000289",
+    "APTV-2025-CHUNK-000290",
+    "APTV-2025-CHUNK-000293",
+    "APTV-2025-CHUNK-000294",
+    "APTV-2025-CHUNK-000296",
+    "APTV-2025-CHUNK-000299",
+    "APTV-2025-CHUNK-000306",
+    "APTV-2025-CHUNK-000307",
+    "APTV-2025-CHUNK-000310",
+    "APTV-2025-CHUNK-000312",
+    "APTV-2025-CHUNK-000314",
+    "APTV-2025-CHUNK-000316",
+    "APTV-2025-CHUNK-000318",
+    "APTV-2025-CHUNK-000320",
+    "APTV-2025-CHUNK-000322",
+    "APTV-2025-CHUNK-000325",
+    "APTV-2025-CHUNK-000326",
+    "APTV-2025-CHUNK-000329",
+    "APTV-2025-CHUNK-000330",
+    "APTV-2025-CHUNK-000331",
+    "APTV-2025-CHUNK-000333",
+    "APTV-2025-CHUNK-000334",
+    "APTV-2025-CHUNK-000335",
+    "APTV-2025-CHUNK-000336",
+    "APTV-2025-CHUNK-000337",
+    "APTV-2025-CHUNK-000338",
+    "APTV-2025-CHUNK-000340",
+    "APTV-2025-CHUNK-000341",
+    "APTV-2025-CHUNK-000343",
+    "APTV-2025-CHUNK-000345",
+    "APTV-2025-CHUNK-000348",
+    "APTV-2025-CHUNK-000350",
+    "APTV-2025-CHUNK-000352",
+    "APTV-2025-CHUNK-000355",
+    "APTV-2025-CHUNK-000357",
+    "APTV-2025-CHUNK-000358",
+    "APTV-2025-CHUNK-000359",
+    "APTV-2025-CHUNK-000360",
+    "APTV-2025-CHUNK-000366",
+    "APTV-2025-CHUNK-000368",
+    "APTV-2025-CHUNK-000369",
+    "APTV-2025-CHUNK-000370",
+    "APTV-2025-CHUNK-000374",
+    "APTV-2025-CHUNK-000375",
+    "APTV-2025-CHUNK-000379",
+    "APTV-2025-CHUNK-000381",
+    "APTV-2025-CHUNK-000382",
+    "APTV-2025-CHUNK-000383",
+    "APTV-2025-CHUNK-000384",
+    "APTV-2025-CHUNK-000386",
+    "APTV-2025-CHUNK-000387",
+    "APTV-2025-CHUNK-000389",
+    "APTV-2025-CHUNK-000396",
+    "APTV-2025-CHUNK-000397",
+    "APTV-2025-CHUNK-000400",
+    "APTV-2025-CHUNK-000401",
+    "APTV-2025-CHUNK-000402",
+    "APTV-2025-CHUNK-000404",
+    "APTV-2025-CHUNK-000405",
+    "APTV-2025-CHUNK-000408",
+    "APTV-2025-CHUNK-000410",
+    "APTV-2025-CHUNK-000414",
+    "APTV-2025-CHUNK-000416",
+    "APTV-2025-CHUNK-000420",
+    "APTV-2025-CHUNK-000421",
+    "APTV-2025-CHUNK-000424",
+    "APTV-2025-CHUNK-000431",
+    "APTV-2025-CHUNK-000432",
+    "APTV-2025-CHUNK-000433",
+    "APTV-2025-CHUNK-000434",
+    "APTV-2025-CHUNK-000436",
+    "APTV-2025-CHUNK-000438",
+    "APTV-2025-CHUNK-000440",
+    "APTV-2025-CHUNK-000442",
+    "APTV-2025-CHUNK-000445",
+    "APTV-2025-CHUNK-000447",
+    "APTV-2025-CHUNK-000450",
+    "APTV-2025-CHUNK-000451",
+    "APTV-2025-CHUNK-000452",
+    "APTV-2025-CHUNK-000455",
+    "APTV-2025-CHUNK-000456",
+    "APTV-2025-CHUNK-000458",
+    "APTV-2025-CHUNK-000460",
+    "APTV-2025-CHUNK-000461",
+    "APTV-2025-CHUNK-000463",
+    "APTV-2025-CHUNK-000465",
+    "APTV-2025-CHUNK-000467",
+    "APTV-2025-CHUNK-000468",
+    "APTV-2025-CHUNK-000469",
+    "APTV-2025-CHUNK-000470",
+    "APTV-2025-CHUNK-000471",
+    "APTV-2025-CHUNK-000473",
+    "APTV-2025-CHUNK-000474",
+    "APTV-2025-CHUNK-000475",
+    "APTV-2025-CHUNK-000476",
+    "APTV-2025-CHUNK-000478",
+    "APTV-2025-CHUNK-000481",
+    "APTV-2025-CHUNK-000484",
+    "APTV-2025-CHUNK-000486",
+    "APTV-2025-CHUNK-000487",
+    "APTV-2025-CHUNK-000488",
+    "APTV-2025-CHUNK-000490",
+    "APTV-2025-CHUNK-000491",
+    "APTV-2025-CHUNK-000493",
+    "APTV-2025-CHUNK-000494",
+    "APTV-2025-CHUNK-000495",
+    "APTV-2025-CHUNK-000497",
+    "APTV-2025-CHUNK-000499",
+    "APTV-2025-CHUNK-000503",
+    "APTV-2025-CHUNK-000509",
+    "APTV-2025-CHUNK-000511",
+    "APTV-2025-CHUNK-000518",
+    "APTV-2025-CHUNK-000520",
+    "APTV-2025-CHUNK-000521",
+    "APTV-2025-CHUNK-000522"
+  ],
+  "truncated_content_type_counts": {
+    "narrative": 205,
+    "table": 93
+  },
+  "truncated_table_kind_counts": {
+    "exhibit_list": 3,
+    "financial_data": 85,
+    "structured_text": 5
+  },
+  "truncated_inputs": [
+    {
+      "chunk_id": "APTV-2025-CHUNK-000001",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 421
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000002",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 414
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000003",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 465
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000006",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 496
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000008",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 481
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000009",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 469
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000010",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 364
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000011",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 271
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000014",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 274
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000018",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 381
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000020",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 496
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000022",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 319
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000023",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 284
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000024",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 344
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000030",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 493
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000031",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 379
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000032",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 411
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000033",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 273
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000035",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 448
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000036",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 493
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000037",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 322
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000038",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 393
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000039",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 402
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000040",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 408
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000041",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 445
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000042",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 496
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000043",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 299
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000044",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 395
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000045",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 488
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000046",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 460
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000047",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 313
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000048",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 493
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000049",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 497
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000050",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 434
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000052",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 441
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000053",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 424
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000054",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 356
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000055",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 484
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000056",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 377
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000057",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 358
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000058",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 489
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000059",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 485
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000060",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 444
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000061",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 470
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000062",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 290
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000063",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 501
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000064",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 478
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000065",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 448
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000066",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 459
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000067",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 322
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000068",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 413
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000069",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 491
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000071",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 500
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000072",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 310
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000073",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 489
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000074",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 386
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000075",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 434
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000077",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 300
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000081",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 309
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000083",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 331
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000085",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 402
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000088",
+      "content_type": "table",
+      "table_kind": "structured_text",
+      "logical_table_id": "APTV-2025-TABLE-0008",
+      "token_count": 267
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000093",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 284
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000094",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0009",
+      "token_count": 421
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000096",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0010",
+      "token_count": 605
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000099",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0011",
+      "token_count": 554
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000103",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 463
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000104",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 446
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000105",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 354
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000106",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 494
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000107",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 360
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000108",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 485
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000109",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 482
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000110",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 457
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000111",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 282
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000112",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 352
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000113",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 462
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000114",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 480
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000115",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 395
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000116",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 473
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000117",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 497
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000118",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 460
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000119",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 388
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000120",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 492
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000121",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 469
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000122",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 443
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000123",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 397
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000125",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 461
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000126",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 407
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000128",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0012",
+      "token_count": 1334
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000130",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0013",
+      "token_count": 296
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000131",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 261
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000132",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0014",
+      "token_count": 456
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000139",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 474
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000145",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 289
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000149",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 443
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000150",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 436
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000151",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 289
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000154",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 446
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000156",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0024",
+      "token_count": 882
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000160",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0026",
+      "token_count": 526
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000162",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 271
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000164",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 382
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000165",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 420
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000166",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 345
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000168",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 364
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000169",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 434
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000170",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 421
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000171",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 426
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000172",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 420
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000173",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 485
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000176",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 293
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000177",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 500
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000179",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 386
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000182",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0030",
+      "token_count": 662
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000184",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 460
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000186",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0031",
+      "token_count": 308
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000188",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 457
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000190",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0032",
+      "token_count": 511
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000193",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0033",
+      "token_count": 555
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000195",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 447
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000196",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 369
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000199",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 494
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000201",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 385
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000202",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 258
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000204",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 273
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000205",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0034",
+      "token_count": 286
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000206",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0035",
+      "token_count": 572
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000207",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 280
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000208",
+      "content_type": "table",
+      "table_kind": "structured_text",
+      "logical_table_id": "APTV-2025-TABLE-0036",
+      "token_count": 264
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000210",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 378
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000211",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 414
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000212",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 472
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000213",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 413
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000215",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 350
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000216",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 287
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000218",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 359
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000219",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 385
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000220",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 322
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000222",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 320
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000224",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 279
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000228",
+      "content_type": "table",
+      "table_kind": "structured_text",
+      "logical_table_id": "APTV-2025-TABLE-0038",
+      "token_count": 684
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000229",
+      "content_type": "table",
+      "table_kind": "structured_text",
+      "logical_table_id": "APTV-2025-TABLE-0039",
+      "token_count": 516
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000234",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 273
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000235",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0040",
+      "token_count": 1616
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000237",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0041",
+      "token_count": 814
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000239",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0042",
+      "token_count": 1525
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000241",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0043",
+      "token_count": 3428
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000243",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0045",
+      "token_count": 4561
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000245",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0046",
+      "token_count": 2953
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000247",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 434
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000248",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 435
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000249",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 461
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000250",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 482
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000251",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 434
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000252",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 396
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000253",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 364
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000254",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 433
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000255",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 374
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000256",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 484
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000257",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 324
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000258",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 299
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000259",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 429
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000260",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 493
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000261",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 363
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000262",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 489
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000263",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 276
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000264",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 338
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000265",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 448
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000266",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 326
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000267",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 424
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000268",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 414
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000269",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 501
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000270",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 428
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000271",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 409
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000272",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 345
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000273",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 464
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000274",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 286
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000278",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0048",
+      "token_count": 387
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000280",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0049",
+      "token_count": 426
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000281",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 388
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000282",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0050",
+      "token_count": 293
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000288",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 457
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000289",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 455
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000290",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 442
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000293",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0054",
+      "token_count": 396
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000294",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 466
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000296",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0055",
+      "token_count": 456
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000299",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0056",
+      "token_count": 1288
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000306",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 492
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000307",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0060",
+      "token_count": 440
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000310",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0061",
+      "token_count": 415
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000312",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0062",
+      "token_count": 386
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000314",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0063",
+      "token_count": 343
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000316",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 458
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000318",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0064",
+      "token_count": 295
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000320",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0065",
+      "token_count": 505
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000322",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0066",
+      "token_count": 1409
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000325",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 447
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000326",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 477
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000329",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 285
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000330",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 293
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000331",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 492
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000333",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 398
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000334",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 500
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000335",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 439
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000336",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 483
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000337",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 404
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000338",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0070",
+      "token_count": 378
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000340",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 373
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000341",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 312
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000343",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 377
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000345",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 452
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000348",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0071",
+      "token_count": 498
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000350",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0072",
+      "token_count": 780
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000352",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0073",
+      "token_count": 825
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000355",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0075",
+      "token_count": 434
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000357",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0076",
+      "token_count": 288
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000358",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0077",
+      "token_count": 574
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000359",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 279
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000360",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0078",
+      "token_count": 277
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000366",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0080",
+      "token_count": 1080
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000368",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0081",
+      "token_count": 1144
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000369",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 349
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000370",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0082",
+      "token_count": 490
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000374",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0083",
+      "token_count": 286
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000375",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0084",
+      "token_count": 588
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000379",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0086",
+      "token_count": 1743
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000381",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0089",
+      "token_count": 493
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000382",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 430
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000383",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 261
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000384",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 498
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000386",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 420
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000387",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 284
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000389",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0090",
+      "token_count": 694
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000396",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0092",
+      "token_count": 489
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000397",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 426
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000400",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 350
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000401",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 297
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000402",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0093",
+      "token_count": 586
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000404",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 471
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000405",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 268
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000408",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0094",
+      "token_count": 1262
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000410",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0095",
+      "token_count": 1337
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000414",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0097",
+      "token_count": 277
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000416",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 361
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000420",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0098",
+      "token_count": 689
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000421",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0099",
+      "token_count": 857
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000424",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0100",
+      "token_count": 270
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000431",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 401
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000432",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 441
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000433",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 438
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000434",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0106",
+      "token_count": 383
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000436",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0107",
+      "token_count": 287
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000438",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0108",
+      "token_count": 598
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000440",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0109",
+      "token_count": 358
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000442",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 459
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000445",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0110",
+      "token_count": 602
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000447",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 310
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000450",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 292
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000451",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 425
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000452",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0112",
+      "token_count": 385
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000455",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 309
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000456",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0114",
+      "token_count": 429
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000458",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0115",
+      "token_count": 573
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000460",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0116",
+      "token_count": 453
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000461",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 307
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000463",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0117",
+      "token_count": 479
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000465",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0118",
+      "token_count": 295
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000467",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 450
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000468",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 429
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000469",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0119",
+      "token_count": 1192
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000470",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0120",
+      "token_count": 1136
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000471",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0121",
+      "token_count": 936
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000473",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0122",
+      "token_count": 655
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000474",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0123",
+      "token_count": 536
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000475",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0124",
+      "token_count": 503
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000476",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0125",
+      "token_count": 491
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000478",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0126",
+      "token_count": 979
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000481",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0127",
+      "token_count": 516
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000484",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 262
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000486",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0128",
+      "token_count": 446
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000487",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0129",
+      "token_count": 421
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000488",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0130",
+      "token_count": 421
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000490",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0131",
+      "token_count": 593
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000491",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 286
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000493",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 270
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000494",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 369
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000495",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0132",
+      "token_count": 508
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000497",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0133",
+      "token_count": 364
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000499",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0134",
+      "token_count": 532
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000503",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 322
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000509",
+      "content_type": "table",
+      "table_kind": "structured_text",
+      "logical_table_id": "APTV-2025-TABLE-0136",
+      "token_count": 286
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000511",
+      "content_type": "narrative",
+      "table_kind": null,
+      "logical_table_id": null,
+      "token_count": 417
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000518",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "APTV-2025-TABLE-0138",
+      "token_count": 556
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000520",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "APTV-2025-TABLE-0139",
+      "token_count": 1527
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000521",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "APTV-2025-TABLE-0140",
+      "token_count": 1592
+    },
+    {
+      "chunk_id": "APTV-2025-CHUNK-000522",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "APTV-2025-TABLE-0141",
+      "token_count": 1177
+    }
+  ],
+  "batch_size": 32,
+  "device": "cpu"
+}
