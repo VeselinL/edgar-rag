@@ -1,25 +1,19 @@
-"""Evaluate dense retrieval over the fixed annual-filing corpus."""
+"""Evaluate BM25 retrieval over the fixed annual-filing corpus."""
 
 from __future__ import annotations
 
 import argparse
 import json
 import re
-import subprocess
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import numpy as np
+import bm25s
 import pandas as pd
-from sentence_transformers import SentenceTransformer
-
-from src.embeddings.embed_chunks import MODEL_CONFIGS
 
 
-DEFAULT_MODEL_NAME = "bgebase"
-DEFAULT_EMBEDDINGS_DIRECTORY = Path("data/embeddings")
 DEFAULT_CHUNKS_DIRECTORY = Path("data/chunks")
 DEFAULT_TEST_QUERIES_PATH = Path("data/evaluation/test_queries.jsonl")
 DEFAULT_OUTPUT_DIRECTORY = Path("data/evaluation")
@@ -40,42 +34,13 @@ FILINGS = {
 }
 
 
-def load_corpus(
-    embeddings_directory: Path,
-    chunks_directory: Path,
-    model_name: str,
-) -> tuple[np.ndarray, list[dict[str, Any]]]:
-    company_embeddings = []
+def load_corpus(chunks_directory: Path) -> list[dict[str, Any]]:
     all_chunks = []
-
     for ticker, filing_name in FILINGS.items():
-        embedding_paths = list(
-            (embeddings_directory / ticker).glob(f"{filing_name}.{model_name}*.npz")
-        )
-        if len(embedding_paths) != 1:
-            raise ValueError(
-                f"Expected one {model_name} embedding file for {ticker}/{filing_name}, "
-                f"found: {embedding_paths}"
-            )
-
-        embeddings = np.load(embedding_paths[0])["embeddings"]
         chunk_path = chunks_directory / ticker / f"{filing_name}.chunks.jsonl"
         with chunk_path.open("r", encoding="utf-8") as file:
-            chunks = [json.loads(line) for line in file if line.strip()]
-
-        if len(embeddings) != len(chunks):
-            raise ValueError(
-                f"{ticker}: {len(embeddings)} embeddings != {len(chunks)} chunks"
-            )
-
-        company_embeddings.append(embeddings)
-        all_chunks.extend(chunks)
-
-    all_embeddings = np.vstack(company_embeddings)
-    if len(all_embeddings) != len(all_chunks):
-        raise ValueError("Embedding and chunk corpus sizes differ.")
-
-    return all_embeddings, all_chunks
+            all_chunks.extend(json.loads(line) for line in file if line.strip())
+    return all_chunks
 
 
 def load_test_queries(path: Path) -> list[dict[str, Any]]:
@@ -91,28 +56,36 @@ def load_test_queries(path: Path) -> list[dict[str, Any]]:
     return test_cases
 
 
-def dense_retrieve(
+def build_bm25_index(all_chunks: list[dict[str, Any]]) -> bm25s.BM25:
+    missing_text_ids = [chunk.get("chunk_id", "<unknown>") for chunk in all_chunks if not chunk.get("text")]
+    if missing_text_ids:
+        raise ValueError("Chunks missing searchable text:\n" + "\n".join(missing_text_ids))
+
+    retriever = bm25s.BM25()
+    retriever.index(bm25s.tokenize([chunk["text"] for chunk in all_chunks]))
+    return retriever
+
+
+def bm25_retrieve(
     query: str,
-    model: SentenceTransformer,
-    query_prefix: str,
-    normalized_embeddings: np.ndarray,
+    retriever: bm25s.BM25,
     all_chunks: list[dict[str, Any]],
     top_k: int = MAX_K,
 ) -> tuple[list[dict[str, Any]], float]:
     start = time.perf_counter()
-    query_embedding = model.encode(query_prefix + query, normalize_embeddings=True)
-    scores = normalized_embeddings @ query_embedding
-    top_indices = np.argsort(scores)[-top_k:][::-1]
+    indices, scores = retriever.retrieve(bm25s.tokenize(query), k=top_k)
+    indices = indices[0]
+    scores = scores[0]
     results = [
         {
             "rank": rank,
-            "chunk_id": all_chunks[idx]["chunk_id"],
-            "ticker": all_chunks[idx].get("ticker"),
-            "content_type": all_chunks[idx].get("content_type"),
-            "score": float(scores[idx]),
-            "index": int(idx),
+            "chunk_id": all_chunks[index]["chunk_id"],
+            "ticker": all_chunks[index].get("ticker"),
+            "content_type": all_chunks[index].get("content_type"),
+            "score": float(score),
+            "index": int(index),
         }
-        for rank, idx in enumerate(top_indices, start=1)
+        for rank, (index, score) in enumerate(zip(indices, scores, strict=True), start=1)
     ]
     return results, time.perf_counter() - start
 
@@ -143,11 +116,9 @@ def evaluate_query(test_case: dict[str, Any], retrieved: list[dict[str, Any]]) -
     return row
 
 
-def evaluate_dense_retrieval(
+def evaluate_bm25_retrieval(
     test_cases: list[dict[str, Any]],
-    model: SentenceTransformer,
-    query_prefix: str,
-    normalized_embeddings: np.ndarray,
+    retriever: bm25s.BM25,
     all_chunks: list[dict[str, Any]],
 ) -> tuple[pd.DataFrame, float]:
     corpus_chunk_ids = {chunk["chunk_id"] for chunk in all_chunks}
@@ -163,7 +134,7 @@ def evaluate_dense_retrieval(
     rows = []
     total_start = time.perf_counter()
     for index, case in enumerate(test_cases, start=1):
-        retrieved, latency = dense_retrieve(case["question"], model, query_prefix, normalized_embeddings, all_chunks)
+        retrieved, latency = bm25_retrieve(case["question"], retriever, all_chunks)
         row = evaluate_query(case, retrieved)
         row["latency_seconds"] = latency
         row["retrieved_chunk_ids"] = [result["chunk_id"] for result in retrieved]
@@ -179,70 +150,26 @@ def metric_columns() -> list[str]:
 
 def print_evaluation_summary(dataframe: pd.DataFrame, total_time: float) -> None:
     metrics = metric_columns()
-
-    print("\nOVERALL DENSE RETRIEVAL")
+    print("\nOVERALL BM25 RETRIEVAL")
     overall = dataframe[metrics].mean()
-
     for k in K_VALUES:
-        print(
-            f"@{k:<2} | "
-            f"Recall={overall[f'recall@{k}']:.4f} | "
-            f"Hit={overall[f'hit@{k}']:.4f} | "
-            f"Complete={overall[f'complete@{k}']:.4f} | "
-            f"MRR={overall[f'mrr@{k}']:.4f}"
-        )
+        print(f"@{k:<2} | Recall={overall[f'recall@{k}']:.4f} | Hit={overall[f'hit@{k}']:.4f} | Complete={overall[f'complete@{k}']:.4f} | MRR={overall[f'mrr@{k}']:.4f}")
 
-    print(
-        f"\nQueries: {len(dataframe)}"
-        f"\nTotal:  {total_time:.3f}s"
-        f"\nMean:   {dataframe['latency_seconds'].mean():.4f}s"
-        f"\nMedian: {dataframe['latency_seconds'].median():.4f}s"
-        f"\nP95:    {dataframe['latency_seconds'].quantile(0.95):.4f}s"
-    )
-
-    for title, groups in (
-        ("BY QUESTION TYPE", ["question_type"]),
-        ("BY COMPANY", ["ticker", "company"]),
-    ):
+    print(f"\nQueries: {len(dataframe)}\nTotal:  {total_time:.3f}s\nMean:   {dataframe['latency_seconds'].mean():.4f}s\nMedian: {dataframe['latency_seconds'].median():.4f}s\nP95:    {dataframe['latency_seconds'].quantile(0.95):.4f}s")
+    for title, groups in (("BY QUESTION TYPE", ["question_type"]), ("BY COMPANY", ["ticker", "company"])):
         grouped = dataframe.groupby(groups)[metrics].mean().round(4).reset_index()
         columns = groups + metrics
-
-        widths = {
-            column: max(
-                len(column),
-                max(len(f"{value:.4f}") if column in metrics else len(str(value))
-                    for value in grouped[column]),
-            )
-            for column in columns
-        }
-
-        def format_row(row) -> str:
-            values = []
-
-            for column in columns:
-                if column in metrics:
-                    values.append(f"{row[column]:>{widths[column]}.4f}")
-                else:
-                    values.append(f"{str(row[column]):<{widths[column]}}")
-
-            return " | ".join(values)
+        widths = {column: max(len(column), max(len(f"{value:.4f}") if column in metrics else len(str(value)) for value in grouped[column])) for column in columns}
 
         print(f"\n{title}")
-
-        header = " | ".join(
-            f"{column:<{widths[column]}}" for column in columns
-        )
-        separator = "-+-".join("-" * widths[column] for column in columns)
-
-        print(header)
-        print(separator)
-
+        print(" | ".join(f"{column:<{widths[column]}}" for column in columns))
+        print("-+-".join("-" * widths[column] for column in columns))
         for _, row in grouped.iterrows():
-            print(format_row(row))
+            print(" | ".join(f"{row[column]:>{widths[column]}.4f}" if column in metrics else f"{str(row[column]):<{widths[column]}}" for column in columns))
 
 
-def default_output_path(output_directory: Path, model_name: str) -> Path:
-    directory = output_directory / "dense_retrieval" / model_name
+def default_output_path(output_directory: Path) -> Path:
+    directory = output_directory / "bm25_retrieval"
     versions = [
         int(match.group(1))
         for path in directory.glob("v*")
@@ -269,6 +196,7 @@ def write_summary(
     overwrite: bool,
 ) -> Path:
     summary_path = output_path.with_suffix(".summary.json")
+
     if summary_path.exists() and not overwrite:
         raise FileExistsError(
             f"Summary already exists: {summary_path}. "
@@ -276,16 +204,32 @@ def write_summary(
         )
 
     metrics = metric_columns()
+
     overall = dataframe[metrics].mean()
-    by_question_type = dataframe.groupby("question_type")[metrics].mean().to_dict(orient="index")
-    by_company = dataframe.groupby(["ticker", "company"])[metrics].mean().reset_index()
+
+    by_question_type = (
+        dataframe.groupby("question_type")[metrics]
+        .mean()
+        .to_dict(orient="index")
+    )
+
+    by_company = (
+        dataframe.groupby(["ticker", "company"])[metrics]
+        .mean()
+        .reset_index()
+    )
+
     company_metrics = {
         row["ticker"]: {
             "company": row["company"],
-            **{metric: float(row[metric]) for metric in metrics},
+            **{
+                metric: float(row[metric])
+                for metric in metrics
+            },
         }
         for _, row in by_company.iterrows()
     }
+
     summary = {
         **metadata,
         "query_count": len(dataframe),
@@ -293,59 +237,79 @@ def write_summary(
             "total_seconds": total_time,
             "mean_seconds": float(dataframe["latency_seconds"].mean()),
             "median_seconds": float(dataframe["latency_seconds"].median()),
-            "p95_seconds": float(dataframe["latency_seconds"].quantile(0.95)),
+            "p95_seconds": float(
+                dataframe["latency_seconds"].quantile(0.95)
+            ),
         },
-        "overall": {metric: float(overall[metric]) for metric in metrics},
+        "overall": {
+            metric: float(overall[metric])
+            for metric in metrics
+        },
         "by_question_type": {
-            question_type: {metric: float(value) for metric, value in values.items()}
+            question_type: {
+                metric: float(value)
+                for metric, value in values.items()
+            }
             for question_type, values in by_question_type.items()
         },
         "by_company": company_metrics,
     }
+
     summary_path.parent.mkdir(parents=True, exist_ok=True)
-    with summary_path.open("w" if overwrite else "x", encoding="utf-8") as file:
+    mode = "w" if overwrite else "x"
+
+    with summary_path.open(mode, encoding="utf-8") as file:
         json.dump(summary, file, indent=2, ensure_ascii=False)
+
     return summary_path
 
 
-
-
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Evaluate pure dense retrieval over the fixed annual-filing corpus.")
-    parser.add_argument("--embeddings-directory", type=Path, default=DEFAULT_EMBEDDINGS_DIRECTORY)
+    parser = argparse.ArgumentParser(description="Evaluate BM25 retrieval over the fixed annual-filing corpus.")
     parser.add_argument("--chunks-directory", type=Path, default=DEFAULT_CHUNKS_DIRECTORY)
     parser.add_argument("--test-queries", type=Path, default=DEFAULT_TEST_QUERIES_PATH)
     parser.add_argument("--output", type=Path, help="Detailed JSONL results path.")
     parser.add_argument("--output-directory", type=Path, default=DEFAULT_OUTPUT_DIRECTORY)
-    parser.add_argument("--model-name", choices=tuple(MODEL_CONFIGS), default=DEFAULT_MODEL_NAME)
-    parser.add_argument("--device")
     parser.add_argument("--overwrite", action="store_true")
     arguments = parser.parse_args()
 
-    config = MODEL_CONFIGS[arguments.model_name]
-    all_embeddings, all_chunks = load_corpus(arguments.embeddings_directory, arguments.chunks_directory, arguments.model_name)
-    normalized_embeddings = all_embeddings / np.clip(np.linalg.norm(all_embeddings, axis=1, keepdims=True), 1e-12, None)
+    all_chunks = load_corpus(arguments.chunks_directory)
     print(f"Total chunks: {len(all_chunks)}")
-    print(f"Embedding matrix: {all_embeddings.shape}")
-    model = SentenceTransformer(config["repository"], device=arguments.device)
-    dataframe, total_time = evaluate_dense_retrieval(load_test_queries(arguments.test_queries), model, config["query_prefix"], normalized_embeddings, all_chunks)
+    index_start = time.perf_counter()
+    retriever = build_bm25_index(all_chunks)
+    print(f"BM25 indexing: {time.perf_counter() - index_start:.3f}s")
+    dataframe, total_time = evaluate_bm25_retrieval(load_test_queries(arguments.test_queries), retriever, all_chunks)
     print_evaluation_summary(dataframe, total_time)
 
-    output_path = arguments.output or default_output_path(arguments.output_directory, arguments.model_name)
+    output_path = arguments.output or default_output_path(arguments.output_directory)
     metadata = {
         "run_number": None if arguments.output else int(output_path.parent.name[1:]),
         "timestamp": datetime.now().astimezone().isoformat(),
-        "embedding_model": config["repository"],
+        "embedding_model": None,
         "reranker_model": None,
-        "retrieval_method": dense_retrieve.__name__,
-        "retrieval_parameters": {"top_k": MAX_K, "query_prefix": config["query_prefix"]},
+        "retrieval_method": bm25_retrieve.__name__,
+        "retrieval_parameters": {"top_k": MAX_K, "tokenizer": "bm25s.tokenize", "bm25_method": "lucene"},
         "evaluation_dataset": str(arguments.test_queries),
-        "device": str(model.device),
+        "device": None,
     }
-    write_results(output_path, dataframe, metadata, arguments.overwrite)
-    summary_path = write_summary(output_path, dataframe, total_time, metadata, arguments.overwrite)
+
+    write_results(
+        output_path,
+        dataframe,
+        metadata,
+        arguments.overwrite,
+    )
+
+    summary_path = write_summary(
+        output_path,
+        dataframe,
+        total_time,
+        metadata,
+        arguments.overwrite,
+    )
+
     print(f"\nSaved detailed results to: {output_path}")
-    print(f"Saved summary to: {summary_path}")
+    print(f"Saved summary to:          {summary_path}")
 
 
 if __name__ == "__main__":
