@@ -1,13 +1,39 @@
 # Chunking Report
 
+**Current release date:** 13 August 2026
+
+## Current promoted result
+
+The strategy benchmark below predates logical table schema 2 and is retained as
+the evidence for choosing recursive 500/32 narrative splitting. The current
+promoted corpus keeps that narrative configuration but composes HTML fragments
+into logical tables and excludes true navigation tables.
+
+| Filing | Blocks | Chunks | Narrative | Logical-table chunks | Median tokens | P95 | Max | Boundary accuracy | Provenance coverage |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| MBLY | 1,258 | 462 | 412 | 50 | 248 | 492 | 988 | 91.7% | 100% |
+| TSLA | 945 | 341 | 275 | 66 | 220 | 489 | 980 | 88.7% | 100% |
+
+Across all ten issuers the release contains 4,115 chunks: 3,238 narrative and
+877 table. Every included logical table produces exactly one chunk; 12
+navigation logical tables produce none. Source-block and source-anchor coverage
+is 100% under the explicit non-heading/non-navigation scope.
+
+## Historical strategy benchmark
+
 ## Method
 
 - Splitter package: `langchain-text-splitters==1.1.2`
-- Tables use identical row-group chunking in every run.
+- Tokenizer: `sentence-transformers/all-MiniLM-L6-v2`
+- Every retained physical table stayed complete in one table chunk in these
+  historical benchmark runs. The current contract is one included logical table
+  per chunk and may compose multiple physical fragments.
+- Size and overlap are measured in tokenizer tokens.
+- The configured size limit applies to narrative chunks, not complete table chunks.
 - Navigation is excluded and chunks never cross `section_path` boundaries.
 - `Boundary accuracy` is the share of narrative chunks ending at sentence punctuation.
 - Boundary accuracy is not retrieval accuracy; retrieval requires embeddings and labels.
-- `Actual overlap` is median source-character overlap between narrative chunks.
+- `Actual overlap` is median source-token overlap between narrative chunks.
 - `Coverage` is the share of evidence blocks represented in at least one chunk.
 
 ## Mobileye Global Inc.
@@ -15,75 +41,60 @@
 - Input: `data/processed/MBLY/2025-10-K.blocks.jsonl`
 - Filing: 2025 10-K
 - Structured blocks: 1258
-- Longest source block: 3,949 characters
+- Longest source block: 947 tokens
 
 ### Results
 
-| Strategy | Size | Config overlap | Actual overlap | Chunks | Narrative | Tables | Min | Median | P95 | Max | Boundary accuracy | Coverage | Section accuracy | Table context | Time |
+| Strategy | Size (tokens) | Config overlap (tokens) | Actual overlap (tokens) | Chunks | Narrative | Tables | Min tokens | Median tokens | P95 tokens | Max tokens | Boundary accuracy | Coverage | Section accuracy | Table context | Time |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| recursive | 500 | 50 | 0 | 2526 | 1892 | 634 | 42 | 414 | 499 | 500 | 41.4% | 100.0% | 100.0% | 100.0% | 45.9 ms |
-| recursive | 800 | 100 | 0 | 1230 | 1133 | 97 | 42 | 594.5 | 787 | 800 | 61.3% | 100.0% | 100.0% | 100.0% | 29.1 ms |
-| recursive | 1200 | 150 | 0 | 842 | 775 | 67 | 42 | 815 | 1176 | 1199 | 75.4% | 100.0% | 100.0% | 100.0% | 21.9 ms |
-| recursive | 1600 | 200 | 0 | 667 | 604 | 63 | 42 | 977 | 1570 | 1600 | 82.6% | 100.0% | 100.0% | 100.0% | 20.7 ms |
-| fixed | 500 | 50 | 50 | 3408 | 1504 | 1904 | 42 | 499 | 500 | 500 | 15.8% | 100.0% | 100.0% | 100.0% | 37.3 ms |
-| fixed | 800 | 100 | 100 | 1045 | 948 | 97 | 42 | 799 | 800 | 800 | 24.8% | 100.0% | 100.0% | 100.0% | 16.7 ms |
-| fixed | 1200 | 150 | 150 | 730 | 663 | 67 | 42 | 1199 | 1200 | 1200 | 35.7% | 100.0% | 100.0% | 100.0% | 11.7 ms |
-| fixed | 1600 | 200 | 200 | 591 | 528 | 63 | 42 | 1598 | 1600 | 1600 | 43.8% | 100.0% | 100.0% | 100.0% | 10.5 ms |
-
-### Infeasible Configurations
-
-| Strategy | Size | Overlap | Reason |
-|---|---:|---:|---|
-| recursive | 250 | 25 | Table context exceeds chunk size: MBLY-2025-000633 |
-| fixed | 250 | 25 | Table context exceeds chunk size: MBLY-2025-000633 |
+| recursive | 128 | 16 | 0 | 1403 | 1351 | 52 | 10 | 94 | 128 | 978 | 53.7% | 100.0% | 100.0% | 100.0% | 3453.9 ms |
+| recursive | 192 | 24 | 0 | 949 | 897 | 52 | 10 | 141 | 191 | 978 | 69.6% | 100.0% | 100.0% | 100.0% | 1825.0 ms |
+| recursive | 250 | 32 | 0 | 778 | 726 | 52 | 10 | 164.5 | 247 | 978 | 76.4% | 100.0% | 100.0% | 100.0% | 1735.4 ms |
+| recursive | 500 | 32 | 0 | 464 | 412 | 52 | 10 | 253.5 | 494 | 978 | 91.7% | 100.0% | 100.0% | 100.0% | 1477.4 ms |
+| fixed | 128 | 16 | 16 | 1169 | 1117 | 52 | 10 | 128 | 128 | 978 | 22.3% | 100.0% | 100.0% | 100.0% | 1401.4 ms |
+| fixed | 192 | 24 | 24 | 809 | 757 | 52 | 10 | 192 | 192 | 978 | 32.2% | 100.0% | 100.0% | 100.0% | 1354.5 ms |
+| fixed | 250 | 32 | 32 | 662 | 610 | 52 | 10 | 250 | 250 | 978 | 39.2% | 100.0% | 100.0% | 100.0% | 1320.2 ms |
+| fixed | 500 | 32 | 32 | 426 | 374 | 52 | 10 | 258 | 500 | 978 | 62.6% | 100.0% | 100.0% | 100.0% | 1238.4 ms |
 
 ## Tesla, Inc.
 
 - Input: `data/processed/TSLA/2025-10-K.blocks.jsonl`
 - Filing: 2025 10-K
 - Structured blocks: 945
-- Longest source block: 3,131 characters
+- Longest source block: 897 tokens
 
 ### Results
 
-| Strategy | Size | Config overlap | Actual overlap | Chunks | Narrative | Tables | Min | Median | P95 | Max | Boundary accuracy | Coverage | Section accuracy | Table context | Time |
+| Strategy | Size (tokens) | Config overlap (tokens) | Actual overlap (tokens) | Chunks | Narrative | Tables | Min tokens | Median tokens | P95 tokens | Max tokens | Boundary accuracy | Coverage | Section accuracy | Table context | Time |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| recursive | 500 | 50 | 0 | 2814 | 1308 | 1506 | 34 | 482 | 499 | 500 | 41.8% | 100.0% | 100.0% | 100.0% | 48.0 ms |
-| recursive | 800 | 100 | 0 | 939 | 777 | 162 | 34 | 607 | 788 | 800 | 61.1% | 100.0% | 100.0% | 100.0% | 22.6 ms |
-| recursive | 1200 | 150 | 0 | 633 | 524 | 109 | 34 | 807 | 1175 | 1199 | 75.8% | 100.0% | 100.0% | 100.0% | 18.5 ms |
-| recursive | 1600 | 200 | 0 | 492 | 402 | 90 | 34 | 988.5 | 1569 | 1600 | 81.6% | 100.0% | 100.0% | 100.0% | 18.1 ms |
-| fixed | 500 | 50 | 50 | 4617 | 1016 | 3601 | 34 | 499 | 500 | 500 | 18.0% | 100.0% | 100.0% | 100.0% | 61.7 ms |
-| fixed | 800 | 100 | 100 | 800 | 638 | 162 | 34 | 799 | 800 | 800 | 27.7% | 100.0% | 100.0% | 100.0% | 14.6 ms |
-| fixed | 1200 | 150 | 150 | 549 | 440 | 109 | 34 | 1185 | 1200 | 1200 | 39.5% | 100.0% | 100.0% | 100.0% | 12.8 ms |
-| fixed | 1600 | 200 | 200 | 446 | 356 | 90 | 34 | 1390 | 1600 | 1600 | 49.7% | 100.0% | 100.0% | 100.0% | 13.1 ms |
+| recursive | 128 | 16 | 0 | 968 | 900 | 68 | 10 | 95 | 187 | 1491 | 56.0% | 100.0% | 100.0% | 100.0% | 1299.9 ms |
+| recursive | 192 | 24 | 0 | 661 | 593 | 68 | 10 | 140 | 253 | 1491 | 72.3% | 100.0% | 100.0% | 100.0% | 1129.7 ms |
+| recursive | 250 | 32 | 0 | 531 | 463 | 68 | 10 | 176 | 309 | 1491 | 77.8% | 100.0% | 100.0% | 100.0% | 1052.1 ms |
+| recursive | 500 | 32 | 0 | 343 | 275 | 68 | 10 | 239 | 503 | 1491 | 88.7% | 100.0% | 100.0% | 100.0% | 959.7 ms |
+| fixed | 128 | 16 | 16 | 791 | 723 | 68 | 10 | 128 | 213 | 1491 | 26.3% | 100.0% | 100.0% | 100.0% | 925.6 ms |
+| fixed | 192 | 24 | 24 | 565 | 497 | 68 | 10 | 192 | 295 | 1491 | 37.2% | 100.0% | 100.0% | 100.0% | 891.0 ms |
+| fixed | 250 | 32 | 32 | 474 | 406 | 68 | 10 | 250 | 363 | 1491 | 45.3% | 100.0% | 100.0% | 100.0% | 875.9 ms |
+| fixed | 500 | 32 | 32 | 330 | 262 | 68 | 10 | 230 | 503 | 1491 | 66.4% | 100.0% | 100.0% | 100.0% | 820.1 ms |
 
-### Infeasible Configurations
-
-| Strategy | Size | Overlap | Reason |
-|---|---:|---:|---|
-| recursive | 250 | 25 | Table context exceeds chunk size: TSLA-2025-000359 |
-| fixed | 250 | 25 | Table context exceeds chunk size: TSLA-2025-000359 |
-
-## Recursive 1,200 / 150 Comparison
+## Selected Recursive 500 / 32 Comparison
 
 | Filing | Source blocks | Chunks | Median | Min | Max | Boundary accuracy | Actual overlap |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| MBLY | 1258 | 842 | 815 | 42 | 1199 | 75.4% | 0 |
-| TSLA | 945 | 633 | 807 | 34 | 1199 | 75.8% | 0 |
+| MBLY | 1258 | 464 | 253.5 | 10 | 978 | 91.7% | 0 |
+| TSLA | 945 | 343 | 239 | 10 | 1491 | 88.7% | 0 |
 
 ## Interpretation
 
 - Recursive splitting consistently preserves sentence boundaries better than fixed slicing.
 - Recursive overlap is not guaranteed; separator-aware runs can have actual overlap 0.
-- Fixed splitting produces the configured overlap exactly but often cuts sentences.
-- A 250-character maximum is infeasible when repeated table context exceeds the limit.
-- The 500-character runs create many small table fragments.
-- The current baseline remains recursive splitting with size 1,200 and overlap 150.
+- Fixed token splitting produces the configured overlap exactly but often cuts sentences.
+- Complete table chunks may exceed the configured narrative chunk size by design.
+- The selected baseline is recursive splitting with a 500-token narrative limit and 32-token configured overlap.
 
 ## Reproduce
 
 ```bash
-python -m src.chunking.benchmark_chunking
-python -m src.chunking.chunk_documents --overwrite
-python -m src.chunking.chunk_documents data/processed/TSLA/2025-10-K.blocks.jsonl --overwrite
+.venv/bin/python -m src.chunking.benchmark_chunking
+.venv/bin/python -m src.chunking.chunk_documents mobileye --overwrite
+.venv/bin/python -m src.chunking.chunk_documents tesla --overwrite
 ```
