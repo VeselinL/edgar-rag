@@ -1,0 +1,365 @@
+"""Evaluate scope-aware BGE + BM25 reciprocal-rank-fusion retrieval.
+
+The scope policy is deliberately query-only: company mentions are matched against
+known aliases, while all retrieval filters use immutable chunk ticker metadata.
+"""
+
+from __future__ import annotations
+
+import argparse
+import re
+import time
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+import bm25s
+import numpy as np
+import pandas as pd
+from sentence_transformers import SentenceTransformer
+
+from src.embeddings.embed_chunks import MODEL_CONFIGS
+from src.scripts.evaluate_bge_bm25_fusion import (
+    DEFAULT_CHUNKS_DIRECTORY,
+    DEFAULT_EMBEDDINGS_DIRECTORY,
+    DEFAULT_MODEL_NAME,
+    DEFAULT_OUTPUT_DIRECTORY,
+    DEFAULT_TEST_QUERIES_PATH,
+    FILINGS,
+    K_VALUES,
+    MAX_K,
+    build_bm25_index,
+    evaluate_query,
+    load_corpus,
+    load_test_queries,
+    print_evaluation_summary,
+    write_results,
+    write_summary,
+)
+
+
+DEFAULT_RRF_K = 60
+DEFAULT_ANCHORED_COMPANY_K = 3
+
+COMPANY_ALIASES: dict[str, tuple[str, ...]] = {
+    "AUR": ("aurora innovation", "aurora", "aurora driver"),
+    "TSLA": ("tesla",),
+    "MBLY": ("mobileye","eyeq", "mobileye drive"),
+    "GOOGL": ("alphabet", "google", "waymo"),
+    "GM": ("general motors", "gm"),
+    "F": ("ford motor company", "ford"),
+    "NVDA": ("nvidia",),
+    "QCOM": ("qualcomm","snapdragon digital chassis", "snapdragon"),
+    "APTV": ("aptiv",),
+    "OUST": ("ouster",),
+}
+
+GLOBAL_CUES = (
+    "other companies",
+    "other strategies",
+    "the others",
+    "competitors",
+    "the rest",
+    "across the companies",
+    "across the industry",
+    "which companies",
+    "who is most",
+    "who is more",
+)
+
+
+def detect_companies(query: str) -> list[str]:
+    normalized_query = query.casefold()
+
+    detected = set()
+
+    for ticker, aliases in COMPANY_ALIASES.items():
+        if any(
+            re.search(rf"(?<!\w){re.escape(alias)}(?!\w)", normalized_query)
+            for alias in aliases
+        ):
+            detected.add(ticker)
+
+    # Explicit ticker mentions
+    tokens = set(re.findall(r"\b[A-Za-z]{2,5}\b", query))
+
+    for ticker in COMPANY_ALIASES:
+        if ticker != "F" and ticker.upper() in {token.upper() for token in tokens}:
+            detected.add(ticker)
+
+    return [
+        ticker
+        for ticker in COMPANY_ALIASES
+        if ticker in detected
+    ]
+
+
+def contains_global_cue(query: str) -> bool:
+    normalized_query = query.casefold()
+    return any(cue in normalized_query for cue in GLOBAL_CUES)
+
+
+def detect_scope(query: str) -> tuple[str, list[str]]:
+    """Classify query scope without using retrieval results or an LLM."""
+    companies = detect_companies(query)
+    if contains_global_cue(query):
+        return ("anchored_global" if companies else "global"), companies
+    if len(companies) == 1:
+        return "single_company", companies
+    if len(companies) > 1:
+        return "explicit_subset", companies
+    return "global", companies
+
+
+def dense_candidate_indices(
+    query: str,
+    model: SentenceTransformer,
+    query_prefix: str,
+    normalized_embeddings: np.ndarray,
+    candidate_k: int,
+    allowed_indices: np.ndarray | None = None,
+) -> tuple[list[int], dict[int, float]]:
+    query_embedding = model.encode(query_prefix + query, normalize_embeddings=True)
+    scores = normalized_embeddings @ query_embedding
+    pool = np.arange(len(scores)) if allowed_indices is None else allowed_indices
+    top_count = min(candidate_k, len(pool))
+    ranked = pool[np.argsort(scores[pool])[-top_count:][::-1]]
+    indices = [int(index) for index in ranked]
+    return indices, {index: float(scores[index]) for index in indices}
+
+
+def bm25_candidate_indices(
+    query: str,
+    retriever: bm25s.BM25,
+    corpus_size: int,
+    candidate_k: int,
+    allowed_indices: np.ndarray | None = None,
+) -> tuple[list[int], dict[int, float]]:
+    # The existing global index is unchanged. A scoped request filters its ranking.
+    retrieval_k = corpus_size if allowed_indices is not None else candidate_k
+    indices, scores = retriever.retrieve(bm25s.tokenize(query), k=retrieval_k)
+    pairs = list(zip(indices[0].astype(int).tolist(), scores[0].tolist()))
+    if allowed_indices is not None:
+        allowed = set(allowed_indices.tolist())
+        pairs = [(index, score) for index, score in pairs if index in allowed]
+    pairs = pairs[:candidate_k]
+    return [index for index, _ in pairs], {index: float(score) for index, score in pairs}
+
+
+def hybrid_retrieve(
+    query: str,
+    model: SentenceTransformer,
+    query_prefix: str,
+    normalized_embeddings: np.ndarray,
+    bm25_retriever: bm25s.BM25,
+    all_chunks: list[dict[str, Any]],
+    rrf_k: int,
+    candidate_k: int,
+    allowed_tickers: set[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Run the same dense + BM25 + RRF pipeline, optionally metadata-filtered."""
+    allowed_indices = None
+    if allowed_tickers is not None:
+        allowed_indices = np.asarray(
+            [index for index, chunk in enumerate(all_chunks) if chunk.get("ticker") in allowed_tickers]
+        )
+        if not len(allowed_indices):
+            return []
+
+    dense_indices, dense_scores = dense_candidate_indices(
+        query, model, query_prefix, normalized_embeddings, candidate_k, allowed_indices
+    )
+    bm25_indices, bm25_scores = bm25_candidate_indices(
+        query, bm25_retriever, len(all_chunks), candidate_k, allowed_indices
+    )
+    rrf_scores: dict[int, float] = {}
+    source_ranks: dict[int, dict[str, int]] = {}
+    for source, indices in (("dense", dense_indices), ("bm25", bm25_indices)):
+        for rank, index in enumerate(indices, start=1):
+            rrf_scores[index] = rrf_scores.get(index, 0.0) + 1.0 / (rrf_k + rank)
+            source_ranks.setdefault(index, {})[source] = rank
+
+    ranked_indices = sorted(rrf_scores, key=lambda index: (-rrf_scores[index], index))
+    return [
+        {
+            "chunk_id": all_chunks[index]["chunk_id"],
+            "ticker": all_chunks[index].get("ticker"),
+            "content_type": all_chunks[index].get("content_type"),
+            "index": index,
+            "rrf_score": rrf_scores[index],
+            "dense_rank": source_ranks[index].get("dense"),
+            "dense_score": dense_scores.get(index),
+            "bm25_rank": source_ranks[index].get("bm25"),
+            "bm25_score": bm25_scores.get(index),
+        }
+        for index in ranked_indices
+    ]
+
+
+def merge_anchored_global_results(
+    global_results: list[dict[str, Any]],
+    anchored_results: dict[str, list[dict[str, Any]]],
+    top_k: int,
+    anchored_company_k: int,
+) -> list[dict[str, Any]]:
+    """Keep global order, then append new top-RRF evidence for each named ticker."""
+    selected = [dict(result, retrieval_source="global", retrieval_scope="anchored_global") for result in global_results[:top_k]]
+    selected_ids = {result["chunk_id"] for result in selected}
+    for ticker in sorted(anchored_results):
+        for scoped_rank, result in enumerate(anchored_results[ticker][:anchored_company_k], start=1):
+            if result["chunk_id"] in selected_ids:
+                for existing in selected:
+                    if existing["chunk_id"] == result["chunk_id"]:
+                        existing["retrieval_source"] = "global_and_anchored_company"
+                        existing["anchored_company_ticker"] = ticker
+                        existing["anchored_company_rank"] = scoped_rank
+                        existing["anchored_company_rrf_score"] = result["rrf_score"]
+                        break
+                continue
+            selected.append(
+                dict(
+                    result,
+                    retrieval_source="anchored_company",
+                    retrieval_scope="anchored_global",
+                    anchored_company_ticker=ticker,
+                    anchored_company_rank=scoped_rank,
+                    anchored_company_rrf_score=result["rrf_score"],
+                )
+            )
+            selected_ids.add(result["chunk_id"])
+    return selected
+
+
+def scope_aware_hybrid_retrieve(
+    query: str,
+    model: SentenceTransformer,
+    query_prefix: str,
+    normalized_embeddings: np.ndarray,
+    bm25_retriever: bm25s.BM25,
+    all_chunks: list[dict[str, Any]],
+    rrf_k: int,
+    candidate_k: int = MAX_K,
+    top_k: int = MAX_K,
+    anchored_company_k: int = DEFAULT_ANCHORED_COMPANY_K,
+) -> tuple[list[dict[str, Any]], str, list[str]]:
+    """Apply scope policy around a common hybrid retrieval primitive."""
+    scope, companies = detect_scope(query)
+    if scope == "single_company":
+        results = hybrid_retrieve(query, model, query_prefix, normalized_embeddings, bm25_retriever, all_chunks, rrf_k, candidate_k, {companies[0]})[:top_k]
+        return [dict(result, retrieval_source="scoped", retrieval_scope=scope) for result in results], scope, companies
+    if scope == "explicit_subset":
+        results = hybrid_retrieve(query, model, query_prefix, normalized_embeddings, bm25_retriever, all_chunks, rrf_k, candidate_k, set(companies))[:top_k]
+        return [dict(result, retrieval_source="scoped", retrieval_scope=scope) for result in results], scope, companies
+    global_results = hybrid_retrieve(query, model, query_prefix, normalized_embeddings, bm25_retriever, all_chunks, rrf_k, candidate_k)
+    if scope == "global":
+        return [dict(result, retrieval_source="global", retrieval_scope=scope) for result in global_results[:top_k]], scope, companies
+    anchored_results = {
+        ticker: hybrid_retrieve(query, model, query_prefix, normalized_embeddings, bm25_retriever, all_chunks, rrf_k, candidate_k, {ticker})
+        for ticker in companies
+    }
+    return merge_anchored_global_results(global_results, anchored_results, top_k, anchored_company_k), scope, companies
+
+
+def evaluate_scope_aware_hybrid(
+    test_cases: list[dict[str, Any]],
+    model: SentenceTransformer,
+    query_prefix: str,
+    normalized_embeddings: np.ndarray,
+    bm25_retriever: bm25s.BM25,
+    all_chunks: list[dict[str, Any]],
+    rrf_k: int,
+    candidate_k: int,
+    anchored_company_k: int,
+) -> tuple[pd.DataFrame, float]:
+    chunks_by_id = {chunk["chunk_id"]: chunk for chunk in all_chunks}
+    missing_gold_ids = {
+        chunk_id for case in test_cases for chunk_id in case["expected_chunk_ids"]
+        if chunk_id not in chunks_by_id
+    }
+    if missing_gold_ids:
+        raise ValueError("Ground-truth chunk IDs missing from current corpus:\n" + "\n".join(sorted(missing_gold_ids)))
+
+    rows = []
+    total_start = time.perf_counter()
+    for number, case in enumerate(test_cases, start=1):
+        start = time.perf_counter()
+        retrieved, scope, detected_companies = scope_aware_hybrid_retrieve(
+            case["question"], model, query_prefix, normalized_embeddings, bm25_retriever,
+            all_chunks, rrf_k, candidate_k, MAX_K, anchored_company_k,
+        )
+        row = evaluate_query(case, retrieved, chunks_by_id)
+        row.update({
+            "latency_seconds": time.perf_counter() - start,
+            "scope": scope,
+            "detected_companies": detected_companies,
+            "retrieved_chunk_ids": [result["chunk_id"] for result in retrieved],
+            "retrieved_results": retrieved,
+        })
+        rows.append(row)
+        if number % 25 == 0 or number == len(test_cases):
+            print(f"Evaluated {number}/{len(test_cases)} queries")
+    return pd.DataFrame(rows), time.perf_counter() - total_start
+
+
+def default_output_path(output_directory: Path, model_name: str) -> Path:
+    directory = output_directory / "scope_aware_hybrid_retrieval" / model_name
+    versions = [
+        int(match.group(1)) for path in directory.glob("v*")
+        if path.is_dir() and (match := re.fullmatch(r"v(\d+)", path.name))
+    ]
+    return directory / f"v{max(versions, default=0) + 1}" / "evaluation.jsonl"
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Evaluate scope-aware BGE + BM25 RRF retrieval.")
+    parser.add_argument("--embeddings-directory", type=Path, default=DEFAULT_EMBEDDINGS_DIRECTORY)
+    parser.add_argument("--chunks-directory", type=Path, default=DEFAULT_CHUNKS_DIRECTORY)
+    parser.add_argument("--test-queries", type=Path, default=DEFAULT_TEST_QUERIES_PATH)
+    parser.add_argument("--output", type=Path, help="Detailed JSONL results path.")
+    parser.add_argument("--output-directory", type=Path, default=DEFAULT_OUTPUT_DIRECTORY)
+    parser.add_argument("--model-name", choices=tuple(MODEL_CONFIGS), default=DEFAULT_MODEL_NAME)
+    parser.add_argument("--device")
+    parser.add_argument("--rrf-k", type=int, default=DEFAULT_RRF_K)
+    parser.add_argument("--candidate-k", type=int, default=MAX_K)
+    parser.add_argument("--anchored-company-k", type=int, default=DEFAULT_ANCHORED_COMPANY_K)
+    parser.add_argument("--overwrite", action="store_true")
+    arguments = parser.parse_args()
+    if arguments.rrf_k < 0 or arguments.candidate_k < MAX_K or arguments.anchored_company_k < 0:
+        raise ValueError("rrf-k and anchored-company-k must be non-negative; candidate-k must be at least MAX_K.")
+
+    config = MODEL_CONFIGS[arguments.model_name]
+    all_embeddings, all_chunks = load_corpus(arguments.embeddings_directory, arguments.chunks_directory, arguments.model_name)
+    normalized_embeddings = all_embeddings / np.clip(np.linalg.norm(all_embeddings, axis=1, keepdims=True), 1e-12, None)
+    print(f"Total chunks: {len(all_chunks)}\nEmbedding matrix: {all_embeddings.shape}")
+    index_start = time.perf_counter()
+    bm25_retriever = build_bm25_index(all_chunks)
+    print(f"BM25 indexing: {time.perf_counter() - index_start:.3f}s")
+    model = SentenceTransformer(config["repository"], device=arguments.device)
+    dataframe, total_time = evaluate_scope_aware_hybrid(
+        load_test_queries(arguments.test_queries), model, config["query_prefix"], normalized_embeddings,
+        bm25_retriever, all_chunks, arguments.rrf_k, arguments.candidate_k, arguments.anchored_company_k,
+    )
+    print_evaluation_summary(dataframe, total_time)
+
+    output_path = arguments.output or default_output_path(arguments.output_directory, arguments.model_name)
+    metadata = {
+        "run_number": None if arguments.output else int(output_path.parent.name[1:]),
+        "timestamp": datetime.now().astimezone().isoformat(),
+        "embedding_model": config["repository"], "reranker_model": None,
+        "retrieval_method": "scope_aware_hybrid_retrieve",
+        "retrieval_parameters": {
+            "top_k": MAX_K, "dense_candidate_k": arguments.candidate_k,
+            "bm25_candidate_k": arguments.candidate_k, "fusion": "reciprocal_rank_fusion",
+            "rrf_k": arguments.rrf_k, "anchored_company_k": arguments.anchored_company_k,
+            "query_prefix": config["query_prefix"], "company_aliases": COMPANY_ALIASES,
+            "global_cues": list(GLOBAL_CUES),
+        },
+        "evaluation_dataset": str(arguments.test_queries), "device": str(model.device),
+    }
+    write_results(output_path, dataframe, metadata, arguments.overwrite)
+    summary_path = write_summary(output_path, dataframe, total_time, metadata, arguments.overwrite)
+    print(f"\nSaved detailed results to: {output_path}\nSaved summary to: {summary_path}")
+
+
+if __name__ == "__main__":
+    main()

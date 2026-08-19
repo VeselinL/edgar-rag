@@ -1,0 +1,67 @@
+{
+  "top_k": 30,
+  "rrf_k": 60,
+  "experiments": [
+    {
+      "recall@30": 0.9505555555555556,
+      "hit@30": 0.9766666666666667,
+      "complete@30": 0.9233333333333333,
+      "mrr@30": 0.6195192084124477,
+      "experiment": "scope_aware_candidate_30",
+      "candidate_k": 30,
+      "mode": "scope_aware",
+      "seconds": 118.48096430199803,
+      "missed_gold_chunks": 26
+    },
+    {
+      "recall@30": 0.9538888888888889,
+      "hit@30": 0.98,
+      "complete@30": 0.9266666666666666,
+      "mrr@30": 0.644973717115358,
+      "experiment": "oracle_company_candidate_30",
+      "candidate_k": 30,
+      "mode": "oracle_company",
+      "seconds": 125.49812229699455,
+      "missed_gold_chunks": 25
+    },
+    {
+      "recall@30": 0.9555555555555554,
+      "hit@30": 0.9833333333333333,
+      "complete@30": 0.93,
+      "mrr@30": 0.6406113084883455,
+      "experiment": "oracle_company_candidate_50",
+      "candidate_k": 50,
+      "mode": "oracle_company",
+      "seconds": 240.38624955900013,
+      "missed_gold_chunks": 25
+    },
+    {
+      "recall@30": 0.9383333333333334,
+      "hit@30": 0.9766666666666667,
+      "complete@30": 0.9,
+      "mrr@30": 0.6409495586537434,
+      "experiment": "oracle_company_candidate_100",
+      "candidate_k": 100,
+      "mode": "oracle_company",
+      "seconds": 371.6303714300011,
+      "missed_gold_chunks": 34
+    },
+    {
+      "recall@30": 0.9538888888888888,
+      "hit@30": 0.98,
+      "complete@30": 0.93,
+      "mrr@30": 0.641069935502356,
+      "experiment": "oracle_company_candidate_200",
+      "candidate_k": 200,
+      "mode": "oracle_company",
+      "seconds": 124.99459897700581,
+      "missed_gold_chunks": 25
+    }
+  ],
+  "diagnostic_fields": [
+    "within_company_dense_rank",
+    "within_company_bm25_rank",
+    "rrf_rank_in_candidate_pool",
+    "excluded_because_candidate_k_too_small"
+  ]
+}

@@ -23,7 +23,7 @@ DEFAULT_EMBEDDINGS_DIRECTORY = Path("data/embeddings")
 DEFAULT_CHUNKS_DIRECTORY = Path("data/chunks")
 DEFAULT_TEST_QUERIES_PATH = Path("data/evaluation/test_queries.jsonl")
 DEFAULT_OUTPUT_DIRECTORY = Path("data/evaluation")
-K_VALUES = [1, 3, 5, 10, 30]
+K_VALUES = [1, 3, 5, 10, 15, 20, 30]
 MAX_K = max(K_VALUES)
 DEFAULT_RRF_K = 60
 
