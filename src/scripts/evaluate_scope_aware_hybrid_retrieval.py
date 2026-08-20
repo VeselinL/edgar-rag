@@ -40,6 +40,12 @@ from src.scripts.evaluate_bge_bm25_fusion import (
 
 DEFAULT_RRF_K = 60
 DEFAULT_ANCHORED_COMPANY_K = 3
+DEFAULT_ENUMERATION_CANDIDATE_K = 30
+ENUMERATION_MIN_RELATIVE_RRF_SCORE = 0.60
+SUBQUERY_RETRIEVAL_K = 10
+FINAL_CONTEXT_K = 10
+MIN_CHUNKS_PER_SUBQUERY = 2
+MULTI_SUBQUERY_BONUS = 0.01
 
 COMPANY_ALIASES: dict[str, tuple[str, ...]] = {
     "AUR": ("aurora innovation", "aurora", "aurora driver"),
@@ -65,6 +71,14 @@ GLOBAL_CUES = (
     "which companies",
     "who is most",
     "who is more",
+)
+
+ENUMERATION_CUES = (
+    r"\bwhich companies\b",
+    r"\bwhat companies\b",
+    r"\bwhich firms\b",
+    r"\bwhat firms\b",
+    r"\bwho (?:offers|operates|develops|provides|uses|builds|sells)\b",
 )
 
 
@@ -99,9 +113,16 @@ def contains_global_cue(query: str) -> bool:
     return any(cue in normalized_query for cue in GLOBAL_CUES)
 
 
+def is_enumeration_query(query: str) -> bool:
+    """Identify open company-list questions without an LLM call."""
+    return any(re.search(cue, query, flags=re.IGNORECASE) for cue in ENUMERATION_CUES)
+
+
 def detect_scope(query: str) -> tuple[str, list[str]]:
     """Classify query scope without using retrieval results or an LLM."""
     companies = detect_companies(query)
+    if is_enumeration_query(query):
+        return "enumeration", companies
     if contains_global_cue(query):
         return ("anchored_global" if companies else "global"), companies
     if len(companies) == 1:
@@ -230,6 +251,76 @@ def merge_anchored_global_results(
     return selected
 
 
+def select_enumeration_results(
+    global_results: list[dict[str, Any]],
+    top_k: int,
+) -> list[dict[str, Any]]:
+    """Select strong per-company evidence, then preserve global RRF relevance.
+
+    A ticker qualifies only when its best candidate is supported by both retrieval
+    methods and its RRF score is at least a fixed fraction of the global best.
+    This avoids assigning slots to every company while exposing competitive
+    evidence that would otherwise be crowded out by a dominant ticker.
+    """
+    if not global_results or top_k <= 0:
+        return []
+
+    best_score = global_results[0]["rrf_score"]
+    minimum_score = best_score * ENUMERATION_MIN_RELATIVE_RRF_SCORE
+    best_by_ticker: dict[str, tuple[int, dict[str, Any]]] = {}
+    for global_rank, result in enumerate(global_results, start=1):
+        ticker = result.get("ticker")
+        if ticker and ticker not in best_by_ticker:
+            best_by_ticker[ticker] = (global_rank, result)
+
+    qualified_representatives = [
+        (global_rank, result)
+        for global_rank, result in best_by_ticker.values()
+        if result["rrf_score"] >= minimum_score
+        and result["dense_rank"] is not None
+        and result["bm25_rank"] is not None
+    ]
+    selected_ids = {result["chunk_id"] for _, result in qualified_representatives}
+    # The baseline corpus has ten companies, but keep the selector safe if that
+    # invariant changes: strongest representatives win when there are too many.
+    if len(selected_ids) > top_k:
+        selected_ids = {
+            result["chunk_id"]
+            for _, result in sorted(
+                qualified_representatives, key=lambda item: (-item[1]["rrf_score"], item[0])
+            )[:top_k]
+        }
+
+    selected: list[dict[str, Any]] = []
+    for global_rank, result in enumerate(global_results, start=1):
+        if result["chunk_id"] in selected_ids:
+            selected.append(
+                dict(
+                    result,
+                    retrieval_source="global_enumeration_representative",
+                    retrieval_scope="enumeration",
+                    enumeration_global_rank=global_rank,
+                    enumeration_company_representative=True,
+                )
+            )
+    for global_rank, result in enumerate(global_results, start=1):
+        if len(selected) >= top_k:
+            break
+        if result["chunk_id"] in selected_ids:
+            continue
+        selected.append(
+            dict(
+                result,
+                retrieval_source="global_enumeration",
+                retrieval_scope="enumeration",
+                enumeration_global_rank=global_rank,
+                enumeration_company_representative=False,
+            )
+        )
+        selected_ids.add(result["chunk_id"])
+    return sorted(selected, key=lambda result: result["enumeration_global_rank"])
+
+
 def scope_aware_hybrid_retrieve(
     query: str,
     model: SentenceTransformer,
@@ -241,15 +332,23 @@ def scope_aware_hybrid_retrieve(
     candidate_k: int = MAX_K,
     top_k: int = MAX_K,
     anchored_company_k: int = DEFAULT_ANCHORED_COMPANY_K,
+    resolved_scope: tuple[str, list[str]] | None = None,
 ) -> tuple[list[dict[str, Any]], str, list[str]]:
     """Apply scope policy around a common hybrid retrieval primitive."""
-    scope, companies = detect_scope(query)
+    scope, companies = resolved_scope or detect_scope(query)
     if scope == "single_company":
         results = hybrid_retrieve(query, model, query_prefix, normalized_embeddings, bm25_retriever, all_chunks, rrf_k, candidate_k, {companies[0]})[:top_k]
         return [dict(result, retrieval_source="scoped", retrieval_scope=scope) for result in results], scope, companies
     if scope == "explicit_subset":
         results = hybrid_retrieve(query, model, query_prefix, normalized_embeddings, bm25_retriever, all_chunks, rrf_k, candidate_k, set(companies))[:top_k]
         return [dict(result, retrieval_source="scoped", retrieval_scope=scope) for result in results], scope, companies
+    if scope == "enumeration":
+        enumeration_candidate_k = max(candidate_k, DEFAULT_ENUMERATION_CANDIDATE_K)
+        global_results = hybrid_retrieve(
+            query, model, query_prefix, normalized_embeddings, bm25_retriever,
+            all_chunks, rrf_k, enumeration_candidate_k,
+        )
+        return select_enumeration_results(global_results, top_k), scope, companies
     global_results = hybrid_retrieve(query, model, query_prefix, normalized_embeddings, bm25_retriever, all_chunks, rrf_k, candidate_k)
     if scope == "global":
         return [dict(result, retrieval_source="global", retrieval_scope=scope) for result in global_results[:top_k]], scope, companies
@@ -258,6 +357,182 @@ def scope_aware_hybrid_retrieve(
         for ticker in companies
     }
     return merge_anchored_global_results(global_results, anchored_results, top_k, anchored_company_k), scope, companies
+
+
+def retrieve_generation_context(
+    original_query: str,
+    subqueries: list[str],
+    model: SentenceTransformer,
+    query_prefix: str,
+    normalized_embeddings: np.ndarray,
+    bm25_retriever: bm25s.BM25,
+    all_chunks: list[dict[str, Any]],
+    rrf_k: int,
+    candidate_k: int = MAX_K,
+    anchored_company_k: int = DEFAULT_ANCHORED_COMPANY_K,
+    subquery_retrieval_k: int = SUBQUERY_RETRIEVAL_K,
+    final_context_k: int = FINAL_CONTEXT_K,
+    min_chunks_per_subquery: int = MIN_CHUNKS_PER_SUBQUERY,
+    multi_subquery_bonus: float = MULTI_SUBQUERY_BONUS,
+) -> dict[str, Any]:
+    """Retrieve per subquery, merge provenance, and select a compact context."""
+    if not subqueries:
+        raise ValueError("At least one subquery is required.")
+    if subquery_retrieval_k <= 0 or final_context_k <= 0 or min_chunks_per_subquery <= 0:
+        raise ValueError(
+            "subquery_retrieval_k, final_context_k, and min_chunks_per_subquery must be positive."
+        )
+    if candidate_k < subquery_retrieval_k:
+        raise ValueError("candidate_k must be at least subquery_retrieval_k.")
+    if min_chunks_per_subquery > subquery_retrieval_k:
+        raise ValueError("min_chunks_per_subquery cannot exceed subquery_retrieval_k.")
+    if multi_subquery_bonus < 0:
+        raise ValueError("multi_subquery_bonus must be non-negative.")
+
+    original_scope = detect_scope(original_query)
+    inherited_scope = original_scope if original_scope[0] == "single_company" else None
+    merged_by_id: dict[str, dict[str, Any]] = {}
+    candidates_by_subquery: list[list[str]] = []
+    first_seen = 0
+
+    for subquery_index, subquery in enumerate(subqueries):
+        results, scope, companies = scope_aware_hybrid_retrieve(
+            subquery,
+            model,
+            query_prefix,
+            normalized_embeddings,
+            bm25_retriever,
+            all_chunks,
+            rrf_k,
+            candidate_k,
+            subquery_retrieval_k,
+            anchored_company_k,
+            resolved_scope=inherited_scope,
+        )
+        results = results[:subquery_retrieval_k]
+        if inherited_scope is not None:
+            inherited_ticker = inherited_scope[1][0]
+            unexpected_tickers = {
+                result.get("ticker") for result in results
+                if result.get("ticker") != inherited_ticker
+            }
+            if unexpected_tickers:
+                raise RuntimeError(
+                    f"Single-company scope leaked candidates outside {inherited_ticker}: "
+                    f"{sorted(unexpected_tickers, key=str)}"
+                )
+        subquery_chunk_ids: list[str] = []
+        for subquery_rank, result in enumerate(results, start=1):
+            chunk_id = result["chunk_id"]
+            subquery_chunk_ids.append(chunk_id)
+            match = {
+                "subquery": subquery,
+                "subquery_index": subquery_index,
+                "subquery_rank": subquery_rank,
+                "rrf_score": result["rrf_score"],
+                "dense_rank": result.get("dense_rank"),
+                "bm25_rank": result.get("bm25_rank"),
+                "retrieval_scope": scope,
+                "detected_companies": companies,
+            }
+            if chunk_id not in merged_by_id:
+                merged_by_id[chunk_id] = {
+                    **result,
+                    "first_seen_order": first_seen,
+                    "subquery_matches": [],
+                    "subqueries": [],
+                }
+                first_seen += 1
+            candidate = merged_by_id[chunk_id]
+            candidate["subquery_matches"].append(match)
+            if subquery not in candidate["subqueries"]:
+                candidate["subqueries"].append(subquery)
+        candidates_by_subquery.append(subquery_chunk_ids)
+
+    for candidate in merged_by_id.values():
+        candidate["best_rrf_score"] = max(
+            match["rrf_score"] for match in candidate["subquery_matches"]
+        )
+        candidate["subquery_count"] = len({
+            match["subquery_index"] for match in candidate["subquery_matches"]
+        })
+        candidate["selection_score"] = (
+            candidate["best_rrf_score"]
+            + multi_subquery_bonus * (candidate["subquery_count"] - 1)
+        )
+        candidate["selected"] = False
+        candidate["selection_reason"] = None
+
+    selected_ids: list[str] = []
+    selected_id_set: set[str] = set()
+
+    # Stage 1: select up to the requested distinct evidence per subquery in
+    # rounds, so later subqueries are not starved by earlier ones.
+    for _ in range(min_chunks_per_subquery):
+        for subquery_chunk_ids in candidates_by_subquery:
+            if len(selected_ids) >= final_context_k:
+                break
+            covered_count = sum(
+                chunk_id in selected_id_set for chunk_id in subquery_chunk_ids
+            )
+            if covered_count >= min_chunks_per_subquery:
+                continue
+            for chunk_id in subquery_chunk_ids:
+                if chunk_id not in selected_id_set:
+                    selected_ids.append(chunk_id)
+                    selected_id_set.add(chunk_id)
+                    merged_by_id[chunk_id]["selection_reason"] = "coverage"
+                    break
+
+    # Stage 2: strongest remaining evidence, with a small cross-subquery bonus.
+    remaining = sorted(
+        (
+            candidate for chunk_id, candidate in merged_by_id.items()
+            if chunk_id not in selected_id_set
+        ),
+        key=lambda candidate: (
+            -candidate["selection_score"],
+            min(match["subquery_rank"] for match in candidate["subquery_matches"]),
+            candidate["first_seen_order"],
+            candidate["chunk_id"],
+        ),
+    )
+    for candidate in remaining:
+        if len(selected_ids) >= final_context_k:
+            break
+        selected_ids.append(candidate["chunk_id"])
+        selected_id_set.add(candidate["chunk_id"])
+        candidate["selection_reason"] = "global_score"
+
+    coverage_by_subquery = [
+        sum(chunk_id in selected_id_set for chunk_id in subquery_chunk_ids)
+        for subquery_chunk_ids in candidates_by_subquery
+    ]
+
+    selected = []
+    for final_rank, chunk_id in enumerate(selected_ids, start=1):
+        candidate = merged_by_id[chunk_id]
+        candidate["selected"] = True
+        candidate["final_context_rank"] = final_rank
+        selected.append(candidate)
+
+    diagnostics = sorted(
+        merged_by_id.values(), key=lambda candidate: candidate["first_seen_order"]
+    )
+    return {
+        "original_scope": original_scope[0],
+        "original_companies": original_scope[1],
+        "inherited_scope": inherited_scope,
+        "subqueries": subqueries,
+        "subquery_retrieval_k": subquery_retrieval_k,
+        "final_context_k": final_context_k,
+        "min_chunks_per_subquery": min_chunks_per_subquery,
+        "multi_subquery_bonus": multi_subquery_bonus,
+        "coverage_by_subquery": coverage_by_subquery,
+        "candidates": diagnostics,
+        "selected": selected,
+        "selected_chunk_ids": selected_ids,
+    }
 
 
 def evaluate_scope_aware_hybrid(
@@ -352,7 +627,9 @@ def main() -> None:
             "bm25_candidate_k": arguments.candidate_k, "fusion": "reciprocal_rank_fusion",
             "rrf_k": arguments.rrf_k, "anchored_company_k": arguments.anchored_company_k,
             "query_prefix": config["query_prefix"], "company_aliases": COMPANY_ALIASES,
-            "global_cues": list(GLOBAL_CUES),
+            "global_cues": list(GLOBAL_CUES), "enumeration_cues": list(ENUMERATION_CUES),
+            "enumeration_candidate_k": max(arguments.candidate_k, DEFAULT_ENUMERATION_CANDIDATE_K),
+            "enumeration_min_relative_rrf_score": ENUMERATION_MIN_RELATIVE_RRF_SCORE,
         },
         "evaluation_dataset": str(arguments.test_queries), "device": str(model.device),
     }
