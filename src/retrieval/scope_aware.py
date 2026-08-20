@@ -1,9 +1,9 @@
-"""Shared scope-aware BGE/BM25/RRF retrieval and reranking.
+"""Shared scope-aware BGE/BM25/RRF retrieval and context selection.
 
 This module extracts the query-only scope policy from the scope-aware evaluator
-and the generation/reranking boundaries demonstrated in the notebooks. It has no
-FastAPI dependency so evaluation, notebooks, and other Python callers use the
-same behaviour.
+and the planned multi-subquery context selection demonstrated in
+``notebooks/hybrid_rag_generation.ipynb``. It has no FastAPI dependency so
+evaluation, notebooks, and other Python callers use the same behaviour.
 """
 
 from __future__ import annotations
@@ -20,7 +20,10 @@ from src.embeddings.embed_chunks import table_embedding_text
 
 DEFAULT_RRF_K = 100
 DEFAULT_CANDIDATE_K = 50
-DEFAULT_FINAL_EVIDENCE_K = 12
+DEFAULT_SUBQUERY_RETRIEVAL_K = 10
+DEFAULT_FINAL_EVIDENCE_K = 10
+DEFAULT_MIN_CHUNKS_PER_SUBQUERY = 2
+DEFAULT_MULTI_SUBQUERY_BONUS = 0.01
 DEFAULT_ANCHORED_COMPANY_K = 3
 DEFAULT_ENUMERATION_CANDIDATE_K = 30
 ENUMERATION_MIN_RELATIVE_RRF_SCORE = 0.60
@@ -85,6 +88,8 @@ class RetrievalOutcome:
     detected_companies: tuple[str, ...]
     comparison: bool
     retrieval_scopes: tuple[str, ...]
+    subqueries: tuple[str, ...]
+    coverage_by_subquery: tuple[int, ...]
     candidates: tuple[dict[str, Any], ...]
     evidence: tuple[dict[str, Any], ...]
 
@@ -381,9 +386,10 @@ def scope_aware_hybrid_retrieve(
     candidate_k: int = DEFAULT_CANDIDATE_K,
     top_k: int = DEFAULT_FINAL_EVIDENCE_K,
     anchored_company_k: int = DEFAULT_ANCHORED_COMPANY_K,
+    resolved_scope: tuple[str, list[str]] | None = None,
 ) -> tuple[list[dict[str, Any]], str, list[str]]:
     """Apply the common query scope around the evaluated hybrid primitive."""
-    scope, companies = detect_scope(query)
+    scope, companies = resolved_scope or detect_scope(query)
     if scope == "single_company":
         results = hybrid_retrieve(
             query, model, query_prefix, normalized_embeddings, bm25_retriever,
@@ -392,14 +398,21 @@ def scope_aware_hybrid_retrieve(
         return [dict(item, retrieval_source="scoped", retrieval_scope=scope) for item in results], scope, companies
 
     if scope == "explicit_subset":
-        per_company = {
-            ticker: hybrid_retrieve(
-                query, model, query_prefix, normalized_embeddings, bm25_retriever,
-                all_chunks, rrf_k, candidate_k, allowed_tickers={ticker},
-            )
-            for ticker in companies
-        }
-        return _round_robin_company_results(per_company, top_k, scope), scope, companies
+        results = hybrid_retrieve(
+            query,
+            model,
+            query_prefix,
+            normalized_embeddings,
+            bm25_retriever,
+            all_chunks,
+            rrf_k,
+            candidate_k,
+            allowed_tickers=set(companies),
+        )[:top_k]
+        return [
+            dict(item, retrieval_source="scoped", retrieval_scope=scope)
+            for item in results
+        ], scope, companies
 
     if scope == "enumeration":
         global_results = hybrid_retrieve(
@@ -432,6 +445,191 @@ def scope_aware_hybrid_retrieve(
         scope,
         companies,
     )
+
+
+def retrieve_generation_context(
+    original_query: str,
+    subqueries: list[str],
+    model: QueryEmbedder,
+    query_prefix: str,
+    normalized_embeddings: np.ndarray,
+    bm25_retriever: bm25s.BM25,
+    all_chunks: list[dict[str, Any]],
+    rrf_k: int = DEFAULT_RRF_K,
+    candidate_k: int = DEFAULT_CANDIDATE_K,
+    anchored_company_k: int = DEFAULT_ANCHORED_COMPANY_K,
+    subquery_retrieval_k: int = DEFAULT_SUBQUERY_RETRIEVAL_K,
+    final_context_k: int = DEFAULT_FINAL_EVIDENCE_K,
+    min_chunks_per_subquery: int = DEFAULT_MIN_CHUNKS_PER_SUBQUERY,
+    multi_subquery_bonus: float = DEFAULT_MULTI_SUBQUERY_BONUS,
+) -> dict[str, Any]:
+    """Retrieve per subquery, merge provenance, and select a compact context.
+
+    This is the production copy of the current main-branch notebook algorithm.
+    It retrieves ten candidates per subquery by default, reserves two distinct
+    evidence slots per subquery in rounds, then fills the ten-chunk context by
+    RRF relevance with the notebook's small cross-subquery bonus.
+    """
+    if not subqueries:
+        raise ValueError("At least one subquery is required.")
+    if subquery_retrieval_k <= 0 or final_context_k <= 0 or min_chunks_per_subquery <= 0:
+        raise ValueError(
+            "subquery_retrieval_k, final_context_k, and min_chunks_per_subquery must be positive."
+        )
+    if candidate_k < subquery_retrieval_k:
+        raise ValueError("candidate_k must be at least subquery_retrieval_k.")
+    if min_chunks_per_subquery > subquery_retrieval_k:
+        raise ValueError("min_chunks_per_subquery cannot exceed subquery_retrieval_k.")
+    if len(subqueries) * min_chunks_per_subquery > final_context_k:
+        raise ValueError(
+            "The final context budget cannot preserve the minimum evidence for every subquery."
+        )
+    if multi_subquery_bonus < 0:
+        raise ValueError("multi_subquery_bonus must be non-negative.")
+
+    original_scope = detect_scope(original_query)
+    inherited_scope = original_scope if original_scope[0] == "single_company" else None
+    merged_by_id: dict[str, dict[str, Any]] = {}
+    candidates_by_subquery: list[list[str]] = []
+    first_seen = 0
+
+    for subquery_index, subquery in enumerate(subqueries):
+        results, scope, companies = scope_aware_hybrid_retrieve(
+            subquery,
+            model,
+            query_prefix,
+            normalized_embeddings,
+            bm25_retriever,
+            all_chunks,
+            rrf_k,
+            candidate_k,
+            subquery_retrieval_k,
+            anchored_company_k,
+            resolved_scope=inherited_scope,
+        )
+        results = results[:subquery_retrieval_k]
+        if inherited_scope is not None:
+            inherited_ticker = inherited_scope[1][0]
+            unexpected_tickers = {
+                result.get("ticker")
+                for result in results
+                if result.get("ticker") != inherited_ticker
+            }
+            if unexpected_tickers:
+                raise RuntimeError(
+                    f"Single-company scope leaked candidates outside {inherited_ticker}: "
+                    f"{sorted(unexpected_tickers, key=str)}"
+                )
+
+        subquery_chunk_ids: list[str] = []
+        for subquery_rank, result in enumerate(results, start=1):
+            chunk_id = result["chunk_id"]
+            subquery_chunk_ids.append(chunk_id)
+            match = {
+                "subquery": subquery,
+                "subquery_index": subquery_index,
+                "subquery_rank": subquery_rank,
+                "rrf_score": result["rrf_score"],
+                "dense_rank": result.get("dense_rank"),
+                "bm25_rank": result.get("bm25_rank"),
+                "retrieval_scope": scope,
+                "detected_companies": companies,
+            }
+            if chunk_id not in merged_by_id:
+                merged_by_id[chunk_id] = {
+                    **result,
+                    "first_seen_order": first_seen,
+                    "subquery_matches": [],
+                    "subqueries": [],
+                }
+                first_seen += 1
+            candidate = merged_by_id[chunk_id]
+            candidate["subquery_matches"].append(match)
+            if subquery not in candidate["subqueries"]:
+                candidate["subqueries"].append(subquery)
+        candidates_by_subquery.append(subquery_chunk_ids)
+
+    for candidate in merged_by_id.values():
+        candidate["best_rrf_score"] = max(
+            match["rrf_score"] for match in candidate["subquery_matches"]
+        )
+        candidate["subquery_count"] = len(
+            {match["subquery_index"] for match in candidate["subquery_matches"]}
+        )
+        candidate["selection_score"] = (
+            candidate["best_rrf_score"]
+            + multi_subquery_bonus * (candidate["subquery_count"] - 1)
+        )
+        candidate["selected"] = False
+        candidate["selection_reason"] = None
+
+    selected_ids: list[str] = []
+    selected_id_set: set[str] = set()
+
+    for _ in range(min_chunks_per_subquery):
+        for subquery_chunk_ids in candidates_by_subquery:
+            if len(selected_ids) >= final_context_k:
+                break
+            covered_count = sum(
+                chunk_id in selected_id_set for chunk_id in subquery_chunk_ids
+            )
+            if covered_count >= min_chunks_per_subquery:
+                continue
+            for chunk_id in subquery_chunk_ids:
+                if chunk_id not in selected_id_set:
+                    selected_ids.append(chunk_id)
+                    selected_id_set.add(chunk_id)
+                    merged_by_id[chunk_id]["selection_reason"] = "coverage"
+                    break
+
+    remaining = sorted(
+        (
+            candidate
+            for chunk_id, candidate in merged_by_id.items()
+            if chunk_id not in selected_id_set
+        ),
+        key=lambda candidate: (
+            -candidate["selection_score"],
+            min(match["subquery_rank"] for match in candidate["subquery_matches"]),
+            candidate["first_seen_order"],
+            candidate["chunk_id"],
+        ),
+    )
+    for candidate in remaining:
+        if len(selected_ids) >= final_context_k:
+            break
+        selected_ids.append(candidate["chunk_id"])
+        selected_id_set.add(candidate["chunk_id"])
+        candidate["selection_reason"] = "global_score"
+
+    coverage_by_subquery = [
+        sum(chunk_id in selected_id_set for chunk_id in subquery_chunk_ids)
+        for subquery_chunk_ids in candidates_by_subquery
+    ]
+    selected = []
+    for final_rank, chunk_id in enumerate(selected_ids, start=1):
+        candidate = merged_by_id[chunk_id]
+        candidate["selected"] = True
+        candidate["final_context_rank"] = final_rank
+        selected.append(candidate)
+
+    diagnostics = sorted(
+        merged_by_id.values(), key=lambda candidate: candidate["first_seen_order"]
+    )
+    return {
+        "original_scope": original_scope[0],
+        "original_companies": original_scope[1],
+        "inherited_scope": inherited_scope,
+        "subqueries": subqueries,
+        "subquery_retrieval_k": subquery_retrieval_k,
+        "final_context_k": final_context_k,
+        "min_chunks_per_subquery": min_chunks_per_subquery,
+        "multi_subquery_bonus": multi_subquery_bonus,
+        "coverage_by_subquery": coverage_by_subquery,
+        "candidates": diagnostics,
+        "selected": selected,
+        "selected_chunk_ids": selected_ids,
+    }
 
 
 def get_rerank_text(chunk: dict[str, Any]) -> str:
@@ -511,55 +709,68 @@ class ScopeAwareRetriever:
         normalized_embeddings: np.ndarray,
         bm25_retriever: bm25s.BM25,
         all_chunks: list[dict[str, Any]],
-        reranker: PairReranker | None,
         rrf_k: int = DEFAULT_RRF_K,
         candidate_k: int = DEFAULT_CANDIDATE_K,
         final_evidence_k: int = DEFAULT_FINAL_EVIDENCE_K,
         anchored_company_k: int = DEFAULT_ANCHORED_COMPANY_K,
+        subquery_retrieval_k: int = DEFAULT_SUBQUERY_RETRIEVAL_K,
+        min_chunks_per_subquery: int = DEFAULT_MIN_CHUNKS_PER_SUBQUERY,
+        multi_subquery_bonus: float = DEFAULT_MULTI_SUBQUERY_BONUS,
     ) -> None:
         self.model = model
         self.query_prefix = query_prefix
         self.normalized_embeddings = normalized_embeddings
         self.bm25_retriever = bm25_retriever
         self.all_chunks = all_chunks
-        self.reranker = reranker
         self.rrf_k = rrf_k
         self.candidate_k = candidate_k
         self.final_evidence_k = final_evidence_k
         self.anchored_company_k = anchored_company_k
+        self.subquery_retrieval_k = subquery_retrieval_k
+        self.min_chunks_per_subquery = min_chunks_per_subquery
+        self.multi_subquery_bonus = multi_subquery_bonus
 
-    def retrieve(self, query: str) -> RetrievalOutcome:
-        scope, companies = detect_scope(query)
-        # Keep a wider pool for reranking while retaining scope-aware allocation.
-        candidate_budget = max(self.candidate_k, self.final_evidence_k)
-        candidates, retrieved_scope, retrieved_companies = scope_aware_hybrid_retrieve(
-            query,
-            self.model,
-            self.query_prefix,
-            self.normalized_embeddings,
-            self.bm25_retriever,
-            self.all_chunks,
-            self.rrf_k,
-            self.candidate_k,
-            candidate_budget,
-            self.anchored_company_k,
+    def retrieve(
+        self, query: str, subqueries: Sequence[str] | None = None
+    ) -> RetrievalOutcome:
+        planned_subqueries = list(subqueries or [query])
+        diagnostics = retrieve_generation_context(
+            original_query=query,
+            subqueries=planned_subqueries,
+            model=self.model,
+            query_prefix=self.query_prefix,
+            normalized_embeddings=self.normalized_embeddings,
+            bm25_retriever=self.bm25_retriever,
+            all_chunks=self.all_chunks,
+            rrf_k=self.rrf_k,
+            candidate_k=self.candidate_k,
+            anchored_company_k=self.anchored_company_k,
+            subquery_retrieval_k=self.subquery_retrieval_k,
+            final_context_k=self.final_evidence_k,
+            min_chunks_per_subquery=self.min_chunks_per_subquery,
+            multi_subquery_bonus=self.multi_subquery_bonus,
         )
-        if (scope, companies) != (retrieved_scope, retrieved_companies):
-            raise RuntimeError("Scope detection changed during retrieval.")
-        candidates = deduplicate_results(candidates)
-        reranked = rerank_results(
-            query, candidates, self.all_chunks, self.reranker
-        )
+        candidates = diagnostics["candidates"]
+        for candidate in candidates:
+            candidate["chunk"] = self.all_chunks[candidate["index"]]
+        evidence = diagnostics["selected"]
+        scope = diagnostics["original_scope"]
+        companies = diagnostics["original_companies"]
         targets = resolve_comparison_targets(scope, companies)
-        evidence = select_final_evidence(reranked, self.final_evidence_k, targets)
         return RetrievalOutcome(
             query=query,
             scope=scope,
             detected_companies=tuple(companies),
             comparison=bool(targets) or scope == "enumeration",
             retrieval_scopes=tuple(
-                dict.fromkeys(item.get("retrieval_scope", scope) for item in candidates)
+                dict.fromkeys(
+                    match["retrieval_scope"]
+                    for item in candidates
+                    for match in item["subquery_matches"]
+                )
             ),
+            subqueries=tuple(planned_subqueries),
+            coverage_by_subquery=tuple(diagnostics["coverage_by_subquery"]),
             candidates=tuple(candidates),
             evidence=tuple(evidence),
         )

@@ -66,6 +66,41 @@ class GenerationTests(unittest.TestCase):
         self.assertIn('<source id="TSLA-2025-CHUNK-000001"', context)
         self.assertIn("Evidence text.", context)
 
+    def test_planner_uses_notebook_contract_and_preserves_subqueries(self):
+        response = SimpleNamespace(
+            choices=[
+                SimpleNamespace(
+                    message=SimpleNamespace(
+                        content=(
+                            '{"needs_multiple_retrievals": true, '
+                            '"subqueries": ["Tesla revenue", "Ouster revenue"], '
+                            '"operation": "difference"}'
+                        )
+                    )
+                )
+            ]
+        )
+        completions = FakeCompletions(response)
+        client = SimpleNamespace(chat=SimpleNamespace(completions=completions))
+        plan = GenerationService(client, model="test-model").plan_retrieval(
+            "Compare Tesla and Ouster revenue."
+        )
+
+        self.assertEqual(plan["subqueries"], ["Tesla revenue", "Ouster revenue"])
+        self.assertEqual(plan["operation"], "difference")
+        self.assertFalse(completions.arguments.get("stream", False))
+        self.assertEqual(completions.arguments["temperature"], 0.0)
+
+    def test_planner_rejects_invalid_contract(self):
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content='{"subqueries": []}'))]
+        )
+        client = SimpleNamespace(
+            chat=SimpleNamespace(completions=FakeCompletions(response))
+        )
+        with self.assertRaisesRegex(ValueError, "invalid retrieval plan"):
+            GenerationService(client, model="test").plan_retrieval("Question")
+
 
 if __name__ == "__main__":
     unittest.main()

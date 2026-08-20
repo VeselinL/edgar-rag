@@ -12,7 +12,7 @@ from typing import Any
 
 import bm25s
 import numpy as np
-from sentence_transformers import CrossEncoder, SentenceTransformer
+from sentence_transformers import SentenceTransformer
 
 from src.embeddings.embed_chunks import MODEL_CONFIGS
 from src.generation.rag import GenerationService, make_llm_client, resolve_cited_evidence
@@ -46,9 +46,7 @@ class PipelineEvent:
 class PipelineSettings:
     mode: str = "real"
     model_device: str = "cpu"
-    reranker_device: str = "cpu"
     llm_model: str = "AZURE_GPT_4o_2024_1120"
-    reranker_model: str = "BAAI/bge-reranker-base"
 
     @classmethod
     def from_environment(cls) -> "PipelineSettings":
@@ -58,9 +56,7 @@ class PipelineSettings:
         return cls(
             mode=mode,
             model_device=os.getenv("AVA_MODEL_DEVICE", "cpu"),
-            reranker_device=os.getenv("AVA_RERANKER_DEVICE", "cpu"),
             llm_model=os.getenv("AVA_LLM_MODEL", "AZURE_GPT_4o_2024_1120"),
-            reranker_model=os.getenv("AVA_RERANKER_MODEL", "BAAI/bge-reranker-base"),
         )
 
 
@@ -126,14 +122,12 @@ class RealPipeline:
         embedder = SentenceTransformer(
             embedding_config["repository"], device=settings.model_device
         )
-        reranker = CrossEncoder(settings.reranker_model, device=settings.reranker_device)
         retriever = ScopeAwareRetriever(
             model=embedder,
             query_prefix=embedding_config["query_prefix"],
             normalized_embeddings=normalized,
             bm25_retriever=bm25_retriever,
             all_chunks=chunks,
-            reranker=reranker,
         )
         generator = GenerationService(make_llm_client(), model=settings.llm_model)
         return cls(retriever, generator)
@@ -143,7 +137,10 @@ class RealPipeline:
         query: str,
         is_disconnected: Callable[[], Awaitable[bool]],
     ) -> AsyncIterator[PipelineEvent]:
-        outcome = await asyncio.to_thread(self.retriever.retrieve, query)
+        plan = await asyncio.to_thread(self.generator.plan_retrieval, query)
+        outcome = await asyncio.to_thread(
+            self.retriever.retrieve, query, plan["subqueries"]
+        )
         if await is_disconnected():
             return
         evidence = list(outcome.evidence)

@@ -20,7 +20,12 @@ from sentence_transformers import SentenceTransformer
 
 from src.embeddings.embed_chunks import MODEL_CONFIGS
 from src.retrieval.scope_aware import (
+    DEFAULT_FINAL_EVIDENCE_K,
+    DEFAULT_MIN_CHUNKS_PER_SUBQUERY,
+    DEFAULT_MULTI_SUBQUERY_BONUS,
+    DEFAULT_SUBQUERY_RETRIEVAL_K,
     ScopeAwareRetriever,
+    retrieve_generation_context as shared_retrieve_generation_context,
     scope_aware_hybrid_retrieve as shared_scope_aware_hybrid_retrieve,
 )
 from src.scripts.evaluate_bge_bm25_fusion import (
@@ -46,6 +51,10 @@ DEFAULT_RRF_K = 60
 DEFAULT_ANCHORED_COMPANY_K = 3
 DEFAULT_ENUMERATION_CANDIDATE_K = 30
 ENUMERATION_MIN_RELATIVE_RRF_SCORE = 0.60
+SUBQUERY_RETRIEVAL_K = DEFAULT_SUBQUERY_RETRIEVAL_K
+FINAL_CONTEXT_K = DEFAULT_FINAL_EVIDENCE_K
+MIN_CHUNKS_PER_SUBQUERY = DEFAULT_MIN_CHUNKS_PER_SUBQUERY
+MULTI_SUBQUERY_BONUS = DEFAULT_MULTI_SUBQUERY_BONUS
 
 COMPANY_ALIASES: dict[str, tuple[str, ...]] = {
     "AUR": ("aurora innovation", "aurora", "aurora driver"),
@@ -332,6 +341,7 @@ def scope_aware_hybrid_retrieve(
     candidate_k: int = MAX_K,
     top_k: int = MAX_K,
     anchored_company_k: int = DEFAULT_ANCHORED_COMPANY_K,
+    resolved_scope: tuple[str, list[str]] | None = None,
 ) -> tuple[list[dict[str, Any]], str, list[str]]:
     """Compatibility wrapper around the shared production retrieval policy."""
     return shared_scope_aware_hybrid_retrieve(
@@ -345,19 +355,58 @@ def scope_aware_hybrid_retrieve(
         candidate_k,
         top_k,
         anchored_company_k,
+        resolved_scope,
+    )
+
+
+def retrieve_generation_context(
+    original_query: str,
+    subqueries: list[str],
+    model: SentenceTransformer,
+    query_prefix: str,
+    normalized_embeddings: np.ndarray,
+    bm25_retriever: bm25s.BM25,
+    all_chunks: list[dict[str, Any]],
+    rrf_k: int,
+    candidate_k: int = MAX_K,
+    anchored_company_k: int = DEFAULT_ANCHORED_COMPANY_K,
+    subquery_retrieval_k: int = SUBQUERY_RETRIEVAL_K,
+    final_context_k: int = FINAL_CONTEXT_K,
+    min_chunks_per_subquery: int = MIN_CHUNKS_PER_SUBQUERY,
+    multi_subquery_bonus: float = MULTI_SUBQUERY_BONUS,
+) -> dict[str, Any]:
+    """Compatibility wrapper around the shared notebook/API context selector."""
+    return shared_retrieve_generation_context(
+        original_query=original_query,
+        subqueries=subqueries,
+        model=model,
+        query_prefix=query_prefix,
+        normalized_embeddings=normalized_embeddings,
+        bm25_retriever=bm25_retriever,
+        all_chunks=all_chunks,
+        rrf_k=rrf_k,
+        candidate_k=candidate_k,
+        anchored_company_k=anchored_company_k,
+        subquery_retrieval_k=subquery_retrieval_k,
+        final_context_k=final_context_k,
+        min_chunks_per_subquery=min_chunks_per_subquery,
+        multi_subquery_bonus=multi_subquery_bonus,
     )
 
 
 def evaluate_scope_aware_retrieval(
     retriever: ScopeAwareRetriever,
     query: str,
+    subqueries: list[str] | None = None,
 ) -> dict[str, Any]:
     """Return the diagnostics compared with the API before source normalization."""
-    outcome = retriever.retrieve(query)
+    outcome = retriever.retrieve(query, subqueries)
     return {
         "detected_companies": list(outcome.detected_companies),
         "comparison": outcome.comparison,
         "retrieval_scopes": list(outcome.retrieval_scopes),
+        "subqueries": list(outcome.subqueries),
+        "coverage_by_subquery": list(outcome.coverage_by_subquery),
         "selected_evidence_companies": list(outcome.selected_evidence_companies),
         "final_evidence_count": len(outcome.evidence),
         "chunk_ids": list(outcome.chunk_ids),

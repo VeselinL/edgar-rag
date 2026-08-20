@@ -89,3 +89,21 @@ and was not included in AVA commits.
 - Re-ran frontend lint, all 7 component/unit tests, the production build, dependency audit, and bundle secret/branding scan; all passed and the audit reported zero vulnerabilities.
 - Validated the notebook as JSON and ran whitespace/error checks over the final diff.
 - Stopped the temporary Vite and mock FastAPI processes used for browser verification.
+
+### Main-notebook pipeline synchronization
+
+- Recreated the dedicated linked worktree after it had been removed, checked out `edgar-rag-frontend`, and left the dirty `main` worktree untouched.
+- Re-read the current untracked main-branch `notebooks/hybrid_rag_generation.ipynb` and traced its imported `retrieve_generation_context` helper through the modified main-branch scope-aware evaluator.
+- Confirmed the new authoritative path uses an LLM atomic-subquery planner, scope-aware BGE/BM25 RRF retrieval of 10 candidates per subquery, stable-ID merge/deduplication, two coverage rounds per subquery, a `0.01` multi-subquery bonus, and a fixed 10-chunk answer context. The active notebook path does not use the cross-encoder.
+- Ported that selector into the shared production retrieval module and made the evaluator expose a compatibility wrapper around the same function.
+- Updated FastAPI's real pipeline to run the notebook planner, retrieve using the returned subqueries, and stream the answer using the original query and selected evidence. Removed cross-encoder loading from real API startup.
+- Updated the shared generation prompt and planner instruction/JSON contract to match the current main notebook.
+- Added a configuration guard that rejects more subqueries than the 10-chunk budget can cover at two chunks each, preventing silent subquery starvation.
+- Updated the branch notebook's shared production cell and project/deployment/frontend documentation from the superseded 12-chunk reranker path to the planned 10-chunk path.
+- Added regression tests for planner behavior, two-per-subquery selection, 10-chunk total budget, stable-ID deduplication, multi-subquery scoring, impossible coverage plans, and planner-to-retriever API orchestration.
+- Compared the shared selector directly with the current main evaluator using identical deterministic candidates. Scope, companies, subqueries, coverage, selected IDs, and selection reasons matched; the representative result selected 10 chunks with `[5, 5]` subquery coverage.
+- The first test invocation used the recreated worktree's absent `python` command and did not start; reran compilation and tests with the existing application virtual environment successfully.
+- Ran the real LLM planner and production selector against all 4,115 corpus chunks for the notebook's three-fact Ouster question. The planner produced three subqueries; the selector returned 10 unique Ouster chunks with coverage `[9, 8, 10]`, satisfying the two-per-subquery invariant.
+- Re-ran the focused backend suite after synchronization: all 30 tests passed, with only the existing Starlette `TestClient` deprecation warning. Python compilation, notebook JSON validation, and diff checks also passed.
+- Ran the complete Python suite after the pipeline change: 96 tests passed with 157 subtests, and the same two pre-existing repository consistency tests failed (currency-symbol normalization expectation and stale baseline-review hash). No new pipeline test failed.
+- The recreated worktree also lacked ignored frontend dependencies, so the first frontend commands did not start. Restored exactly the lockfile dependencies with `npm ci` (zero vulnerabilities), then reran ESLint, all 7 frontend tests, and the production build successfully.

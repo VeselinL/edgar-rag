@@ -29,7 +29,8 @@ Implemented:
 - versioned Mobileye gold-v2 labels and a post-migration semantic baseline
 - corpus-wide scope-aware hybrid BGE/BM25 retrieval with reciprocal-rank fusion
 - regex company, ticker, alias, Comparison Cue, and multi-company scope handling
-- cross-encoder reranking and a fixed 12-chunk grounded generation context
+- LLM atomic-subquery planning, 10 candidates per subquery, at least 2 available
+  chunks per subquery, and a fixed 10-chunk grounded generation context
 - backend citation resolution and narrative/table-schema-v2 source adaptation
 - FastAPI liveness/readiness and streamed POST/SSE endpoints
 - React + TypeScript AVA interface with real stream consumption, structured HTML
@@ -50,7 +51,7 @@ matching vectors. There are no
 normalization collisions, unmapped non-empty cells, standalone marker columns,
 unknown tables, invalid table Markdown, or provenance gaps.
 
-The local real pipeline loads and completes scope-aware retrieval/reranking, but
+The local real pipeline loads and completes LLM-planned scope-aware retrieval, but
 the configured OpenAI-compatible gateway currently answers `stream=True` with
 HTTP 201 JSON and zero SSE chunks. AVA rejects that response rather than faking
 typing. Use mock mode for frontend development until native gateway streaming is

@@ -334,9 +334,10 @@ Do not report only an overall chatbot score.
 - Make one improvement at a time in response to an observed failure.
 - Do not discard tables or document hierarchy for implementation convenience.
 - Do not add Graph RAG or agentic RAG. Hybrid BGE/BM25 retrieval with RRF is
-  now the evaluated baseline. During AVA integration, reuse the existing
-  cross-encoder boundary without turning the work into a new reranking study;
-  preserve the saved non-reranked baseline for later measured comparison.
+  now the evaluated baseline. AVA's active generation path follows the current
+  main notebook's planned multi-subquery RRF selector without cross-encoder
+  reranking. Preserve the separate reranking experiment and saved non-reranked
+  baseline for later measured comparison.
 
 ## AVA Web Application Rules
 
@@ -353,11 +354,11 @@ Do not report only an overall chatbot score.
 
 - The deployed API must use the same scope-aware retrieval and generation path demonstrated by `notebooks/hybrid_rag_generation.ipynb` and validated by `src/scripts/evaluate_scope_aware_hybrid_retrieval.py` (`evaluate_scope_aware_retrieval`).
 - A notebook file must never be a runtime dependency. Extract the smallest coherent production functions and make the notebook, evaluator, and API import the shared module where practical.
-- Preserve the existing regex company-name, ticker, and alias matching; Comparison Cues; company/global scope decisions; multi-company evidence allocation; dense/BM25 retrieval; reciprocal-rank fusion; merge/deduplication; reranking boundary; final evidence selection; grounded prompt; 12-chunk final context budget; and citation resolution.
-- The frontend sends the original query unchanged. Company detection, Comparison Cue detection, query planning, retrieval scope, evidence allocation, merging, reranking, and citation validation are backend responsibilities.
+- Preserve the current main-notebook pipeline: LLM atomic-subquery planning; regex company-name, ticker, and alias matching; Comparison Cues; company/global scope decisions; dense/BM25 retrieval; reciprocal-rank fusion; stable-ID merge/deduplication; minimum two available chunks per subquery; the `0.01` multi-subquery bonus; final 10-chunk context selection; grounded prompt; and citation resolution. The cross-encoder experiment is not part of this active generation path.
+- The frontend sends the original query unchanged. Company detection, Comparison Cue detection, subquery planning, retrieval scope, evidence allocation, merging, context selection, and citation validation are backend responsibilities.
 - Do not change core retrieval behaviour merely to make FastAPI integration easier, and do not create a second scope detector in the API.
 - Before connecting or changing the endpoint, compare the shared API/evaluation path on representative queries. Detected companies, comparison status, retrieval scopes, selected-evidence companies, final count, and internal chunk IDs must match before frontend normalization.
-- For a multi-company comparison, final context must contain available relevant evidence for every detected target. A regression test must fail if one company consumes the entire context.
+- For a multi-company comparison, the planner's company-specific subqueries must each retain at least two available evidence chunks within the 10-chunk final context. Reject a plan whose subquery count makes that invariant impossible rather than silently starving a subquery.
 
 ### API and source adaptation
 

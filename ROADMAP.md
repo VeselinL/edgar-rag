@@ -47,13 +47,13 @@ The corpus remains exactly these ten annual filings unless an explicit decision 
 
 This stream is complete only when the checked-in implementation and tests demonstrate all criteria below:
 
-- [x] Extract the grounded prompt, 12-chunk context limit, context formatting, and citation syntax from `notebooks/hybrid_rag_generation.ipynb` into independently importable Python.
+- [x] Extract the grounded prompt, LLM planner, 10-chunk context limit, context formatting, and citation syntax from `notebooks/hybrid_rag_generation.ipynb` into independently importable Python.
 - [x] Use a shared scope-aware retrieval entry point from the notebook, `src/scripts/evaluate_scope_aware_hybrid_retrieval.py`, and FastAPI.
 - [x] For representative queries, report identical detected companies, comparison status, retrieval scopes, selected-evidence companies, final count, and pre-normalization chunk IDs across evaluation and API paths.
-- [x] Ensure a comparison with available evidence includes every detected target company and fails a regression test if one target consumes the full context.
+- [x] Retrieve 10 candidates per planner subquery and preserve at least 2 available chunks for every subquery.
 - [x] Merge and deduplicate scoped candidates by stable chunk ID.
-- [x] Apply cross-encoder reranking at the existing narrow query/chunk boundary without changing the underlying hybrid/RRF algorithm.
-- [x] Preserve the fixed final generation budget of at most 12 unique chunks.
+- [x] Apply the notebook's `0.01` bonus to chunks matching multiple subqueries before relevance fill.
+- [x] Preserve the fixed final generation budget of at most 10 unique chunks and reject plans that cannot satisfy minimum coverage.
 - [ ] Stream real non-empty provider fragments and retain the existing non-streaming generation option.
 - [x] Resolve generated citation IDs only against final evidence; never accept invented or out-of-context IDs.
 - [x] Record retrieval and generation failures separately.
@@ -85,7 +85,7 @@ adapter rejects that response and does not simulate streaming.
 
 The frontend milestone is complete only when every measurable criterion passes:
 
-- [x] A query reaches the actual backend scope-aware retrieval, reranking, and generation pipeline in real mode.
+- [x] A query reaches the actual backend LLM planner, scope-aware per-subquery retrieval, context selection, and generation pipeline in real mode.
 - [ ] The first provider token/fragment appears without waiting for the complete answer.
 - [x] The waiting bubble appears immediately and disappears on the first non-empty token.
 - [x] AVA and its supplied avatar appear beside every assistant response, and never beside user messages.
@@ -109,8 +109,8 @@ The next single step is to enable native chat-completions SSE on the configured
 gateway (or provide a streaming-capable backend endpoint), then rerun the real
 browser request and record time to first token. After that local gate passes,
 the next milestone is a containerized reproducible backend build with measured
-startup time, idle/peak RAM, model-cache size, artifact size, retrieval latency,
-reranking latency, complete latency, and concurrency behaviour.
+startup time, idle/peak RAM, model-cache size, artifact size, planner latency,
+retrieval/context-selection latency, complete latency, and concurrency behaviour.
 
 Additional evaluation work remains measurable and separate:
 
@@ -148,10 +148,10 @@ Is the evidence in the raw filing?
          Is it retrieved in the scoped candidate set?
          ├─ no  → scope, embedding, BM25, or RRF issue
          └─ yes
-            Is it retained after merge/dedup/reranking?
-            ├─ no  → allocation or reranking issue
+            Is it retained after merge/dedup and subquery coverage selection?
+            ├─ no  → allocation or context-selection issue
             └─ yes
-               Is it in the final 12-chunk context?
+               Is it in the final 10-chunk context?
                ├─ no  → final evidence selection issue
                └─ yes → generation, grounding, or citation issue
 ```

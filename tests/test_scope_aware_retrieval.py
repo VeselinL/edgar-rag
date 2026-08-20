@@ -6,6 +6,7 @@ from src.retrieval.scope_aware import (
     deduplicate_results,
     detect_companies,
     detect_scope,
+    retrieve_generation_context,
     scope_aware_hybrid_retrieve,
     select_final_evidence,
 )
@@ -71,23 +72,28 @@ class EvidenceSelectionTests(unittest.TestCase):
 
     def test_final_context_budget(self):
         candidates = [hydrated(f"C-{index}", "TSLA", index) for index in range(20)]
-        selected = select_final_evidence(candidates, 12)
-        self.assertEqual(len(selected), 12)
-        self.assertEqual(len({item["chunk"]["chunk_id"] for item in selected}), 12)
+        selected = select_final_evidence(candidates, 10)
+        self.assertEqual(len(selected), 10)
+        self.assertEqual(len({item["chunk"]["chunk_id"] for item in selected}), 10)
 
     def test_comparison_keeps_every_available_target(self):
         reranked = [
-            *[hydrated(f"TSLA-{index}", "TSLA", index) for index in range(1, 13)],
-            hydrated("OUST-1", "OUST", 13),
+            *[hydrated(f"TSLA-{index}", "TSLA", index) for index in range(1, 11)],
+            hydrated("OUST-1", "OUST", 11),
         ]
-        selected = select_final_evidence(reranked, 12, ("TSLA", "OUST"))
+        selected = select_final_evidence(reranked, 10, ("TSLA", "OUST"))
         self.assertEqual({item["chunk"]["ticker"] for item in selected}, {"TSLA", "OUST"})
-        self.assertEqual(len(selected), 12)
+        self.assertEqual(len(selected), 10)
 
-    def test_explicit_comparison_retrieves_each_company_scope(self):
+    def test_explicit_comparison_uses_combined_company_scope(self):
+        observed_scopes = []
+
         def fake_hybrid(*args, allowed_tickers=None, **kwargs):
-            ticker = next(iter(allowed_tickers))
-            return [result(f"{ticker}-{position}", ticker) for position in range(1, 5)]
+            observed_scopes.append(allowed_tickers)
+            return [
+                result("TSLA-1", "TSLA"),
+                result("OUST-1", "OUST"),
+            ]
 
         with patch("src.retrieval.scope_aware.hybrid_retrieve", side_effect=fake_hybrid):
             retrieved, scope, companies = scope_aware_hybrid_retrieve(
@@ -97,12 +103,84 @@ class EvidenceSelectionTests(unittest.TestCase):
                 normalized_embeddings=object(),
                 bm25_retriever=object(),
                 all_chunks=[],
-                top_k=6,
+                top_k=2,
             )
         self.assertEqual(scope, "explicit_subset")
         self.assertEqual(companies, ["TSLA", "OUST"])
         self.assertEqual({item["ticker"] for item in retrieved}, {"TSLA", "OUST"})
-        self.assertEqual([item["ticker"] for item in retrieved], ["TSLA", "OUST"] * 3)
+        self.assertEqual(observed_scopes, [{"TSLA", "OUST"}])
+
+    def test_planned_context_keeps_two_chunks_per_subquery_and_ten_total(self):
+        def fake_scope_retrieve(query, *args, **kwargs):
+            ticker = "TSLA" if "Tesla" in query else "OUST"
+            candidates = [
+                result(f"{ticker}-{position}", ticker, 0.03 - position / 10_000)
+                for position in range(10)
+            ]
+            return candidates, "single_company", [ticker]
+
+        with patch(
+            "src.retrieval.scope_aware.scope_aware_hybrid_retrieve",
+            side_effect=fake_scope_retrieve,
+        ):
+            diagnostics = retrieve_generation_context(
+                original_query="Compare Tesla and Ouster revenue.",
+                subqueries=["Tesla revenue", "Ouster revenue"],
+                model=object(),
+                query_prefix="",
+                normalized_embeddings=object(),
+                bm25_retriever=object(),
+                all_chunks=[],
+            )
+
+        self.assertEqual(len(diagnostics["selected_chunk_ids"]), 10)
+        self.assertEqual(diagnostics["coverage_by_subquery"], [5, 5])
+        self.assertTrue(all(value >= 2 for value in diagnostics["coverage_by_subquery"]))
+        self.assertEqual(len(set(diagnostics["selected_chunk_ids"])), 10)
+
+    def test_planned_context_deduplicates_and_rewards_multi_subquery_matches(self):
+        shared = result("SHARED", "TSLA", 0.01)
+
+        def fake_scope_retrieve(query, *args, **kwargs):
+            ticker = "TSLA" if query == "first" else "OUST"
+            return [
+                shared,
+                result(f"{ticker}-1", ticker, 0.009),
+                result(f"{ticker}-2", ticker, 0.008),
+            ], "global", []
+
+        with patch(
+            "src.retrieval.scope_aware.scope_aware_hybrid_retrieve",
+            side_effect=fake_scope_retrieve,
+        ):
+            diagnostics = retrieve_generation_context(
+                original_query="A global multi-fact question",
+                subqueries=["first", "second"],
+                model=object(),
+                query_prefix="",
+                normalized_embeddings=object(),
+                bm25_retriever=object(),
+                all_chunks=[],
+            )
+
+        shared_candidate = next(
+            item for item in diagnostics["candidates"] if item["chunk_id"] == "SHARED"
+        )
+        self.assertEqual(shared_candidate["subquery_count"], 2)
+        self.assertAlmostEqual(shared_candidate["selection_score"], 0.02)
+        self.assertEqual(diagnostics["selected_chunk_ids"].count("SHARED"), 1)
+
+    def test_planned_context_rejects_more_subqueries_than_budget_can_cover(self):
+        with self.assertRaisesRegex(ValueError, "minimum evidence"):
+            retrieve_generation_context(
+                original_query="Too many independent facts",
+                subqueries=[f"fact {index}" for index in range(6)],
+                model=object(),
+                query_prefix="",
+                normalized_embeddings=object(),
+                bm25_retriever=object(),
+                all_chunks=[],
+            )
 
     def test_citation_resolution_is_limited_to_final_evidence(self):
         evidence = [hydrated("TSLA-1", "TSLA", 1), hydrated("OUST-1", "OUST", 2)]
