@@ -1,0 +1,1 @@
+"""AVA FastAPI adapter package."""

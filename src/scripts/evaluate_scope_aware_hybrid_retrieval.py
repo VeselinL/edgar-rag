@@ -19,6 +19,10 @@ import pandas as pd
 from sentence_transformers import SentenceTransformer
 
 from src.embeddings.embed_chunks import MODEL_CONFIGS
+from src.retrieval.scope_aware import (
+    ScopeAwareRetriever,
+    scope_aware_hybrid_retrieve as shared_scope_aware_hybrid_retrieve,
+)
 from src.scripts.evaluate_bge_bm25_fusion import (
     DEFAULT_CHUNKS_DIRECTORY,
     DEFAULT_EMBEDDINGS_DIRECTORY,
@@ -40,6 +44,8 @@ from src.scripts.evaluate_bge_bm25_fusion import (
 
 DEFAULT_RRF_K = 60
 DEFAULT_ANCHORED_COMPANY_K = 3
+DEFAULT_ENUMERATION_CANDIDATE_K = 30
+ENUMERATION_MIN_RELATIVE_RRF_SCORE = 0.60
 
 COMPANY_ALIASES: dict[str, tuple[str, ...]] = {
     "AUR": ("aurora innovation", "aurora", "aurora driver"),
@@ -65,6 +71,14 @@ GLOBAL_CUES = (
     "which companies",
     "who is most",
     "who is more",
+)
+
+ENUMERATION_CUES = (
+    r"\bwhich companies\b",
+    r"\bwhat companies\b",
+    r"\bwhich firms\b",
+    r"\bwhat firms\b",
+    r"\bwho (?:offers|operates|develops|provides|uses|builds|sells)\b",
 )
 
 
@@ -99,9 +113,16 @@ def contains_global_cue(query: str) -> bool:
     return any(cue in normalized_query for cue in GLOBAL_CUES)
 
 
+def is_enumeration_query(query: str) -> bool:
+    """Identify open company-list questions without an LLM call."""
+    return any(re.search(cue, query, flags=re.IGNORECASE) for cue in ENUMERATION_CUES)
+
+
 def detect_scope(query: str) -> tuple[str, list[str]]:
     """Classify query scope without using retrieval results or an LLM."""
     companies = detect_companies(query)
+    if is_enumeration_query(query):
+        return "enumeration", companies
     if contains_global_cue(query):
         return ("anchored_global" if companies else "global"), companies
     if len(companies) == 1:
@@ -230,6 +251,76 @@ def merge_anchored_global_results(
     return selected
 
 
+def select_enumeration_results(
+    global_results: list[dict[str, Any]],
+    top_k: int,
+) -> list[dict[str, Any]]:
+    """Select strong per-company evidence, then preserve global RRF relevance.
+
+    A ticker qualifies only when its best candidate is supported by both retrieval
+    methods and its RRF score is at least a fixed fraction of the global best.
+    This avoids assigning slots to every company while exposing competitive
+    evidence that would otherwise be crowded out by a dominant ticker.
+    """
+    if not global_results or top_k <= 0:
+        return []
+
+    best_score = global_results[0]["rrf_score"]
+    minimum_score = best_score * ENUMERATION_MIN_RELATIVE_RRF_SCORE
+    best_by_ticker: dict[str, tuple[int, dict[str, Any]]] = {}
+    for global_rank, result in enumerate(global_results, start=1):
+        ticker = result.get("ticker")
+        if ticker and ticker not in best_by_ticker:
+            best_by_ticker[ticker] = (global_rank, result)
+
+    qualified_representatives = [
+        (global_rank, result)
+        for global_rank, result in best_by_ticker.values()
+        if result["rrf_score"] >= minimum_score
+        and result["dense_rank"] is not None
+        and result["bm25_rank"] is not None
+    ]
+    selected_ids = {result["chunk_id"] for _, result in qualified_representatives}
+    # The baseline corpus has ten companies, but keep the selector safe if that
+    # invariant changes: strongest representatives win when there are too many.
+    if len(selected_ids) > top_k:
+        selected_ids = {
+            result["chunk_id"]
+            for _, result in sorted(
+                qualified_representatives, key=lambda item: (-item[1]["rrf_score"], item[0])
+            )[:top_k]
+        }
+
+    selected: list[dict[str, Any]] = []
+    for global_rank, result in enumerate(global_results, start=1):
+        if result["chunk_id"] in selected_ids:
+            selected.append(
+                dict(
+                    result,
+                    retrieval_source="global_enumeration_representative",
+                    retrieval_scope="enumeration",
+                    enumeration_global_rank=global_rank,
+                    enumeration_company_representative=True,
+                )
+            )
+    for global_rank, result in enumerate(global_results, start=1):
+        if len(selected) >= top_k:
+            break
+        if result["chunk_id"] in selected_ids:
+            continue
+        selected.append(
+            dict(
+                result,
+                retrieval_source="global_enumeration",
+                retrieval_scope="enumeration",
+                enumeration_global_rank=global_rank,
+                enumeration_company_representative=False,
+            )
+        )
+        selected_ids.add(result["chunk_id"])
+    return sorted(selected, key=lambda result: result["enumeration_global_rank"])
+
+
 def scope_aware_hybrid_retrieve(
     query: str,
     model: SentenceTransformer,
@@ -242,22 +333,35 @@ def scope_aware_hybrid_retrieve(
     top_k: int = MAX_K,
     anchored_company_k: int = DEFAULT_ANCHORED_COMPANY_K,
 ) -> tuple[list[dict[str, Any]], str, list[str]]:
-    """Apply scope policy around a common hybrid retrieval primitive."""
-    scope, companies = detect_scope(query)
-    if scope == "single_company":
-        results = hybrid_retrieve(query, model, query_prefix, normalized_embeddings, bm25_retriever, all_chunks, rrf_k, candidate_k, {companies[0]})[:top_k]
-        return [dict(result, retrieval_source="scoped", retrieval_scope=scope) for result in results], scope, companies
-    if scope == "explicit_subset":
-        results = hybrid_retrieve(query, model, query_prefix, normalized_embeddings, bm25_retriever, all_chunks, rrf_k, candidate_k, set(companies))[:top_k]
-        return [dict(result, retrieval_source="scoped", retrieval_scope=scope) for result in results], scope, companies
-    global_results = hybrid_retrieve(query, model, query_prefix, normalized_embeddings, bm25_retriever, all_chunks, rrf_k, candidate_k)
-    if scope == "global":
-        return [dict(result, retrieval_source="global", retrieval_scope=scope) for result in global_results[:top_k]], scope, companies
-    anchored_results = {
-        ticker: hybrid_retrieve(query, model, query_prefix, normalized_embeddings, bm25_retriever, all_chunks, rrf_k, candidate_k, {ticker})
-        for ticker in companies
+    """Compatibility wrapper around the shared production retrieval policy."""
+    return shared_scope_aware_hybrid_retrieve(
+        query,
+        model,
+        query_prefix,
+        normalized_embeddings,
+        bm25_retriever,
+        all_chunks,
+        rrf_k,
+        candidate_k,
+        top_k,
+        anchored_company_k,
+    )
+
+
+def evaluate_scope_aware_retrieval(
+    retriever: ScopeAwareRetriever,
+    query: str,
+) -> dict[str, Any]:
+    """Return the diagnostics compared with the API before source normalization."""
+    outcome = retriever.retrieve(query)
+    return {
+        "detected_companies": list(outcome.detected_companies),
+        "comparison": outcome.comparison,
+        "retrieval_scopes": list(outcome.retrieval_scopes),
+        "selected_evidence_companies": list(outcome.selected_evidence_companies),
+        "final_evidence_count": len(outcome.evidence),
+        "chunk_ids": list(outcome.chunk_ids),
     }
-    return merge_anchored_global_results(global_results, anchored_results, top_k, anchored_company_k), scope, companies
 
 
 def evaluate_scope_aware_hybrid(
@@ -352,7 +456,9 @@ def main() -> None:
             "bm25_candidate_k": arguments.candidate_k, "fusion": "reciprocal_rank_fusion",
             "rrf_k": arguments.rrf_k, "anchored_company_k": arguments.anchored_company_k,
             "query_prefix": config["query_prefix"], "company_aliases": COMPANY_ALIASES,
-            "global_cues": list(GLOBAL_CUES),
+            "global_cues": list(GLOBAL_CUES), "enumeration_cues": list(ENUMERATION_CUES),
+            "enumeration_candidate_k": max(arguments.candidate_k, DEFAULT_ENUMERATION_CANDIDATE_K),
+            "enumeration_min_relative_rrf_score": ENUMERATION_MIN_RELATIVE_RRF_SCORE,
         },
         "evaluation_dataset": str(arguments.test_queries), "device": str(model.device),
     }

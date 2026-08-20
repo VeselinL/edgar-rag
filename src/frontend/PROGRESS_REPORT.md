@@ -28,3 +28,37 @@ This report records the work performed on the `deploy_front` branch for the AVA 
 - Specified the complete identity, visual tokens, theme initialization, header, empty state, transcript, composer, waiting state, real SSE parsing, source presentation, state machine, errors, responsiveness, accessibility, component structure, automated tests, and manual visual matrix.
 - Kept company detection, Comparison Cues, evidence allocation, merging, reranking, and citation validation entirely on the backend; the plan sends each original current query unchanged.
 - Cross-checked `DEPLOYMENT.md`, `ROADMAP.md`, `AGENTS.md`, and `frontend_plan.md` for stale Tesla/chunk state, Streamlit/Gradio direction, conversation persistence, scope ownership, source schemas, streaming transport, avatar paths, themes, and deferrals. Corrected the old implementation-order reference to conversation history so it no longer conflicts with the stateless first version.
+
+### Worktree isolation
+
+- At the user's request, moved ongoing implementation to the existing linked worktree at `/home/veselin/Documents/Programiranje/edgar-rag-frontend`.
+- Renamed that worktree's checked-out branch from `deploy_front` to `edgar-rag-frontend` and verified it remains based on documentation commit `33fc001`.
+- Transferred the in-progress backend, shared retrieval/generation modules, tests, frontend scaffold, and supplied assets into the dedicated worktree.
+- Removed only the transferred uncommitted implementation files/hunks from the original workspace. Preserved its pre-existing modified retrieval evaluation, dependency, notebook, report, avatar, and empty generation-package work.
+
+### Phase 3 — shared backend foundation
+
+- Extracted regex company/ticker/alias detection, Comparison Cues, scope classification, dense/BM25 retrieval, RRF, comparison-balanced merging, stable-ID deduplication, cross-encoder pair scoring, and the 12-chunk final selector into `src/retrieval/scope_aware.py`.
+- Added regression tests for one company, ticker, alias, two-company queries, Comparison Cues, global scope, multi-scope deduplication, target-company coverage, final context budget, and citation resolution.
+- Extracted the notebook's grounded prompt, context formatting, OpenAI-compatible streaming/non-streaming generation boundaries, and exact final-evidence citation resolution into `src/generation/rag.py`.
+- Added FastAPI health and POST/SSE streaming adapters, explicit real/mock runtime assembly, client-disconnect checks, safe error events, and backend-only narrative/table source normalization.
+- Added deterministic mock cases for normal fragments, pre-token failure, and mid-stream failure.
+- Verified 871 of 877 real table chunks normalize from validated logical headers/rows. Six table chunks lack trustworthy logical headers and are rejected instead of reconstructed from Markdown or assigned fabricated headers.
+- Ran 21 focused backend tests: 20 passed initially and one test-double signature failed; updated scoped calls to use explicit `allowed_tickers`, then reran all 12 scope/citation tests successfully. Python compilation of the new backend, retrieval, and generation packages also passed.
+
+### Phase 3 — frontend scaffold
+
+- Added the React 19 + TypeScript + Vite project configuration, strict TypeScript settings, ESLint/Vitest setup, pre-paint theme initializer, AVA page metadata/favicon, API source/message types, streaming POST/SSE parser, theme hook, and initial focused components.
+- Added header branding/theme toggle, canonical avatar component, empty state, keyboard composer, retrieval waiting bubble, and narrative/structured-table source components. Frontend implementation remains in progress.
+- Completed the conversation renderer, safe Markdown output, near-bottom scroll control, local-only transcript state, request lifecycle, source expansion, structured HTML table rendering, responsive CSS, and accessible statuses/focus/reduced-motion treatment.
+- Installed frontend dependencies and generated `package-lock.json`. The initial audit found vulnerable older Vite/Vitest pins; updated to patched Vite 7.3.6 and Vitest 3.2.7. A subsequent high-severity audit reports zero vulnerabilities.
+- Ran frontend checks after implementation: ESLint passed, 7 Vitest tests passed, and the TypeScript/Vite production build completed successfully.
+
+### Real-pipeline validation
+
+- Copied the ignored local NPZ artifacts and `.env` into the dedicated worktree so real-mode checks can run without exposing or committing either.
+- Loaded all 4,115 chunks/vectors, built BM25, and loaded the cached BGE-base embedder plus BGE reranker.
+- Compared direct production retrieval with `evaluate_scope_aware_retrieval` for six real queries: company name, ticker, alias, explicit Tesla/Ouster comparison, existing Comparison Cue, and global/no-company scope. All six matched exactly on detected companies, comparison status, scopes, evidence companies, final count, and ordered pre-normalization chunk IDs.
+- Confirmed the explicit Tesla/Ouster comparison final context contains both target companies and exactly 12 chunks.
+- Exercised the configured LLM gateway with `stream=True`. The gateway returned HTTP 201 with `Content-Type: application/json`, no transfer encoding, and zero parsed streaming chunks. Adding `Accept: text/event-stream` did not change the response. This is a real integration blocker outside the adapter: the current gateway ignores native chat-completions streaming.
+- Updated generation to fail explicitly when the provider returns a non-SSE response or a stream ends with no text. It never converts the completed JSON answer into fake fragments.
