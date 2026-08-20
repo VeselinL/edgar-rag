@@ -62,3 +62,12 @@ This report records the work performed on the `deploy_front` branch for the AVA 
 - Confirmed the explicit Tesla/Ouster comparison final context contains both target companies and exactly 12 chunks.
 - Exercised the configured LLM gateway with `stream=True`. The gateway returned HTTP 201 with `Content-Type: application/json`, no transfer encoding, and zero parsed streaming chunks. Adding `Accept: text/event-stream` did not change the response. This is a real integration blocker outside the adapter: the current gateway ignores native chat-completions streaming.
 - Updated generation to fail explicitly when the provider returns a non-SSE response or a stream ends with no text. It never converts the completed JSON answer into fake fragments.
+
+### Manual visual verification
+
+- Started the FastAPI adapter in explicit mock mode and the Vite development server, then drove Firefox headlessly through the real browser UI.
+- Inspected light desktop, dark desktop, light mobile breakpoint, dark mobile breakpoint, empty state, waiting bubble, completed streamed response, expanded narrative source, structured table source, and partial-response error.
+- Verified the waiting bubble is visually anchored above-right of the AVA response avatar and is absent once streamed text appears.
+- Detected Firefox's white native scrollbar track against dark mode and added theme-aware scrollbar colours; the dark page no longer shows a white edge.
+- Expanded the deterministic mock table to eight columns for a real narrow-layout overflow check. Measured `scrollWidth` 496 px versus `clientWidth` 384 px and successfully moved `scrollLeft` to 112 px, confirming the table scrolls inside its source container.
+- Confirmed the supplied AVA image is contained without stretching or destructive cropping in header, empty, and response placements in both themes.

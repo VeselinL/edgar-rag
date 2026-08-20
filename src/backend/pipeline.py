@@ -203,12 +203,15 @@ MOCK_TABLE = {
     "content_type": "table",
     "title": "Illustrative revenue by category",
     "units": "USD millions",
-    "headers": ["Category", "2025", "2024", "2023"],
+    "headers": ["Category", "2025", "2024", "2023", "2022", "2021", "2020", "2019"],
     "rows": [
-        ["Product revenue", "1,613", "1,756", "1,783"],
-        ["Other revenue", "41", "37", "36"],
+        ["Product revenue", "1,613", "1,756", "1,783", "1,691", "1,386", "967", "879"],
+        ["Other revenue", "41", "37", "36", "31", "29", "21", "18"],
     ],
-    "column_units": ["text", "USD millions", "USD millions", "USD millions"],
+    "column_units": [
+        "text", "USD millions", "USD millions", "USD millions",
+        "USD millions", "USD millions", "USD millions", "USD millions",
+    ],
 }
 
 
