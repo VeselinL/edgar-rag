@@ -1,12 +1,15 @@
 # AVA Frontend and API Progress Report
 
-This report records the work performed on the `deploy_front` branch for the AVA local vertical slice. Existing unrelated work is preserved and is not included in AVA commits.
+This report records the work performed for the AVA local vertical slice. Work
+began on `deploy_front`, then moved to the dedicated `edgar-rag-frontend` branch
+and linked worktree at the user's request. Existing unrelated work was preserved
+and was not included in AVA commits.
 
 ## 2026-08-20
 
 ### Repository verification and discovery
 
-- Confirmed the active branch is `deploy_front`.
+- Confirmed the initial active branch was `deploy_front`; the later worktree-isolation section records the requested branch move before implementation continued.
 - Inspected the working tree before editing. Pre-existing modified and untracked files were found, including retrieval evaluation, notebooks, dependency changes, documentation, `src/generation/`, and the supplied avatar assets. These are treated as user work and will not be overwritten or bundled into AVA commits unless a task-required edit is made deliberately.
 - Located the only applicable root instruction file at `AGENTS.md`; an unrelated `AGENTS.md` exists in a sibling repository and does not govern this workspace.
 - Confirmed the canonical supplied assets exist at `src/frontend/avatar/ava.png` and `src/frontend/avatar/favicon.png`.
@@ -49,7 +52,7 @@ This report records the work performed on the `deploy_front` branch for the AVA 
 ### Phase 3 — frontend scaffold
 
 - Added the React 19 + TypeScript + Vite project configuration, strict TypeScript settings, ESLint/Vitest setup, pre-paint theme initializer, AVA page metadata/favicon, API source/message types, streaming POST/SSE parser, theme hook, and initial focused components.
-- Added header branding/theme toggle, canonical avatar component, empty state, keyboard composer, retrieval waiting bubble, and narrative/structured-table source components. Frontend implementation remains in progress.
+- Added header branding/theme toggle, canonical avatar component, empty state, keyboard composer, retrieval waiting bubble, and narrative/structured-table source components as the initial frontend checkpoint.
 - Completed the conversation renderer, safe Markdown output, near-bottom scroll control, local-only transcript state, request lifecycle, source expansion, structured HTML table rendering, responsive CSS, and accessible statuses/focus/reduced-motion treatment.
 - Installed frontend dependencies and generated `package-lock.json`. The initial audit found vulnerable older Vite/Vitest pins; updated to patched Vite 7.3.6 and Vitest 3.2.7. A subsequent high-severity audit reports zero vulnerabilities.
 - Ran frontend checks after implementation: ESLint passed, 7 Vitest tests passed, and the TypeScript/Vite production build completed successfully.
@@ -62,6 +65,7 @@ This report records the work performed on the `deploy_front` branch for the AVA 
 - Confirmed the explicit Tesla/Ouster comparison final context contains both target companies and exactly 12 chunks.
 - Exercised the configured LLM gateway with `stream=True`. The gateway returned HTTP 201 with `Content-Type: application/json`, no transfer encoding, and zero parsed streaming chunks. Adding `Accept: text/event-stream` did not change the response. This is a real integration blocker outside the adapter: the current gateway ignores native chat-completions streaming.
 - Updated generation to fail explicitly when the provider returns a non-SSE response or a stream ends with no text. It never converts the completed JSON answer into fake fragments.
+- Re-ran the narrowed real provider call after adding the guard. It raised the expected safe `The configured LLM gateway did not provide a streaming response.` error, confirming the adapter now rejects the gateway's completed JSON response at the streaming boundary.
 
 ### Manual visual verification
 
@@ -71,3 +75,17 @@ This report records the work performed on the `deploy_front` branch for the AVA 
 - Detected Firefox's white native scrollbar track against dark mode and added theme-aware scrollbar colours; the dark page no longer shows a white edge.
 - Expanded the deterministic mock table to eight columns for a real narrow-layout overflow check. Measured `scrollWidth` 496 px versus `clientWidth` 384 px and successfully moved `scrollLeft` to 112 px, confirming the table scrolls inside its source container.
 - Confirmed the supplied AVA image is contained without stretching or destructive cropping in header, empty, and response placements in both themes.
+
+### Shared notebook handoff
+
+- Added the previously untracked `notebooks/hybrid_rag_generation.ipynb` to the dedicated branch because it is a mandatory behavioural source of truth.
+- Preserved its historical experiment cells/outputs and appended a clearly labelled production-path cell that constructs `ScopeAwareRetriever` and `GenerationService` from the same modules used by evaluation and FastAPI, including cross-encoder reranking, the existing configuration, real provider streaming, and citation resolution.
+
+### Final verification
+
+- Ran the complete Python suite: 90 of 92 tests passed. The two failures are pre-existing repository consistency failures outside the AVA changes: the table embedding-text test expects currency symbols to be removed although the current formatter retains them, and the baseline-review test contains an outdated expected baseline hash. No AVA file changes the formatter, saved baseline, review record, or either failing test.
+- The external application environment used for final real-provider validation did not contain `pytest`; installed only the test runner into that environment (not the repository dependency set) so the requested final backend check could execute.
+- Re-ran the focused AVA backend suite separately: all 24 scope-aware retrieval, generation, source-normalization, health, SSE-ordering, and failure-path tests passed.
+- Re-ran frontend lint, all 7 component/unit tests, the production build, dependency audit, and bundle secret/branding scan; all passed and the audit reported zero vulnerabilities.
+- Validated the notebook as JSON and ran whitespace/error checks over the final diff.
+- Stopped the temporary Vite and mock FastAPI processes used for browser verification.

@@ -204,6 +204,14 @@ Table chunks already contain validated table-schema-v2 logical data. The adapter
 
 `title`, `units`, and `source_url` remain null or absent when the chunk has no trustworthy value. Empty cells are preserved as empty strings. Headers and values are never fabricated. A malformed table that cannot satisfy rectangular structured output is rejected from frontend normalization and logged rather than silently parsed from Markdown.
 
+The current corpus audit found 871 of 877 table chunks frontend-safe. These six
+records have no trustworthy logical headers and are therefore rejected by the
+normalizer: `APTV-2025-CHUNK-000241`, `F-2025-CHUNK-000254`,
+`F-2025-CHUNK-000430`, `F-2025-CHUNK-000492`, `F-2025-CHUNK-000495`, and
+`NVDA-2026-CHUNK-000132`. Repair their upstream table-schema-v2 data before
+exposing them; do not infer headers or reconstruct them from Markdown in either
+the API or browser.
+
 Explicitly cited chunks are preferred. Citation parsing accepts only exact IDs present in final evidence. When the model emits no resolvable citations, all final evidence chunks are returned as a documented fallback because they are the only chunks the model received; the UI describes them as retrieved evidence, not proof that every chunk supported every sentence.
 
 ## Production direction
