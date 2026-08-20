@@ -56,6 +56,7 @@ AVA_CORS_ORIGINS=http://localhost:5173
 AVA_QUERY_MAX_LENGTH=4000
 AVA_MODEL_DEVICE=cpu
 AVA_LLM_MODEL=<gateway deployment/model name>
+AVA_LLM_STREAMING=true
 OPENAI_API_KEY=<backend secret>
 OPENAI_API_URL=<OpenAI-compatible or Azure gateway base URL>
 OPENAI_APP_ID=<optional gateway header>
@@ -65,6 +66,12 @@ OPENAI_API_VERSION=<optional gateway header>
 ```
 
 The repository's current LLM integration uses the OpenAI Python client with `OPENAI_API_KEY`, `OPENAI_API_URL`, and optional gateway headers. Despite Azure-backed deployment naming, the checked-in notebook uses an OpenAI-compatible `base_url`, not `AzureOpenAI`; the adapter preserves that verified call shape.
+
+`AVA_LLM_STREAMING` is strictly `true` or `false`. With `true`, AVA requires a
+genuine provider `text/event-stream` response and forwards its fragments. With
+`false`, AVA makes a normal completion request and emits the complete grounded
+answer as one SSE `delta`. It never splits or delays a buffered answer to imitate
+token streaming. The currently configured local Unique route requires `false`.
 
 Mock mode is explicit:
 
@@ -84,11 +91,14 @@ In real mode, application startup loads and validates the ten chunk files and al
 {
   "status": "ok",
   "mode": "real",
-  "pipeline_ready": true
+  "pipeline_ready": true,
+  "answer_delivery": "buffered"
 }
 ```
 
 An alive process that has not completed loading reports `pipeline_ready: false`; readiness-sensitive infrastructure should not route chat traffic until it becomes true.
+`answer_delivery` is `buffered`, `provider_streaming`, or `mock_streaming`, so
+operators can distinguish corpus readiness from the configured answer transport.
 
 Start the backend from the repository root:
 
@@ -118,7 +128,7 @@ One `POST /api/chat/stream` request performs this lifecycle:
 6. Candidates from all subqueries are merged and deduplicated by stable internal chunk ID while preserving each subquery match and rank.
 7. Coverage selection takes at least two available chunks per subquery in rounds. Remaining slots are filled by best RRF score plus the notebook's `0.01` multi-subquery bonus.
 8. At most 10 unique selected chunks are formatted with internal source IDs and passed to the grounded generation prompt with the original query.
-9. The provider's real streaming iterator yields non-empty text fragments; FastAPI emits each immediately as a `delta` event.
+9. With `AVA_LLM_STREAMING=true`, the provider's real streaming iterator yields non-empty text fragments and FastAPI emits each immediately. With `false`, the provider returns one completed answer and FastAPI emits that answer as one `delta` event.
 10. Citation IDs found in the generated answer are resolved only against the selected generation evidence.
 11. The adapter emits normalized user-facing source objects in one `sources` event. If no valid citation can be resolved, it returns the final evidence supplied to generation and records that fallback in backend diagnostics.
 12. One `done` event terminates a successful stream.
@@ -145,7 +155,7 @@ event: error
 data: {"message":"Safe user-facing error message"}
 ```
 
-Event order for success is one or more `delta` events, one `sources`, then one `done`. Empty provider fragments are ignored. A failure after the response begins emits one safe `error` event and closes the stream; it does not emit `done`. Validation errors before streaming use a normal JSON HTTP error response.
+Event order for success is one or more `delta` events, one `sources`, then one `done`. Buffered mode always emits exactly one non-empty `delta`. Empty provider fragments are ignored. A failure after the response begins emits one safe `error` event and closes the stream; it does not emit `done`. Validation errors before streaming use a normal JSON HTTP error response.
 
 Required response headers are:
 
@@ -253,7 +263,7 @@ Do not choose a provider or compute size until these are measured on the local v
 
 ## Future deployment milestones
 
-1. **Local vertical slice:** real LLM planning, scope-aware retrieval, provider streaming, citation resolution, structured sources, and responsive themes pass automated and visual checks.
+1. **Local vertical slice:** real LLM planning, scope-aware retrieval, explicit buffered or provider-streamed answer delivery, citation resolution, structured sources, and responsive themes pass automated and visual checks. Native provider streaming remains the preferred production configuration.
 2. **Containerized reproducible build:** pin backend/frontend dependencies, build without local caches, validate artifact hashes, and document measured startup/RAM/latency.
 3. **Hosted preview:** deploy static frontend and right-sized backend, enable HTTPS/restricted CORS/readiness, and verify unbuffered streaming.
 4. **Persistent conversations:** design storage, retention, deletion, and bounded-context policy before implementation.

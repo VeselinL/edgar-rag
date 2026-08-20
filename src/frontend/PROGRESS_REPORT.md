@@ -107,3 +107,13 @@ and was not included in AVA commits.
 - Re-ran the focused backend suite after synchronization: all 30 tests passed, with only the existing Starlette `TestClient` deprecation warning. Python compilation, notebook JSON validation, and diff checks also passed.
 - Ran the complete Python suite after the pipeline change: 96 tests passed with 157 subtests, and the same two pre-existing repository consistency tests failed (currency-symbol normalization expectation and stale baseline-review hash). No new pipeline test failed.
 - The recreated worktree also lacked ignored frontend dependencies, so the first frontend commands did not start. Restored exactly the lockfile dependencies with `npm ci` (zero vulnerabilities), then reran ESLint, all 7 frontend tests, and the production build successfully.
+
+### Explicit buffered real-answer delivery
+
+- Reproduced the local Unique gateway response with the configured Azure-backed deployment: `stream=True` returned HTTP 201 JSON with zero stream fragments even with `Accept: text/event-stream` and `x-model`.
+- Verified Unique's documented `/public/openai-proxy/` route and the Responses API route are not deployed on this tenant; both returned 404.
+- After explicit approval to disable token streaming, added strict `AVA_LLM_STREAMING=true|false` configuration. The existing native-stream path remains available; buffered real mode uses the same planner, retrieval, prompt, citations, sources, and SSE endpoint but emits the completed provider answer as one `delta` without simulated typing.
+- Enabled `AVA_LLM_STREAMING=false` only in the ignored local `.env` and exposed the active answer-delivery mode through the health response.
+- Ran the real FastAPI pipeline on an isolated port against the configured Unique tenant. Health reported `mode=real`, `pipeline_ready=true`, and `answer_delivery=buffered`; a Tesla query produced one grounded answer delta, resolved SEC filing sources, and terminated with `done`.
+- The live response grouped several chunk IDs inside one citation bracket, so citation parsing now accepts semicolon- or comma-separated valid IDs while continuing to reject bracketed prose.
+- Focused generation, real-pipeline, and API tests passed (16 tests). The complete Python suite ran 103 tests; only the same two pre-existing repository consistency failures remained (currency-symbol embedding-text expectation and stale baseline-review hash). Frontend ESLint, all 7 Vitest tests, and the TypeScript/Vite production build passed. Python compilation and diff whitespace validation also passed.

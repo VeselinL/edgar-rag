@@ -78,7 +78,8 @@ PLANNER_JSON_FORMAT = (
     "needs_multiple_retrievals, subqueries, operation."
 )
 
-CITATION_PATTERN = re.compile(r"\[([A-Za-z0-9][A-Za-z0-9._:-]*)\]")
+CITATION_GROUP_PATTERN = re.compile(r"\[([^\[\]]+)\]")
+CITATION_ID_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:-]*")
 
 
 def format_context(retrieved_evidence: Sequence[dict[str, Any]]) -> str:
@@ -100,8 +101,13 @@ def format_context(retrieved_evidence: Sequence[dict[str, Any]]) -> str:
 
 
 def citation_ids(answer: str) -> list[str]:
-    """Return unique generated citation identifiers in answer order."""
-    return list(dict.fromkeys(CITATION_PATTERN.findall(answer)))
+    """Return unique single or grouped citation identifiers in answer order."""
+    identifiers = []
+    for group in CITATION_GROUP_PATTERN.findall(answer):
+        candidates = re.split(r"\s*[,;]\s*", group.strip())
+        if candidates and all(CITATION_ID_PATTERN.fullmatch(value) for value in candidates):
+            identifiers.extend(candidates)
+    return list(dict.fromkeys(identifiers))
 
 
 def resolve_cited_evidence(

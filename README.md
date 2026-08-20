@@ -51,11 +51,12 @@ matching vectors. There are no
 normalization collisions, unmapped non-empty cells, standalone marker columns,
 unknown tables, invalid table Markdown, or provenance gaps.
 
-The local real pipeline loads and completes LLM-planned scope-aware retrieval, but
-the configured OpenAI-compatible gateway currently answers `stream=True` with
-HTTP 201 JSON and zero SSE chunks. AVA rejects that response rather than faking
-typing. Use mock mode for frontend development until native gateway streaming is
-enabled; see [DEPLOYMENT.md](DEPLOYMENT.md) for the verified contract and blocker.
+The local real pipeline supports both native provider streaming and an explicit
+buffered delivery mode for gateways that return only completed JSON. Buffered
+mode preserves the same retrieval, grounding, citations, and browser SSE event
+contract, but sends the completed model answer in one `delta` event without fake
+typing or artificial delays. See [DEPLOYMENT.md](DEPLOYMENT.md) for the verified
+gateway behavior and configuration.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for module and data contracts and
 [ROADMAP.md](ROADMAP.md) for verified progress and current gates.
@@ -101,9 +102,14 @@ For the local AVA API, also configure backend-only generation values:
 ```dotenv
 AVA_PIPELINE_MODE=real
 AVA_LLM_MODEL=AZURE_GPT_4o_2024_1120
+AVA_LLM_STREAMING=false
 OPENAI_API_KEY=<backend secret>
 OPENAI_API_URL=<OpenAI-compatible gateway base URL>
 ```
+
+Set `AVA_LLM_STREAMING=true` only when the configured provider returns genuine
+`text/event-stream` Chat Completions. The current local Unique gateway requires
+`false`; AVA then waits for its completed JSON answer and displays it at once.
 
 Optional gateway headers retain the notebook names `OPENAI_APP_ID`,
 `OPENAI_USER_ID`, `OPENAI_COMPANY_ID`, and `OPENAI_API_VERSION`. Never expose

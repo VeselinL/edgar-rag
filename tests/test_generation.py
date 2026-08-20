@@ -1,7 +1,7 @@
 import unittest
 from types import SimpleNamespace
 
-from src.generation.rag import GenerationService, format_context
+from src.generation.rag import GenerationService, citation_ids, format_context
 
 
 class FakeStream:
@@ -61,10 +61,40 @@ class GenerationTests(unittest.TestCase):
             list(GenerationService(client, model="test").stream_answer("Question", self.evidence()))
         self.assertTrue(stream.closed)
 
+    def test_buffered_answer_uses_non_streaming_provider_call(self):
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content="Complete answer"))]
+        )
+        completions = FakeCompletions(response)
+        client = SimpleNamespace(chat=SimpleNamespace(completions=completions))
+
+        answer = GenerationService(client, model="test").answer(
+            "Question", self.evidence()
+        )
+
+        self.assertEqual(answer, "Complete answer")
+        self.assertFalse(completions.arguments.get("stream", False))
+
     def test_context_uses_exact_internal_identifier(self):
         context = format_context(self.evidence())
         self.assertIn('<source id="TSLA-2025-CHUNK-000001"', context)
         self.assertIn("Evidence text.", context)
+
+    def test_citation_ids_accept_grouped_ids_without_matching_prose(self):
+        answer = (
+            "Supported [TSLA-2025-CHUNK-000001; TSLA-2025-CHUNK-000002] "
+            "and [TSLA-2025-CHUNK-000002, TSLA-2025-CHUNK-000003], "
+            "but ignore [not a citation]."
+        )
+
+        self.assertEqual(
+            citation_ids(answer),
+            [
+                "TSLA-2025-CHUNK-000001",
+                "TSLA-2025-CHUNK-000002",
+                "TSLA-2025-CHUNK-000003",
+            ],
+        )
 
     def test_planner_uses_notebook_contract_and_preserves_subqueries(self):
         response = SimpleNamespace(

@@ -47,16 +47,21 @@ class PipelineSettings:
     mode: str = "real"
     model_device: str = "cpu"
     llm_model: str = "AZURE_GPT_4o_2024_1120"
+    llm_streaming: bool = True
 
     @classmethod
     def from_environment(cls) -> "PipelineSettings":
         mode = os.getenv("AVA_PIPELINE_MODE", "real").strip().casefold()
         if mode not in {"real", "mock"}:
             raise ValueError("AVA_PIPELINE_MODE must be 'real' or 'mock'.")
+        raw_streaming = os.getenv("AVA_LLM_STREAMING", "true").strip().casefold()
+        if raw_streaming not in {"true", "false"}:
+            raise ValueError("AVA_LLM_STREAMING must be 'true' or 'false'.")
         return cls(
             mode=mode,
             model_device=os.getenv("AVA_MODEL_DEVICE", "cpu"),
             llm_model=os.getenv("AVA_LLM_MODEL", "AZURE_GPT_4o_2024_1120"),
+            llm_streaming=raw_streaming == "true",
         )
 
 
@@ -107,9 +112,13 @@ class RealPipeline:
         self,
         retriever: ScopeAwareRetriever,
         generator: GenerationService,
+        *,
+        llm_streaming: bool = True,
     ) -> None:
         self.retriever = retriever
         self.generator = generator
+        self.llm_streaming = llm_streaming
+        self.answer_delivery = "provider_streaming" if llm_streaming else "buffered"
 
     @classmethod
     def build(cls, settings: PipelineSettings) -> "RealPipeline":
@@ -130,7 +139,7 @@ class RealPipeline:
             all_chunks=chunks,
         )
         generator = GenerationService(make_llm_client(), model=settings.llm_model)
-        return cls(retriever, generator)
+        return cls(retriever, generator, llm_streaming=settings.llm_streaming)
 
     async def stream(
         self,
@@ -144,30 +153,39 @@ class RealPipeline:
         if await is_disconnected():
             return
         evidence = list(outcome.evidence)
-        provider_stream = self.generator.stream_answer(query, evidence)
         answer_fragments: list[str] = []
-        sentinel = object()
 
-        def next_fragment() -> object:
-            return next(provider_stream, sentinel)
+        if self.llm_streaming:
+            provider_stream = self.generator.stream_answer(query, evidence)
+            sentinel = object()
 
-        try:
-            while True:
-                fragment = await asyncio.to_thread(next_fragment)
-                if fragment is sentinel:
-                    break
-                if await is_disconnected():
-                    return
-                if isinstance(fragment, str) and fragment:
-                    answer_fragments.append(fragment)
-                    yield PipelineEvent("delta", {"text": fragment})
-        finally:
-            close = getattr(provider_stream, "close", None)
-            if callable(close):
-                close()
+            def next_fragment() -> object:
+                return next(provider_stream, sentinel)
+
+            try:
+                while True:
+                    fragment = await asyncio.to_thread(next_fragment)
+                    if fragment is sentinel:
+                        break
+                    if await is_disconnected():
+                        return
+                    if isinstance(fragment, str) and fragment:
+                        answer_fragments.append(fragment)
+                        yield PipelineEvent("delta", {"text": fragment})
+            finally:
+                close = getattr(provider_stream, "close", None)
+                if callable(close):
+                    close()
+        else:
+            answer = await asyncio.to_thread(self.generator.answer, query, evidence)
+            if await is_disconnected():
+                return
+            if answer:
+                answer_fragments.append(answer)
+                yield PipelineEvent("delta", {"text": answer})
 
         if not answer_fragments:
-            raise RuntimeError("The LLM stream ended without generated text.")
+            raise RuntimeError("The LLM returned no generated text.")
 
         cited, used_fallback = resolve_cited_evidence("".join(answer_fragments), evidence)
         sources, malformed_count = normalize_sources(cited)
@@ -217,6 +235,7 @@ class MockPipeline:
 
     mode = "mock"
     ready = True
+    answer_delivery = "mock_streaming"
 
     def __init__(self, delay_seconds: float = 0.06) -> None:
         self.delay_seconds = delay_seconds

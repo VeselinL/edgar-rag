@@ -68,6 +68,7 @@ def create_app(*, pipeline: Any | None = None) -> FastAPI:
             "status": "ok",
             "mode": getattr(active_pipeline, "mode", settings.mode),
             "pipeline_ready": bool(getattr(active_pipeline, "ready", False)),
+            "answer_delivery": getattr(active_pipeline, "answer_delivery", "unknown"),
         }
 
     @application.post("/api/chat/stream")

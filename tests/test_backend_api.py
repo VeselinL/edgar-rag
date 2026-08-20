@@ -37,7 +37,12 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.json(),
-            {"status": "ok", "mode": "mock", "pipeline_ready": True},
+            {
+                "status": "ok",
+                "mode": "mock",
+                "pipeline_ready": True,
+                "answer_delivery": "mock_streaming",
+            },
         )
 
     def test_successful_sse_order(self):
