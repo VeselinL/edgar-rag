@@ -24,3 +24,5 @@ src/frontend/dist/
 src/frontend/*.tsbuildinfo
 src/frontend/vite.config.js
 src/frontend/vite.config.d.ts
+
+/notes.txt
