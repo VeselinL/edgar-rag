@@ -43,3 +43,16 @@ visual labels must be reviewed after Phase 6 acquires immutable image bytes.
 
 The history cases are frozen acceptance inputs, not claims that persistence,
 deletion, or tenant isolation exists in the current stateless application.
+
+Phase 4 adds `generation_quality_v1.json`. It uses reviewed complete filing
+chunks and keeps generation/citation grading separate from retrieval. Run its
+deterministic reference contract or a fresh provider audit with:
+
+```bash
+PYTHONPATH=. .venv/bin/python -m src.evaluation.generation_quality
+PYTHONPATH=. .venv/bin/python -m src.evaluation.generation_quality \
+  --answers provider --judge-provider --output /tmp/ava-generation-provider.json
+```
+
+The optional judge is diagnostic and may vary by provider run. It never selects
+runtime sources or changes an answer.

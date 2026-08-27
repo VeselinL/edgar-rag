@@ -8,6 +8,7 @@ from src.generation.rag import (
     citation_ids,
     count_generation_input_tokens,
     format_context,
+    provider_usage,
 )
 
 
@@ -71,7 +72,8 @@ class GenerationTests(unittest.TestCase):
 
     def test_buffered_answer_uses_non_streaming_provider_call(self):
         response = SimpleNamespace(
-            choices=[SimpleNamespace(message=SimpleNamespace(content="Complete answer"))]
+            choices=[SimpleNamespace(message=SimpleNamespace(content="Complete answer"))],
+            usage=SimpleNamespace(prompt_tokens=10, completion_tokens=4, total_tokens=14),
         )
         completions = FakeCompletions(response)
         client = SimpleNamespace(chat=SimpleNamespace(completions=completions))
@@ -83,6 +85,31 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(answer, "Complete answer")
         self.assertFalse(completions.arguments.get("stream", False))
         self.assertEqual(completions.arguments["max_tokens"], 4096)
+
+        result = GenerationService(client, model="test").answer_with_metadata(
+            "Question", self.evidence()
+        )
+        self.assertEqual(result.usage, {"prompt_tokens": 10, "completion_tokens": 4, "total_tokens": 14})
+
+    def test_stream_metadata_captures_terminal_provider_usage(self):
+        terminal = SimpleNamespace(
+            choices=[],
+            usage={"prompt_tokens": 20, "completion_tokens": 5, "total_tokens": 25},
+        )
+        stream = FakeStream([chunk("answer"), terminal])
+        service = GenerationService(
+            SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(stream))),
+            model="test",
+        )
+        measured = service.stream_answer_with_metadata("Question", self.evidence())
+        self.assertEqual(list(measured), ["answer"])
+        self.assertEqual(measured.usage["total_tokens"], 25)
+
+    def test_provider_usage_ignores_non_numeric_and_unknown_fields(self):
+        self.assertEqual(
+            provider_usage({"prompt_tokens": 5, "secret": "never", "total_tokens": "5"}),
+            {"prompt_tokens": 5},
+        )
 
     def test_context_uses_exact_internal_identifier(self):
         context = format_context(self.evidence())
@@ -102,6 +129,10 @@ class GenerationTests(unittest.TestCase):
             self.assertIn("CEO means Chief Executive Officer", prompt)
             self.assertIn("COO means Chief Operating Officer", prompt)
             self.assertNotIn("CEO, that means Chief Operating Officer", prompt)
+
+    def test_prompt_requires_exact_citations_on_concluding_synthesis(self):
+        self.assertIn("concluding comparison or synthesis", SYSTEM_PROMPT)
+        self.assertIn("never add `$`", SYSTEM_PROMPT)
 
     def test_citation_ids_accept_grouped_ids_without_matching_prose(self):
         answer = (

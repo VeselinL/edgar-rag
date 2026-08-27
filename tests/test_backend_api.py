@@ -51,6 +51,7 @@ class BackendApiTests(unittest.TestCase):
         self.assertTrue(response.headers["content-type"].startswith("text/event-stream"))
         self.assertEqual(response.headers["cache-control"], "no-cache")
         self.assertEqual(response.headers["x-accel-buffering"], "no")
+        self.assertRegex(response.headers["x-request-id"], r"^[0-9a-f-]{36}$")
         events = parse_sse(response.text)
         self.assertEqual([event for event, _ in events], ["delta", "delta", "delta", "sources", "done"])
         self.assertEqual(len(events[-2][1]["sources"]), 2)

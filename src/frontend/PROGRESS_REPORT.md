@@ -341,3 +341,66 @@ and was not included in AVA commits.
   compilation, notebook JSON parsing, and diff whitespace validation passed.
   Frontend ESLint, strict TypeScript checking, all 10 Vitest tests, and the
   production build passed.
+
+### Completion Phase 4 — structured observability and generation/citation evaluation
+
+- Added a schema-v1 `RequestTrace` emitted exactly once for every real pipeline
+  request. It correlates a server-generated request/turn ID with corpus and local
+  index versions, original query, validated resolver decision, retrieval
+  subqueries, every candidate's dense/lexical/fusion provenance, quota and token
+  allocation, final generation evidence, answer, parsed/resolved/rejected
+  citations, displayed-source status, provider usage when available, redacted
+  error class, cancellation, stage latency, time to first token, and complete
+  latency. Empty image and memory fields reserve later boundaries without
+  claiming those features exist; hidden prompts and raw provider errors are not
+  included.
+- FastAPI remains a thin adapter. It generates one opaque UUID, returns it only
+  as the CORS-exposed `X-Request-ID`, and passes it into the shared pipeline. A
+  telemetry-sink failure is isolated from the user response. Structured startup
+  diagnostics now include corpus/BM25/model load time, RSS, CPU count, chunk
+  count, and exact corpus/index identity.
+- Added a backend-neutral operations aggregator for p50/p95 stage, first-token,
+  and complete latency, provider tokens, safe error/cancellation rates, and
+  observed concurrency. Qdrant latency is explicitly `null` until Phase 5 shadow
+  reads exist. Operational query/answer logs are documented as access-controlled
+  and separate from conversation storage; their external-sink retention is
+  configurable with a provisional 30-day default.
+- Added seven reviewed generation cases spanning direct fact, table, numerical,
+  calculation, synthesis, comparison, and supported abstention. The evaluator
+  loads fixed complete filing evidence and reports claim support, completeness,
+  numerical correctness, abstention, comparison coverage, contradictions,
+  citation precision/recall, invalid IDs, uncited facts, source exactness,
+  latency, model, and corpus fingerprint separately from retrieval. Reference
+  mode passed every metric at 100%, with zero contradictions, invalid IDs, or
+  uncited reviewed facts.
+- The fresh seven-case real-provider run reached 100% reviewed completeness,
+  labeled support, numerical correctness, abstention accuracy, comparison
+  coverage, citation precision/recall, and source-display exactness, with zero
+  contradictions, invalid citations, unsupported claims, or uncited reviewed
+  facts. The independent atomic-claim judge nevertheless found an uncited final
+  comparison synthesis: 2 of 22 non-abstention factual claims (9.09%). A repeat
+  of that comparison produced 3 of 8 uncited claims, showing provider variance.
+  Prompt instructions now explicitly prohibit `$`-prefixed source IDs and
+  uncited conclusions, fixing the observed malformed numerical citation, but
+  prompting alone did not make conclusion citation completeness deterministic.
+  This is recorded as a generation/citation release-signoff risk, not a retrieval
+  or source-display regression.
+- Re-ran the corpus evaluation on the unchanged 4,526-chunk fingerprint.
+  Resolution remained 100% with ambiguity precision 100% and false-company rate
+  0%; candidate recall remained 100%, final recall 84.44%, candidate/final MRR
+  0.7333/0.7778, quota satisfaction 100%, and table candidate/final recall 100%.
+  Gold evidence survival was 79.31% and selected source-group redundancy 14.55%.
+  Candidate and selected IDs were identical to Phase 3; only the strengthened
+  prompt increased mean generation input from 6,109 to 6,147 tokens, still far
+  below the 28,672 input limit.
+- A real end-to-end buffered request emitted `delta`, `sources`, and `done`, with
+  two parsed and resolved citations and no rejected IDs. Startup took 4,844 ms
+  (1,050 ms corpus load, 585 ms BM25, 3,174 ms model load) at 690 MB observed RSS.
+  The request took 3,384 ms: 1,523 ms planning, 629 ms retrieval/selection, 1,204
+  ms generation, and sub-millisecond citation/source adaptation. The configured
+  gateway again omitted token-usage metadata, so usage correctly remained empty
+  instead of being estimated or fabricated.
+- Phase 4 focused tests passed 49/49. The complete Python suite ran 159 tests:
+  157 passed and the same two pre-existing unrelated consistency tests failed.
+  Frontend ESLint, strict TypeScript, all 10 Vitest tests, and production build
+  passed. Python compilation, JSON validation, and whitespace validation passed.

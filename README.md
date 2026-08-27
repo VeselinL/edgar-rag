@@ -36,6 +36,11 @@ Implemented:
   seven supplemental slots for two-/three-company requests, and exact
   generation-token packing of complete chunks
 - cited-only backend source resolution and narrative/table-schema-v2 adaptation
+- one versioned backend request record with corpus/index identity, complete
+  evidence-chain diagnostics, stage/first-token/complete latency, cancellation,
+  provider usage when available, and safe errors
+- separate seven-category generation/citation evaluation with reviewed reference
+  answers and optional real-provider grounding audit
 - FastAPI liveness/readiness and streamed POST/SSE endpoints
 - React + TypeScript AVA interface with real stream consumption, structured HTML
   table sources, accessibility, responsive layout, and light/dark themes
@@ -49,7 +54,6 @@ Not implemented yet:
   companies (these currently fail clearly instead of silently starving evidence)
 - filing-image ingestion, retrieval, generation, and source display
 - persistent short- and long-term conversation history, authentication, and accounts
-- generation evaluation
 
 The `table-v2-chunk-v3.20260813-r2` table repair release was promoted on 13
 August 2026 for the original ten filings. Rivian was added as the eleventh
@@ -74,6 +78,8 @@ gateway behavior and configuration.
 the target architecture, priorities, dynamic per-company evidence policy, Qdrant
 migration, image retrieval, conversation memory, production completion work, and
 acceptance gates. [ROADMAP.md](ROADMAP.md) is its compact phase index.
+See [OBSERVABILITY.md](OBSERVABILITY.md) for the request-record contract and
+generation-quality commands.
 
 ## Data flow
 

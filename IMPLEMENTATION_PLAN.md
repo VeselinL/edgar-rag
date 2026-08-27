@@ -474,6 +474,24 @@ from user conversation retention.
 - **Operations:** startup/readiness, p50/p95 latency by stage, time to first token,
   memory/CPU, Qdrant latency, error/cancel rate, and concurrency.
 
+### Implemented Phase 4 contract — 2026-08-27
+
+- Runtime emits one schema-v1 backend-only completion record per real request and
+  exposes only an opaque `X-Request-ID` to the browser. The record reserves empty
+  image and memory fields without claiming those later features exist.
+- Query/answer content in operational logs is access-controlled and has a
+  separately configurable external-sink retention period; it is not conversation
+  persistence. Safe error classes never contain raw provider messages.
+- `src.observability.summarize_request_records` provides backend-neutral p50/p95
+  stage, first-token, and complete latency plus usage, error, cancellation, and
+  observed-concurrency metrics. Qdrant latency remains explicitly unavailable
+  until Phase 5 shadow reads exist.
+- `src.evaluation.generation_quality` evaluates seven reviewed categories from
+  fixed final evidence, separately from retrieval. Reference mode tests the
+  deterministic metric/citation contract; provider mode records fresh answers,
+  exact citations, model identity, corpus fingerprint, usage when available, and
+  an optional non-authoritative grounding audit.
+
 ## 11. Phase 5 — Qdrant migration with parity first (P1)
 
 ### Architecture decision

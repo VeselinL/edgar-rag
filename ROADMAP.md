@@ -42,5 +42,12 @@ NPZ dense vectors plus in-memory BM25, cited-only source display, a stateless AP
 and text/table sources. Explicit four-plus-company supplemental budgets remain an
 owner decision and fail clearly when unconfigured.
 
+P0 Phases 0–4 are implemented on `ava-p0-completion`. The current release gate
+includes structured request diagnostics and separate reviewed/reference plus
+real-provider generation/citation evaluation. Release sign-off still requires an
+accepted threshold or fix for uncited concluding synthesis observed in the live
+comparison case. Qdrant remains the next bounded storage phase after that gate
+and must preserve the local NPZ/BM25 path as its parity oracle.
+
 See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for the audited file-level
 evidence and all release gates.

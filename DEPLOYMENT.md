@@ -76,6 +76,7 @@ AVA_LLM_MODEL=<gateway deployment/model name>
 AVA_LLM_STREAMING=true
 AVA_LLM_CONTEXT_WINDOW_TOKENS=32768
 AVA_LLM_RESERVED_OUTPUT_TOKENS=4096
+AVA_OBSERVABILITY_RETENTION_DAYS=30
 # Required before serving explicit requests for four or more companies:
 # AVA_EVIDENCE_FOUR_PLUS_SUPPLEMENTAL=9
 OPENAI_API_KEY=<backend secret>
@@ -99,6 +100,14 @@ the generation request uses the same reserved output limit. The four-plus
 supplemental setting is intentionally unset by default because that product
 budget remains an owner decision. Without it, AVA returns a safe request to
 narrow the company set instead of silently reducing the five-per-company quota.
+
+Every real request emits one access-controlled structured completion record and
+returns an opaque `X-Request-ID` response header for correlation. The external
+log sink must enforce `AVA_OBSERVABILITY_RETENTION_DAYS` independently from any
+future conversation retention. The current application remains stateless and
+does not persist these records itself. Provider token usage is recorded when the
+configured gateway supplies it; the verified local gateway currently omits it.
+See [OBSERVABILITY.md](OBSERVABILITY.md).
 
 Mock mode is explicit:
 

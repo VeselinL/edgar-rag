@@ -168,6 +168,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
                 "AVA_LLM_CONTEXT_WINDOW_TOKENS": "65536",
                 "AVA_LLM_RESERVED_OUTPUT_TOKENS": "8192",
                 "AVA_EVIDENCE_FOUR_PLUS_SUPPLEMENTAL": "9",
+                "AVA_OBSERVABILITY_RETENTION_DAYS": "14",
             },
             clear=False,
         ):
@@ -175,6 +176,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(settings.context_window_tokens, 65_536)
         self.assertEqual(settings.reserved_output_tokens, 8_192)
         self.assertEqual(settings.four_plus_supplemental, 9)
+        self.assertEqual(settings.observability_retention_days, 14)
 
     async def test_planner_subqueries_drive_shared_retrieval_before_streaming(self):
         retriever = FakeRetriever()
@@ -340,6 +342,51 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
                 "malformed_source_count": 1,
             },
         )
+
+    async def test_one_complete_structured_trace_covers_the_evidence_chain(self):
+        records = []
+        pipeline = RealPipeline(
+            FakeRetriever(), FakeGenerator(), llm_streaming=False,
+            corpus_version_value="sha256:test", index_version="local:test",
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        list_events = [
+            event async for event in pipeline.stream(
+                "Original query", connected, request_id="request-123"
+            )
+        ]
+        self.assertEqual(list_events[-1].event, "done")
+        self.assertEqual(len(records), 1)
+        record = records[0]
+        self.assertEqual(record["request_id"], "request-123")
+        self.assertEqual(record["turn_id"], "request-123")
+        self.assertEqual(record["corpus_version"], "sha256:test")
+        self.assertEqual(record["retrieval_subqueries"], ["Tesla revenue", "Tesla risk factors"])
+        self.assertEqual(record["final_generation_evidence_ids"], ["TSLA-2025-CHUNK-000001"])
+        self.assertEqual(record["generated_citation_ids"], ["TSLA-2025-CHUNK-000001"])
+        self.assertEqual(record["resolved_used_ids"], ["TSLA-2025-CHUNK-000001"])
+        self.assertEqual(record["source_status"], "cited")
+        self.assertIsNone(record["safe_error_class"])
+        self.assertIn("retrieval_selection", record["stage_latency_ms"])
+        self.assertIn("generation", record["stage_latency_ms"])
+        self.assertIsNotNone(record["time_to_first_token_ms"])
+
+    async def test_disconnect_is_recorded_without_generation(self):
+        records = []
+        generator = FakeGenerator()
+        pipeline = RealPipeline(FakeRetriever(), generator, telemetry_sink=records.append)
+
+        async def disconnected():
+            return True
+
+        events = [event async for event in pipeline.stream("Original query", disconnected)]
+        self.assertEqual(events, [])
+        self.assertTrue(records[0]["cancelled"])
+        self.assertFalse(generator.stream_answer_called)
 
 
 if __name__ == "__main__":

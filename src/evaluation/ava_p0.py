@@ -130,6 +130,13 @@ def evaluate_resolution(cases: Sequence[dict[str, Any]]) -> dict[str, Any]:
     )
     exact = [record for record in records if record["category"].startswith("exact")]
     typo = [record for record in records if record["category"].startswith("typo")]
+    clarification_positive = [
+        record for record in records if record["detected_needs_clarification"]
+    ]
+    false_company_count = sum(
+        bool(set(record["detected_tickers"]) - set(record["expected_tickers"]))
+        for record in records
+    )
     return {
         "summary": {
             "case_count": len(records),
@@ -149,6 +156,12 @@ def evaluate_resolution(cases: Sequence[dict[str, Any]]) -> dict[str, Any]:
                 ) / len(typo)
                 if typo else 0.0
             ),
+            "ambiguity_precision": (
+                sum(record["expected_needs_clarification"] for record in clarification_positive)
+                / len(clarification_positive)
+                if clarification_positive else 1.0
+            ),
+            "false_company_rate": false_company_count / len(records) if records else 0.0,
             "latency_ms": _latency_summary(latencies),
         },
         "records": records,
@@ -293,6 +306,9 @@ def evaluate_retrieval(
                 "final_evidence_budget_chunks": len(selected_ids),
                 "final_context_character_count": len(formatted_context),
                 "final_context_bge_token_proxy": context_token_proxy,
+                "selected_source_group_redundancy_rate": _source_group_redundancy(
+                    selected_ids, chunks_by_id
+                ),
                 "coverage_by_subquery": list(outcome.coverage_by_subquery),
                 "candidate_gold_recall": len(candidate_gold) / len(gold_ids),
                 "final_gold_recall": len(selected_gold) / len(gold_ids),
@@ -321,6 +337,20 @@ def evaluate_retrieval(
     evaluated = [
         record for record in records if record["candidate_gold_recall"] is not None
     ]
+    candidate_gold_count = sum(len(record["candidate_gold_ids"]) for record in evaluated)
+    selected_gold_count = sum(len(record["selected_gold_ids"]) for record in evaluated)
+    table_gold_ids = {
+        chunk_id
+        for record in evaluated
+        for chunk_id in record["gold_ids"]
+        if chunks_by_id[chunk_id].get("content_type") == "table"
+    }
+    table_candidate_ids = {
+        chunk_id for record in evaluated for chunk_id in record["candidate_ids"]
+    }
+    table_selected_ids = {
+        chunk_id for record in evaluated for chunk_id in record["selected_ids"]
+    }
     return {
         "summary": {
             "case_count": len(records),
@@ -340,6 +370,20 @@ def evaluate_retrieval(
             ),
             "quota_satisfaction_rate": statistics.fmean(
                 float(record["quota_satisfied"]) for record in evaluated
+            ),
+            "gold_evidence_survival_rate": (
+                selected_gold_count / candidate_gold_count if candidate_gold_count else 1.0
+            ),
+            "selected_source_group_redundancy_rate": statistics.fmean(
+                record["selected_source_group_redundancy_rate"] for record in evaluated
+            ),
+            "table_candidate_recall": (
+                len(table_gold_ids & table_candidate_ids) / len(table_gold_ids)
+                if table_gold_ids else 1.0
+            ),
+            "table_final_recall": (
+                len(table_gold_ids & table_selected_ids) / len(table_gold_ids)
+                if table_gold_ids else 1.0
             ),
             "failure_stage_counts": dict(
                 sorted(Counter(record["first_failure_stage"] or "pass" for record in records).items())
@@ -374,6 +418,17 @@ def _reciprocal_rank(ranked_ids: Sequence[str], relevant_ids: set[str]) -> float
         if chunk_id in relevant_ids:
             return 1.0 / rank
     return 0.0
+
+
+def _source_group_redundancy(
+    selected_ids: Sequence[str], chunks_by_id: dict[str, dict[str, Any]]
+) -> float:
+    groups = [
+        (chunks_by_id[chunk_id].get("ticker"), chunks_by_id[chunk_id].get("source_group"))
+        for chunk_id in selected_ids
+    ]
+    groups = [group for group in groups if group[1]]
+    return (len(groups) - len(set(groups))) / len(groups) if groups else 0.0
 
 
 def _context_token_proxy(context: str, model: Any) -> int:
@@ -473,6 +528,7 @@ def evaluate_citations(
         visible = [item["chunk"]["chunk_id"] for item in resolution.evidence]
         expected = case["expected_visible_ids"]
         passed = visible == expected
+        overlap = len(set(visible) & set(expected))
         records.append(
             {
                 "id": case["id"],
@@ -483,6 +539,12 @@ def evaluate_citations(
                 "used_fallback": False,
                 "diagnostic_reason": resolution.diagnostic_reason,
                 "source_display_exact": passed,
+                "citation_precision": (
+                    len(resolution.resolved_ids) / len(resolution.parsed_ids)
+                    if resolution.parsed_ids else 1.0
+                ),
+                "citation_recall": overlap / len(expected) if expected else 1.0,
+                "invalid_citation_count": len(resolution.rejected_ids),
                 "first_failure_stage": None if passed else "citation",
                 "latency_ms": latency_ms,
             }
@@ -496,6 +558,9 @@ def evaluate_citations(
                 if records else 0.0
             ),
             "fallback_case_count": 0,
+            "citation_precision": statistics.fmean(record["citation_precision"] for record in records),
+            "citation_recall": statistics.fmean(record["citation_recall"] for record in records),
+            "invalid_citation_count": sum(record["invalid_citation_count"] for record in records),
             "latency_ms": _latency_summary(latencies),
         },
         "records": records,

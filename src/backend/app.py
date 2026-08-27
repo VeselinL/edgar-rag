@@ -8,6 +8,7 @@ import json
 import logging
 import os
 from typing import Any
+from uuid import uuid4
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -59,6 +60,7 @@ def create_app(*, pipeline: Any | None = None) -> FastAPI:
         allow_credentials=False,
         allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=["Content-Type"],
+        expose_headers=["X-Request-ID"],
     )
 
     @application.get("/api/health")
@@ -84,9 +86,13 @@ def create_app(*, pipeline: Any | None = None) -> FastAPI:
         if active_pipeline is None or not getattr(active_pipeline, "ready", False):
             raise HTTPException(status_code=503, detail="AVA is still preparing its filing index.")
 
+        request_id = str(uuid4())
+
         async def event_stream() -> AsyncIterator[bytes]:
             try:
-                async for event in active_pipeline.stream(body.query, request.is_disconnected):
+                async for event in active_pipeline.stream(
+                    body.query, request.is_disconnected, request_id=request_id
+                ):
                     yield encode_sse(event)
             except Exception:
                 LOGGER.exception("AVA stream failed")
@@ -98,6 +104,7 @@ def create_app(*, pipeline: Any | None = None) -> FastAPI:
             headers={
                 "Cache-Control": "no-cache",
                 "X-Accel-Buffering": "no",
+                "X-Request-ID": request_id,
             },
         )
 

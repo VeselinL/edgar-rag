@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "description": "Frozen generation and citation quality cases over immutable filing chunks.",
+  "cases": [
+    {
+      "id": "direct-tsla-ai-strategy",
+      "category": "direct_factual",
+      "query": "Which AI products does Tesla identify as part of its real-world AI strategy?",
+      "final_evidence_ids": ["TSLA-2025-CHUNK-000001"],
+      "required_claims": [{"terms": ["FSD", "Robotaxi", "Optimus"], "support_ids": ["TSLA-2025-CHUNK-000001"], "numerical": false}],
+      "comparison_companies": [],
+      "expects_abstention": false,
+      "contradiction_terms": ["CEO"],
+      "reference_answer": "Tesla identifies FSD (Supervised), Robotaxi, and Optimus as products in its real-world AI strategy [TSLA-2025-CHUNK-000001]."
+    },
+    {
+      "id": "table-tsla-facility",
+      "category": "table",
+      "query": "Where is Tesla's Gigafactory Texas located, and is it owned or leased?",
+      "final_evidence_ids": ["TSLA-2025-CHUNK-000094"],
+      "required_claims": [{"terms": ["Austin", "Texas", "owned"], "support_ids": ["TSLA-2025-CHUNK-000094"], "numerical": false}],
+      "comparison_companies": [],
+      "expects_abstention": false,
+      "contradiction_terms": ["leased"],
+      "reference_answer": "Gigafactory Texas is in Austin, Texas, and is owned [TSLA-2025-CHUNK-000094]."
+    },
+    {
+      "id": "numerical-tsla-revenue",
+      "category": "numerical",
+      "query": "What were Tesla's total revenues in 2025?",
+      "final_evidence_ids": ["TSLA-2025-CHUNK-000121"],
+      "required_claims": [{"terms": ["94,827", "2025", "million"], "support_ids": ["TSLA-2025-CHUNK-000121"], "numerical": true}],
+      "comparison_companies": [],
+      "expects_abstention": false,
+      "contradiction_terms": ["97,690 million in 2025"],
+      "reference_answer": "Tesla's total revenues in 2025 were $94,827 million [TSLA-2025-CHUNK-000121]."
+    },
+    {
+      "id": "calculation-tsla-revenue-change",
+      "category": "calculation",
+      "query": "By how much did Tesla's total revenues change from 2024 to 2025?",
+      "final_evidence_ids": ["TSLA-2025-CHUNK-000121"],
+      "required_claims": [{"terms": ["decreased", "2,863", "3%"], "support_ids": ["TSLA-2025-CHUNK-000121"], "numerical": true}],
+      "comparison_companies": [],
+      "expects_abstention": false,
+      "contradiction_terms": ["increased by $2,863"],
+      "reference_answer": "Tesla's total revenues decreased by $2,863 million, or 3%, from 2024 to 2025 [TSLA-2025-CHUNK-000121]."
+    },
+    {
+      "id": "synthesis-ford-executives",
+      "category": "cross_section_synthesis",
+      "query": "Who were Ford's CEO and COO, and when did each begin the role?",
+      "final_evidence_ids": ["F-2025-CHUNK-000123"],
+      "required_claims": [
+        {"terms": ["James", "Farley", "October 2020"], "support_ids": ["F-2025-CHUNK-000123"], "numerical": false},
+        {"terms": ["Galhotra", "October 2023"], "support_ids": ["F-2025-CHUNK-000123"], "numerical": false}
+      ],
+      "comparison_companies": [],
+      "expects_abstention": false,
+      "contradiction_terms": ["CEO means Chief Operating Officer"],
+      "reference_answer": "Ford listed James D. Farley Jr. as President and CEO since October 2020, and Ashwani (Kumar) Galhotra as COO since October 2023 [F-2025-CHUNK-000123]."
+    },
+    {
+      "id": "comparison-tsla-ford-strategy",
+      "category": "cross_company_comparison",
+      "query": "Compare Tesla's autonomous service strategy with Ford Model e's technology focus.",
+      "final_evidence_ids": ["TSLA-2025-CHUNK-000003", "F-2025-CHUNK-000005"],
+      "required_claims": [
+        {"terms": ["Tesla", "Robotaxi", "ride-hailing"], "support_ids": ["TSLA-2025-CHUNK-000003"], "numerical": false},
+        {"terms": ["Ford", "Model e", "EV", "software"], "support_ids": ["F-2025-CHUNK-000005"], "numerical": false}
+      ],
+      "comparison_companies": ["Tesla", "Ford"],
+      "expects_abstention": false,
+      "contradiction_terms": ["Ford Robotaxi"],
+      "reference_answer": "Tesla describes Robotaxi as an autonomous ride-hailing platform supporting a service-driven model [TSLA-2025-CHUNK-000003]. Ford Model e focuses on EV and digital-vehicle technologies, including software and connected-vehicle technology [F-2025-CHUNK-000005]."
+    },
+    {
+      "id": "absent-tsla-dividend",
+      "category": "absent_abstention",
+      "query": "How much cash dividend did Tesla declare in 2025?",
+      "final_evidence_ids": ["TSLA-2025-CHUNK-000001"],
+      "required_claims": [],
+      "comparison_companies": [],
+      "expects_abstention": true,
+      "contradiction_terms": ["declared a dividend of"],
+      "reference_answer": "The available filing evidence does not provide enough information to answer that question."
+    }
+  ]
+}
