@@ -1,11 +1,8 @@
 # Environment variables
 .env
 
-# Local working roadmap
-/ROADMAP.md
-
 # Agent files
-/AGENTS.md
+/docs/
 
 # Local variables
 .idea/
