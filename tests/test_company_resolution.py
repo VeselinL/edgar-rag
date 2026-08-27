@@ -8,6 +8,7 @@ from src.resolution.companies import (
     damerau_levenshtein,
     default_company_resolver,
 )
+from src.filings.corpus import ACTIVE_FILINGS
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -66,6 +67,32 @@ class CompanyResolverTests(unittest.TestCase):
         self.assertEqual(self.resolver.resolve("Give me a summary.").resolved_tickers, ())
         self.assertEqual(self.resolver.resolve("Compare ticker F with GM.").resolved_tickers, ("GM", "F"))
         self.assertEqual(self.resolver.resolve("Compare ticker f with GM.").resolved_tickers, ("GM", "F"))
+
+    def test_each_company_deterministically_targets_the_complete_corpus(self):
+        result = self.resolver.resolve("Who is the CEO of each company?")
+
+        self.assertEqual(result.explicit_scope_tickers, tuple(ACTIVE_FILINGS))
+        self.assertEqual(result.resolved_tickers, tuple(ACTIVE_FILINGS))
+        self.assertEqual(result.mentions, ())
+        self.assertEqual(result.scope, "explicit_subset")
+        self.assertTrue(result.comparison)
+        self.assertFalse(result.needs_clarification)
+
+        validated = self.resolver.apply_planner_resolution(
+            result, [], list(ACTIVE_FILINGS)
+        )
+        self.assertEqual(validated.resolved_tickers, tuple(ACTIVE_FILINGS))
+
+    def test_full_corpus_cue_with_exclusion_is_not_silently_broadened(self):
+        result = self.resolver.resolve("Who is the CEO of each company except Tesla?")
+
+        self.assertEqual(result.explicit_scope_tickers, ())
+        self.assertEqual(result.resolved_tickers, ("TSLA",))
+        self.assertTrue(result.needs_clarification)
+        self.assertIn(
+            "unsupported_full_corpus_exclusion",
+            {item.reason for item in result.unresolved_mentions},
+        )
 
     def test_language_collisions_and_out_of_corpus_mentions_clarify(self):
         for query in (

@@ -428,3 +428,26 @@ and was not included in AVA commits.
   the same two unrelated pre-existing consistency failures (the table-embedding
   `$20` assertion and stale Mobileye baseline-review hash). Frontend ESLint,
   strict TypeScript, all 10 Vitest tests, and the production build passed.
+
+### Explicit full-corpus quantifier resolution
+
+- Reproduced `Who is the CEO of each company?`: deterministic resolution treated
+  it as an unscoped global question, while the planner correctly returned all
+  eleven configured tickers. The validated-mention boundary therefore rejected
+  the planner tickers before retrieval.
+- Added deterministic full-corpus recognition for unqualified `each company`,
+  `every company`, and `all companies` phrases. The shared resolution result now
+  carries `explicit_scope_tickers`, keeping corpus-wide intent distinct from
+  invented or LLM-resolved company mentions. Exclusion phrases are not expanded
+  and require clarification.
+- Full-corpus planner output must still contain exactly configured tickers. A
+  provider's non-comparison classification is narrowly normalized to the shared
+  deterministic result and recorded in backend-only telemetry. The request then
+  reaches the existing four-plus evidence policy: it either honors the configured
+  five-per-company/token budget or returns a safe narrowing response.
+- Added resolver and end-to-end pipeline regressions for the reported query and
+  exclusion safety. All 79 retrieval/resolution/planning/policy focused tests
+  passed. The complete backend suite reached 162 passing tests with only the same
+  two unrelated pre-existing consistency failures. Frontend ESLint, strict
+  TypeScript, all 10 Vitest tests, production build, Python compilation, and
+  whitespace validation passed.

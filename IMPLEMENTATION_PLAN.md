@@ -325,10 +325,17 @@ CompanyResolution
     method: exact_alias | exact_ticker | fuzzy | llm
     confidence
   unresolved_mentions[]
+  explicit_scope_tickers[]  # deterministic "each/all company" corpus quantifier
   scope
   comparison
   needs_clarification
 ```
+
+An unqualified `each company`, `every company`, or `all companies` request in AVA
+deterministically targets the complete configured corpus through
+`explicit_scope_tickers`; it is not an LLM-invented company mention. Exclusion
+phrases do not use this expansion and require clarification rather than being
+silently broadened.
 
 `detect_scope` must consume this result. There must be one resolver shared by the
 API, evaluator, and notebooks/scripts; do not leave a duplicate detector in

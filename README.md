@@ -131,6 +131,19 @@ Set `AVA_LLM_STREAMING=true` only when the configured provider returns genuine
 `text/event-stream` Chat Completions. The current local Unique gateway requires
 `false`; AVA then waits for its completed JSON answer and displays it at once.
 
+Explicit requests for four or more companies intentionally require an evidence
+budget decision. Configure the number of supplemental chunks (in addition to
+the five-per-company minimum) with, for example:
+
+```dotenv
+AVA_EVIDENCE_FOUR_PLUS_SUPPLEMENTAL=0
+```
+
+Leaving it unset returns a safe request-narrowing response. A request for all
+eleven companies reserves at least 55 complete chunks, so the configured model
+context window must be large enough; AVA fails safely instead of truncating or
+starving a requested company.
+
 Optional gateway headers retain the notebook names `OPENAI_APP_ID`,
 `OPENAI_USER_ID`, `OPENAI_COMPANY_ID`, and `OPENAI_API_VERSION`. Never expose
 these values through a `VITE_*` variable.

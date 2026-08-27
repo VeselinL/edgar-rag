@@ -293,7 +293,18 @@ class RealPipeline:
                 plan["resolved_tickers"],
             )
         if plan["comparison"] != resolution.comparison:
-            raise ValueError("Planner comparison intent disagrees with validated resolution.")
+            if resolution.explicit_scope_tickers:
+                plan["comparison"] = resolution.comparison
+                plan.setdefault("_normalizations", []).append(
+                    "full_corpus_comparison_intent"
+                )
+                LOGGER.warning(
+                    "AVA normalized planner comparison intent for an explicit full-corpus request"
+                )
+            else:
+                raise ValueError(
+                    "Planner comparison intent disagrees with validated resolution."
+                )
         if plan["ambiguity"] != resolution.needs_clarification:
             raise ValueError("Planner ambiguity disagrees with validated resolution.")
 
@@ -302,6 +313,7 @@ class RealPipeline:
             extra={
                 "ava_company_resolution": {
                     "resolved_tickers": list(resolution.resolved_tickers),
+                    "explicit_scope_tickers": list(resolution.explicit_scope_tickers),
                     "mentions": [
                         {
                             "raw_text": mention.raw_text,
@@ -322,6 +334,7 @@ class RealPipeline:
         )
         trace.resolver = {
             "resolved_tickers": list(resolution.resolved_tickers),
+            "explicit_scope_tickers": list(resolution.explicit_scope_tickers),
             "mentions": [
                 {
                     "raw_text": mention.raw_text,

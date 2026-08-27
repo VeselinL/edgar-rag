@@ -37,6 +37,13 @@ ENUMERATION_CUES = (
     r"\bwho (?:offers|operates|develops|provides|uses|builds|sells)\b",
 )
 
+FULL_CORPUS_CUES = (
+    r"\b(?:each|every) (?:one of )?(?:the )?(?:company|companies|firm|firms)\b",
+    r"\ball (?:of )?(?:the )?(?:eleven )?(?:companies|firms)\b",
+)
+
+FULL_CORPUS_EXCLUSION_CUE = r"\b(?:except|excluding|apart from|but not)\b"
+
 CORPORATE_SUFFIXES = {
     "co",
     "company",
@@ -95,10 +102,14 @@ class CompanyResolution:
     scope: str
     comparison: bool
     needs_clarification: bool
+    explicit_scope_tickers: tuple[str, ...] = ()
 
     @property
     def resolved_tickers(self) -> tuple[str, ...]:
-        present = {mention.ticker for mention in self.mentions}
+        present = {
+            *self.explicit_scope_tickers,
+            *(mention.ticker for mention in self.mentions),
+        }
         return tuple(ticker for ticker in ACTIVE_FILINGS if ticker in present)
 
     @property
@@ -112,6 +123,7 @@ class CompanyResolution:
             "unresolved_mentions": [
                 mention.__dict__ for mention in self.unresolved_mentions
             ],
+            "explicit_scope_tickers": list(self.explicit_scope_tickers),
             "resolved_tickers": list(self.resolved_tickers),
             "scope": self.scope,
             "comparison": self.comparison,
@@ -194,6 +206,18 @@ def _is_enumeration(query: str) -> bool:
     return any(re.search(pattern, query, re.IGNORECASE) for pattern in ENUMERATION_CUES)
 
 
+def _has_full_corpus_cue(query: str) -> bool:
+    normalized = normalize_company_text(query)
+    return any(re.search(pattern, normalized) for pattern in FULL_CORPUS_CUES)
+
+
+def _requests_full_corpus(query: str) -> bool:
+    normalized = normalize_company_text(query)
+    return _has_full_corpus_cue(query) and not re.search(
+        FULL_CORPUS_EXCLUSION_CUE, normalized
+    )
+
+
 def _is_comparison(query: str, ticker_count: int) -> bool:
     normalized = f" {normalize_company_text(query)} "
     return (
@@ -234,6 +258,9 @@ class CompanyResolver:
 
     def resolve(self, query: str) -> CompanyResolution:
         normalized = normalize_company_text(query)
+        explicit_scope_tickers = (
+            tuple(ACTIVE_FILINGS) if _requests_full_corpus(query) else ()
+        )
         ambiguous_phrases = {
             alias
             for alias, context in AMBIGUOUS_ALIAS_CONTEXTS
@@ -288,6 +315,15 @@ class CompanyResolver:
             for alias, context in AMBIGUOUS_ALIAS_CONTEXTS
             if re.search(rf"(?<!\w){re.escape(context)}(?!\w)", normalized)
         ]
+        if _has_full_corpus_cue(query) and re.search(
+            FULL_CORPUS_EXCLUSION_CUE, normalized
+        ):
+            unresolved.append(
+                UnresolvedMention(
+                    query,
+                    "unsupported_full_corpus_exclusion",
+                )
+            )
 
         query_tokens = normalized.split()
         occupied = {normalize_company_phrase(m.raw_text) for m in mentions}
@@ -382,7 +418,11 @@ class CompanyResolver:
         tickers = tuple(
             ticker
             for ticker in ACTIVE_FILINGS
-            if ticker in {mention.ticker for mention in mentions}
+            if ticker
+            in {
+                *explicit_scope_tickers,
+                *(mention.ticker for mention in mentions),
+            }
         )
         scope = _scope(query, tickers)
         return CompanyResolution(
@@ -392,6 +432,7 @@ class CompanyResolver:
             scope=scope,
             comparison=_is_comparison(query, len(tickers)),
             needs_clarification=bool(unresolved),
+            explicit_scope_tickers=explicit_scope_tickers,
         )
 
     def _shortlist(self, raw: str, limit: int = 3) -> tuple[str, ...]:
@@ -478,7 +519,10 @@ class CompanyResolver:
             resolved_unresolved.add(key)
 
         mentions = self._deduplicate_mentions([*deterministic.mentions, *additions])
-        final_tickers = {mention.ticker for mention in mentions}
+        final_tickers = {
+            *deterministic.explicit_scope_tickers,
+            *(mention.ticker for mention in mentions),
+        }
         if deterministic_tickers - final_tickers:
             raise ValueError("Planner attempted to override a deterministic company match.")
         if set(planner_resolved_tickers) != final_tickers:
@@ -496,6 +540,7 @@ class CompanyResolver:
             scope=_scope(deterministic.original_query, tickers),
             comparison=_is_comparison(deterministic.original_query, len(tickers)),
             needs_clarification=bool(remaining) or ambiguous,
+            explicit_scope_tickers=deterministic.explicit_scope_tickers,
         )
 
     def retrieval_query(self, query: str, tickers: Sequence[str]) -> str:

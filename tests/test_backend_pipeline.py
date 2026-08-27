@@ -141,6 +141,22 @@ class AmbiguousGenerator(FakeGenerator):
         }
 
 
+class EachCompanyGenerator(FakeGenerator):
+    def plan_retrieval(self, query, deterministic_resolution=None):
+        self.planned_query = query
+        self.deterministic_resolution = deterministic_resolution
+        tickers = list(FILINGS)
+        return {
+            "needs_multiple_retrievals": False,
+            "subqueries": [{"query": query, "tickers": tickers}],
+            "operation": None,
+            "resolved_tickers": tickers,
+            "company_mentions": [],
+            "comparison": False,
+            "ambiguity": False,
+        }
+
+
 class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
     def test_deployment_corpus_includes_rivian(self):
         self.assertEqual(FILINGS["RIVN"], "2025-10-K")
@@ -258,6 +274,27 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         events = [event async for event in pipeline.stream("Original query", connected)]
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
         self.assertIn("three or fewer companies", events[0].data["text"])
+        self.assertEqual(events[1].data["sources"], [])
+
+    async def test_each_company_plan_reaches_four_plus_policy_gate(self):
+        generator = EachCompanyGenerator()
+        pipeline = RealPipeline(PolicyErrorRetriever(), generator)
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Who is the CEO of each company?", connected
+            )
+        ]
+
+        self.assertEqual(
+            generator.deterministic_resolution.resolved_tickers, tuple(FILINGS)
+        )
+        self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
+        self.assertIn("evidence budget is not configured", events[0].data["text"])
         self.assertEqual(events[1].data["sources"], [])
 
     async def test_buffered_mode_emits_completed_answer_as_one_delta(self):
