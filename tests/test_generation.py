@@ -1,6 +1,7 @@
 import unittest
 from types import SimpleNamespace
 
+from src.resolution.companies import default_company_resolver
 from src.generation.rag import (
     PLANNER_INSTRUCTION,
     SYSTEM_PROMPT,
@@ -198,6 +199,45 @@ class GenerationTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "invalid retrieval plan"):
             GenerationService(client, model="test").plan_retrieval("Question")
+
+    def test_planner_repairs_empty_single_query_with_original_text(self):
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content=(
+                '{"needs_multiple_retrievals": false, "subqueries": [], '
+                '"operation": null, "resolved_tickers": [], "company_mentions": [], '
+                '"comparison": false, "ambiguity": false}'
+            )))]
+        )
+        client = SimpleNamespace(
+            chat=SimpleNamespace(completions=FakeCompletions(response))
+        )
+        plan = GenerationService(client, model="test").plan_retrieval(
+            "What risks are common in these filings?"
+        )
+        self.assertEqual(
+            plan["subqueries"],
+            [{"query": "What risks are common in these filings?", "tickers": []}],
+        )
+        self.assertEqual(
+            plan["_normalizations"], ["single_query_empty_subqueries"]
+        )
+
+    def test_planner_does_not_repair_omitted_deterministic_ticker(self):
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content=(
+                '{"needs_multiple_retrievals": false, "subqueries": [], '
+                '"operation": null, "resolved_tickers": [], "company_mentions": [], '
+                '"comparison": false, "ambiguity": false}'
+            )))]
+        )
+        client = SimpleNamespace(
+            chat=SimpleNamespace(completions=FakeCompletions(response))
+        )
+        resolution = default_company_resolver.resolve("What are Tesla's risks?")
+        with self.assertRaisesRegex(ValueError, "invalid retrieval plan"):
+            GenerationService(client, model="test").plan_retrieval(
+                "What are Tesla's risks?", resolution
+            )
 
     def test_planner_rejects_out_of_corpus_ticker(self):
         response = SimpleNamespace(

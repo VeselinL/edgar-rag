@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 from collections.abc import Iterable, Iterator, Sequence
@@ -21,6 +22,7 @@ from src.resolution.companies import CompanyResolution, default_company_resolver
 DEFAULT_LLM_MODEL = "AZURE_GPT_4o_2024_1120"
 DEFAULT_MAX_OUTPUT_TOKENS = 4_096
 DEFAULT_GENERATION_ENCODING = "o200k_base"
+LOGGER = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """Your name is AVA - Autonomous Vehicle Analyst. You are a rigorous SEC filing research assistant. Answer only from the retrieved 10-K excerpts.
 
@@ -382,12 +384,31 @@ class GenerationService:
         }
         valid_operations = {None, "percentage", "difference", "ratio", "growth_rate", "sum"}
         valid_tickers = set(ACTIVE_FILINGS)
+        normalizations: list[str] = []
 
         def valid_ticker_list(value: Any) -> bool:
             return (
                 isinstance(value, list)
                 and all(isinstance(ticker, str) and ticker in valid_tickers for ticker in value)
                 and len(value) == len(set(value))
+            )
+
+        # Some compatible gateways occasionally contradict the single-retrieval
+        # contract by returning an empty list. Reusing the original question is
+        # the only recovery that neither rewrites user text nor invents scope.
+        if (
+            set(plan) == required_keys
+            and plan.get("needs_multiple_retrievals") is False
+            and plan.get("subqueries") == []
+            and valid_ticker_list(plan.get("resolved_tickers"))
+            and set(resolution.resolved_tickers) <= set(plan["resolved_tickers"])
+        ):
+            plan["subqueries"] = [
+                {"query": original_query, "tickers": list(plan["resolved_tickers"])}
+            ]
+            normalizations.append("single_query_empty_subqueries")
+            LOGGER.warning(
+                "AVA normalized an empty single-query planner result to the original query"
             )
 
         valid_subqueries = (
@@ -425,6 +446,8 @@ class GenerationService:
             or not isinstance(plan.get("ambiguity"), bool)
         ):
             raise ValueError(f"Planner returned an invalid retrieval plan: {plan}")
+        if normalizations:
+            plan["_normalizations"] = normalizations
         return plan
 
     def stream_answer_with_metadata(

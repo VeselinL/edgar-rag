@@ -337,6 +337,7 @@ class RealPipeline:
             "scope": resolution.scope,
             "comparison": resolution.comparison,
             "needs_clarification": resolution.needs_clarification,
+            "planner_normalizations": list(plan.get("_normalizations", [])),
         }
 
         if resolution.needs_clarification:

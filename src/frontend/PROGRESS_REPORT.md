@@ -404,3 +404,27 @@ and was not included in AVA commits.
   157 passed and the same two pre-existing unrelated consistency tests failed.
   Frontend ESLint, strict TypeScript, all 10 Vitest tests, and production build
   passed. Python compilation, JSON validation, and whitespace validation passed.
+
+### Planner empty-single-query normalization
+
+- Reproduced a provider contract violation that returned
+  `needs_multiple_retrievals: false` with an empty `subqueries` list. The strict
+  boundary rejected it before retrieval, so FastAPI correctly emitted the safe
+  stream error while the backend logged `Planner returned an invalid retrieval
+  plan`.
+- Added one deterministic recovery allowed by the planner contract: a structurally
+  complete single-retrieval plan with an empty list is normalized to exactly one
+  subquery containing the user's original text unchanged and the provider's
+  already validated ticker list. The normalization is recorded in backend-only
+  request telemetry.
+- The recovery is fail-closed when `needs_multiple_retrievals` is true, a ticker
+  is invalid, or the provider omitted any deterministic company ticker. It does
+  not invent companies, rewrite queries, suppress ambiguity, or relax the final
+  schema validation.
+- Added regression coverage for the observed global-plan response and for a
+  malicious/incorrect omission of deterministic Tesla scope. All 34 focused
+  generation, pipeline, and observability tests passed; compilation and diff
+  validation passed. The full backend suite reached 159 passing tests with only
+  the same two unrelated pre-existing consistency failures (the table-embedding
+  `$20` assertion and stale Mobileye baseline-review hash). Frontend ESLint,
+  strict TypeScript, all 10 Vitest tests, and the production build passed.
