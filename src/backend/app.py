@@ -23,16 +23,16 @@ LOGGER = logging.getLogger("ava.api")
 SAFE_SERVICE_ERROR = (
     "The filing-analysis service is temporarily unavailable. Please retry shortly."
 )
-SAFE_PLAN_ERROR = (
-    "I couldn't map that wording to a reliable filing search. Please restate the "
-    "question with the company names and facts you want."
+SAFE_VALIDATION_ERROR = (
+    "The filing search could not be prepared because of a temporary service issue. "
+    "Please retry shortly."
 )
 
 
 def safe_stream_error(error: Exception) -> str:
     """Map internal failures to actionable browser-safe error states."""
     if isinstance(error, ValueError):
-        return SAFE_PLAN_ERROR
+        return SAFE_VALIDATION_ERROR
     return SAFE_SERVICE_ERROR
 
 

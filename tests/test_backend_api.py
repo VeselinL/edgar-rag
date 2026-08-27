@@ -78,10 +78,12 @@ class BackendApiTests(unittest.TestCase):
         self.assertNotIn("Deterministic", response.text)
         self.assertNotIn("could not complete this response", response.text)
 
-    def test_plan_validation_failure_has_actionable_safe_copy(self):
+    def test_plan_validation_failure_does_not_blame_user_wording(self):
         message = safe_stream_error(ValueError("raw internal planner details"))
 
-        self.assertIn("restate the question", message)
+        self.assertIn("temporary service issue", message)
+        self.assertNotIn("restate", message.casefold())
+        self.assertNotIn("wording", message.casefold())
         self.assertNotIn("raw internal", message)
         self.assertNotIn("could not complete this response", message)
 

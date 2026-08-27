@@ -78,6 +78,13 @@ NON_COMPANY_ACRONYMS = {
 }
 
 
+def _is_non_company_acronym(value: str) -> bool:
+    upper = value.upper()
+    return upper in NON_COMPANY_ACRONYMS or (
+        upper.endswith("S") and upper[:-1] in NON_COMPANY_ACRONYMS
+    )
+
+
 @dataclass(frozen=True)
 class CompanyMention:
     raw_text: str
@@ -396,7 +403,7 @@ class CompanyResolver:
                 or normalized_token in resolved_words
                 or normalized_token in unresolved_words
                 or normalized_token in QUESTION_WORDS
-                or bare.upper() in NON_COMPANY_ACRONYMS
+                or _is_non_company_acronym(bare)
             ):
                 continue
             company_like = (

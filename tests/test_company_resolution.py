@@ -85,11 +85,13 @@ class CompanyResolverTests(unittest.TestCase):
 
     def test_multiple_companies_do_not_imply_semantic_comparison(self):
         independent = self.resolver.resolve(
-            "Who is the CEO of Tesla, who is the CEO of Mobileye?"
+            "Who are CEOs of Tesla and Mobileye?"
         )
         comparative = self.resolver.resolve("Compare Tesla and Mobileye revenue.")
 
         self.assertEqual(independent.resolved_tickers, ("TSLA", "MBLY"))
+        self.assertEqual(independent.unresolved_mentions, ())
+        self.assertFalse(independent.needs_clarification)
         self.assertFalse(independent.comparison)
         self.assertTrue(comparative.comparison)
 

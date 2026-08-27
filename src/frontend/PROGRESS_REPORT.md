@@ -485,3 +485,24 @@ and was not included in AVA commits.
   server-owned conversation IDs, ordered/idempotent turns, a token-bounded recent
   window and rolling summary, topic-switch handling, isolation, persistence, and
   deletion gates before short-term or long-term memory is enabled.
+
+### Plural executive-acronym resolution repair
+
+- Reproduced `Who are CEOs of tesla and mobileye.` against the configured
+  provider. Exact ticker detection and the LLM plan were correct, but the
+  deterministic safety pass treated plural `CEOs` as an unknown company-like
+  acronym because only singular `CEO` was exempted. That false unresolved mention
+  disagreed with the planner's correct non-ambiguous result.
+- Treat grammatical plurals of every known non-company acronym as ordinary query
+  terminology. This covers `CEOs`, `CFOs`, `CTOs`, and equivalent configured
+  domain acronyms without weakening company/ticker matching.
+- Internal plan/validation failures no longer tell the user to restate valid
+  wording. They use a safe temporary-service error state that does not expose raw
+  details or blame the query.
+- The exact real buffered request emitted `delta`, `sources`, `done`, resolved
+  TSLA/MBLY with no unresolved mentions, selected 7/8 chunks with both quotas
+  satisfied, resolved three citations, and recorded no error. All 79 focused
+  planner/resolution/retrieval/API tests passed. The full backend suite reached
+  166 passing tests with only the same two unrelated pre-existing consistency
+  failures. Frontend ESLint, strict TypeScript, all 11 Vitest tests, production
+  build, Python compilation, and whitespace validation passed.

@@ -300,6 +300,8 @@ input stays safe and an LLM still cannot invent or broaden company scope.
 
 1. Normalize Unicode, case, whitespace, punctuation, apostrophes, and common
    corporate suffixes for matching only.
+   Treat grammatical plurals of known domain/executive acronyms (for example,
+   `CEOs` and `CFOs`) as ordinary terminology, never company-like mentions.
 2. Run exact alias/name/ticker matching. Preserve the special handling for the
    single-letter Ford ticker `F`.
 3. Run deterministic typo matching against the configured alias lexicon using a

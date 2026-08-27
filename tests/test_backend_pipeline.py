@@ -323,7 +323,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         async def connected():
             return False
 
-        query = "Who is the CEO of Tesla, who is the CEO of Mobileye?"
+        query = "Who are CEOs of Tesla and Mobileye?"
         events = [event async for event in pipeline.stream(query, connected)]
 
         self.assertEqual(generator.deterministic_resolution.resolved_tickers, ("TSLA", "MBLY"))
