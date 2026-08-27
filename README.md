@@ -1,6 +1,6 @@
 # AVA — Autonomous Vehicle Analyst
 
-![project banner](banner/banner_text.png)
+![project banner](banner/banner_ava.png)
 
 A Retrieval-Augmented Generation assistant for annual SEC filings. AVA downloads
 the latest normal 10-K filings, preserves source HTML, extracts structured
@@ -21,10 +21,10 @@ Implemented:
 - token-based recursive narrative chunking with source-block provenance
 - one complete included logical table per chunk; navigation tables remain in
   processed evidence and produce no chunks
-- processed block output for the approved ten-company corpus
-- aligned chunk-schema-v3 500-token/32-token output for all ten companies
+- processed block output for the approved eleven-company corpus
+- aligned chunk-schema-v3 500-token/32-token output for all eleven companies
 - dynamically selected local embedding models with normalized vectors and reproducibility manifests
-- aligned 768-dimensional BGE-base v1.5 manifest-v3 embeddings for all ten
+- aligned 768-dimensional BGE-base v1.5 manifest-v3 embeddings for all eleven
   promoted chunk files
 - versioned Mobileye gold-v2 labels and a post-migration semantic baseline
 - corpus-wide scope-aware hybrid BGE/BM25 retrieval with reciprocal-rank fusion
@@ -45,9 +45,11 @@ Not implemented yet:
 - generation evaluation
 
 The `table-v2-chunk-v3.20260813-r2` table repair release was promoted on 13
-August 2026. Its live audit contains 11,440 blocks, 889 logical tables, and
-4,115 chunks (3,238 narrative and 877 table); all ten BGE-base artifacts contain
-matching vectors. There are no
+August 2026 for the original ten filings. Rivian was added as the eleventh
+active filing on 21 August 2026 with aligned processed, chunk, and BGE-base
+artifacts. The active runtime corpus contains 12,602 blocks, 978 logical tables,
+and 4,526 chunks (3,561 narrative and 965 table), with matching vectors for all
+eleven filings. There are no
 normalization collisions, unmapped non-empty cells, standalone marker columns,
 unknown tables, invalid table Markdown, or provenance gaps.
 
@@ -55,11 +57,11 @@ The local real pipeline supports both native provider streaming and an explicit
 buffered delivery mode for gateways that return only completed JSON. Buffered
 mode preserves the same retrieval, grounding, citations, and browser SSE event
 contract, but sends the completed model answer in one `delta` event without fake
-typing or artificial delays. See [DEPLOYMENT.md](DEPLOYMENT.md) for the verified
+typing or artificial delays. See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for the verified
 gateway behavior and configuration.
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for module and data contracts and
-[ROADMAP.md](ROADMAP.md) for verified progress and current gates.
+See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for module and data contracts and
+[ROADMAP.md](docs/ROADMAP.md) for verified progress and current gates.
 
 ## Data flow
 
@@ -213,13 +215,13 @@ Run the strict live table and embedding audits:
 ```bash
 .venv/bin/python -m src.filings.audit_tables \
   --processed-directory data/processed --chunks-directory data/chunks \
-  --input-manifest data/manifests/table-v2-inputs.json \
-  --review-decisions data/manifests/table-v2-manual-review.json \
   --measure-embedding-tokens --strict
 
-.venv/bin/python -m src.embeddings.audit_embeddings \
-  --input-manifest data/manifests/table-v2-inputs.json --strict
+.venv/bin/python -m src.embeddings.audit_embeddings --strict
 ```
+
+Pass the dated `table-v2-inputs.json` and manual-review manifest explicitly
+only when reproducing the original ten-company promoted release.
 
 ## Data layout
 
