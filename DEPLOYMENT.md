@@ -34,11 +34,21 @@ The first version is stateless. A browser tab may display several messages, but 
 
 Repository inspection before this deployment work found three related but previously separate experiments:
 
-- The current main-branch `notebooks/hybrid_rag_generation.ipynb` supplies the grounded prompt, LLM planner, evidence-allocation pattern, citation syntax, 10 candidates per subquery, minimum two-chunk subquery coverage, and 10-chunk final context budget.
+- `notebooks/hybrid_rag_generation.ipynb` now calls the same shared resolver,
+  planner, company-balanced selector, generation-token counter, and citation
+  resolver as the API; its earlier cells remain experiment history.
 - `src/scripts/evaluate_scope_aware_hybrid_retrieval.py` supplies the authoritative regex aliases/tickers, Comparison Cues, scope labels, dense/BM25 retrieval, RRF, scoped merging, and evaluation output. It is the validation reference.
 - `notebooks/test_reranking.ipynb` contains the current BGE cross-encoder experiment, but reranking was not yet integrated into either path.
 
-The production adapter now follows that notebook path directly: the LLM planner creates atomic subqueries; every subquery uses the shared regex scope policy and hybrid dense/BM25 RRF retrieval; candidates are merged by stable chunk ID; coverage selection reserves at least two available chunks for each subquery; a `0.01` bonus rewards evidence retrieved for multiple subqueries; and relevance fills the remaining slots up to 10. A plan requiring more coverage than the fixed budget can provide is rejected instead of silently starving a subquery. The cross-encoder experiment is not part of this active generation path.
+The production adapter uses deterministic-first company resolution and validated
+planner targets. Each relevant company/subquery pair gets an independently
+ticker-filtered 10-candidate dense/BM25/RRF pool. Stable-ID merge preserves all
+pool ranks, deterministic diversity precedes quota allocation, and the selector
+reserves five complete chunks per explicit company. Two-company requests pack 15
+chunks and three-company requests pack 22; the supplemental counts and four-plus
+policy are typed backend configuration. The complete formatted generation input
+is counted with `o200k_base`, with output tokens reserved before packing. No table
+or narrative source is truncated. The cross-encoder experiment remains disabled.
 
 ## Local development architecture
 
@@ -64,6 +74,10 @@ AVA_QUERY_MAX_LENGTH=4000
 AVA_MODEL_DEVICE=cpu
 AVA_LLM_MODEL=<gateway deployment/model name>
 AVA_LLM_STREAMING=true
+AVA_LLM_CONTEXT_WINDOW_TOKENS=32768
+AVA_LLM_RESERVED_OUTPUT_TOKENS=4096
+# Required before serving explicit requests for four or more companies:
+# AVA_EVIDENCE_FOUR_PLUS_SUPPLEMENTAL=9
 OPENAI_API_KEY=<backend secret>
 OPENAI_API_URL=<OpenAI-compatible or Azure gateway base URL>
 OPENAI_APP_ID=<optional gateway header>
@@ -79,6 +93,12 @@ genuine provider `text/event-stream` response and forwards its fragments. With
 `false`, AVA makes a normal completion request and emits the complete grounded
 answer as one SSE `delta`. It never splits or delays a buffered answer to imitate
 token streaming. The currently configured local Unique route requires `false`.
+
+The context window and reserved output values form the token-packing contract;
+the generation request uses the same reserved output limit. The four-plus
+supplemental setting is intentionally unset by default because that product
+budget remains an owner decision. Without it, AVA returns a safe request to
+narrow the company set instead of silently reducing the five-per-company quota.
 
 Mock mode is explicit:
 
@@ -231,12 +251,9 @@ normalizer: `APTV-2025-CHUNK-000241`, `F-2025-CHUNK-000254`,
 exposing them; do not infer headers or reconstruct them from Markdown in either
 the API or browser.
 
-Citation parsing accepts only exact IDs present in final evidence. The current
-no-citation fallback returns all final evidence and labels it retrieved evidence.
-This behavior is retained here only as an accurate description of the deployed
-baseline; it must be removed by Phase 1 of
-[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). The target contract returns no
-source cards when no exact citation/used ID resolves.
+Citation parsing accepts only exact IDs present in final evidence. A response
+with no resolved final-evidence citation returns no source cards; candidates and
+uncited context are never exposed as answer support.
 
 ## Production direction
 

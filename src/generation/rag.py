@@ -7,16 +7,20 @@ import os
 import re
 from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
 import dotenv
 from openai import OpenAI
+import tiktoken
 
 from src.filings.corpus import ACTIVE_FILINGS
 from src.resolution.companies import CompanyResolution, default_company_resolver
 
 DEFAULT_LLM_MODEL = "AZURE_GPT_4o_2024_1120"
+DEFAULT_MAX_OUTPUT_TOKENS = 4_096
+DEFAULT_GENERATION_ENCODING = "o200k_base"
 
 SYSTEM_PROMPT = """Your name is AVA - Autonomous Vehicle Analyst. You are a rigorous SEC filing research assistant. Answer only from the retrieved 10-K excerpts.
 
@@ -134,6 +138,41 @@ def format_context(retrieved_evidence: Sequence[dict[str, Any]]) -> str:
     return "\n\n".join(blocks)
 
 
+def generation_messages(
+    query: str, evidence: Sequence[dict[str, Any]]
+) -> list[dict[str, str]]:
+    """Build the exact grounded messages shared by generation and token packing."""
+    context = format_context(evidence)
+    return [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {
+            "role": "user",
+            "content": f"Question:\n{query}\n\nRetrieved filing excerpts:\n{context}",
+        },
+    ]
+
+
+@lru_cache(maxsize=4)
+def _generation_encoding(name: str) -> Any:
+    return tiktoken.get_encoding(name)
+
+
+def count_generation_input_tokens(
+    query: str,
+    evidence: Sequence[dict[str, Any]],
+    *,
+    encoding_name: str = DEFAULT_GENERATION_ENCODING,
+) -> int:
+    """Tokenize the complete formatted input, including chat framing overhead."""
+    encoding = _generation_encoding(encoding_name)
+    token_count = 3  # assistant reply priming for the current OpenAI chat format
+    for message in generation_messages(query, evidence):
+        token_count += 3
+        token_count += len(encoding.encode(message["role"]))
+        token_count += len(encoding.encode(message["content"]))
+    return token_count
+
+
 def citation_ids(answer: str) -> list[str]:
     """Return unique single or grouped citation identifiers in answer order."""
     identifiers = []
@@ -213,22 +252,19 @@ class GenerationService:
         client: OpenAI,
         model: str = DEFAULT_LLM_MODEL,
         temperature: float = 0.0,
+        max_output_tokens: int = DEFAULT_MAX_OUTPUT_TOKENS,
     ) -> None:
+        if max_output_tokens <= 0:
+            raise ValueError("max_output_tokens must be positive.")
         self.client = client
         self.model = model
         self.temperature = temperature
+        self.max_output_tokens = max_output_tokens
 
     def _messages(
         self, query: str, evidence: Sequence[dict[str, Any]]
     ) -> list[dict[str, str]]:
-        context = format_context(evidence)
-        return [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {
-                "role": "user",
-                "content": f"Question:\n{query}\n\nRetrieved filing excerpts:\n{context}",
-            },
-        ]
+        return generation_messages(query, evidence)
 
     def plan_retrieval(
         self,
@@ -347,6 +383,7 @@ class GenerationService:
             model=self.model,
             messages=self._messages(query, evidence),
             temperature=self.temperature,
+            max_tokens=self.max_output_tokens,
             stream=True,
         )
         try:
@@ -375,5 +412,6 @@ class GenerationService:
             model=self.model,
             messages=self._messages(query, evidence),
             temperature=self.temperature,
+            max_tokens=self.max_output_tokens,
         )
         return response.choices[0].message.content or ""

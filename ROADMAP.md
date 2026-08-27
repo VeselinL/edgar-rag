@@ -35,11 +35,12 @@ decision.
 
 ## Current baseline
 
-The repository currently uses regex company detection, a combined explicit-subset
-filter, 10 candidates per planner subquery, a fixed 10-chunk generation context,
-NPZ dense vectors plus in-memory BM25, cited chunk IDs, a stateless API, and
-text/table sources. A no-citation fallback currently displays all final-context
-chunks; that is a known correctness bug and the first implementation fix.
+The repository uses deterministic exact/fuzzy plus validated planner company
+resolution, independently filtered 10-candidate company/subquery pools, typed
+five-per-company and supplemental evidence quotas, generation-token-aware packing,
+NPZ dense vectors plus in-memory BM25, cited-only source display, a stateless API,
+and text/table sources. Explicit four-plus-company supplemental budgets remain an
+owner decision and fail clearly when unconfigured.
 
 See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for the audited file-level
 evidence and all release gates.

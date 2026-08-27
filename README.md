@@ -28,10 +28,14 @@ Implemented:
   promoted chunk files
 - versioned Mobileye gold-v2 labels and a post-migration semantic baseline
 - corpus-wide scope-aware hybrid BGE/BM25 retrieval with reciprocal-rank fusion
-- regex company, ticker, alias, Comparison Cue, and multi-company scope handling
-- LLM atomic-subquery planning, 10 candidates per subquery, at least 2 available
-  chunks per subquery, and a fixed 10-chunk grounded generation context
-- backend citation resolution and narrative/table-schema-v2 source adaptation
+- deterministic exact/fuzzy company resolution plus validated planner-only handling
+  of unresolved mentions against the fixed eleven-ticker enum
+- LLM atomic-subquery planning and independently ticker-filtered pools of 10
+  candidates per relevant company/subquery
+- typed evidence budgets with five final chunks per explicit company, five or
+  seven supplemental slots for two-/three-company requests, and exact
+  generation-token packing of complete chunks
+- cited-only backend source resolution and narrative/table-schema-v2 adaptation
 - FastAPI liveness/readiness and streamed POST/SSE endpoints
 - React + TypeScript AVA interface with real stream consumption, structured HTML
   table sources, accessibility, responsive layout, and light/dark themes
@@ -41,8 +45,8 @@ Not implemented yet:
 
 - persistent vector database (the local vertical slice intentionally uses aligned NPZ artifacts)
 - native provider token streaming through the currently configured gateway
-- typo-tolerant/LLM-assisted company resolution and independently balanced
-  per-company evidence allocation
+- a configured supplemental policy for explicit requests covering four or more
+  companies (these currently fail clearly instead of silently starving evidence)
 - filing-image ingestion, retrieval, generation, and source display
 - persistent short- and long-term conversation history, authentication, and accounts
 - generation evaluation
@@ -56,10 +60,8 @@ eleven filings. There are no
 normalization collisions, unmapped non-empty cells, standalone marker columns,
 unknown tables, invalid table Markdown, or provenance gaps.
 
-The current no-citation behavior has a known source-display bug: if no generated
-citation resolves, the backend returns every chunk in the final generation
-context. The first implementation milestone removes that fallback so the browser
-shows only exact validated used/cited chunks.
+If no generated citation resolves, the backend returns no source cards. Retrieved
+candidates and uncited final evidence remain internal diagnostics only.
 
 The local real pipeline supports both native provider streaming and an explicit
 buffered delivery mode for gateways that return only completed JSON. Buffered

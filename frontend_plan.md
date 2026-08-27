@@ -24,13 +24,13 @@ The frontend sends the user's original query unchanged in `{ "query": string }`.
 The backend owns:
 
 ```text
-regex company/ticker/alias detection
+deterministic exact/fuzzy and validated planner company/ticker resolution
 → Comparison Cue and scope classification
 → LLM atomic-subquery planning
-→ scope-aware dense + BM25 retrieval for each subquery
-→ RRF ranking and stable-ID deduplication across subqueries
-→ minimum 2 available chunks per subquery
-→ multi-subquery bonus and final 10-chunk evidence selection
+→ independently ticker-filtered dense + BM25 pools for each company/subquery
+→ RRF ranking, stable-ID merge, and deterministic diversity
+→ minimum 5 complete chunks per explicitly requested company
+→ configurable supplemental slots and generation-token-aware packing
 → grounded generation and citation resolution
 → frontend-safe source normalization
 ```

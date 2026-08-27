@@ -32,7 +32,7 @@ from src.retrieval.scope_aware import (
     retrieve_generation_context as shared_retrieve_generation_context,
     scope_aware_hybrid_retrieve as shared_scope_aware_hybrid_retrieve,
 )
-from src.resolution.companies import ENUMERATION_CUES
+from src.resolution.companies import CompanyResolution, ENUMERATION_CUES
 from src.scripts.evaluate_bge_bm25_fusion import (
     DEFAULT_CHUNKS_DIRECTORY,
     DEFAULT_EMBEDDINGS_DIRECTORY,
@@ -318,9 +318,13 @@ def evaluate_scope_aware_retrieval(
     retriever: ScopeAwareRetriever,
     query: str,
     subqueries: list[str] | None = None,
+    company_resolution: CompanyResolution | None = None,
+    subquery_targets: list[list[str]] | None = None,
 ) -> dict[str, Any]:
     """Return the diagnostics compared with the API before source normalization."""
-    outcome = retriever.retrieve(query, subqueries)
+    outcome = retriever.retrieve(
+        query, subqueries, company_resolution, subquery_targets
+    )
     return {
         "detected_companies": list(outcome.detected_companies),
         "comparison": outcome.comparison,
@@ -330,6 +334,15 @@ def evaluate_scope_aware_retrieval(
         "selected_evidence_companies": list(outcome.selected_evidence_companies),
         "final_evidence_count": len(outcome.evidence),
         "chunk_ids": list(outcome.chunk_ids),
+        "policy_name": outcome.policy_name,
+        "candidate_counts_by_company": dict(outcome.candidate_counts_by_company),
+        "candidate_counts_by_company_subquery": dict(
+            outcome.candidate_counts_by_company_subquery
+        ),
+        "selected_counts_by_company": dict(outcome.selected_counts_by_company),
+        "quota_satisfied": outcome.quota_satisfied,
+        "context_input_tokens": outcome.context_input_tokens,
+        "context_input_limit": outcome.context_input_limit,
     }
 
 

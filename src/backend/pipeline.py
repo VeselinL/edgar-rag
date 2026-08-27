@@ -17,13 +17,23 @@ from sentence_transformers import SentenceTransformer
 
 from src.embeddings.embed_chunks import MODEL_CONFIGS
 from src.filings.corpus import ACTIVE_FILINGS
-from src.generation.rag import GenerationService, make_llm_client, resolve_cited_evidence
+from src.generation.rag import (
+    GenerationService,
+    count_generation_input_tokens,
+    make_llm_client,
+    resolve_cited_evidence,
+)
 from src.resolution.companies import (
     CompanyResolver,
     confidence_band,
     default_company_resolver,
 )
 from src.retrieval.scope_aware import ScopeAwareRetriever
+from src.retrieval.evidence_policy import (
+    EvidenceBudgetPolicy,
+    EvidencePackingError,
+    EvidencePolicyError,
+)
 
 from .sources import normalize_sources
 
@@ -45,6 +55,9 @@ class PipelineSettings:
     model_device: str = "cpu"
     llm_model: str = "AZURE_GPT_4o_2024_1120"
     llm_streaming: bool = True
+    context_window_tokens: int = 32_768
+    reserved_output_tokens: int = 4_096
+    four_plus_supplemental: int | None = None
 
     @classmethod
     def from_environment(cls) -> "PipelineSettings":
@@ -54,11 +67,22 @@ class PipelineSettings:
         raw_streaming = os.getenv("AVA_LLM_STREAMING", "true").strip().casefold()
         if raw_streaming not in {"true", "false"}:
             raise ValueError("AVA_LLM_STREAMING must be 'true' or 'false'.")
+        context_window_tokens = int(os.getenv("AVA_LLM_CONTEXT_WINDOW_TOKENS", "32768"))
+        reserved_output_tokens = int(os.getenv("AVA_LLM_RESERVED_OUTPUT_TOKENS", "4096"))
+        raw_four_plus = os.getenv("AVA_EVIDENCE_FOUR_PLUS_SUPPLEMENTAL", "").strip()
+        four_plus_supplemental = int(raw_four_plus) if raw_four_plus else None
+        if context_window_tokens <= 0 or reserved_output_tokens <= 0:
+            raise ValueError("AVA LLM token budgets must be positive.")
+        if four_plus_supplemental is not None and four_plus_supplemental < 0:
+            raise ValueError("AVA_EVIDENCE_FOUR_PLUS_SUPPLEMENTAL cannot be negative.")
         return cls(
             mode=mode,
             model_device=os.getenv("AVA_MODEL_DEVICE", "cpu"),
             llm_model=os.getenv("AVA_LLM_MODEL", "AZURE_GPT_4o_2024_1120"),
             llm_streaming=raw_streaming == "true",
+            context_window_tokens=context_window_tokens,
+            reserved_output_tokens=reserved_output_tokens,
+            four_plus_supplemental=four_plus_supplemental,
         )
 
 
@@ -130,14 +154,25 @@ class RealPipeline:
         embedder = SentenceTransformer(
             embedding_config["repository"], device=settings.model_device
         )
+        evidence_policy = EvidenceBudgetPolicy(
+            context_window_tokens=settings.context_window_tokens,
+            reserved_output_tokens=settings.reserved_output_tokens,
+            four_plus_supplemental=settings.four_plus_supplemental,
+        )
         retriever = ScopeAwareRetriever(
             model=embedder,
             query_prefix=embedding_config["query_prefix"],
             normalized_embeddings=normalized,
             bm25_retriever=bm25_retriever,
             all_chunks=chunks,
+            evidence_policy=evidence_policy,
+            token_counter=count_generation_input_tokens,
         )
-        generator = GenerationService(make_llm_client(), model=settings.llm_model)
+        generator = GenerationService(
+            make_llm_client(),
+            model=settings.llm_model,
+            max_output_tokens=settings.reserved_output_tokens,
+        )
         return cls(
             retriever,
             generator,
@@ -216,8 +251,88 @@ class RealPipeline:
             self.company_resolver.retrieval_query(item["query"], item["tickers"])
             for item in plan["subqueries"]
         ]
-        outcome = await asyncio.to_thread(
-            self.retriever.retrieve, query, retrieval_queries, resolution
+        try:
+            outcome = await asyncio.to_thread(
+                self.retriever.retrieve,
+                query,
+                retrieval_queries,
+                resolution,
+                [item["tickers"] for item in plan["subqueries"]],
+            )
+        except EvidencePolicyError as error:
+            LOGGER.warning("AVA evidence policy could not satisfy request: %s", error)
+            yield PipelineEvent(
+                "delta",
+                {
+                    "text": (
+                        "AVA could not assemble complete, balanced filing evidence for "
+                        "that company set because its evidence budget is not configured. "
+                        "Please request three or fewer companies."
+                    )
+                },
+            )
+            yield PipelineEvent(
+                "sources",
+                {
+                    "sources": [],
+                    "source_status": "none_cited",
+                    "malformed_source_count": 0,
+                },
+            )
+            yield PipelineEvent("done", {})
+            return
+        except EvidencePackingError as error:
+            LOGGER.warning("AVA evidence packing could not satisfy request: %s", error)
+            yield PipelineEvent(
+                "delta",
+                {
+                    "text": (
+                        "AVA could not fit complete filing evidence for that request within "
+                        "the configured model budget. Please narrow the question."
+                    )
+                },
+            )
+            yield PipelineEvent(
+                "sources",
+                {
+                    "sources": [],
+                    "source_status": "none_cited",
+                    "malformed_source_count": 0,
+                },
+            )
+            yield PipelineEvent("done", {})
+            return
+        LOGGER.info(
+            "AVA evidence selection",
+            extra={
+                "ava_evidence_selection": {
+                    "policy": outcome.policy_name,
+                    "candidate_counts_by_company": dict(
+                        outcome.candidate_counts_by_company
+                    ),
+                    "candidate_counts_by_company_subquery": dict(
+                        outcome.candidate_counts_by_company_subquery
+                    ),
+                    "selected_counts_by_company": dict(
+                        outcome.selected_counts_by_company
+                    ),
+                    "quota_satisfied": outcome.quota_satisfied,
+                    "context_input_tokens": outcome.context_input_tokens,
+                    "context_input_limit": outcome.context_input_limit,
+                    "candidates": [
+                        {
+                            "chunk_id": candidate["chunk_id"],
+                            "ticker": candidate.get("ticker"),
+                            "selected": candidate.get("selected", False),
+                            "selection_reason": candidate.get("selection_reason"),
+                            "rejection_reason": candidate.get("rejection_reason"),
+                            "subquery_matches": candidate.get("subquery_matches", []),
+                        }
+                        for candidate in outcome.candidates
+                    ],
+                    "selected_ids": list(outcome.chunk_ids),
+                }
+            },
         )
         if await is_disconnected():
             return

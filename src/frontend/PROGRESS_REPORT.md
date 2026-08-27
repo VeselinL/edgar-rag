@@ -290,3 +290,54 @@ and was not included in AVA commits.
   failed (currency-symbol embedding-text expectation and stale Mobileye review
   hash). Frontend ESLint, all 10 Vitest tests, strict TypeScript checking, and the
   production build passed.
+
+### Completion Phase 3 — company-balanced, token-aware evidence selection
+
+- Added one typed `EvidenceBudgetPolicy` shared by the API, evaluator, script,
+  and active notebook path. It fixes candidate depth at 10 per relevant
+  company/subquery, reserves five final chunks per explicit company, packs 15
+  chunks for two companies and 22 for three, and leaves the four-plus
+  supplemental count explicitly configurable. An unconfigured four-plus request
+  now fails clearly instead of being silently treated as global top-10 retrieval.
+- Replaced combined explicit-subset acquisition with independent ticker-filtered
+  dense/BM25/RRF pools. Stable-ID merge retains company/subquery, dense, lexical,
+  and fusion ranks; deterministic section/content-type/source-span diversity
+  precedes two-per-subquery and five-per-company reservation. Every candidate is
+  tagged with its final selection or rejection reason in backend diagnostics.
+- Added a shared generation-message builder and pinned `o200k_base` token counter.
+  Packing counts the complete system/user messages and formatted evidence, reserves
+  4,096 output tokens from the configurable 32,768-token context window, passes
+  that same output limit to generation, and never truncates a table, cell,
+  narrative chunk, or source ID. Impossible explicit and global packs return a
+  safe no-source response and retain a diagnosable server-side failure.
+- Re-ran the frozen corpus-backed evaluation on the unchanged 4,526-chunk
+  fingerprint. Each evaluated company/subquery pool contained 10 candidates;
+  candidate gold recall remained 100%. On the three comparable configured cases,
+  mean final gold recall increased from 71.11% to 84.44%; candidate MRR remained
+  0.7333 and final MRR increased from 0.7333 to 0.7778. Two-company balance moved
+  from Tesla 6/Ford 4 to Tesla 8/Ford 7, and three-company balance moved from
+  Tesla 5/Mobileye 3/Ford 2 to Tesla 6/Mobileye 10/Ford 6. Every configured case
+  met quota; per-company final recall was 0.8/0.8 for Tesla/Ford and 0.6/1.0/0.6
+  for Tesla/Mobileye/Ford. The single-company Aptiv case retained all four gold
+  chunks.
+- The configured cases used a mean 6,109 exact generation-input tokens and a
+  maximum 8,088 of 28,672 available. Mean historical BGE context proxy increased
+  from 3,865.7 to 5,784.3 as expected from the larger evidence budget. Comparable
+  retrieval p50 increased from 382.05 ms to 1,043.05 ms; this measured cost comes
+  from the independent company pools and is retained for Phase 4 latency work.
+  The four- and five-company cases produced the intended explicit policy error
+  because their supplemental budget remains an open owner decision.
+- Exercised real-provider answer generation separately from retrieval scoring.
+  The three-company answer used 22 final chunks (Tesla 6/Ford 6/Mobileye 10) and
+  8,088 input tokens; all 11 emitted citations resolved to final evidence, none
+  were rejected, and a separate provider grounding judgment marked 0 of 60
+  factual claims unsupported. A preceding two-company run likewise recorded 0
+  of 14 claims unsupported, with five resolved and zero rejected citations.
+- Added policy validation, independent-pool, two-/three-company quota,
+  anchored-global, stable complete-chunk, token-failure, runtime configuration,
+  provider output-limit, evaluator, and safe API failure coverage. The focused
+  Phase 3 set passed 59 tests. The complete Python suite ran 148 tests: 146 passed
+  and the same two pre-existing unrelated consistency tests failed. Python
+  compilation, notebook JSON parsing, and diff whitespace validation passed.
+  Frontend ESLint, strict TypeScript checking, all 10 Vitest tests, and the
+  production build passed.

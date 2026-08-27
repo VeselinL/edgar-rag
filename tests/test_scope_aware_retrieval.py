@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from src.generation.rag import resolve_cited_evidence
+from src.retrieval.evidence_policy import EvidenceBudgetPolicy, EvidencePackingError
 from src.retrieval.scope_aware import (
     deduplicate_results,
     detect_companies,
@@ -120,18 +121,19 @@ class EvidenceSelectionTests(unittest.TestCase):
         self.assertEqual({item["ticker"] for item in retrieved}, {"TSLA", "OUST"})
         self.assertEqual(observed_scopes, [{"TSLA", "OUST"}])
 
-    def test_planned_context_keeps_two_chunks_per_subquery_and_ten_total(self):
-        def fake_scope_retrieve(query, *args, **kwargs):
+    def test_planned_context_keeps_five_per_company_and_five_supplemental(self):
+        def fake_hybrid_retrieve(query, *args, allowed_tickers=None, **kwargs):
             ticker = "TSLA" if "Tesla" in query else "OUST"
+            self.assertEqual(allowed_tickers, {ticker})
             candidates = [
                 result(f"{ticker}-{position}", ticker, 0.03 - position / 10_000)
                 for position in range(10)
             ]
-            return candidates, "single_company", [ticker]
+            return candidates
 
         with patch(
-            "src.retrieval.scope_aware.scope_aware_hybrid_retrieve",
-            side_effect=fake_scope_retrieve,
+            "src.retrieval.scope_aware.hybrid_retrieve",
+            side_effect=fake_hybrid_retrieve,
         ):
             diagnostics = retrieve_generation_context(
                 original_query="Compare Tesla and Ouster revenue.",
@@ -143,10 +145,20 @@ class EvidenceSelectionTests(unittest.TestCase):
                 all_chunks=[],
             )
 
-        self.assertEqual(len(diagnostics["selected_chunk_ids"]), 10)
-        self.assertEqual(diagnostics["coverage_by_subquery"], [5, 5])
+        self.assertEqual(len(diagnostics["selected_chunk_ids"]), 15)
+        self.assertGreaterEqual(diagnostics["coverage_by_subquery"][0], 5)
+        self.assertGreaterEqual(diagnostics["coverage_by_subquery"][1], 5)
         self.assertTrue(all(value >= 2 for value in diagnostics["coverage_by_subquery"]))
-        self.assertEqual(len(set(diagnostics["selected_chunk_ids"])), 10)
+        self.assertEqual(len(set(diagnostics["selected_chunk_ids"])), 15)
+        self.assertEqual(
+            sum(diagnostics["selected_counts_by_company"].values()), 15
+        )
+        self.assertTrue(
+            all(
+                count >= 5
+                for count in diagnostics["selected_counts_by_company"].values()
+            )
+        )
 
     def test_planned_context_deduplicates_and_rewards_multi_subquery_matches(self):
         shared = result("SHARED", "TSLA", 0.01)
@@ -191,6 +203,28 @@ class EvidenceSelectionTests(unittest.TestCase):
                 bm25_retriever=object(),
                 all_chunks=[],
             )
+
+    def test_global_context_fails_closed_when_complete_evidence_exceeds_tokens(self):
+        candidates = [result(f"GLOBAL-{index}", "TSLA") for index in range(10)]
+
+        with patch(
+            "src.retrieval.scope_aware.scope_aware_hybrid_retrieve",
+            return_value=(candidates, "global", []),
+        ):
+            with self.assertRaisesRegex(EvidencePackingError, "complete global"):
+                retrieve_generation_context(
+                    original_query="What risks are common in these filings?",
+                    subqueries=["common risks"],
+                    model=object(),
+                    query_prefix="",
+                    normalized_embeddings=object(),
+                    bm25_retriever=object(),
+                    all_chunks=[],
+                    evidence_policy=EvidenceBudgetPolicy(
+                        context_window_tokens=500, reserved_output_tokens=100
+                    ),
+                    token_counter=lambda query, evidence: 1_000,
+                )
 
     def test_citation_resolution_is_limited_to_final_evidence(self):
         evidence = [hydrated("TSLA-1", "TSLA", 1), hydrated("OUST-1", "OUST", 2)]

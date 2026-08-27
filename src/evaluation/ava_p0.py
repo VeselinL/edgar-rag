@@ -23,8 +23,14 @@ import numpy as np
 
 from src.embeddings.embed_chunks import MODEL_CONFIGS
 from src.filings.corpus import ACTIVE_FILINGS
-from src.generation.rag import citation_ids, format_context, resolve_cited_evidence
+from src.generation.rag import (
+    citation_ids,
+    count_generation_input_tokens,
+    format_context,
+    resolve_cited_evidence,
+)
 from src.resolution.companies import confidence_band, default_company_resolver
+from src.retrieval.evidence_policy import EvidencePackingError, EvidencePolicyError
 from src.retrieval.scope_aware import ScopeAwareRetriever, hybrid_retrieve
 
 
@@ -189,11 +195,60 @@ def evaluate_retrieval(
 
     records = []
     latencies = []
+    successful_latencies = []
     for case in cases:
         started = time.perf_counter()
-        outcome = retriever.retrieve(case["query"], case["subqueries"])
+        resolution = default_company_resolver.resolve(case["query"])
+        subquery_targets = [
+            list(default_company_resolver.resolve(query).resolved_tickers)
+            for query in case["subqueries"]
+        ]
+        try:
+            outcome = retriever.retrieve(
+                case["query"], case["subqueries"], resolution, subquery_targets
+            )
+        except (EvidencePolicyError, EvidencePackingError) as error:
+            latency_ms = (time.perf_counter() - started) * 1_000
+            latencies.append(latency_ms)
+            records.append(
+                {
+                    "id": case["id"],
+                    "query": case["query"],
+                    "subqueries": case["subqueries"],
+                    "expected_tickers": case["expected_tickers"],
+                    "detected_tickers": list(resolution.resolved_tickers),
+                    "scope": resolution.scope,
+                    "comparison": resolution.comparison,
+                    "retrieval_scopes": [],
+                    "gold_ids": _gold_ids(case),
+                    "candidate_ids": [],
+                    "candidate_ids_by_company": {},
+                    "candidate_counts_by_company": {},
+                    "candidate_counts_by_company_subquery": {},
+                    "selected_ids": [],
+                    "selected_company_counts": {},
+                    "coverage_by_subquery": [],
+                    "candidate_gold_recall": None,
+                    "final_gold_recall": None,
+                    "candidate_mrr": None,
+                    "final_mrr": None,
+                    "candidate_gold_ids": [],
+                    "selected_gold_ids": [],
+                    "per_company_candidate_recall": {},
+                    "per_company_final_recall": {},
+                    "policy_name": retriever.evidence_policy.policy_id,
+                    "quota_satisfied": False,
+                    "context_input_tokens": None,
+                    "context_input_limit": retriever.evidence_policy.input_token_limit,
+                    "policy_error": str(error),
+                    "first_failure_stage": "policy_configuration",
+                    "latency_ms": latency_ms,
+                }
+            )
+            continue
         latency_ms = (time.perf_counter() - started) * 1_000
         latencies.append(latency_ms)
+        successful_latencies.append(latency_ms)
         candidate_ids = [candidate["chunk_id"] for candidate in outcome.candidates]
         selected_ids = list(outcome.chunk_ids)
         formatted_context = format_context(outcome.evidence)
@@ -201,6 +256,14 @@ def evaluate_retrieval(
         gold_ids = _gold_ids(case)
         candidate_gold = [chunk_id for chunk_id in gold_ids if chunk_id in candidate_ids]
         selected_gold = [chunk_id for chunk_id in gold_ids if chunk_id in selected_ids]
+        per_company_candidate_recall = {
+            ticker: len(set(ids) & set(candidate_ids)) / len(ids)
+            for ticker, ids in case["gold_by_ticker"].items()
+        }
+        per_company_final_recall = {
+            ticker: len(set(ids) & set(selected_ids)) / len(ids)
+            for ticker, ids in case["gold_by_ticker"].items()
+        }
         detection_pass = list(outcome.detected_companies) == case["expected_tickers"]
         if not detection_pass:
             failure = "detection"
@@ -227,50 +290,97 @@ def evaluate_retrieval(
                 "candidate_ids_by_company": _ids_by_company(candidate_ids, chunks_by_id),
                 "selected_ids": selected_ids,
                 "selected_company_counts": _company_counts(selected_ids, chunks_by_id),
-                "final_evidence_budget_chunks": retriever.final_evidence_k,
+                "final_evidence_budget_chunks": len(selected_ids),
                 "final_context_character_count": len(formatted_context),
                 "final_context_bge_token_proxy": context_token_proxy,
                 "coverage_by_subquery": list(outcome.coverage_by_subquery),
                 "candidate_gold_recall": len(candidate_gold) / len(gold_ids),
                 "final_gold_recall": len(selected_gold) / len(gold_ids),
+                "candidate_mrr": _reciprocal_rank(candidate_ids, set(gold_ids)),
+                "final_mrr": _reciprocal_rank(selected_ids, set(gold_ids)),
                 "candidate_gold_ids": candidate_gold,
                 "selected_gold_ids": selected_gold,
+                "per_company_candidate_recall": per_company_candidate_recall,
+                "per_company_final_recall": per_company_final_recall,
+                "policy_name": outcome.policy_name,
+                "candidate_counts_by_company": dict(
+                    outcome.candidate_counts_by_company
+                ),
+                "candidate_counts_by_company_subquery": dict(
+                    outcome.candidate_counts_by_company_subquery
+                ),
+                "quota_satisfied": outcome.quota_satisfied,
+                "context_input_tokens": outcome.context_input_tokens,
+                "context_input_limit": outcome.context_input_limit,
+                "policy_error": None,
                 "rank_probe": rank_probe,
                 "first_failure_stage": failure,
                 "latency_ms": latency_ms,
             }
         )
+    evaluated = [
+        record for record in records if record["candidate_gold_recall"] is not None
+    ]
     return {
         "summary": {
             "case_count": len(records),
+            "evaluated_case_count": len(evaluated),
+            "policy_error_count": len(records) - len(evaluated),
             "mean_candidate_gold_recall": statistics.fmean(
-                record["candidate_gold_recall"] for record in records
+                record["candidate_gold_recall"] for record in evaluated
             ),
             "mean_final_gold_recall": statistics.fmean(
-                record["final_gold_recall"] for record in records
+                record["final_gold_recall"] for record in evaluated
+            ),
+            "mean_candidate_mrr": statistics.fmean(
+                record["candidate_mrr"] for record in evaluated
+            ),
+            "mean_final_mrr": statistics.fmean(
+                record["final_mrr"] for record in evaluated
+            ),
+            "quota_satisfaction_rate": statistics.fmean(
+                float(record["quota_satisfied"]) for record in evaluated
             ),
             "failure_stage_counts": dict(
                 sorted(Counter(record["first_failure_stage"] or "pass" for record in records).items())
             ),
-            "final_evidence_budget_chunks": retriever.final_evidence_k,
+            "policy_name": retriever.evidence_policy.policy_id,
+            "final_evidence_budget_chunks_by_case": {
+                record["id"]: len(record["selected_ids"]) for record in records
+            },
             "context_bge_token_proxy": {
                 "mean": statistics.fmean(
-                    record["final_context_bge_token_proxy"] for record in records
+                    record["final_context_bge_token_proxy"] for record in evaluated
                 ),
-                "max": max(record["final_context_bge_token_proxy"] for record in records),
+                "max": max(
+                    record["final_context_bge_token_proxy"] for record in evaluated
+                ),
             },
-            "latency_ms": _latency_summary(latencies),
+            "context_generation_tokens": {
+                "mean": statistics.fmean(
+                    record["context_input_tokens"] for record in evaluated
+                ),
+                "max": max(record["context_input_tokens"] for record in evaluated),
+            },
+            "latency_ms": _latency_summary(successful_latencies),
+            "all_request_latency_ms": _latency_summary(latencies),
         },
         "records": records,
     }
 
 
+def _reciprocal_rank(ranked_ids: Sequence[str], relevant_ids: set[str]) -> float:
+    for rank, chunk_id in enumerate(ranked_ids, start=1):
+        if chunk_id in relevant_ids:
+            return 1.0 / rank
+    return 0.0
+
+
 def _context_token_proxy(context: str, model: Any) -> int:
     """Measure full formatted context with the available pinned BGE tokenizer.
 
-    This is intentionally named a proxy: the current gateway does not publish a
-    tokenizer for its generation deployment. Phase 3 must replace/configure an
-    actual generation-token counter before enforcing a context limit.
+    This remains a BGE diagnostic for historical comparisons. Generation input
+    limits are enforced separately with the configured o200k_base tokenizer.
     """
     tokenizer = getattr(model, "tokenizer", None)
     if tokenizer is None:
@@ -445,6 +555,7 @@ def build_retriever(device: str) -> ScopeAwareRetriever:
         normalized_embeddings=normalized,
         bm25_retriever=build_bm25_index(chunks),
         all_chunks=chunks,
+        token_counter=count_generation_input_tokens,
     )
 
 
@@ -542,14 +653,51 @@ def compare_baselines(
             value = value[key]
         return value
 
-    metrics = {}
-    for name, path in metric_paths.items():
-        before = nested(frozen, path)
-        after = nested(current, path)
-        metrics[name] = {"before": before, "after": after, "delta": after - before}
-
     frozen_records = {r["id"]: r for r in frozen["retrieval"]["records"]}
     current_records = {r["id"]: r for r in current["retrieval"]["records"]}
+    comparable_case_ids = sorted(
+        case_id
+        for case_id, record in current_records.items()
+        if record.get("candidate_gold_recall") is not None
+        and case_id in frozen_records
+    )
+    restricted_comparison = len(comparable_case_ids) < len(current_records)
+
+    def retrieval_values(document_records: dict[str, dict[str, Any]]) -> dict[str, float]:
+        records = [document_records[case_id] for case_id in comparable_case_ids]
+        return {
+            "candidate_gold_recall": statistics.fmean(
+                record["candidate_gold_recall"] for record in records
+            ),
+            "final_gold_recall": statistics.fmean(
+                record["final_gold_recall"] for record in records
+            ),
+            "retrieval_p50_latency_ms": percentile(
+                [record["latency_ms"] for record in records], 0.50
+            ),
+            "mean_context_bge_token_proxy": statistics.fmean(
+                record["final_context_bge_token_proxy"] for record in records
+            ),
+        }
+
+    metrics = {}
+    restricted_values = (
+        {
+            "frozen": retrieval_values(frozen_records),
+            "current": retrieval_values(current_records),
+        }
+        if restricted_comparison and comparable_case_ids
+        else None
+    )
+    for name, path in metric_paths.items():
+        if restricted_values and name in restricted_values["frozen"]:
+            before = restricted_values["frozen"][name]
+            after = restricted_values["current"][name]
+        else:
+            before = nested(frozen, path)
+            after = nested(current, path)
+        metrics[name] = {"before": before, "after": after, "delta": after - before}
+
     case_ids = sorted(set(frozen_records) | set(current_records))
     case_changes = []
     for case_id in case_ids:
@@ -583,6 +731,12 @@ def compare_baselines(
         "current_policy": current["policy"],
         "corpus_fingerprint_match": (
             frozen["corpus"]["fingerprint"] == current["corpus"]["fingerprint"]
+        ),
+        "comparable_retrieval_case_ids": comparable_case_ids,
+        "excluded_current_policy_error_case_ids": sorted(
+            case_id
+            for case_id, record in current_records.items()
+            if record.get("candidate_gold_recall") is None
         ),
         "metrics": metrics,
         "retrieval_case_changes": case_changes,

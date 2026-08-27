@@ -6,6 +6,7 @@ from src.generation.rag import (
     SYSTEM_PROMPT,
     GenerationService,
     citation_ids,
+    count_generation_input_tokens,
     format_context,
 )
 
@@ -59,6 +60,7 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(list(service.stream_answer("Question", self.evidence())), ["First ", "fragment"])
         self.assertTrue(stream.closed)
         self.assertTrue(completions.arguments["stream"])
+        self.assertEqual(completions.arguments["max_tokens"], 4096)
 
     def test_non_streaming_gateway_response_fails_instead_of_simulating(self):
         stream = FakeStream([], content_type="application/json; charset=utf-8")
@@ -80,11 +82,20 @@ class GenerationTests(unittest.TestCase):
 
         self.assertEqual(answer, "Complete answer")
         self.assertFalse(completions.arguments.get("stream", False))
+        self.assertEqual(completions.arguments["max_tokens"], 4096)
 
     def test_context_uses_exact_internal_identifier(self):
         context = format_context(self.evidence())
         self.assertIn('<source id="TSLA-2025-CHUNK-000001"', context)
         self.assertIn("Evidence text.", context)
+
+    def test_generation_token_count_covers_complete_formatted_messages(self):
+        without_evidence = count_generation_input_tokens("Question", [])
+        with_evidence = count_generation_input_tokens("Question", self.evidence())
+        self.assertGreater(with_evidence, without_evidence)
+        self.assertGreater(
+            with_evidence, len(format_context(self.evidence()).split())
+        )
 
     def test_ceo_and_coo_are_expanded_correctly(self):
         for prompt in (SYSTEM_PROMPT, PLANNER_INSTRUCTION):

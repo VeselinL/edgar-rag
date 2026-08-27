@@ -3,14 +3,17 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from src.backend.pipeline import FILINGS, PipelineSettings, RealPipeline
+from src.retrieval.evidence_policy import EvidencePolicyError
 
 
 class FakeRetriever:
     def __init__(self):
         self.arguments = None
 
-    def retrieve(self, query, subqueries, company_resolution=None):
-        self.arguments = (query, subqueries, company_resolution)
+    def retrieve(
+        self, query, subqueries, company_resolution=None, subquery_targets=None
+    ):
+        self.arguments = (query, subqueries, company_resolution, subquery_targets)
         return SimpleNamespace(
             evidence=(
                 {
@@ -24,12 +27,23 @@ class FakeRetriever:
                         "text": "Tesla evidence.",
                     }
                 },
-            )
+            ),
+            policy_name="company-balanced-token-aware-v1",
+            candidate_counts_by_company=(("TSLA", 10),),
+            candidate_counts_by_company_subquery=(("TSLA:0", 10),),
+            selected_counts_by_company=(("TSLA", 10),),
+            quota_satisfied=True,
+            context_input_tokens=100,
+            context_input_limit=28_672,
+            candidates=(),
+            chunk_ids=("TSLA-2025-CHUNK-000001",),
         )
 
 
 class MalformedTableRetriever:
-    def retrieve(self, query, subqueries, company_resolution=None):
+    def retrieve(
+        self, query, subqueries, company_resolution=None, subquery_targets=None
+    ):
         return SimpleNamespace(
             evidence=(
                 {
@@ -43,8 +57,22 @@ class MalformedTableRetriever:
                         "text": "Unrenderable table.",
                     }
                 },
-            )
+            ),
+            policy_name="company-balanced-token-aware-v1",
+            candidate_counts_by_company=(("TSLA", 10),),
+            candidate_counts_by_company_subquery=(("TSLA:0", 10),),
+            selected_counts_by_company=(("TSLA", 10),),
+            quota_satisfied=True,
+            context_input_tokens=100,
+            context_input_limit=28_672,
+            candidates=(),
+            chunk_ids=("TSLA-2025-CHUNK-000099",),
         )
+
+
+class PolicyErrorRetriever:
+    def retrieve(self, *args, **kwargs):
+        raise EvidencePolicyError("four-plus budget is not configured")
 
 
 class FakeGenerator:
@@ -133,6 +161,21 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaisesRegex(ValueError, "AVA_LLM_STREAMING"):
                 PipelineSettings.from_environment()
 
+    def test_settings_read_typed_token_and_four_plus_budgets(self):
+        with patch.dict(
+            "os.environ",
+            {
+                "AVA_LLM_CONTEXT_WINDOW_TOKENS": "65536",
+                "AVA_LLM_RESERVED_OUTPUT_TOKENS": "8192",
+                "AVA_EVIDENCE_FOUR_PLUS_SUPPLEMENTAL": "9",
+            },
+            clear=False,
+        ):
+            settings = PipelineSettings.from_environment()
+        self.assertEqual(settings.context_window_tokens, 65_536)
+        self.assertEqual(settings.reserved_output_tokens, 8_192)
+        self.assertEqual(settings.four_plus_supplemental, 9)
+
     async def test_planner_subqueries_drive_shared_retrieval_before_streaming(self):
         retriever = FakeRetriever()
         generator = FakeGenerator("Answer [TSLA-2025-CHUNK-000001]")
@@ -150,6 +193,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             retriever.arguments[1], ["Tesla revenue", "Tesla risk factors"]
         )
         self.assertEqual(retriever.arguments[2].resolved_tickers, ())
+        self.assertEqual(retriever.arguments[3], [[], []])
         self.assertEqual(generator.answer_arguments[0], "Original query")
         self.assertTrue(generator.stream_answer_called)
         self.assertFalse(generator.answer_called)
@@ -201,6 +245,17 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(generator.stream_answer_called)
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
         self.assertIn("Toyota", events[0].data["text"])
+        self.assertEqual(events[1].data["sources"], [])
+
+    async def test_policy_failure_returns_clear_no_source_response(self):
+        pipeline = RealPipeline(PolicyErrorRetriever(), FakeGenerator())
+
+        async def connected():
+            return False
+
+        events = [event async for event in pipeline.stream("Original query", connected)]
+        self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
+        self.assertIn("three or fewer companies", events[0].data["text"])
         self.assertEqual(events[1].data["sources"], [])
 
     async def test_buffered_mode_emits_completed_answer_as_one_delta(self):
