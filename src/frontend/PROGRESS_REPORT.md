@@ -125,3 +125,83 @@ and was not included in AVA commits.
 - Updated the browser corpus count from ten to eleven while keeping all company detection and filtering on the backend.
 - Verified the real loader produces a 4,526-by-768 matrix, production and evaluator retrieval match on a Rivian query, and the expected Rivian revenue table ranks first for its new evaluation question.
 - Passed strict eleven-company table/chunk and embedding audits with zero failures, 35 focused Python tests, frontend lint, all 8 frontend tests, and the production build.
+
+## 2026-08-27
+
+### Canonical completion planning
+
+- Audited the current company detector, scope policy, per-subquery retrieval,
+  final evidence selection, generation/citation fallback, source normalization,
+  SSE API, React source rendering, corpus artifacts, documentation, and tests on
+  `main` without changing runtime behavior.
+- Verified the current explicit-subset search uses one combined company filter,
+  final context is fixed at 10, and a no-citation answer exposes all final-context
+  chunks as retrieved evidence.
+- Counted 35 image nodes in the frozen HTML across 10 of the 11 filings and
+  confirmed preprocessing removes image nodes before structured extraction.
+- Found two additional baseline defects for the next P0 milestone: CEO is
+  incorrectly expanded as Chief Operating Officer in both prompts, and the
+  frontend uses theme-specific avatar/favicon files instead of the canonical
+  `ava.png` and `favicon.png` assets.
+- Added root `IMPLEMENTATION_PLAN.md` as the Git-visible source of truth because
+  `.gitignore` excludes the local `docs/` directory. It defines priorities,
+  company-balanced dynamic evidence, cited-only sources, Qdrant migration,
+  image provenance/retrieval, short- and long-term memory, production hardening,
+  module boundaries, evaluation gates, and owner decisions that remain open.
+- Reconciled `README.md`, `ROADMAP.md`, `DEPLOYMENT.md`, and `frontend_plan.md`
+  around that authority and corrected stale eleven-company/table-audit values in
+  the supporting current-state documentation.
+- Added root `CODEX_IMPLEMENTATION_PROMPT.md` as a concise agent handoff. It
+  requires the agent to read the full canonical plan and this report, preserve
+  unrelated work, implement one phase at a time, satisfy measured release gates,
+  and request only decisions that materially block the next phase.
+
+### Completion Phase 0 — frozen P0 baseline and evaluation labels
+
+- Created the dedicated `ava-p0-completion` branch from `main` before editing;
+  preserved the pre-existing `CHUNKING_REPORT.md` deletion and did not stage it.
+- Added versioned P0 labels for 46 company-resolution cases, five retrieval and
+  final-selection cases, seven citation/source-display cases, all 35 raw-HTML
+  image nodes, and eight future history/deletion/isolation cases. Exact labels
+  cover every configured alias plus tickers, punctuation, casing, the special
+  single-letter Ford ticker, typos, transpositions, collisions, multiple typos,
+  global questions, and out-of-corpus mentions.
+- Added one shared-path baseline command,
+  `.venv/bin/python -m src.evaluation.ava_p0 --overwrite`. It loads the real
+  4,526-vector NPZ corpus, builds the existing BM25 index, calls the production
+  `ScopeAwareRetriever` and citation resolver, and writes a detailed summary plus
+  a timing-independent parity fixture. Fixed reviewed subqueries avoid making a
+  provider/planner response part of the ranking baseline.
+- Added a one-command before/after mode using `--compare-to`. It emits quality,
+  latency, token-proxy, selected-ID, and company-balance deltas and refuses to
+  treat results from a different corpus fingerprint as parity evidence.
+- Recorded pre-change resolution accuracy of 60.87% overall, 96.15% for exact
+  cases, and 0% for typo cases. The one exact failure is ticker `F`; ambiguity
+  and out-of-corpus clarification remain unimplemented and are scored as such.
+- Recorded 100% candidate gold recall across the five retrieval cases, but only
+  58.87% final gold recall. The two-/three-/four-/five-company final contexts
+  contain company counts of `6/4`, `5/3/2`, `3/3/2/2`, and `2/2/2/2/2`,
+  respectively, proving the fixed 10-chunk selector is the first failing stage.
+- Verified the depth fixture's four Aptiv chunks rank 15, 21, 23, and 27 globally
+  but 5, 7, 9, and 6 inside the Aptiv pool. This freezes evidence for independent
+  company retrieval without changing ranking behavior in Phase 0.
+- Recorded a 10-chunk budget with 3,842 mean and 4,744 maximum BGE-token proxy
+  after complete context formatting. The proxy is diagnostic because the current
+  generation gateway does not publish its tokenizer; Phase 3 must configure the
+  real generation-token counter before enforcing packing.
+- Recorded 42.86% source-display exactness: the three cases containing at least
+  one valid final-evidence citation pass, while candidate-only, malformed,
+  no-citation, and supported-abstention cases expose fallback evidence and fail
+  at the citation stage as expected.
+- Validated the image manifest against every immutable raw HTML node: 35 nodes
+  across 10 filings, labeled as 29 information-bearing figures, five logo/page
+  artifacts, and one low-confidence decorative/unverified figure. No asset was
+  downloaded and no raw filing was changed.
+- Added nine focused evaluator tests; all passed. Python compilation and diff
+  whitespace validation passed. The complete Python suite ran 116 tests: 114
+  passed and the same two previously documented repository consistency tests
+  failed (currency-symbol embedding-text expectation and stale Mobileye baseline
+  review hash); Phase 0 does not touch either implementation or artifact.
+- Frontend ESLint, all eight Vitest tests, strict TypeScript checking, and the
+  Vite production build passed. The build still contains the non-canonical
+  theme-specific avatar assets, as expected before the Phase 1 correctness fix.

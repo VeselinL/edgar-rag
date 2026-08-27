@@ -5,6 +5,13 @@
 
 This document defines the local vertical slice and the direction for a later production deployment. It does not select a hosting provider.
 
+> This document records the currently verified stateless deployment. The
+> authoritative future architecture, priorities, Qdrant migration, image source
+> contract, conversation history, and release gates are in
+> [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). Where this document describes
+> the current 10-chunk or source-fallback behavior, it is a baseline description,
+> not the target design.
+
 ## System architecture
 
 ```text
@@ -83,7 +90,7 @@ Mock mode does not load embeddings, BGE, BM25, or an LLM client. It emits determ
 
 ### Startup and readiness
 
-In real mode, application startup loads and validates the ten chunk files and aligned BGE-base NPZ artifacts, normalizes the embedding matrix, builds the in-memory BM25 index, then loads the BGE query embedder. Loading occurs once per API process, not once per request. Startup fails closed when artifact counts or required configuration are invalid.
+In real mode, application startup loads and validates the eleven chunk files and aligned BGE-base NPZ artifacts, normalizes the embedding matrix, builds the in-memory BM25 index, then loads the BGE query embedder. Loading occurs once per API process, not once per request. Startup fails closed when artifact counts or required configuration are invalid.
 
 `GET /api/health` distinguishes liveness from readiness:
 
@@ -130,7 +137,11 @@ One `POST /api/chat/stream` request performs this lifecycle:
 8. At most 10 unique selected chunks are formatted with internal source IDs and passed to the grounded generation prompt with the original query.
 9. With `AVA_LLM_STREAMING=true`, the provider's real streaming iterator yields non-empty text fragments and FastAPI emits each immediately. With `false`, the provider returns one completed answer and FastAPI emits that answer as one `delta` event.
 10. Citation IDs found in the generated answer are resolved only against the selected generation evidence.
-11. The adapter emits normalized user-facing source objects in one `sources` event. If no valid citation can be resolved, it returns the final evidence supplied to generation and records that fallback in backend diagnostics.
+11. The adapter emits normalized user-facing source objects in one `sources`
+    event. The current implementation returns all final generation evidence when
+    no valid citation resolves. This is a known correctness bug; Phase 1 of the
+    canonical plan changes the result to an empty source list so only exact
+    cited/used chunks are ever shown.
 12. One `done` event terminates a successful stream.
 
 Internal chunk IDs remain available for correlation, validation, and logs, but are not the primary source representation shown in the UI. A source is never returned as answer support unless it was in the final generation context.
@@ -212,7 +223,7 @@ Table chunks already contain validated table-schema-v2 logical data. The adapter
 
 `title`, `units`, and `source_url` remain null or absent when the chunk has no trustworthy value. Empty cells are preserved as empty strings. Headers and values are never fabricated. A malformed table that cannot satisfy rectangular structured output is rejected from frontend normalization and logged rather than silently parsed from Markdown.
 
-The current corpus audit found 871 of 877 table chunks frontend-safe. These six
+The current corpus audit found 959 of 965 table chunks frontend-safe. These six
 records have no trustworthy logical headers and are therefore rejected by the
 normalizer: `APTV-2025-CHUNK-000241`, `F-2025-CHUNK-000254`,
 `F-2025-CHUNK-000430`, `F-2025-CHUNK-000492`, `F-2025-CHUNK-000495`, and
@@ -220,7 +231,12 @@ normalizer: `APTV-2025-CHUNK-000241`, `F-2025-CHUNK-000254`,
 exposing them; do not infer headers or reconstruct them from Markdown in either
 the API or browser.
 
-Explicitly cited chunks are preferred. Citation parsing accepts only exact IDs present in final evidence. When the model emits no resolvable citations, all final evidence chunks are returned as a documented fallback because they are the only chunks the model received; the UI describes them as retrieved evidence, not proof that every chunk supported every sentence.
+Citation parsing accepts only exact IDs present in final evidence. The current
+no-citation fallback returns all final evidence and labels it retrieved evidence.
+This behavior is retained here only as an accurate description of the deployed
+baseline; it must be removed by Phase 1 of
+[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). The target contract returns no
+source cards when no exact citation/used ID resolves.
 
 ## Production direction
 

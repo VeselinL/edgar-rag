@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "description": "Expert-reviewed broad-strategy evidence labels. Fixed company-specific subqueries isolate retrieval/selection behavior from provider planner drift.",
+  "cases": [
+    {
+      "id": "compare-2-tsla-f",
+      "query": "Compare Tesla and Ford's autonomous-vehicle products, technology, and business strategies.",
+      "subqueries": ["Tesla autonomous vehicle strategy products technology business model", "Ford autonomous vehicle strategy products technology business model"],
+      "expected_tickers": ["TSLA", "F"],
+      "gold_by_ticker": {
+        "TSLA": ["TSLA-2025-CHUNK-000003", "TSLA-2025-CHUNK-000006", "TSLA-2025-CHUNK-000001", "TSLA-2025-CHUNK-000034", "TSLA-2025-CHUNK-000040"],
+        "F": ["F-2025-CHUNK-000005", "F-2025-CHUNK-000055", "F-2025-CHUNK-000103", "F-2025-CHUNK-000004", "F-2025-CHUNK-000021"]
+      }
+    },
+    {
+      "id": "compare-3-tsla-f-mbly",
+      "query": "Compare Tesla, Ford, and Mobileye's autonomous-vehicle products, technology, and business strategies.",
+      "subqueries": ["Tesla autonomous vehicle strategy products technology business model", "Ford autonomous vehicle strategy products technology business model", "Mobileye autonomous vehicle strategy products technology business model"],
+      "expected_tickers": ["TSLA", "MBLY", "F"],
+      "gold_by_ticker": {
+        "TSLA": ["TSLA-2025-CHUNK-000003", "TSLA-2025-CHUNK-000006", "TSLA-2025-CHUNK-000001", "TSLA-2025-CHUNK-000034", "TSLA-2025-CHUNK-000040"],
+        "MBLY": ["MBLY-2025-CHUNK-000002", "MBLY-2025-CHUNK-000020", "MBLY-2025-CHUNK-000019", "MBLY-2025-CHUNK-000021", "MBLY-2025-CHUNK-000005"],
+        "F": ["F-2025-CHUNK-000005", "F-2025-CHUNK-000055", "F-2025-CHUNK-000103", "F-2025-CHUNK-000004", "F-2025-CHUNK-000021"]
+      }
+    },
+    {
+      "id": "compare-4-tsla-f-mbly-gm",
+      "query": "Compare Tesla, Ford, Mobileye, and General Motors' autonomous-vehicle products, technology, and business strategies.",
+      "subqueries": ["Tesla autonomous vehicle strategy products technology business model", "Ford autonomous vehicle strategy products technology business model", "Mobileye autonomous vehicle strategy products technology business model", "General Motors autonomous vehicle strategy products technology business model"],
+      "expected_tickers": ["TSLA", "MBLY", "GM", "F"],
+      "gold_by_ticker": {
+        "TSLA": ["TSLA-2025-CHUNK-000003", "TSLA-2025-CHUNK-000006", "TSLA-2025-CHUNK-000001", "TSLA-2025-CHUNK-000034", "TSLA-2025-CHUNK-000040"],
+        "MBLY": ["MBLY-2025-CHUNK-000002", "MBLY-2025-CHUNK-000020", "MBLY-2025-CHUNK-000019", "MBLY-2025-CHUNK-000021", "MBLY-2025-CHUNK-000005"],
+        "GM": ["GM-2025-CHUNK-000005", "GM-2025-CHUNK-000041", "GM-2025-CHUNK-000034", "GM-2025-CHUNK-000001", "GM-2025-CHUNK-000012"],
+        "F": ["F-2025-CHUNK-000005", "F-2025-CHUNK-000055", "F-2025-CHUNK-000103", "F-2025-CHUNK-000004", "F-2025-CHUNK-000021"]
+      }
+    },
+    {
+      "id": "compare-5-tsla-f-mbly-gm-rivn",
+      "query": "Compare Tesla, Ford, Mobileye, General Motors, and Rivian's autonomous-vehicle products, technology, and business strategies.",
+      "subqueries": ["Tesla autonomous vehicle strategy products technology business model", "Ford autonomous vehicle strategy products technology business model", "Mobileye autonomous vehicle strategy products technology business model", "General Motors autonomous vehicle strategy products technology business model", "Rivian autonomous vehicle strategy products technology business model"],
+      "expected_tickers": ["TSLA", "MBLY", "GM", "F", "RIVN"],
+      "gold_by_ticker": {
+        "TSLA": ["TSLA-2025-CHUNK-000003", "TSLA-2025-CHUNK-000006", "TSLA-2025-CHUNK-000001", "TSLA-2025-CHUNK-000034", "TSLA-2025-CHUNK-000040"],
+        "MBLY": ["MBLY-2025-CHUNK-000002", "MBLY-2025-CHUNK-000020", "MBLY-2025-CHUNK-000019", "MBLY-2025-CHUNK-000021", "MBLY-2025-CHUNK-000005"],
+        "GM": ["GM-2025-CHUNK-000005", "GM-2025-CHUNK-000041", "GM-2025-CHUNK-000034", "GM-2025-CHUNK-000001", "GM-2025-CHUNK-000012"],
+        "F": ["F-2025-CHUNK-000005", "F-2025-CHUNK-000055", "F-2025-CHUNK-000103", "F-2025-CHUNK-000004", "F-2025-CHUNK-000021"],
+        "RIVN": ["RIVN-2025-CHUNK-000001", "RIVN-2025-CHUNK-000005", "RIVN-2025-CHUNK-000009", "RIVN-2025-CHUNK-000004", "RIVN-2025-CHUNK-000002"]
+      }
+    },
+    {
+      "id": "company-depth-aptv-global-11-30",
+      "query": "Explain Aptiv's automated-driving software products and strategy.",
+      "subqueries": ["Aptiv automated driving software products strategy"],
+      "expected_tickers": ["APTV"],
+      "gold_by_ticker": {
+        "APTV": ["APTV-2025-CHUNK-000044", "APTV-2025-CHUNK-000249", "APTV-2025-CHUNK-000484", "APTV-2025-CHUNK-000042"]
+      },
+      "rank_probe": {
+        "query": "Aptiv automated driving software products strategy",
+        "ticker": "APTV",
+        "expected_chunk_ids": ["APTV-2025-CHUNK-000044", "APTV-2025-CHUNK-000249", "APTV-2025-CHUNK-000484", "APTV-2025-CHUNK-000042"],
+        "expected_global_rank_min": 11,
+        "expected_global_rank_max": 30,
+        "expected_company_rank_max": 10
+      }
+    }
+  ]
+}

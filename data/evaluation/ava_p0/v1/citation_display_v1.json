@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "description": "Citation parsing and user-visible source exactness cases over 20 real final-evidence IDs.",
+  "cases": [
+    {
+      "id": "two-valid-among-twenty",
+      "category": "valid_ordered",
+      "answer": "Tesla discusses real-world AI [TSLA-2025-CHUNK-000001]. Mobileye describes its platform [MBLY-2025-CHUNK-000005].",
+      "final_evidence_ids": ["TSLA-2025-CHUNK-000001", "TSLA-2025-CHUNK-000003", "TSLA-2025-CHUNK-000006", "TSLA-2025-CHUNK-000034", "TSLA-2025-CHUNK-000040", "F-2025-CHUNK-000004", "F-2025-CHUNK-000005", "F-2025-CHUNK-000021", "F-2025-CHUNK-000055", "F-2025-CHUNK-000103", "MBLY-2025-CHUNK-000002", "MBLY-2025-CHUNK-000005", "MBLY-2025-CHUNK-000019", "MBLY-2025-CHUNK-000020", "MBLY-2025-CHUNK-000021", "GM-2025-CHUNK-000001", "GM-2025-CHUNK-000005", "GM-2025-CHUNK-000012", "GM-2025-CHUNK-000034", "GM-2025-CHUNK-000041"],
+      "expected_visible_ids": ["TSLA-2025-CHUNK-000001", "MBLY-2025-CHUNK-000005"]
+    },
+    {
+      "id": "grouped-citations-deduplicated",
+      "category": "valid_grouped",
+      "answer": "The comparison is supported [F-2025-CHUNK-000005; TSLA-2025-CHUNK-000003], with added support [TSLA-2025-CHUNK-000003, MBLY-2025-CHUNK-000002].",
+      "final_evidence_ids": ["TSLA-2025-CHUNK-000003", "F-2025-CHUNK-000005", "MBLY-2025-CHUNK-000002"],
+      "expected_visible_ids": ["F-2025-CHUNK-000005", "TSLA-2025-CHUNK-000003", "MBLY-2025-CHUNK-000002"]
+    },
+    {
+      "id": "valid-and-invented",
+      "category": "invented_id",
+      "answer": "Supported [TSLA-2025-CHUNK-000006], not supported [TOYOTA-2025-CHUNK-999999].",
+      "final_evidence_ids": ["TSLA-2025-CHUNK-000006", "F-2025-CHUNK-000005"],
+      "expected_visible_ids": ["TSLA-2025-CHUNK-000006"]
+    },
+    {
+      "id": "candidate-only-rejected",
+      "category": "candidate_only_id",
+      "answer": "This cites an unselected candidate [APTV-2025-CHUNK-000044].",
+      "final_evidence_ids": ["TSLA-2025-CHUNK-000001", "F-2025-CHUNK-000005"],
+      "expected_visible_ids": []
+    },
+    {
+      "id": "malformed-group-rejected",
+      "category": "malformed_id",
+      "answer": "Malformed grouped support [TSLA-2025-CHUNK-000001; not a source id].",
+      "final_evidence_ids": ["TSLA-2025-CHUNK-000001", "F-2025-CHUNK-000005"],
+      "expected_visible_ids": []
+    },
+    {
+      "id": "no-citations",
+      "category": "no_citation",
+      "answer": "The answer contains no exact source identifier.",
+      "final_evidence_ids": ["TSLA-2025-CHUNK-000001", "F-2025-CHUNK-000005", "MBLY-2025-CHUNK-000002"],
+      "expected_visible_ids": []
+    },
+    {
+      "id": "supported-abstention",
+      "category": "abstention",
+      "answer": "The available filings do not provide enough evidence to answer that question.",
+      "final_evidence_ids": ["TSLA-2025-CHUNK-000001", "F-2025-CHUNK-000005"],
+      "expected_visible_ids": []
+    }
+  ]
+}

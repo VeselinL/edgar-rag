@@ -3,6 +3,11 @@
 **Status date:** 20 August 2026
 **Scope:** first local stateless frontend and streaming API vertical slice
 
+> This file is the historical specification for the implemented stateless
+> frontend vertical slice. Future source filtering, filing images, persistent
+> history, memory, and finished-product UI work are governed by
+> [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
+
 ## Product identity
 
 - Product name: **AVA**.
@@ -125,7 +130,7 @@ Before the first successful or attempted submission, center a restrained empty s
 - large AVA avatar;
 - heading `Ask AVA`;
 - visible subheading `Autonomous Vehicle Analyst`;
-- one short sentence: `Ask questions grounded in SEC 10-K filings from ten companies in the autonomous-vehicle ecosystem.`;
+- one short sentence: `Ask questions grounded in SEC 10-K filings from eleven companies in the autonomous-vehicle ecosystem.`;
 - composer directly below or visually connected to this content.
 
 Do not add feature cards, marketing panels, onboarding slides, or a sidebar. Up to three corpus-supported example-query buttons may appear in small secondary text below the description, but omit them if they compete with the composer.
@@ -227,7 +232,11 @@ View sources (3)
 
 The button uses `aria-expanded` and `aria-controls`. Sources expand directly below the answer as an accordion/list for this version, keeping evidence and answer spatially associated. Each entry is a semantic `<article>` or `<details>` with a descriptive heading, visible focus, and keyboard-operable controls. Do not show raw chunk IDs, retrieval scores, RRF values, or reranker scores.
 
-If no citation IDs resolve and the backend returns final-context fallback sources, label the collection `Retrieved evidence`. If the backend returns zero sources after an otherwise successful answer, show a subtle status: `No source references were available for this answer.` Never imply unsupported evidence.
+The current baseline labels no-citation final-context fallback sources as
+`Retrieved evidence`. Phase 1 of the canonical plan removes that fallback. Under
+the target contract, if no exact citation/used source resolves, show the subtle
+status `No source references were available for this answer.` and no source
+cards. Never imply unsupported evidence.
 
 ### Narrative source
 

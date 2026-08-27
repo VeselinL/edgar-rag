@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "description": "Pre-implementation history and isolation acceptance labels. Phase 0 freezes them; Phase 7 will execute them.",
+  "cases": [
+    {"id": "follow-up-pronoun", "category": "follow_up", "turns": ["Summarize Mobileye's strategy.", "How does it monetize that?"], "expected_tickers_by_turn": [["MBLY"], ["MBLY"]]},
+    {"id": "follow-up-ellipsis", "category": "follow_up", "turns": ["What was Tesla automotive revenue?", "And Ford?"], "expected_tickers_by_turn": [["TSLA"], ["F"]]},
+    {"id": "explicit-topic-switch", "category": "topic_switch", "turns": ["Describe Aurora Driver.", "Now summarize Qualcomm automotive products."], "expected_tickers_by_turn": [["AUR"], ["QCOM"]]},
+    {"id": "old-turn-recall", "category": "summary_recall", "turns": ["Compare Tesla and Mobileye.", "What does Ford disclose?", "Return to the first comparison: which uses EyeQ?"], "expected_tickers_by_turn": [["TSLA", "MBLY"], ["F"], ["TSLA", "MBLY"]]},
+    {"id": "conversation-delete", "category": "deletion", "action": "delete_conversation", "expected_relational_rows": 0, "expected_memory_points": 0},
+    {"id": "delete-all", "category": "deletion", "action": "delete_all_user_conversations", "expected_relational_rows": 0, "expected_memory_points": 0},
+    {"id": "cross-user-isolation", "category": "tenant_isolation", "query_user": "user-b", "seed_user": "user-a", "expected_seed_content_in_context": false},
+    {"id": "cross-conversation-isolation", "category": "conversation_isolation", "query_conversation": "conversation-b", "seed_conversation": "conversation-a", "expected_seed_content_in_context": false}
+  ]
+}

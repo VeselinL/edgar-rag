@@ -41,7 +41,10 @@ Not implemented yet:
 
 - persistent vector database (the local vertical slice intentionally uses aligned NPZ artifacts)
 - native provider token streaming through the currently configured gateway
-- persistent conversation history, authentication, accounts, and uploads
+- typo-tolerant/LLM-assisted company resolution and independently balanced
+  per-company evidence allocation
+- filing-image ingestion, retrieval, generation, and source display
+- persistent short- and long-term conversation history, authentication, and accounts
 - generation evaluation
 
 The `table-v2-chunk-v3.20260813-r2` table repair release was promoted on 13
@@ -53,15 +56,22 @@ eleven filings. There are no
 normalization collisions, unmapped non-empty cells, standalone marker columns,
 unknown tables, invalid table Markdown, or provenance gaps.
 
+The current no-citation behavior has a known source-display bug: if no generated
+citation resolves, the backend returns every chunk in the final generation
+context. The first implementation milestone removes that fallback so the browser
+shows only exact validated used/cited chunks.
+
 The local real pipeline supports both native provider streaming and an explicit
 buffered delivery mode for gateways that return only completed JSON. Buffered
 mode preserves the same retrieval, grounding, citations, and browser SSE event
 contract, but sends the completed model answer in one `delta` event without fake
-typing or artificial delays. See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for the verified
+typing or artificial delays. See [DEPLOYMENT.md](DEPLOYMENT.md) for the verified
 gateway behavior and configuration.
 
-See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for module and data contracts and
-[ROADMAP.md](docs/ROADMAP.md) for verified progress and current gates.
+[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) is the single source of truth for
+the target architecture, priorities, dynamic per-company evidence policy, Qdrant
+migration, image retrieval, conversation memory, production completion work, and
+acceptance gates. [ROADMAP.md](ROADMAP.md) is its compact phase index.
 
 ## Data flow
 
@@ -253,7 +263,9 @@ data/
 ```
 
 Generated `.npz` vectors are ignored by Git; manifests remain available for
-reproducibility. A future indexing stage will add `data/indexes/`.
+reproducibility. The approved future indexing direction is a parity-first Qdrant
+migration that retains these local artifacts as the reproducibility and rollback
+oracle until cutover is accepted.
 
 ## Evaluation direction
 

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "description": "Labels for every img node in the immutable eleven-filing corpus. Source ordinal plus src is the Phase 0 locator; visual asset hashes are deferred until image acquisition.",
+  "nodes": [
+    {"ticker": "APTV", "filing": "2025-10-K", "ordinal": 1, "src": "aptv-20251231_g1.jpg", "alt": "aptivimagea01a.jpg", "label": "logo_or_page_artifact", "confidence": "high", "rationale": "Small cover-page company mark."},
+    {"ticker": "APTV", "filing": "2025-10-K", "ordinal": 2, "src": "aptv-20251231_g2.jpg", "alt": "648", "label": "information_bearing_figure", "confidence": "high", "rationale": "Stock Performance Graph with adjacent investment-series text."},
+
+    {"ticker": "AUR", "filing": "2025-10-K", "ordinal": 1, "src": "aur-20251231_g1.jpg", "alt": "AuroraDriver.jpg", "label": "information_bearing_figure", "confidence": "medium", "rationale": "Large Aurora Driver figure embedded between product-description paragraphs."},
+    {"ticker": "AUR", "filing": "2025-10-K", "ordinal": 2, "src": "aur-20251231_g2.jpg", "alt": "3284", "label": "information_bearing_figure", "confidence": "high", "rationale": "Cumulative stockholder-return graph."},
+
+    {"ticker": "F", "filing": "2025-10-K", "ordinal": 1, "src": "f-20251231_g1.jpg", "alt": "1348", "label": "information_bearing_figure", "confidence": "high", "rationale": "Stock-performance graph with series data in the containing table."},
+
+    {"ticker": "GM", "filing": "2025-10-K", "ordinal": 1, "src": "gm-20251231_g1.jpg", "alt": "gmlogo.jpg", "label": "logo_or_page_artifact", "confidence": "high", "rationale": "Small cover-page GM logo."},
+    {"ticker": "GM", "filing": "2025-10-K", "ordinal": 2, "src": "gm-20251231_g2.jpg", "alt": "Behaviors.jpg", "label": "information_bearing_figure", "confidence": "medium", "rationale": "Large diagram associated with the eight GM organizational behaviors."},
+    {"ticker": "GM", "filing": "2025-10-K", "ordinal": 3, "src": "gm-20251231_g3.jpg", "alt": "780", "label": "information_bearing_figure", "confidence": "high", "rationale": "Stock Performance Graph with adjacent tabular values."},
+
+    {"ticker": "GOOGL", "filing": "2025-10-K", "ordinal": 1, "src": "goog-20251231_g1.jpg", "alt": "2949", "label": "information_bearing_figure", "confidence": "high", "rationale": "Five-year stock/index performance graph."},
+    {"ticker": "GOOGL", "filing": "2025-10-K", "ordinal": 2, "src": "goog-20251231_g2.jpg", "alt": "3795", "label": "information_bearing_figure", "confidence": "high", "rationale": "Second stock/index performance graph for the other traded share class."},
+
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 1, "src": "mbly-20251227x10k006.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "medium", "rationale": "Large company-overview figure placed after the ADAS/autonomous-driving introduction."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 2, "src": "mbly-20251227x10k007.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "medium", "rationale": "Large portfolio/platform figure preceding the technology-suite description."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 3, "src": "mbly-20251227x10k008.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "medium", "rationale": "Large figure adjacent to deployment, shipment, and company-history evidence."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 4, "src": "mbly-20251227x10k009.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "high", "rationale": "Technology-platform diagram under the full-stack autonomous-solutions heading."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 5, "src": "mbly-20251227x10k010.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "high", "rationale": "REM/computer-vision technology figure within the platform-pillar discussion."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 6, "src": "mbly-20251227x10k011.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "high", "rationale": "Compound-AI/True-Redundancy technology figure."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 7, "src": "mbly-20251227x10k012.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "high", "rationale": "Primary/Guardian/Fallback or sensor-system figure adjacent to its explanation."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 8, "src": "mbly-20251227x10k013.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "high", "rationale": "Vehicle-autonomy spectrum figure."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 9, "src": "mbly-20251227x10k014.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "high", "rationale": "Commercial/current-versus-future solution chart explicitly referenced by adjacent text."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 10, "src": "mbly-20251227x10k015.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "medium", "rationale": "Large Base ADAS product/system figure under the end-to-end solutions section."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 11, "src": "mbly-20251227x10k016.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "medium", "rationale": "Large Cloud-Enhanced ADAS figure adjacent to its system description."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 12, "src": "mbly-20251227x10k017.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "medium", "rationale": "Large Surround ADAS figure adjacent to sensor and capability text."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 13, "src": "mbly-20251227x10k018.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "medium", "rationale": "Large SuperVision product/system figure."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 14, "src": "mbly-20251227x10k019.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "medium", "rationale": "Second SuperVision-related figure adjacent to deployment and product-bridge text."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 15, "src": "mbly-20251227x10k020.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "medium", "rationale": "Large Chauffeur product/system figure."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 16, "src": "mbly-20251227x10k021.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "medium", "rationale": "Large Drive fleet self-driving system figure."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 17, "src": "mbly-20251227x10k022.jpg", "alt": "Graphic", "label": "decorative_or_unverified", "confidence": "low", "rationale": "Large uncaptained figure near R&D/headcount; visual acquisition is required before treating it as evidence."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 18, "src": "mbly-20251227x10k023.jpg", "alt": "Graphic", "label": "information_bearing_figure", "confidence": "high", "rationale": "Cumulative stockholder-return graph."},
+    {"ticker": "MBLY", "filing": "2025-10-K", "ordinal": 19, "src": "mbly-20251227x10k026.jpg", "alt": "Graphic", "label": "logo_or_page_artifact", "confidence": "medium", "rationale": "Small square mark before the independent auditor report."},
+
+    {"ticker": "NVDA", "filing": "2026-10-K", "ordinal": 1, "src": "nvda-20260125_g1.jpg", "alt": "nvidialogoa10.jpg", "label": "logo_or_page_artifact", "confidence": "high", "rationale": "Small cover-page NVIDIA logo."},
+    {"ticker": "NVDA", "filing": "2026-10-K", "ordinal": 2, "src": "nvda-20260125_g2.jpg", "alt": "562", "label": "information_bearing_figure", "confidence": "high", "rationale": "Five-year cumulative shareholder-return graph."},
+
+    {"ticker": "QCOM", "filing": "2025-10-K", "ordinal": 1, "src": "qcom-20250928_g1.jpg", "alt": "1918", "label": "information_bearing_figure", "confidence": "medium", "rationale": "Large filing-body graph immediately before Item 6; layout matches the stock-performance figure position."},
+
+    {"ticker": "RIVN", "filing": "2025-10-K", "ordinal": 1, "src": "rivn-20251231_g1.jpg", "alt": "Rivian_Digital_Full_Logo_Gold_Fusion.jpg", "label": "logo_or_page_artifact", "confidence": "high", "rationale": "Small cover-page Rivian logo."},
+    {"ticker": "RIVN", "filing": "2025-10-K", "ordinal": 2, "src": "rivn-20251231_g2.jpg", "alt": "670", "label": "information_bearing_figure", "confidence": "high", "rationale": "Stock-performance graph with adjacent tabular values."},
+
+    {"ticker": "TSLA", "filing": "2025-10-K", "ordinal": 1, "src": "tsla-20251231_g1.jpg", "alt": "2478", "label": "information_bearing_figure", "confidence": "high", "rationale": "Five-year cumulative total-return graph."}
+  ]
+}
