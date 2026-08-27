@@ -14,6 +14,20 @@ ACTIVE_FILINGS: dict[str, str] = {
     "RIVN": "2025-10-K",
 }
 
+COMPANY_NAMES: dict[str, str] = {
+    "AUR": "Aurora Innovation, Inc.",
+    "TSLA": "Tesla, Inc.",
+    "MBLY": "Mobileye Global Inc.",
+    "GOOGL": "Alphabet Inc.",
+    "GM": "General Motors Company",
+    "F": "Ford Motor Company",
+    "NVDA": "NVIDIA Corporation",
+    "QCOM": "QUALCOMM Incorporated",
+    "APTV": "Aptiv PLC",
+    "OUST": "Ouster, Inc.",
+    "RIVN": "Rivian Automotive, Inc.",
+}
+
 COMPANY_ALIASES: dict[str, tuple[str, ...]] = {
     "AUR": ("aurora innovation", "aurora", "aurora driver"),
     "TSLA": ("tesla",),
@@ -28,7 +42,7 @@ COMPANY_ALIASES: dict[str, tuple[str, ...]] = {
     "RIVN": ("rivian automotive", "rivian", "rivn"),
 }
 
-if set(ACTIVE_FILINGS) != set(COMPANY_ALIASES):
-    raise RuntimeError("Active filing and company-alias ticker sets must match")
+if set(ACTIVE_FILINGS) != set(COMPANY_ALIASES) or set(ACTIVE_FILINGS) != set(COMPANY_NAMES):
+    raise RuntimeError("Active filing, company-name, and alias ticker sets must match")
 
 ACTIVE_COMPANY_COUNT = len(ACTIVE_FILINGS)

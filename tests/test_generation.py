@@ -115,8 +115,12 @@ class GenerationTests(unittest.TestCase):
                     message=SimpleNamespace(
                         content=(
                             '{"needs_multiple_retrievals": true, '
-                            '"subqueries": ["Tesla revenue", "Ouster revenue"], '
-                            '"operation": "difference"}'
+                            '"subqueries": [{"query": "Tesla revenue", "tickers": ["TSLA"]}, '
+                            '{"query": "Ouster revenue", "tickers": ["OUST"]}], '
+                            '"operation": "difference", '
+                            '"resolved_tickers": ["TSLA", "OUST"], '
+                            '"company_mentions": [], "comparison": true, '
+                            '"ambiguity": false}'
                         )
                     )
                 )
@@ -128,10 +132,20 @@ class GenerationTests(unittest.TestCase):
             "Compare Tesla and Ouster revenue."
         )
 
-        self.assertEqual(plan["subqueries"], ["Tesla revenue", "Ouster revenue"])
+        self.assertEqual(
+            plan["subqueries"],
+            [
+                {"query": "Tesla revenue", "tickers": ["TSLA"]},
+                {"query": "Ouster revenue", "tickers": ["OUST"]},
+            ],
+        )
         self.assertEqual(plan["operation"], "difference")
         self.assertFalse(completions.arguments.get("stream", False))
         self.assertEqual(completions.arguments["temperature"], 0.0)
+        planner_messages = completions.arguments["messages"]
+        self.assertIn("Allowed corpus tickers", planner_messages[1]["content"])
+        self.assertIn("deterministic_resolved_tickers", planner_messages[2]["content"])
+        self.assertIn("unresolved_mentions", planner_messages[2]["content"])
 
     def test_planner_rejects_invalid_contract(self):
         response = SimpleNamespace(
@@ -142,6 +156,60 @@ class GenerationTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "invalid retrieval plan"):
             GenerationService(client, model="test").plan_retrieval("Question")
+
+    def test_planner_rejects_out_of_corpus_ticker(self):
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content=(
+                '{"needs_multiple_retrievals": false, '
+                '"subqueries": [{"query": "Toyota", "tickers": ["TM"]}], '
+                '"operation": null, "resolved_tickers": ["TM"], '
+                '"company_mentions": [], "comparison": false, "ambiguity": false}'
+            )))]
+        )
+        client = SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(response)))
+        with self.assertRaisesRegex(ValueError, "invalid retrieval plan"):
+            GenerationService(client, model="test").plan_retrieval("Toyota")
+
+    def test_planner_rejects_non_string_ticker_without_type_error(self):
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content=(
+                '{"needs_multiple_retrievals": false, '
+                '"subqueries": [{"query": "Tesla", "tickers": [{}]}], '
+                '"operation": null, "resolved_tickers": [], '
+                '"company_mentions": [], "comparison": false, "ambiguity": false}'
+            )))]
+        )
+        client = SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(response)))
+        with self.assertRaisesRegex(ValueError, "invalid retrieval plan"):
+            GenerationService(client, model="test").plan_retrieval("Tesla")
+
+    def test_planner_normalizes_provider_string_null_operation(self):
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content=(
+                '{"needs_multiple_retrievals": false, '
+                '"subqueries": [{"query": "Tesla", "tickers": ["TSLA"]}], '
+                '"operation": "null", "resolved_tickers": ["TSLA"], '
+                '"company_mentions": [], "comparison": false, "ambiguity": false}'
+            )))]
+        )
+        client = SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(response)))
+        plan = GenerationService(client, model="test").plan_retrieval("Tesla")
+        self.assertIsNone(plan["operation"])
+
+    def test_planner_normalizes_provider_comparison_labels(self):
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content=(
+                '{"needs_multiple_retrievals": true, '
+                '"subqueries": [{"query": "Tesla", "tickers": ["TSLA"]}, '
+                '{"query": "Ford", "tickers": ["F"]}], '
+                '"operation": "comparison", "resolved_tickers": ["TSLA", "F"], '
+                '"company_mentions": [], "comparison": "comparison", "ambiguity": false}'
+            )))]
+        )
+        client = SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(response)))
+        plan = GenerationService(client, model="test").plan_retrieval("Compare Tesla and Ford")
+        self.assertIsNone(plan["operation"])
+        self.assertTrue(plan["comparison"])
 
 
 if __name__ == "__main__":

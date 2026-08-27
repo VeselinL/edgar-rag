@@ -21,14 +21,18 @@ from sentence_transformers import SentenceTransformer
 from src.embeddings.embed_chunks import MODEL_CONFIGS
 from src.filings.corpus import COMPANY_ALIASES
 from src.retrieval.scope_aware import (
+    COMPARISON_CUES,
     DEFAULT_FINAL_EVIDENCE_K,
     DEFAULT_MIN_CHUNKS_PER_SUBQUERY,
     DEFAULT_MULTI_SUBQUERY_BONUS,
     DEFAULT_SUBQUERY_RETRIEVAL_K,
     ScopeAwareRetriever,
+    detect_companies,
+    detect_scope,
     retrieve_generation_context as shared_retrieve_generation_context,
     scope_aware_hybrid_retrieve as shared_scope_aware_hybrid_retrieve,
 )
+from src.resolution.companies import ENUMERATION_CUES
 from src.scripts.evaluate_bge_bm25_fusion import (
     DEFAULT_CHUNKS_DIRECTORY,
     DEFAULT_EMBEDDINGS_DIRECTORY,
@@ -56,78 +60,6 @@ SUBQUERY_RETRIEVAL_K = DEFAULT_SUBQUERY_RETRIEVAL_K
 FINAL_CONTEXT_K = DEFAULT_FINAL_EVIDENCE_K
 MIN_CHUNKS_PER_SUBQUERY = DEFAULT_MIN_CHUNKS_PER_SUBQUERY
 MULTI_SUBQUERY_BONUS = DEFAULT_MULTI_SUBQUERY_BONUS
-
-GLOBAL_CUES = (
-    "other companies",
-    "other strategies",
-    "the others",
-    "competitors",
-    "the rest",
-    "across the companies",
-    "across the industry",
-    "which companies",
-    "who is most",
-    "who is more",
-)
-
-ENUMERATION_CUES = (
-    r"\bwhich companies\b",
-    r"\bwhat companies\b",
-    r"\bwhich firms\b",
-    r"\bwhat firms\b",
-    r"\bwho (?:offers|operates|develops|provides|uses|builds|sells)\b",
-)
-
-
-def detect_companies(query: str) -> list[str]:
-    normalized_query = query.casefold()
-
-    detected = set()
-
-    for ticker, aliases in COMPANY_ALIASES.items():
-        if any(
-            re.search(rf"(?<!\w){re.escape(alias)}(?!\w)", normalized_query)
-            for alias in aliases
-        ):
-            detected.add(ticker)
-
-    # Explicit ticker mentions
-    tokens = set(re.findall(r"\b[A-Za-z]{2,5}\b", query))
-
-    for ticker in COMPANY_ALIASES:
-        if ticker != "F" and ticker.upper() in {token.upper() for token in tokens}:
-            detected.add(ticker)
-
-    return [
-        ticker
-        for ticker in COMPANY_ALIASES
-        if ticker in detected
-    ]
-
-
-def contains_global_cue(query: str) -> bool:
-    normalized_query = query.casefold()
-    return any(cue in normalized_query for cue in GLOBAL_CUES)
-
-
-def is_enumeration_query(query: str) -> bool:
-    """Identify open company-list questions without an LLM call."""
-    return any(re.search(cue, query, flags=re.IGNORECASE) for cue in ENUMERATION_CUES)
-
-
-def detect_scope(query: str) -> tuple[str, list[str]]:
-    """Classify query scope without using retrieval results or an LLM."""
-    companies = detect_companies(query)
-    if is_enumeration_query(query):
-        return "enumeration", companies
-    if contains_global_cue(query):
-        return ("anchored_global" if companies else "global"), companies
-    if len(companies) == 1:
-        return "single_company", companies
-    if len(companies) > 1:
-        return "explicit_subset", companies
-    return "global", companies
-
 
 def dense_candidate_indices(
     query: str,
@@ -493,7 +425,7 @@ def main() -> None:
             "bm25_candidate_k": arguments.candidate_k, "fusion": "reciprocal_rank_fusion",
             "rrf_k": arguments.rrf_k, "anchored_company_k": arguments.anchored_company_k,
             "query_prefix": config["query_prefix"], "company_aliases": COMPANY_ALIASES,
-            "global_cues": list(GLOBAL_CUES), "enumeration_cues": list(ENUMERATION_CUES),
+            "comparison_cues": list(COMPARISON_CUES), "enumeration_cues": list(ENUMERATION_CUES),
             "enumeration_candidate_k": max(arguments.candidate_k, DEFAULT_ENUMERATION_CANDIDATE_K),
             "enumeration_min_relative_rrf_score": ENUMERATION_MIN_RELATIVE_RRF_SCORE,
         },

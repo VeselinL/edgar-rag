@@ -13,6 +13,8 @@ from typing import Any
 import dotenv
 from openai import OpenAI
 
+from src.filings.corpus import ACTIVE_FILINGS
+from src.resolution.companies import CompanyResolution, default_company_resolver
 
 DEFAULT_LLM_MODEL = "AZURE_GPT_4o_2024_1120"
 
@@ -70,16 +72,33 @@ Do not create unnecessary subqueries.
 
 Also identify whether the final answer requires one deterministic operation:
 percentage, difference, ratio, growth_rate, sum, or null.
+`comparison` is a JSON boolean and is not an operation. Use JSON null, not the
+string "null", when no arithmetic operation is required.
 When generating subqueries:
 - preserve or infer the relevant reporting period from the original question/context;
 - use explicit financial terminology;
 - prefer "total consolidated revenue" over vague phrases such as "overall revenue";
 - include the company name and fiscal year in every financial subquery;
-- make each subquery self-contained."""
+- make each subquery self-contained.
+
+Company resolution is constrained to AVA's fixed filing corpus. Deterministic
+exact and fuzzy matches are supplied separately and cannot be removed, changed,
+or overridden. Classify only supplied unresolved company-like mentions. A
+classification ticker must be one of the allowed tickers, `none`, or `ambiguous`.
+Never infer or invent an out-of-corpus ticker. Copy every supplied deterministic
+ticker into resolved_tickers, then add only validated resolutions of supplied
+unresolved mentions. Every subquery must declare the resolved ticker or tickers
+it targets; a genuinely global subquery uses an empty list. Set ambiguity true
+when any supplied company-like mention remains none or ambiguous."""
 
 PLANNER_JSON_FORMAT = (
     "Return only a valid JSON object with exactly these keys: "
-    "needs_multiple_retrievals, subqueries, operation."
+    "needs_multiple_retrievals, subqueries, operation, resolved_tickers, "
+    "company_mentions, comparison, ambiguity. Each subquery must be an object "
+    "with exactly query and tickers. Each company_mentions item must have "
+    "exactly raw_text and ticker. Allowed corpus tickers: "
+    + ", ".join(ACTIVE_FILINGS)
+    + "."
 )
 
 CITATION_GROUP_PATTERN = re.compile(r"\[([^\[\]]+)\]")
@@ -211,13 +230,37 @@ class GenerationService:
             },
         ]
 
-    def plan_retrieval(self, original_query: str) -> dict[str, Any]:
-        """Run the notebook's non-answering LLM retrieval planner."""
+    def plan_retrieval(
+        self,
+        original_query: str,
+        deterministic_resolution: CompanyResolution | None = None,
+    ) -> dict[str, Any]:
+        """Plan atomic retrieval and classify only unresolved company mentions."""
+        resolution = deterministic_resolution or default_company_resolver.resolve(
+            original_query
+        )
+        resolution_context = json.dumps(
+            {
+                "deterministic_resolved_tickers": list(resolution.resolved_tickers),
+                "unresolved_mentions": [
+                    {
+                        "raw_text": mention.raw_text,
+                        "candidate_tickers": list(mention.candidate_tickers),
+                    }
+                    for mention in resolution.unresolved_mentions
+                ],
+            },
+            ensure_ascii=False,
+        )
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[
                 {"role": "system", "content": PLANNER_INSTRUCTION},
                 {"role": "system", "content": PLANNER_JSON_FORMAT},
+                {
+                    "role": "system",
+                    "content": "Validated deterministic resolution input: " + resolution_context,
+                },
                 {"role": "user", "content": original_query},
             ],
             temperature=0.0,
@@ -230,11 +273,69 @@ class GenerationService:
                 "Planner returned empty content; inspect the gateway response before retrying."
             )
         plan = json.loads(raw_plan)
-        required_keys = {"needs_multiple_retrievals", "subqueries", "operation"}
+        if not isinstance(plan, dict):
+            raise ValueError(f"Planner returned an invalid retrieval plan: {plan}")
+        if plan.get("operation") == "null":
+            plan["operation"] = None
+        if plan.get("operation") == "comparison" and plan.get("comparison") in {
+            True,
+            "comparison",
+        }:
+            plan["operation"] = None
+            if plan["comparison"] == "comparison":
+                plan["comparison"] = True
+        required_keys = {
+            "needs_multiple_retrievals",
+            "subqueries",
+            "operation",
+            "resolved_tickers",
+            "company_mentions",
+            "comparison",
+            "ambiguity",
+        }
+        valid_operations = {None, "percentage", "difference", "ratio", "growth_rate", "sum"}
+        valid_tickers = set(ACTIVE_FILINGS)
+
+        def valid_ticker_list(value: Any) -> bool:
+            return (
+                isinstance(value, list)
+                and all(isinstance(ticker, str) and ticker in valid_tickers for ticker in value)
+                and len(value) == len(set(value))
+            )
+
+        valid_subqueries = (
+            isinstance(plan.get("subqueries"), list)
+            and bool(plan["subqueries"])
+            and all(
+                isinstance(item, dict)
+                and set(item) == {"query", "tickers"}
+                and isinstance(item["query"], str)
+                and bool(item["query"].strip())
+                and valid_ticker_list(item["tickers"])
+                for item in plan["subqueries"]
+            )
+        )
+        valid_company_mentions = (
+            isinstance(plan.get("company_mentions"), list)
+            and all(
+                isinstance(item, dict)
+                and set(item) == {"raw_text", "ticker"}
+                and isinstance(item["raw_text"], str)
+                and bool(item["raw_text"].strip())
+                and isinstance(item["ticker"], str)
+                and item["ticker"] in {*valid_tickers, "none", "ambiguous"}
+                for item in plan["company_mentions"]
+            )
+        )
         if (
             set(plan) != required_keys
-            or not isinstance(plan["subqueries"], list)
-            or not plan["subqueries"]
+            or not isinstance(plan.get("needs_multiple_retrievals"), bool)
+            or not valid_subqueries
+            or plan.get("operation") not in valid_operations
+            or not valid_ticker_list(plan.get("resolved_tickers"))
+            or not valid_company_mentions
+            or not isinstance(plan.get("comparison"), bool)
+            or not isinstance(plan.get("ambiguity"), bool)
         ):
             raise ValueError(f"Planner returned an invalid retrieval plan: {plan}")
         return plan

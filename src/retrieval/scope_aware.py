@@ -17,6 +17,13 @@ import numpy as np
 
 from src.embeddings.embed_chunks import table_embedding_text
 from src.filings.corpus import COMPANY_ALIASES
+from src.resolution.companies import (
+    COMPARISON_CUES,
+    ENUMERATION_CUES,
+    CompanyResolution,
+    default_company_resolver,
+    normalize_company_text,
+)
 
 
 DEFAULT_RRF_K = 100
@@ -28,30 +35,6 @@ DEFAULT_MULTI_SUBQUERY_BONUS = 0.01
 DEFAULT_ANCHORED_COMPANY_K = 3
 DEFAULT_ENUMERATION_CANDIDATE_K = 30
 ENUMERATION_MIN_RELATIVE_RRF_SCORE = 0.60
-
-# These are the evaluator's existing global/comparison cues. Keep matching
-# query-only and deterministic; the frontend must never reproduce this list.
-COMPARISON_CUES = (
-    "other companies",
-    "other strategies",
-    "the others",
-    "competitors",
-    "the rest",
-    "across the companies",
-    "across the industry",
-    "which companies",
-    "who is most",
-    "who is more",
-)
-
-ENUMERATION_CUES = (
-    r"\bwhich companies\b",
-    r"\bwhat companies\b",
-    r"\bwhich firms\b",
-    r"\bwhat firms\b",
-    r"\bwho (?:offers|operates|develops|provides|uses|builds|sells)\b",
-)
-
 
 class QueryEmbedder(Protocol):
     def encode(self, sentence: str, *, normalize_embeddings: bool) -> np.ndarray: ...
@@ -91,25 +74,12 @@ class RetrievalOutcome:
 
 
 def detect_companies(query: str) -> list[str]:
-    """Detect supported names, aliases, and explicit tickers in corpus order."""
-    normalized_query = query.casefold()
-    detected: set[str] = set()
-    for ticker, aliases in COMPANY_ALIASES.items():
-        if any(
-            re.search(rf"(?<!\w){re.escape(alias)}(?!\w)", normalized_query)
-            for alias in aliases
-        ):
-            detected.add(ticker)
-
-    # Avoid treating the common article/letter "F" as a Ford ticker. Ford is
-    # still recognized by its company aliases.
-    tokens = {token.upper() for token in re.findall(r"\b[A-Za-z]{2,5}\b", query)}
-    detected.update(ticker for ticker in COMPANY_ALIASES if ticker != "F" and ticker in tokens)
-    return [ticker for ticker in COMPANY_ALIASES if ticker in detected]
+    """Compatibility wrapper around the shared deterministic resolver."""
+    return list(default_company_resolver.resolve(query).resolved_tickers)
 
 
 def contains_comparison_cue(query: str) -> bool:
-    normalized_query = query.casefold()
+    normalized_query = f" {normalize_company_text(query)} "
     return any(cue in normalized_query for cue in COMPARISON_CUES)
 
 
@@ -117,18 +87,12 @@ def is_enumeration_query(query: str) -> bool:
     return any(re.search(cue, query, flags=re.IGNORECASE) for cue in ENUMERATION_CUES)
 
 
-def detect_scope(query: str) -> tuple[str, list[str]]:
-    """Classify query scope without using retrieval results or an LLM."""
-    companies = detect_companies(query)
-    if is_enumeration_query(query):
-        return "enumeration", companies
-    if contains_comparison_cue(query):
-        return ("anchored_global" if companies else "global"), companies
-    if len(companies) == 1:
-        return "single_company", companies
-    if len(companies) > 1:
-        return "explicit_subset", companies
-    return "global", companies
+def detect_scope(
+    query: str, resolution: CompanyResolution | None = None
+) -> tuple[str, list[str]]:
+    """Return scope from the one shared company-resolution result."""
+    result = resolution or default_company_resolver.resolve(query)
+    return result.scope, list(result.resolved_tickers)
 
 
 def resolve_comparison_targets(scope: str, companies: Sequence[str]) -> tuple[str, ...]:
@@ -450,6 +414,7 @@ def retrieve_generation_context(
     final_context_k: int = DEFAULT_FINAL_EVIDENCE_K,
     min_chunks_per_subquery: int = DEFAULT_MIN_CHUNKS_PER_SUBQUERY,
     multi_subquery_bonus: float = DEFAULT_MULTI_SUBQUERY_BONUS,
+    company_resolution: CompanyResolution | None = None,
 ) -> dict[str, Any]:
     """Retrieve per subquery, merge provenance, and select a compact context.
 
@@ -475,7 +440,7 @@ def retrieve_generation_context(
     if multi_subquery_bonus < 0:
         raise ValueError("multi_subquery_bonus must be non-negative.")
 
-    original_scope = detect_scope(original_query)
+    original_scope = detect_scope(original_query, company_resolution)
     inherited_scope = original_scope if original_scope[0] == "single_company" else None
     merged_by_id: dict[str, dict[str, Any]] = {}
     candidates_by_subquery: list[list[str]] = []
@@ -719,7 +684,10 @@ class ScopeAwareRetriever:
         self.multi_subquery_bonus = multi_subquery_bonus
 
     def retrieve(
-        self, query: str, subqueries: Sequence[str] | None = None
+        self,
+        query: str,
+        subqueries: Sequence[str] | None = None,
+        company_resolution: CompanyResolution | None = None,
     ) -> RetrievalOutcome:
         planned_subqueries = list(subqueries or [query])
         diagnostics = retrieve_generation_context(
@@ -737,6 +705,7 @@ class ScopeAwareRetriever:
             final_context_k=self.final_evidence_k,
             min_chunks_per_subquery=self.min_chunks_per_subquery,
             multi_subquery_bonus=self.multi_subquery_bonus,
+            company_resolution=company_resolution,
         )
         candidates = diagnostics["candidates"]
         for candidate in candidates:

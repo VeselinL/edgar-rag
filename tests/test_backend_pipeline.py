@@ -9,8 +9,8 @@ class FakeRetriever:
     def __init__(self):
         self.arguments = None
 
-    def retrieve(self, query, subqueries):
-        self.arguments = (query, subqueries)
+    def retrieve(self, query, subqueries, company_resolution=None):
+        self.arguments = (query, subqueries, company_resolution)
         return SimpleNamespace(
             evidence=(
                 {
@@ -29,7 +29,7 @@ class FakeRetriever:
 
 
 class MalformedTableRetriever:
-    def retrieve(self, query, subqueries):
+    def retrieve(self, query, subqueries, company_resolution=None):
         return SimpleNamespace(
             evidence=(
                 {
@@ -54,13 +54,22 @@ class FakeGenerator:
         self.stream_answer_called = False
         self.answer_called = False
         self.answer_text = answer_text
+        self.deterministic_resolution = None
 
-    def plan_retrieval(self, query):
+    def plan_retrieval(self, query, deterministic_resolution=None):
         self.planned_query = query
+        self.deterministic_resolution = deterministic_resolution
         return {
             "needs_multiple_retrievals": True,
-            "subqueries": ["Tesla revenue", "Tesla risk factors"],
+            "subqueries": [
+                {"query": "Tesla revenue", "tickers": []},
+                {"query": "Tesla risk factors", "tickers": []},
+            ],
             "operation": None,
+            "resolved_tickers": [],
+            "company_mentions": [],
+            "comparison": False,
+            "ambiguity": False,
         }
 
     def stream_answer(self, query, evidence):
@@ -72,6 +81,36 @@ class FakeGenerator:
         self.answer_called = True
         self.answer_arguments = (query, evidence)
         return self.answer_text
+
+
+class FordTypoGenerator(FakeGenerator):
+    def plan_retrieval(self, query, deterministic_resolution=None):
+        self.planned_query = query
+        self.deterministic_resolution = deterministic_resolution
+        return {
+            "needs_multiple_retrievals": False,
+            "subqueries": [{"query": query, "tickers": ["F"]}],
+            "operation": None,
+            "resolved_tickers": ["F"],
+            "company_mentions": [],
+            "comparison": False,
+            "ambiguity": False,
+        }
+
+
+class AmbiguousGenerator(FakeGenerator):
+    def plan_retrieval(self, query, deterministic_resolution=None):
+        self.planned_query = query
+        self.deterministic_resolution = deterministic_resolution
+        return {
+            "needs_multiple_retrievals": False,
+            "subqueries": [{"query": query, "tickers": []}],
+            "operation": None,
+            "resolved_tickers": [],
+            "company_mentions": [{"raw_text": "Toyota", "ticker": "none"}],
+            "comparison": False,
+            "ambiguity": True,
+        }
 
 
 class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
@@ -105,16 +144,64 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         events = [event async for event in pipeline.stream("Original query", connected)]
 
         self.assertEqual(generator.planned_query, "Original query")
+        self.assertEqual(generator.deterministic_resolution.original_query, "Original query")
+        self.assertEqual(retriever.arguments[0], "Original query")
         self.assertEqual(
-            retriever.arguments,
-            ("Original query", ["Tesla revenue", "Tesla risk factors"]),
+            retriever.arguments[1], ["Tesla revenue", "Tesla risk factors"]
         )
+        self.assertEqual(retriever.arguments[2].resolved_tickers, ())
         self.assertEqual(generator.answer_arguments[0], "Original query")
         self.assertTrue(generator.stream_answer_called)
         self.assertFalse(generator.answer_called)
         self.assertEqual(
             [event.event for event in events], ["delta", "sources", "done"]
         )
+
+    async def test_fuzzy_company_uses_canonical_internal_retrieval_query(self):
+        retriever = FakeRetriever()
+        generator = FordTypoGenerator()
+        pipeline = RealPipeline(retriever, generator, llm_streaming=False)
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "What are frod's principal segments?", connected
+            )
+        ]
+
+        self.assertEqual(generator.deterministic_resolution.resolved_tickers, ("F",))
+        self.assertEqual(generator.deterministic_resolution.methods, ("fuzzy",))
+        self.assertEqual(retriever.arguments[0], "What are frod's principal segments?")
+        self.assertEqual(
+            retriever.arguments[1],
+            ["What are frod's principal segments?\nCompany scope: Ford Motor Company (F)"],
+        )
+        self.assertEqual(events[-1].event, "done")
+
+    async def test_ambiguous_out_of_corpus_company_clarifies_without_retrieval(self):
+        retriever = FakeRetriever()
+        generator = AmbiguousGenerator()
+        pipeline = RealPipeline(retriever, generator)
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "What is Toyota's autonomous vehicle strategy?", connected
+            )
+        ]
+
+        self.assertIsNone(retriever.arguments)
+        self.assertFalse(generator.answer_called)
+        self.assertFalse(generator.stream_answer_called)
+        self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
+        self.assertIn("Toyota", events[0].data["text"])
+        self.assertEqual(events[1].data["sources"], [])
 
     async def test_buffered_mode_emits_completed_answer_as_one_delta(self):
         retriever = FakeRetriever()

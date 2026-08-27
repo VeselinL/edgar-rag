@@ -6,6 +6,7 @@ import asyncio
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
 from dataclasses import dataclass
 import json
+import logging
 import os
 from pathlib import Path
 from typing import Any
@@ -17,6 +18,11 @@ from sentence_transformers import SentenceTransformer
 from src.embeddings.embed_chunks import MODEL_CONFIGS
 from src.filings.corpus import ACTIVE_FILINGS
 from src.generation.rag import GenerationService, make_llm_client, resolve_cited_evidence
+from src.resolution.companies import (
+    CompanyResolver,
+    confidence_band,
+    default_company_resolver,
+)
 from src.retrieval.scope_aware import ScopeAwareRetriever
 
 from .sources import normalize_sources
@@ -24,6 +30,7 @@ from .sources import normalize_sources
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 FILINGS = ACTIVE_FILINGS
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -104,11 +111,13 @@ class RealPipeline:
         generator: GenerationService,
         *,
         llm_streaming: bool = True,
+        company_resolver: CompanyResolver = default_company_resolver,
     ) -> None:
         self.retriever = retriever
         self.generator = generator
         self.llm_streaming = llm_streaming
         self.answer_delivery = "provider_streaming" if llm_streaming else "buffered"
+        self.company_resolver = company_resolver
 
     @classmethod
     def build(cls, settings: PipelineSettings) -> "RealPipeline":
@@ -129,16 +138,86 @@ class RealPipeline:
             all_chunks=chunks,
         )
         generator = GenerationService(make_llm_client(), model=settings.llm_model)
-        return cls(retriever, generator, llm_streaming=settings.llm_streaming)
+        return cls(
+            retriever,
+            generator,
+            llm_streaming=settings.llm_streaming,
+            company_resolver=default_company_resolver,
+        )
 
     async def stream(
         self,
         query: str,
         is_disconnected: Callable[[], Awaitable[bool]],
     ) -> AsyncIterator[PipelineEvent]:
-        plan = await asyncio.to_thread(self.generator.plan_retrieval, query)
+        deterministic_resolution = self.company_resolver.resolve(query)
+        plan = await asyncio.to_thread(
+            self.generator.plan_retrieval, query, deterministic_resolution
+        )
+        resolution = self.company_resolver.apply_planner_resolution(
+            deterministic_resolution,
+            plan["company_mentions"],
+            plan["resolved_tickers"],
+        )
+        if plan["comparison"] != resolution.comparison:
+            raise ValueError("Planner comparison intent disagrees with validated resolution.")
+        if plan["ambiguity"] != resolution.needs_clarification:
+            raise ValueError("Planner ambiguity disagrees with validated resolution.")
+
+        LOGGER.info(
+            "AVA company resolution",
+            extra={
+                "ava_company_resolution": {
+                    "resolved_tickers": list(resolution.resolved_tickers),
+                    "mentions": [
+                        {
+                            "raw_text": mention.raw_text,
+                            "ticker": mention.ticker,
+                            "method": mention.method,
+                            "confidence_band": confidence_band(mention.confidence),
+                        }
+                        for mention in resolution.mentions
+                    ],
+                    "unresolved_mentions": [
+                        mention.raw_text for mention in resolution.unresolved_mentions
+                    ],
+                    "scope": resolution.scope,
+                    "comparison": resolution.comparison,
+                    "needs_clarification": resolution.needs_clarification,
+                }
+            },
+        )
+
+        if resolution.needs_clarification:
+            yield PipelineEvent(
+                "delta",
+                {"text": self.company_resolver.clarification_message(resolution)},
+            )
+            yield PipelineEvent(
+                "sources",
+                {
+                    "sources": [],
+                    "source_status": "none_cited",
+                    "malformed_source_count": 0,
+                },
+            )
+            yield PipelineEvent("done", {})
+            return
+
+        resolved_tickers = set(resolution.resolved_tickers)
+        targeted_tickers = {
+            ticker for item in plan["subqueries"] for ticker in item["tickers"]
+        }
+        if resolved_tickers and not resolved_tickers <= targeted_tickers:
+            raise ValueError("Planner subqueries omitted a resolved company target.")
+        if not targeted_tickers <= resolved_tickers:
+            raise ValueError("Planner subqueries contain an unvalidated company target.")
+        retrieval_queries = [
+            self.company_resolver.retrieval_query(item["query"], item["tickers"])
+            for item in plan["subqueries"]
+        ]
         outcome = await asyncio.to_thread(
-            self.retriever.retrieve, query, plan["subqueries"]
+            self.retriever.retrieve, query, retrieval_queries, resolution
         )
         if await is_disconnected():
             return

@@ -234,3 +234,59 @@ and was not included in AVA commits.
   Source-display exactness improved from 42.86% to 100% (+57.14 percentage
   points). Resolution, candidate recall, final recall, context token proxy, all
   retrieval candidate/selected IDs, and company balance were unchanged.
+
+### Completion Phase 2 — deterministic-first company and ticker resolution
+
+- Added one shared `CompanyResolver` and `CompanyResolution` contract for the
+  fixed eleven-company corpus. It normalizes Unicode, punctuation, apostrophes,
+  whitespace, and corporate suffixes; resolves exact aliases/names/tickers;
+  preserves explicit-only handling for Ford ticker `F`; then applies
+  thresholded Damerau-Levenshtein typo matching with a minimum winner margin.
+- Added canonical company names to the active corpus registry and made the API,
+  scope detector, P0 evaluator, scope-aware evaluation script, and production
+  notebook path consume the shared resolver. Removed the evaluator script's
+  duplicate company/scope detector and replaced historical notebook detection
+  helpers with shared-resolver calls.
+- Extended the existing planner prompt and validated JSON contract with the
+  allowed ticker enum, deterministic matches, unresolved shortlists,
+  `resolved_tickers`, per-subquery ticker targets, company-mention decisions,
+  comparison intent, operation, and ambiguity. The boundary accepts two observed
+  harmless provider representations (`"null"` and comparison labels) but still
+  rejects malformed, out-of-corpus, conflicting, invented, or out-of-shortlist
+  ticker assignments.
+- Exact and fuzzy deterministic results cannot be overridden. A validated LLM
+  result can resolve only a mention and ticker supplied by the deterministic
+  shortlist; an empty shortlist cannot be mapped to any corpus company.
+  Low-confidence, collision, and out-of-corpus mentions return a concise
+  clarification with no retrieval, answer generation, or source cards.
+- Kept the user's original query unchanged for generation. Retrieval-only
+  subqueries append canonical company names and tickers, and planner subquery
+  targets must cover every validated company without introducing another one.
+- Added structured server diagnostics for resolved tickers, method, confidence
+  band, unresolved mentions, scope, comparison, and ambiguity. None of these
+  diagnostics or the resolver/planner prompt is added to browser events.
+- The frozen 46-case resolver evaluation now passes 46/46: 100% overall, 100%
+  exact aliases/tickers and explicit multi-company lists, and 100% typo cases,
+  with zero silent labeled ambiguity/out-of-corpus resolutions. Mean local
+  resolver latency was 16.66 ms (p50 15.74 ms, p95 30.06 ms); exact resolution
+  adds no provider call beyond the already-required planner.
+- Exercised the configured real planner on deterministic `frod`, shortlisted
+  `Telsaaa`, out-of-corpus Toyota, and a Tesla/Ford comparison. All four passed
+  final validation: Ford remained deterministic, `Telsaaa` resolved only to
+  TSLA, Toyota required clarification, and Tesla/Ford produced independently
+  targeted atomic subqueries. These checks called planning only, not answer
+  generation.
+- Re-ran the corpus-backed P0 comparison against the same 4,526-chunk fingerprint.
+  Candidate gold recall remained 100%, final gold recall remained 58.87%, source
+  display exactness remained 100%, mean context proxy remained 3,842.4 tokens,
+  and no candidate ID, selected ID, or selected-company balance changed. The
+  observed retrieval p50 was 592.67 ms versus the frozen 529.64 ms; this phase
+  did not change ranking or storage and the five-case timing is diagnostic.
+- Added focused resolver, planner-schema, provider-normalization, ambiguity
+  short-circuit, canonical-query, shared-entry-point, and fail-closed validation
+  tests; all 48 focused tests passed. Python compilation, notebook JSON parsing,
+  and diff whitespace validation passed. The complete Python suite ran 136
+  tests: 134 passed and the same two pre-existing unrelated consistency tests
+  failed (currency-symbol embedding-text expectation and stale Mobileye review
+  hash). Frontend ESLint, all 10 Vitest tests, strict TypeScript checking, and the
+  production build passed.

@@ -24,7 +24,8 @@ import numpy as np
 from src.embeddings.embed_chunks import MODEL_CONFIGS
 from src.filings.corpus import ACTIVE_FILINGS
 from src.generation.rag import citation_ids, format_context, resolve_cited_evidence
-from src.retrieval.scope_aware import ScopeAwareRetriever, detect_scope, hybrid_retrieve
+from src.resolution.companies import confidence_band, default_company_resolver
+from src.retrieval.scope_aware import ScopeAwareRetriever, hybrid_retrieve
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -73,16 +74,14 @@ def evaluate_resolution(cases: Sequence[dict[str, Any]]) -> dict[str, Any]:
     latencies = []
     for case in cases:
         started = time.perf_counter()
-        scope, detected = detect_scope(case["query"])
+        resolution = default_company_resolver.resolve(case["query"])
         latency_ms = (time.perf_counter() - started) * 1_000
         latencies.append(latency_ms)
         expected = case["expected_tickers"]
+        detected = list(resolution.resolved_tickers)
         detected_correctly = detected == expected
-        scope_correctly = scope == case["expected_scope"]
-        # The audited baseline has no ambiguity/clarification result yet. Keep
-        # that absence explicit so Phase 2 cannot receive credit for silently
-        # treating an out-of-corpus mention as a global query.
-        detected_needs_clarification = False
+        scope_correctly = resolution.scope == case["expected_scope"]
+        detected_needs_clarification = resolution.needs_clarification
         clarification_correctly = (
             detected_needs_clarification == case["expected_needs_clarification"]
         )
@@ -94,12 +93,21 @@ def evaluate_resolution(cases: Sequence[dict[str, Any]]) -> dict[str, Any]:
                 "expected_tickers": expected,
                 "detected_tickers": detected,
                 "expected_scope": case["expected_scope"],
-                "detected_scope": scope,
+                "detected_scope": resolution.scope,
                 "expected_needs_clarification": case["expected_needs_clarification"],
                 "detected_needs_clarification": detected_needs_clarification,
                 "detection_pass": detected_correctly,
                 "scope_pass": scope_correctly,
                 "clarification_pass": clarification_correctly,
+                "methods": list(resolution.methods),
+                "confidence_bands": [
+                    confidence_band(mention.confidence)
+                    for mention in resolution.mentions
+                ],
+                "mentions": [mention.__dict__ for mention in resolution.mentions],
+                "unresolved_mentions": [
+                    mention.__dict__ for mention in resolution.unresolved_mentions
+                ],
                 "first_failure_stage": (
                     None
                     if detected_correctly and scope_correctly and clarification_correctly
