@@ -45,6 +45,16 @@ class CompanyDetectionTests(unittest.TestCase):
     def test_existing_alias(self):
         self.assertEqual(detect_companies("How is EyeQ used?"), ["MBLY"])
 
+    def test_rivian_name_and_ticker(self):
+        self.assertEqual(detect_companies("What vehicles does Rivian make?"), ["RIVN"])
+        self.assertEqual(detect_companies("Summarize RIVN revenue."), ["RIVN"])
+
+    def test_rivian_automotive_alias(self):
+        self.assertEqual(
+            detect_scope("What are Rivian Automotive's main risks?"),
+            ("single_company", ["RIVN"]),
+        )
+
     def test_two_company_comparison(self):
         scope, companies = detect_scope("Compare Tesla with Ouster revenue.")
         self.assertEqual(scope, "explicit_subset")

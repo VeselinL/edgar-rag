@@ -1,0 +1,187 @@
+{
+  "schema_version": 3,
+  "created_at": "2026-08-20T22:33:11.915293+00:00",
+  "source_chunks": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/chunks/RIVN/2025-10-K.chunks.jsonl",
+  "source_chunks_sha256": "3d684ee926f9a50750e5d9f1c1c3e80794207ecaf61f859727c6f6841c623378",
+  "embedding_file": "2025-10-K.bgebase.embeddings.npz",
+  "embedding_file_sha256": "68faf93298a2838ca55923c5a2fef00065d58af6c3964a61c9c3be82d960e57f",
+  "model_name": "bgebase",
+  "model_repository": "BAAI/bge-base-en-v1.5",
+  "requested_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "resolved_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+  "sentence_transformers_version": "5.6.1",
+  "numpy_version": "2.5.2",
+  "dimension": 768,
+  "dtype": "float32",
+  "normalized": true,
+  "document_encoder": "SentenceTransformer.encode",
+  "query_prefix": "Represent this sentence for searching relevant passages: ",
+  "document_prefix": "",
+  "max_sequence_length": 512,
+  "embedding_text_policy": {
+    "narrative": "complete chunk text",
+    "table": "logical-table-schema-v2: effective section/region, title, units, and deterministic logical row/header/value statements for every non-empty cell"
+  },
+  "chunk_schema_version": 3,
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "chunking_config_sha256": "c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+  "source_processed_sha256": "93ecef9ca127d43544506219dfc01b483bfd9393cac1a0062c39852832730e24",
+  "logical_table_policy": "one-logical-table-per-chunk-v1",
+  "table_renderer_policy": "logical-markdown-v1",
+  "chunk_count": 411,
+  "ordered_text_hashes_sha256": "f3d092da8368d1a65c9129e930b6272117b6c67bb3a747e2b38fd5329e695f40",
+  "input_token_length_max": 2305,
+  "truncated_input_count": 17,
+  "truncated_table_count": 17,
+  "truncated_narrative_count": 0,
+  "truncated_chunk_ids": [
+    "RIVN-2025-CHUNK-000149",
+    "RIVN-2025-CHUNK-000163",
+    "RIVN-2025-CHUNK-000209",
+    "RIVN-2025-CHUNK-000212",
+    "RIVN-2025-CHUNK-000216",
+    "RIVN-2025-CHUNK-000218",
+    "RIVN-2025-CHUNK-000269",
+    "RIVN-2025-CHUNK-000292",
+    "RIVN-2025-CHUNK-000329",
+    "RIVN-2025-CHUNK-000334",
+    "RIVN-2025-CHUNK-000345",
+    "RIVN-2025-CHUNK-000374",
+    "RIVN-2025-CHUNK-000379",
+    "RIVN-2025-CHUNK-000398",
+    "RIVN-2025-CHUNK-000400",
+    "RIVN-2025-CHUNK-000402",
+    "RIVN-2025-CHUNK-000404"
+  ],
+  "truncated_content_type_counts": {
+    "table": 17
+  },
+  "truncated_table_kind_counts": {
+    "exhibit_list": 4,
+    "financial_data": 13
+  },
+  "truncated_inputs": [
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000149",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "RIVN-2025-TABLE-0012",
+      "token_count": 698
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000163",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "RIVN-2025-TABLE-0013",
+      "token_count": 1341
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000209",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "RIVN-2025-TABLE-0026",
+      "token_count": 1127
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000212",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "RIVN-2025-TABLE-0028",
+      "token_count": 1586
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000216",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "RIVN-2025-TABLE-0032",
+      "token_count": 2305
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000218",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "RIVN-2025-TABLE-0034",
+      "token_count": 2275
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000269",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "RIVN-2025-TABLE-0049",
+      "token_count": 1036
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000292",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "RIVN-2025-TABLE-0061",
+      "token_count": 660
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000329",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "RIVN-2025-TABLE-0074",
+      "token_count": 1796
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000334",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "RIVN-2025-TABLE-0077",
+      "token_count": 608
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000345",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "RIVN-2025-TABLE-0081",
+      "token_count": 959
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000374",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "RIVN-2025-TABLE-0092",
+      "token_count": 629
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000379",
+      "content_type": "table",
+      "table_kind": "financial_data",
+      "logical_table_id": "RIVN-2025-TABLE-0094",
+      "token_count": 701
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000398",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "RIVN-2025-TABLE-0099",
+      "token_count": 1343
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000400",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "RIVN-2025-TABLE-0100",
+      "token_count": 959
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000402",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "RIVN-2025-TABLE-0101",
+      "token_count": 1086
+    },
+    {
+      "chunk_id": "RIVN-2025-CHUNK-000404",
+      "content_type": "table",
+      "table_kind": "exhibit_list",
+      "logical_table_id": "RIVN-2025-TABLE-0102",
+      "token_count": 1080
+    }
+  ],
+  "batch_size": 32,
+  "device": "cpu"
+}

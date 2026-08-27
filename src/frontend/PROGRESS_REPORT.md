@@ -117,3 +117,11 @@ and was not included in AVA commits.
 - Ran the real FastAPI pipeline on an isolated port against the configured Unique tenant. Health reported `mode=real`, `pipeline_ready=true`, and `answer_delivery=buffered`; a Tesla query produced one grounded answer delta, resolved SEC filing sources, and terminated with `done`.
 - The live response grouped several chunk IDs inside one citation bracket, so citation parsing now accepts semicolon- or comma-separated valid IDs while continuing to reject bracketed prose.
 - Focused generation, real-pipeline, and API tests passed (16 tests). The complete Python suite ran 103 tests; only the same two pre-existing repository consistency failures remained (currency-symbol embedding-text expectation and stale baseline-review hash). Frontend ESLint, all 7 Vitest tests, and the TypeScript/Vite production build passed. Python compilation and diff whitespace validation also passed.
+
+### Rivian corpus integration
+
+- Added Rivian as the eleventh active AVA filing in the shared runtime/evaluation corpus registry and added `Rivian`, `Rivian Automotive`, and `RIVN` scope detection coverage.
+- Included Rivian's validated 411 chunks and aligned 768-dimensional BGE-base vectors in real API startup, corpus-wide evaluators, and retrieval notebooks.
+- Updated the browser corpus count from ten to eleven while keeping all company detection and filtering on the backend.
+- Verified the real loader produces a 4,526-by-768 matrix, production and evaluator retrieval match on a Rivian query, and the expected Rivian revenue table ranks first for its new evaluation question.
+- Passed strict eleven-company table/chunk and embedding audits with zero failures, 35 focused Python tests, frontend lint, all 8 frontend tests, and the production build.

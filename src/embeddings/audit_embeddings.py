@@ -15,6 +15,7 @@ from src.embeddings.embed_chunks import (
     MODEL_CONFIGS,
     validate_embedding_artifacts,
 )
+from src.filings.corpus import ACTIVE_FILINGS
 from src.filings.audit_tables import sha256_file
 
 
@@ -42,17 +43,33 @@ def write_json_atomic(path: Path, value: dict) -> None:
 def audit_embedding_release(
     chunks_directory: Path,
     embeddings_directory: Path,
-    input_manifest_path: Path,
+    input_manifest_path: Path | None = None,
     *,
     model_name: str = DEFAULT_MODEL_NAME,
     release_id: str = "bgebase-table-v2-chunk-v3.20260813",
 ) -> dict:
-    input_manifest = json.loads(input_manifest_path.read_text(encoding="utf-8"))
-    inputs = input_manifest.get("files") or []
+    if input_manifest_path is None:
+        input_manifest = None
+        inputs = [
+            {
+                "ticker": ticker,
+                "filing_year": int(filing_name.split("-", maxsplit=1)[0]),
+            }
+            for ticker, filing_name in ACTIVE_FILINGS.items()
+        ]
+        declared_company_count = len(ACTIVE_FILINGS)
+    else:
+        input_manifest = json.loads(input_manifest_path.read_text(encoding="utf-8"))
+        inputs = input_manifest.get("files") or []
+        declared_company_count = input_manifest.get("company_count")
     failures = []
     records = []
-    if input_manifest.get("company_count") != 10 or len(inputs) != 10:
-        failures.append("input manifest does not contain the fixed ten filings")
+    if (
+        not isinstance(declared_company_count, int)
+        or declared_company_count < 1
+        or len(inputs) != declared_company_count
+    ):
+        failures.append("input manifest company_count does not match its filings")
     config = MODEL_CONFIGS[model_name]
     for source in inputs:
         ticker = source["ticker"]
@@ -115,14 +132,18 @@ def audit_embedding_release(
     source_hashes = [
         record.get("source_chunks_sha256") for record in records if not record.get("failure")
     ]
-    if len(records) != 10 or len(source_hashes) != 10:
+    if (
+        not isinstance(declared_company_count, int)
+        or len(records) != declared_company_count
+        or len(source_hashes) != declared_company_count
+    ):
         failures.append("embedding release is incomplete")
     if dimensions != {config["expected_dimension"]}:
         failures.append(f"embedding dimensions are not uniformly {config['expected_dimension']}")
     if dtypes != {"float32"}:
         failures.append("embedding dtype is not uniformly float32")
     if len(source_hashes) != len(set(source_hashes)):
-        failures.append("embedding records do not bind ten distinct chunk files")
+        failures.append("embedding records do not bind distinct chunk files")
 
     return {
         "schema_version": 1,
@@ -135,8 +156,12 @@ def audit_embedding_release(
         "document_prefix": config["document_prefix"],
         "expected_dimension": config["expected_dimension"],
         "expected_max_sequence_length": config["expected_max_sequence_length"],
-        "input_manifest": str(input_manifest_path.resolve()),
-        "input_manifest_sha256": sha256_file(input_manifest_path),
+        "input_manifest": (
+            str(input_manifest_path.resolve()) if input_manifest_path is not None else None
+        ),
+        "input_manifest_sha256": (
+            sha256_file(input_manifest_path) if input_manifest_path is not None else None
+        ),
         "company_count": len(records),
         "vector_count": sum(record.get("chunk_count", 0) for record in records),
         "truncated_input_count": sum(
@@ -175,7 +200,7 @@ def audit_embedding_release(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Validate all ten manifest-v3 embedding artifacts."
+        description="Validate every manifest-v3 embedding artifact in the input manifest."
     )
     parser.add_argument(
         "--chunks-directory", type=Path, default=PROJECT_ROOT / "data" / "chunks"
@@ -188,7 +213,7 @@ def main() -> None:
     parser.add_argument(
         "--input-manifest",
         type=Path,
-        default=PROJECT_ROOT / "data" / "manifests" / "table-v2-inputs.json",
+        help="Optional historical/release manifest; defaults to the active corpus registry.",
     )
     parser.add_argument("--model-name", choices=tuple(MODEL_CONFIGS), default="bgebase")
     parser.add_argument(

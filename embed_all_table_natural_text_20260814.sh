@@ -21,6 +21,7 @@ companies=(
     nvidia
     ouster
     qualcomm
+    rivian
     tesla
 )
 
@@ -34,6 +35,7 @@ declare -A tickers=(
     [nvidia]=NVDA
     [ouster]=OUST
     [qualcomm]=QCOM
+    [rivian]=RIVN
     [tesla]=TSLA
 )
 

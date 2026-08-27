@@ -33,6 +33,7 @@ from src.embeddings.embed_chunks import (
     model_config,
     prepare_document_text,
 )
+from src.filings.corpus import ACTIVE_COMPANY_COUNT
 from src.filings.table_processing import (
     TABLE_HEURISTICS_VERSION,
     TABLE_SCHEMA_VERSION,
@@ -1001,8 +1002,15 @@ def _paths_by_ticker(directory: Path, pattern: str) -> dict[str, Path]:
 
 def _load_input_manifest(path: Path) -> dict:
     value = json.loads(path.read_text(encoding="utf-8"))
-    if value.get("schema_version") != 1 or len(value.get("files") or []) != 10:
-        raise ValueError("Input manifest must contain the fixed ten-file corpus")
+    files = value.get("files") or []
+    company_count = value.get("company_count")
+    if (
+        value.get("schema_version") != 1
+        or not isinstance(company_count, int)
+        or company_count < 1
+        or len(files) != company_count
+    ):
+        raise ValueError("Input manifest company_count must match its filing records")
     return value
 
 
@@ -1103,6 +1111,16 @@ def audit_corpus(
 ) -> dict:
     processed_directory = Path(processed_directory)
     config_path = Path(config_path)
+    input_manifest = (
+        _load_input_manifest(Path(input_manifest_path))
+        if input_manifest_path is not None
+        else None
+    )
+    expected_company_count = (
+        input_manifest["company_count"]
+        if input_manifest is not None
+        else ACTIVE_COMPANY_COUNT
+    )
     processed_paths = _paths_by_ticker(
         processed_directory, "*/*-10-K.blocks.jsonl"
     )
@@ -1115,8 +1133,11 @@ def audit_corpus(
         for value in processed
         for failure in value["failures"]
     ]
-    if len(processed_paths) != 10:
-        failures.append(f"expected ten processed filings, found {len(processed_paths)}")
+    if len(processed_paths) != expected_company_count:
+        failures.append(
+            f"expected {expected_company_count} processed filings, "
+            f"found {len(processed_paths)}"
+        )
 
     chunks = []
     chunk_paths = {}
@@ -1138,12 +1159,13 @@ def audit_corpus(
             )
             chunks.append(value)
             failures.extend(f"{ticker}: {failure}" for failure in value["failures"])
-        if len(chunk_paths) != 10:
-            failures.append(f"expected ten chunk files, found {len(chunk_paths)}")
+        if len(chunk_paths) != expected_company_count:
+            failures.append(
+                f"expected {expected_company_count} chunk files, found {len(chunk_paths)}"
+            )
 
     input_records = []
-    if input_manifest_path is not None:
-        input_manifest = _load_input_manifest(Path(input_manifest_path))
+    if input_manifest is not None:
         input_records, input_failures = _validate_inputs(input_manifest)
         failures.extend(input_failures)
         expected_tickers = {value["ticker"] for value in input_records}

@@ -19,6 +19,7 @@ import pandas as pd
 from sentence_transformers import SentenceTransformer
 
 from src.embeddings.embed_chunks import MODEL_CONFIGS
+from src.filings.corpus import COMPANY_ALIASES
 from src.retrieval.scope_aware import (
     DEFAULT_FINAL_EVIDENCE_K,
     DEFAULT_MIN_CHUNKS_PER_SUBQUERY,
@@ -55,19 +56,6 @@ SUBQUERY_RETRIEVAL_K = DEFAULT_SUBQUERY_RETRIEVAL_K
 FINAL_CONTEXT_K = DEFAULT_FINAL_EVIDENCE_K
 MIN_CHUNKS_PER_SUBQUERY = DEFAULT_MIN_CHUNKS_PER_SUBQUERY
 MULTI_SUBQUERY_BONUS = DEFAULT_MULTI_SUBQUERY_BONUS
-
-COMPANY_ALIASES: dict[str, tuple[str, ...]] = {
-    "AUR": ("aurora innovation", "aurora", "aurora driver"),
-    "TSLA": ("tesla",),
-    "MBLY": ("mobileye","eyeq", "mobileye drive"),
-    "GOOGL": ("alphabet", "google", "waymo"),
-    "GM": ("general motors", "gm"),
-    "F": ("ford motor company", "ford"),
-    "NVDA": ("nvidia",),
-    "QCOM": ("qualcomm","snapdragon digital chassis", "snapdragon"),
-    "APTV": ("aptiv",),
-    "OUST": ("ouster",),
-}
 
 GLOBAL_CUES = (
     "other companies",
@@ -290,8 +278,8 @@ def select_enumeration_results(
         and result["bm25_rank"] is not None
     ]
     selected_ids = {result["chunk_id"] for _, result in qualified_representatives}
-    # The baseline corpus has ten companies, but keep the selector safe if that
-    # invariant changes: strongest representatives win when there are too many.
+    # Keep the selector safe when the corpus has more companies than the output
+    # budget: strongest representatives win when there are too many.
     if len(selected_ids) > top_k:
         selected_ids = {
             result["chunk_id"]

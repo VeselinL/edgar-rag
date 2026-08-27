@@ -2,7 +2,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from src.backend.pipeline import PipelineSettings, RealPipeline
+from src.backend.pipeline import FILINGS, PipelineSettings, RealPipeline
 
 
 class FakeRetriever:
@@ -55,6 +55,10 @@ class FakeGenerator:
 
 
 class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
+    def test_deployment_corpus_includes_rivian(self):
+        self.assertEqual(FILINGS["RIVN"], "2025-10-K")
+        self.assertEqual(len(FILINGS), 11)
+
     def test_settings_disable_provider_streaming_explicitly(self):
         with patch.dict(
             "os.environ",

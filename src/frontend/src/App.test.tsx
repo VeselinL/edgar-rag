@@ -19,6 +19,11 @@ describe('App', () => {
     document.documentElement.dataset.theme = 'light'
   })
 
+  it('describes the active eleven-company filing corpus', () => {
+    render(<App />)
+    expect(screen.getByText(/SEC 10-K filings from eleven companies/)).toBeInTheDocument()
+  })
+
   it('submits with Enter, shows waiting, and removes it on first token', async () => {
     let handlers: Handlers | undefined
     let finish: (() => void) | undefined

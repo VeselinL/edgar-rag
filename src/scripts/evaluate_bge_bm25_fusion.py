@@ -16,6 +16,7 @@ import pandas as pd
 from sentence_transformers import SentenceTransformer
 
 from src.embeddings.embed_chunks import MODEL_CONFIGS
+from src.filings.corpus import ACTIVE_FILINGS
 
 
 DEFAULT_MODEL_NAME = "bgebase"
@@ -27,12 +28,7 @@ K_VALUES = [1, 3, 5, 10, 15, 20, 30]
 MAX_K = max(K_VALUES)
 DEFAULT_RRF_K = 60
 
-FILINGS = {
-    "AUR": "2025-10-K", "TSLA": "2025-10-K", "MBLY": "2025-10-K",
-    "GOOGL": "2025-10-K", "GM": "2025-10-K", "F": "2025-10-K",
-    "NVDA": "2026-10-K", "QCOM": "2025-10-K", "APTV": "2025-10-K",
-    "OUST": "2025-10-K",
-}
+FILINGS = ACTIVE_FILINGS
 
 
 def load_corpus(

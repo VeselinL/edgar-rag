@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-08-20T22:25:18.290604+00:00",
+  "source_raw": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/raw/RIVN/2025-10-K.html",
+  "source_raw_sha256": "06102744b9ac7ec6db6ed4b4511289c820b7056cdc61bc4d379b619894ec0525",
+  "processed_blocks": "/home/veselin/Documents/Programiranje/edgar-insight-rag/data/processed/RIVN/2025-10-K.blocks.jsonl",
+  "processed_blocks_sha256": "93ecef9ca127d43544506219dfc01b483bfd9393cac1a0062c39852832730e24",
+  "table_schema_version": 2,
+  "table_heuristics_version": "sec-logical-v2",
+  "html_table_fingerprint_version": "cleaned-lxml-html-v1",
+  "lxml_version": "6.1.1",
+  "block_count": 1162,
+  "table_fragment_count": 91,
+  "raw_cell_accounting_min": 1.0,
+  "standalone_marker_count": 0,
+  "markdown_valid_count": 91,
+  "normalization_fallback_count": 38,
+  "adapter": "rivian-title-only-layout-v1"
+}

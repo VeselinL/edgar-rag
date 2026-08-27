@@ -16,6 +16,7 @@ import bm25s
 import numpy as np
 
 from src.embeddings.embed_chunks import table_embedding_text
+from src.filings.corpus import COMPANY_ALIASES
 
 
 DEFAULT_RRF_K = 100
@@ -27,19 +28,6 @@ DEFAULT_MULTI_SUBQUERY_BONUS = 0.01
 DEFAULT_ANCHORED_COMPANY_K = 3
 DEFAULT_ENUMERATION_CANDIDATE_K = 30
 ENUMERATION_MIN_RELATIVE_RRF_SCORE = 0.60
-
-COMPANY_ALIASES: dict[str, tuple[str, ...]] = {
-    "AUR": ("aurora innovation", "aurora", "aurora driver"),
-    "TSLA": ("tesla",),
-    "MBLY": ("mobileye", "eyeq", "mobileye drive"),
-    "GOOGL": ("alphabet", "google", "waymo"),
-    "GM": ("general motors", "gm"),
-    "F": ("ford motor company", "ford"),
-    "NVDA": ("nvidia",),
-    "QCOM": ("qualcomm", "snapdragon digital chassis", "snapdragon"),
-    "APTV": ("aptiv",),
-    "OUST": ("ouster",),
-}
 
 # These are the evaluator's existing global/comparison cues. Keep matching
 # query-only and deterministic; the frontend must never reproduce this list.

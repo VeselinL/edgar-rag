@@ -36,7 +36,7 @@
   --citation-surface: #2a2110;
   --focus: #8acbff;
   --error: #fda29b;
-  --avatar-backing: #f8fafc;
+  --avatar-backing: transparent;
 }
 
 * {
@@ -110,7 +110,7 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
 
 .brand__text { display: flex; align-items: baseline; gap: 9px; min-width: 0; }
 .brand__text strong { font-size: 1rem; letter-spacing: 0.02em; }
-.brand__text span { color: var(--text-secondary); font-size: 0.82rem; white-space: nowrap; }
+.brand__text span { color: #f6b54c; font-size: 0.82rem; white-space: nowrap; }
 
 .avatar {
   display: inline-grid;
@@ -118,13 +118,47 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
   place-items: center;
   overflow: hidden;
   border-radius: 50%;
-  background: var(--avatar-backing);
+  background: transparent;
 }
-.avatar img { display: block; width: 100%; height: 100%; padding: 3px; object-fit: contain; }
-.avatar--small { width: 32px; height: 32px; }
-.avatar--message { width: 36px; height: 36px; }
-.avatar--large { width: 74px; height: 74px; }
-.avatar--large img { padding: 5px; }
+
+.avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 3px;
+  object-fit: contain;
+}
+
+.avatar--small {
+  width: 40px;
+  height: 40px;
+}
+
+.avatar--message {
+  width: 50px;
+  height: 50px;
+}
+
+.avatar--large {
+  width: 100px;
+  height: 100px;
+}
+
+.avatar--large img {
+  padding: 5px;
+}
+
+.avatar img.avatar__dark {
+  display: none;
+}
+
+:root[data-theme="dark"] .avatar img.avatar__light {
+  display: none;
+}
+
+:root[data-theme="dark"] .avatar img.avatar__dark {
+  display: block;
+}
 
 .icon-button, .send-button {
   display: inline-grid;

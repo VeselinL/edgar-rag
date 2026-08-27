@@ -15,6 +15,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from src.embeddings.embed_chunks import MODEL_CONFIGS
+from src.filings.corpus import ACTIVE_FILINGS
 from src.generation.rag import GenerationService, make_llm_client, resolve_cited_evidence
 from src.retrieval.scope_aware import ScopeAwareRetriever
 
@@ -22,18 +23,7 @@ from .sources import normalize_sources
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-FILINGS = {
-    "AUR": "2025-10-K",
-    "TSLA": "2025-10-K",
-    "MBLY": "2025-10-K",
-    "GOOGL": "2025-10-K",
-    "GM": "2025-10-K",
-    "F": "2025-10-K",
-    "NVDA": "2026-10-K",
-    "QCOM": "2025-10-K",
-    "APTV": "2025-10-K",
-    "OUST": "2025-10-K",
-}
+FILINGS = ACTIVE_FILINGS
 
 
 @dataclass(frozen=True)
