@@ -1,11 +1,8 @@
 # Environment variables
 .env
 
-# Local working roadmap
-/ROADMAP.md
-
 # Agent files
-/AGENTS.md
+/docs/
 
 # Local variables
 .idea/
@@ -17,8 +14,13 @@ __pycache__/
 # Generated embedding vectors
 data/embeddings/**/*.npz
 
+
 # Internal documents, architectures..
 docs/
 
-# Ideas
-/IDEAS.md
+# Frontend dependencies and generated build artifacts
+src/frontend/node_modules/
+src/frontend/dist/
+src/frontend/*.tsbuildinfo
+src/frontend/vite.config.js
+src/frontend/vite.config.d.ts

@@ -1,10 +1,10 @@
-# SEC Filing RAG Assistant
+# AVA — Autonomous Vehicle Analyst
 
-![project banner](banner/banner_text.png)
+![project banner](banner/banner_ava.png)
 
-A Retrieval-Augmented Generation assistant for annual SEC filings. The project
-downloads the latest normal 10-K filings, preserves the source HTML, extracts
-structured document blocks, and will use those blocks for retrieval and grounded
+A Retrieval-Augmented Generation assistant for annual SEC filings. AVA downloads
+the latest normal 10-K filings, preserves source HTML, extracts structured
+document blocks, and uses those blocks for scope-aware retrieval and grounded
 answers with citations.
 
 ## Current status
@@ -21,31 +21,47 @@ Implemented:
 - token-based recursive narrative chunking with source-block provenance
 - one complete included logical table per chunk; navigation tables remain in
   processed evidence and produce no chunks
-- processed block output for the approved ten-company corpus
-- aligned chunk-schema-v3 500-token/32-token output for all ten companies
+- processed block output for the approved eleven-company corpus
+- aligned chunk-schema-v3 500-token/32-token output for all eleven companies
 - dynamically selected local embedding models with normalized vectors and reproducibility manifests
-- aligned 768-dimensional BGE-base v1.5 manifest-v3 embeddings for all ten
+- aligned 768-dimensional BGE-base v1.5 manifest-v3 embeddings for all eleven
   promoted chunk files
 - versioned Mobileye gold-v2 labels and a post-migration semantic baseline
+- corpus-wide scope-aware hybrid BGE/BM25 retrieval with reciprocal-rank fusion
+- regex company, ticker, alias, Comparison Cue, and multi-company scope handling
+- LLM atomic-subquery planning, 10 candidates per subquery, at least 2 available
+  chunks per subquery, and a fixed 10-chunk grounded generation context
+- backend citation resolution and narrative/table-schema-v2 source adaptation
+- FastAPI liveness/readiness and streamed POST/SSE endpoints
+- React + TypeScript AVA interface with real stream consumption, structured HTML
+  table sources, accessibility, responsive layout, and light/dark themes
+- deterministic mock streaming for normal, pre-token-error, and partial-error UI testing
 
 Not implemented yet:
 
-- persistent vector database and reusable retrieval service
-- cross-encoder reranking
-- answer generation and citations
-- conversation history and chat interface
+- persistent vector database (the local vertical slice intentionally uses aligned NPZ artifacts)
+- native provider token streaming through the currently configured gateway
+- persistent conversation history, authentication, accounts, and uploads
 - generation evaluation
 
 The `table-v2-chunk-v3.20260813-r2` table repair release was promoted on 13
-August 2026. Its live audit contains 11,440 blocks, 889 logical tables, and
-4,115 chunks (3,238 narrative and 877 table); all ten BGE-base artifacts contain
-matching vectors. There are no
+August 2026 for the original ten filings. Rivian was added as the eleventh
+active filing on 21 August 2026 with aligned processed, chunk, and BGE-base
+artifacts. The active runtime corpus contains 12,602 blocks, 978 logical tables,
+and 4,526 chunks (3,561 narrative and 965 table), with matching vectors for all
+eleven filings. There are no
 normalization collisions, unmapped non-empty cells, standalone marker columns,
-unknown tables, invalid table Markdown, or provenance gaps. Persistent indexing,
-reranking, and generation remain separate pending work.
+unknown tables, invalid table Markdown, or provenance gaps.
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for module and data contracts and
-[ROADMAP.md](ROADMAP.md) for verified progress and current gates.
+The local real pipeline supports both native provider streaming and an explicit
+buffered delivery mode for gateways that return only completed JSON. Buffered
+mode preserves the same retrieval, grounding, citations, and browser SSE event
+contract, but sends the completed model answer in one `delta` event without fake
+typing or artificial delays. See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for the verified
+gateway behavior and configuration.
+
+See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for module and data contracts and
+[ROADMAP.md](docs/ROADMAP.md) for verified progress and current gates.
 
 ## Data flow
 
@@ -70,6 +86,7 @@ written separately under `data/processed/`.
 - `python-dotenv`
 - `langchain-text-splitters`
 - `sentence-transformers`
+- Node.js 22 and npm 10 for the AVA frontend
 
 Install dependencies with `.venv/bin/pip install -r requirements.txt`.
 
@@ -81,6 +98,47 @@ Set an SEC-compliant user agent in `.env`:
 ```dotenv
 SEC_USER_AGENT="Application Name contact@example.com"
 ```
+
+For the local AVA API, also configure backend-only generation values:
+
+```dotenv
+AVA_PIPELINE_MODE=real
+AVA_LLM_MODEL=AZURE_GPT_4o_2024_1120
+AVA_LLM_STREAMING=false
+OPENAI_API_KEY=<backend secret>
+OPENAI_API_URL=<OpenAI-compatible gateway base URL>
+```
+
+Set `AVA_LLM_STREAMING=true` only when the configured provider returns genuine
+`text/event-stream` Chat Completions. The current local Unique gateway requires
+`false`; AVA then waits for its completed JSON answer and displays it at once.
+
+Optional gateway headers retain the notebook names `OPENAI_APP_ID`,
+`OPENAI_USER_ID`, `OPENAI_COMPANY_ID`, and `OPENAI_API_VERSION`. Never expose
+these values through a `VITE_*` variable.
+
+Start the API from the repository root:
+
+```bash
+.venv/bin/uvicorn src.backend.app:app --reload --port 8000
+```
+
+For deterministic frontend development while provider streaming is unavailable:
+
+```bash
+AVA_PIPELINE_MODE=mock .venv/bin/uvicorn src.backend.app:app --reload --port 8000
+```
+
+Start the frontend in another terminal:
+
+```bash
+cd src/frontend
+npm install
+npm run dev
+```
+
+The frontend defaults to `http://localhost:8000`; set the public
+`VITE_API_BASE_URL` at build time when using another API origin.
 
 ## Usage
 
@@ -157,13 +215,13 @@ Run the strict live table and embedding audits:
 ```bash
 .venv/bin/python -m src.filings.audit_tables \
   --processed-directory data/processed --chunks-directory data/chunks \
-  --input-manifest data/manifests/table-v2-inputs.json \
-  --review-decisions data/manifests/table-v2-manual-review.json \
   --measure-embedding-tokens --strict
 
-.venv/bin/python -m src.embeddings.audit_embeddings \
-  --input-manifest data/manifests/table-v2-inputs.json --strict
+.venv/bin/python -m src.embeddings.audit_embeddings --strict
 ```
+
+Pass the dated `table-v2-inputs.json` and manual-review manifest explicitly
+only when reproducing the original ten-company promoted release.
 
 ## Data layout
 

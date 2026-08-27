@@ -79,9 +79,10 @@ def copy_atomic(source: Path, target: Path) -> None:
 def release_inventory(stage_root: Path, input_manifest: dict) -> list[dict]:
     records = []
     files = input_manifest.get("files") or []
-    if input_manifest.get("company_count") != 10 or len(files) != 10:
-        raise ValueError("Approved input manifest must contain the fixed ten filings")
-    if len({record.get("ticker") for record in files}) != 10:
+    company_count = input_manifest.get("company_count")
+    if not isinstance(company_count, int) or company_count < 1 or len(files) != company_count:
+        raise ValueError("Approved input manifest company_count must match its filings")
+    if len({record.get("ticker") for record in files}) != company_count:
         raise ValueError("Approved input manifest contains duplicate tickers")
     for record in files:
         ticker = record["ticker"]
@@ -301,7 +302,7 @@ def promote_release(
         "table_schema_version": TABLE_SCHEMA_VERSION,
         "chunk_schema_version": CHUNK_SCHEMA_VERSION,
         "table_heuristics_version": TABLE_HEURISTICS_VERSION,
-        "company_count": 10,
+        "company_count": len({record["ticker"] for record in records}),
         "artifact_file_count": len(records),
         "input_manifest": str(input_manifest_path.resolve()),
         "input_manifest_sha256": sha256_file(input_manifest_path),

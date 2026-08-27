@@ -13,6 +13,8 @@ from typing import Any
 import bm25s
 import pandas as pd
 
+from src.filings.corpus import ACTIVE_FILINGS
+
 
 DEFAULT_CHUNKS_DIRECTORY = Path("data/chunks")
 DEFAULT_TEST_QUERIES_PATH = Path("data/evaluation/test_queries.jsonl")
@@ -20,18 +22,7 @@ DEFAULT_OUTPUT_DIRECTORY = Path("data/evaluation")
 K_VALUES = [1, 3, 5, 10, 15, 20, 30]
 MAX_K = max(K_VALUES)
 
-FILINGS = {
-    "AUR": "2025-10-K",
-    "TSLA": "2025-10-K",
-    "MBLY": "2025-10-K",
-    "GOOGL": "2025-10-K",
-    "GM": "2025-10-K",
-    "F": "2025-10-K",
-    "NVDA": "2026-10-K",
-    "QCOM": "2025-10-K",
-    "APTV": "2025-10-K",
-    "OUST": "2025-10-K",
-}
+FILINGS = ACTIVE_FILINGS
 
 
 def load_corpus(chunks_directory: Path) -> list[dict[str, Any]]:

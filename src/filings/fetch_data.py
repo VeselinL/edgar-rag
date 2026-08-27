@@ -57,6 +57,11 @@ COMPANIES: dict[str, dict[str, str]] = {
             "ticker": "OUST",
             "cik": "0001816581",
         },
+        "rivian": {
+            "company": "Rivian Automotive, Inc.",
+            "ticker": "RIVN",
+            "cik": "0001874178",
+        },
     }
 
 def fetch_latest_10k(company: str, user: str) -> dict[str, str]:
@@ -64,7 +69,9 @@ def fetch_latest_10k(company: str, user: str) -> dict[str, str]:
 
     company_key = company.strip().lower()
     if company_key not in COMPANIES:
-        raise ValueError("company must be either 'tesla' or 'mobileye'")
+        raise ValueError(
+            "Unknown company. Choose one of: " + ", ".join(sorted(COMPANIES))
+        )
     if not user.strip():
         raise ValueError("user_agent must identify your application and contact email")
 

@@ -1,0 +1,107 @@
+import type { Source } from '../types'
+
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000').replace(/\/$/, '')
+
+interface StreamHandlers {
+  signal: AbortSignal
+  onOpen: () => void
+  onDelta: (text: string) => void
+  onSources: (sources: Source[], citationFallback: boolean, malformedSourceCount: number) => void
+  onDone: () => void
+}
+
+interface RawEvent {
+  event: string
+  data: unknown
+}
+
+export class ChatStreamError extends Error {}
+
+function parseFrame(frame: string): RawEvent | null {
+  let event = ''
+  const dataLines: string[] = []
+  for (const line of frame.split(/\r?\n/)) {
+    if (line.startsWith(':')) continue
+    if (line.startsWith('event:')) event = line.slice(6).trim()
+    if (line.startsWith('data:')) dataLines.push(line.slice(5).trimStart())
+  }
+  if (!event || dataLines.length === 0) return null
+  try {
+    return { event, data: JSON.parse(dataLines.join('\n')) }
+  } catch {
+    throw new ChatStreamError('AVA returned a malformed stream event.')
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+export async function streamChat(query: string, handlers: StreamHandlers): Promise<void> {
+  let response: Response
+  try {
+    response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
+      body: JSON.stringify({ query }),
+      signal: handlers.signal,
+    })
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') throw error
+    throw new ChatStreamError('AVA is unavailable right now. Please try again.')
+  }
+  if (!response.ok) {
+    throw new ChatStreamError('AVA could not begin this request. Please try again.')
+  }
+  if (!response.body) throw new ChatStreamError('AVA returned an empty response stream.')
+  handlers.onOpen()
+
+  const reader = response.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let terminal = false
+
+  const handleEvent = (raw: RawEvent) => {
+    if (!isRecord(raw.data)) throw new ChatStreamError('AVA returned an invalid stream event.')
+    if (raw.event === 'delta') {
+      if (typeof raw.data.text !== 'string') throw new ChatStreamError('AVA returned an invalid text fragment.')
+      if (raw.data.text.length > 0) handlers.onDelta(raw.data.text)
+      return
+    }
+    if (raw.event === 'sources') {
+      const sources = Array.isArray(raw.data.sources) ? (raw.data.sources as Source[]) : []
+      handlers.onSources(
+        sources,
+        raw.data.citation_fallback === true,
+        typeof raw.data.malformed_source_count === 'number' ? raw.data.malformed_source_count : 0,
+      )
+      return
+    }
+    if (raw.event === 'done') {
+      terminal = true
+      handlers.onDone()
+      return
+    }
+    if (raw.event === 'error') {
+      terminal = true
+      throw new ChatStreamError(
+        typeof raw.data.message === 'string' ? raw.data.message : 'AVA could not complete this response.',
+      )
+    }
+    throw new ChatStreamError('AVA returned an unknown stream event.')
+  }
+
+  while (!terminal) {
+    const { done, value } = await reader.read()
+    buffer += decoder.decode(value, { stream: !done })
+    const frames = buffer.split(/\r?\n\r?\n/)
+    buffer = frames.pop() ?? ''
+    for (const frame of frames) {
+      const event = parseFrame(frame)
+      if (event) handleEvent(event)
+      if (terminal) break
+    }
+    if (done) break
+  }
+  if (!terminal) throw new ChatStreamError('The response was interrupted. Please try again.')
+}

@@ -21,17 +21,16 @@ The backend owns:
 ```text
 regex company/ticker/alias detection
 → Comparison Cue and scope classification
-→ company/global retrieval allocation
-→ dense + BM25 candidate retrieval
-→ RRF merge
-→ scoped merge and stable-ID deduplication
-→ cross-encoder reranking
-→ final 12-chunk evidence selection
+→ LLM atomic-subquery planning
+→ scope-aware dense + BM25 retrieval for each subquery
+→ RRF ranking and stable-ID deduplication across subqueries
+→ minimum 2 available chunks per subquery
+→ multi-subquery bonus and final 10-chunk evidence selection
 → grounded generation and citation resolution
 → frontend-safe source normalization
 ```
 
-The waiting bubble stays visible during all planning, scope detection, retrieval, merging, deduplication, and reranking. It disappears only when the first non-empty `delta` event arrives.
+The waiting bubble stays visible during all planning, scope detection, retrieval, merging, deduplication, and final evidence selection. It disappears only when the first non-empty `delta` event arrives.
 
 ## Overall visual direction
 
