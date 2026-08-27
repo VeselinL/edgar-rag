@@ -22,7 +22,7 @@ describe('App', () => {
   it('describes the active eleven-company filing corpus', () => {
     render(<App />)
     expect(screen.getByText(/SEC 10-K filings from eleven companies/)).toBeInTheDocument()
-    expect(screen.getByAltText('AVA').getAttribute('src')).toContain('ava.png')
+    expect(screen.getByAltText('AVA').getAttribute('src')).toContain('ava-light.png')
   })
 
   it('submits with Enter, shows waiting, and removes it on first token', async () => {
@@ -115,5 +115,6 @@ describe('App', () => {
     expect(document.documentElement.dataset.theme).toBe('dark')
     expect(localStorage.getItem('ava-theme')).toBe('dark')
     expect(screen.getByRole('button', { name: 'Switch to light theme' })).toBeInTheDocument()
+    expect(screen.getByAltText('AVA').getAttribute('src')).toContain('ava-dark.png')
   })
 })

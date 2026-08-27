@@ -345,9 +345,13 @@ Do not report only an overall chatbot score.
 
 - The user-facing product name is **AVA**, which expands to **Autonomous Vehicle Analyst**.
 - The internal historical repository name may remain in code and engineering documentation, but it must never appear in the browser interface, page metadata, user-facing errors, or frontend accessibility text.
-- `src/frontend/avatar/ava.png` is the canonical supplied AVA avatar.
+- `src/frontend/avatar/ava.png` is the canonical supplied AVA avatar. The owner
+  has additionally approved the supplied `ava-light.png` and `ava-dark.png`
+  variants for the corresponding light and dark UI themes.
 - `src/frontend/avatar/favicon.png` is the supplied favicon source.
-- Do not regenerate, redraw, recolour, crop destructively, or move either supplied image without an explicit request. CSS backing and sizing may be used without altering the source files.
+- Do not regenerate, redraw, recolour, crop destructively, or move supplied
+  avatar or favicon images without an explicit request. CSS backing and sizing
+  may be used without altering the source files.
 - AVA is a restrained product identity, not a human-like mascot. Do not invent a biography, face, personality, onboarding story, or decorative animation.
 
 ### Shared retrieval source of truth

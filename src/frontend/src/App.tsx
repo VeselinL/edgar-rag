@@ -106,7 +106,7 @@ export default function App() {
     <div className="app-shell">
       <Header theme={theme} onToggleTheme={toggleTheme} />
       <main className={`main ${isEmpty ? 'main--empty' : ''}`}>
-        {isEmpty ? <EmptyState /> : <Conversation messages={messages} />}
+        {isEmpty ? <EmptyState theme={theme} /> : <Conversation messages={messages} theme={theme} />}
         <Composer
           value={draft}
           active={active}

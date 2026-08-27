@@ -24,7 +24,7 @@ export function Header({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: 
     <header className="header">
       <div className="header__inner">
         <div className="brand" aria-label="AVA, Autonomous Vehicle Analyst">
-          <AvaAvatar size="small" decorative />
+          <AvaAvatar size="small" decorative theme={theme} />
           <span className="brand__text">
             <strong>AVA</strong>
             <span>Autonomous Vehicle Analyst</span>

@@ -1,5 +1,6 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import type { Theme } from '../hooks/useTheme'
 import type { AssistantMessage as AssistantMessageType, ChatMessage } from '../types'
 import { AvaAvatar } from './AvaAvatar'
 import { Sources } from './Sources'
@@ -9,12 +10,12 @@ function UserMessage({ text }: { text: string }) {
   return <div className="message message--user"><p>{text}</p></div>
 }
 
-function AssistantMessage({ message }: { message: AssistantMessageType }) {
+function AssistantMessage({ message, theme }: { message: AssistantMessageType; theme: Theme }) {
   const waiting = message.state === 'waiting_for_first_token'
   return (
     <article className="message message--assistant" aria-label="AVA response">
       <div className="assistant-avatar">
-        <AvaAvatar decorative />
+        <AvaAvatar decorative theme={theme} />
         {waiting && <WaitingBubble />}
       </div>
       <div className="assistant-content">
@@ -45,12 +46,12 @@ function AssistantMessage({ message }: { message: AssistantMessageType }) {
   )
 }
 
-export function Messages({ messages }: { messages: ChatMessage[] }) {
+export function Messages({ messages, theme }: { messages: ChatMessage[]; theme: Theme }) {
   return (
     <>
       {messages.map((message) => message.role === 'user'
         ? <UserMessage key={message.id} text={message.text} />
-        : <AssistantMessage key={message.id} message={message} />)}
+        : <AssistantMessage key={message.id} message={message} theme={theme} />)}
     </>
   )
 }

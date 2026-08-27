@@ -532,3 +532,14 @@ and was not included in AVA commits.
   pre-existing consistency failures. Frontend ESLint, strict TypeScript, all 11
   Vitest tests, production build, Python compilation, and whitespace validation
   passed.
+
+### Theme-aware AVA avatar
+
+- At the owner's explicit direction, AVA now uses the supplied `ava-light.png`
+  in light mode and `ava-dark.png` in dark mode at the header, empty-state, and
+  assistant-message placements. The active theme is passed from the app shell,
+  so the image updates immediately with the existing theme toggle.
+- Updated the product-asset and Phase 1 plan contract to record this accepted
+  exception to the previous canonical-single-avatar rule, while retaining
+  `favicon.png` as the favicon source.
+- Added a frontend regression assertion for both selected avatar assets.

@@ -67,10 +67,9 @@ The following is verified from the checked-in code, not inferred from notebooks:
 - `SYSTEM_PROMPT` and `PLANNER_INSTRUCTION` both incorrectly expand `CEO` as
   “Chief Operating Officer.” CEO means Chief Executive Officer; COO means Chief
   Operating Officer. This can corrupt retrieval and generation and is a P0 fix.
-- `AvaAvatar.tsx` imports `ava-light.png` and `ava-dark.png`, and `index.html`
-  points the favicon to `ava-dark.png`, despite the product contract requiring
-  canonical `ava.png` and `favicon.png`. `AvaAvatar.tsx` also declares `Props`
-  twice. These are P0 product-contract cleanup items.
+- `AvaAvatar.tsx` uses the owner-approved supplied `ava-light.png` and
+  `ava-dark.png` variants according to the active UI theme; `index.html` uses
+  the canonical `favicon.png`. `AvaAvatar.tsx` has one props declaration.
 
 The current deletion of `CHUNKING_REPORT.md` in the working tree predates this
 plan and is unrelated. Do not restore or modify it while implementing this plan
@@ -283,11 +282,11 @@ did not cite.
 - Correct both prompt examples so CEO expands to Chief Executive Officer and COO
   expands to Chief Operating Officer. Add regression queries for both roles and
   remove any instruction that silently changes an acronym to the wrong office.
-- Make every AVA placement use the canonical `src/frontend/avatar/ava.png` with
-  CSS theme backing/sizing only, point the favicon to
-  `src/frontend/avatar/favicon.png`, and remove the duplicate `Props` declaration.
-- Add a production-bundle/component assertion for canonical asset paths so theme
-  work cannot silently replace them again.
+- Use the owner-approved supplied `ava-light.png` in light mode and
+  `ava-dark.png` in dark mode at every AVA placement. Point the favicon to
+  `src/frontend/avatar/favicon.png`, and keep one props declaration.
+- Add a component assertion that each active theme selects its corresponding
+  supplied avatar asset.
 
 ## 8. Phase 2 — Robust company and ticker resolution (P0)
 

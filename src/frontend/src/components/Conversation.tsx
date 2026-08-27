@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react'
+import type { Theme } from '../hooks/useTheme'
 import type { ChatMessage } from '../types'
 import { Messages } from './Messages'
 
-export function Conversation({ messages }: { messages: ChatMessage[] }) {
+export function Conversation({ messages, theme }: { messages: ChatMessage[]; theme: Theme }) {
   const container = useRef<HTMLDivElement>(null)
   const nearBottom = useRef(true)
 
@@ -22,7 +23,7 @@ export function Conversation({ messages }: { messages: ChatMessage[] }) {
       }}
     >
       <div className="conversation" aria-label="Current session conversation">
-        <Messages messages={messages} />
+        <Messages messages={messages} theme={theme} />
       </div>
     </div>
   )
