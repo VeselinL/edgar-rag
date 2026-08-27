@@ -506,3 +506,29 @@ and was not included in AVA commits.
   166 passing tests with only the same two unrelated pre-existing consistency
   failures. Frontend ESLint, strict TypeScript, all 11 Vitest tests, production
   build, Python compilation, and whitespace validation passed.
+
+### Multi-company executive evidence retrieval repair
+
+- Diagnosed a supported Ford CEO answer that incorrectly abstained. Ford's
+  authoritative executive-officer table is `F-2025-CHUNK-000123` and identifies
+  James D. Farley Jr.; it was available in the corpus but absent from final
+  evidence.
+- The legacy canonical `Company scope` suffix was redundantly appended to
+  planner queries that already contained exact company names and degraded the
+  Ford candidate ranking. Canonical augmentation now applies only when the
+  subquery lacks an exact alias/ticker, preserving its intended typo/LLM-resolved
+  safety role without rewriting already-canonical planner output.
+- Measured the executive query variants against the unchanged NPZ/BM25 index.
+  `Ford Chief Executive Officer name` ranked the authoritative table first,
+  versus rank 8 and final rejection for the interrogative CEO query in the
+  reproduced three-company plan. Strengthened the planner contract to use the
+  exact expanded executive title, company name, and `name` for `who` questions.
+- The configured real planner emitted the three expected canonical subqueries.
+  A real buffered end-to-end request selected 7 Tesla, 9 Mobileye, and 6 Ford
+  chunks; included Ford's authoritative CEO table; named James D. Farley Jr.;
+  resolved eight citations; and emitted `delta`, `sources`, `done` without error.
+- All 73 focused planner/resolution/retrieval/pipeline tests passed. The full
+  backend suite reached 166 passing tests with only the same two unrelated
+  pre-existing consistency failures. Frontend ESLint, strict TypeScript, all 11
+  Vitest tests, production build, Python compilation, and whitespace validation
+  passed.

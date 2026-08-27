@@ -550,10 +550,17 @@ class CompanyResolver:
         )
 
     def retrieval_query(self, query: str, tickers: Sequence[str]) -> str:
+        query_resolution = self.resolve(query)
+        already_scoped = {
+            mention.ticker
+            for mention in query_resolution.mentions
+            if mention.method in {"exact_alias", "exact_ticker"}
+        }
+        already_scoped.update(query_resolution.explicit_scope_tickers)
         additions = [
             f"{COMPANY_NAMES[ticker]} ({ticker})"
             for ticker in tickers
-            if ticker in ACTIVE_FILINGS
+            if ticker in ACTIVE_FILINGS and ticker not in already_scoped
         ]
         if not additions:
             return query

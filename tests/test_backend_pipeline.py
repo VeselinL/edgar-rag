@@ -331,8 +331,8 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(
             retriever.arguments[1],
             [
-                "Tesla Chief Executive Officer\nCompany scope: Tesla, Inc. (TSLA)",
-                "Mobileye Chief Executive Officer\nCompany scope: Mobileye Global Inc. (MBLY)",
+                "Tesla Chief Executive Officer",
+                "Mobileye Chief Executive Officer",
             ],
         )
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])

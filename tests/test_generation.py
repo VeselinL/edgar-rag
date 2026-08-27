@@ -130,6 +130,7 @@ class GenerationTests(unittest.TestCase):
             self.assertIn("CEO means Chief Executive Officer", prompt)
             self.assertIn("COO means Chief Operating Officer", prompt)
             self.assertNotIn("CEO, that means Chief Operating Officer", prompt)
+        self.assertIn("Ford Chief Executive Officer name", PLANNER_INSTRUCTION)
 
     def test_prompt_requires_exact_citations_on_concluding_synthesis(self):
         self.assertIn("concluding comparison or synthesis", SYSTEM_PROMPT)

@@ -175,6 +175,9 @@ class CompanyResolverTests(unittest.TestCase):
         self.assertEqual(original, "What are frod's risks?")
         self.assertIn("Ford Motor Company (F)", internal)
 
+        exact = "Who is the CEO of Ford?"
+        self.assertEqual(self.resolver.retrieval_query(exact, ["F"]), exact)
+
     def test_damerau_distance_counts_adjacent_transposition_once(self):
         self.assertEqual(damerau_levenshtein("frod", "ford"), 1)
 

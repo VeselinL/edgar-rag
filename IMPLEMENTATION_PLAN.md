@@ -350,7 +350,9 @@ API, evaluator, and notebooks/scripts; do not leave a duplicate detector in
 The validated plan should include `resolved_tickers`, atomic subqueries whose
 company targets are explicit, comparison intent, operation, and ambiguity state.
 The original query remains the generation question. Internal retrieval queries
-may append the canonical name/ticker so `frod` retrieves Ford evidence.
+may append the canonical name/ticker only when the planner subquery does not
+already contain an exact alias/ticker, so `frod` retrieves Ford evidence without
+degrading already-canonical company queries.
 
 `comparison` means semantic comparison, not merely that two or more companies
 were requested. Independent facts for multiple companies use `comparison=false`
@@ -358,6 +360,11 @@ while retaining every company target and the same five-per-company evidence
 allocation. Planner ticker output is constrained by the resolver's exact/fuzzy
 matches and unresolved shortlists; deterministic code validates company safety
 but does not override planner-owned semantic intent.
+
+For `who` questions about an executive acronym, planner subqueries use the
+company name plus the exact expanded role and `name` (for example,
+`Ford Chief Executive Officer name`). This is a meaning-preserving retrieval
+reformulation, not permission to add a person or fact absent from the query.
 
 ### Acceptance gates
 

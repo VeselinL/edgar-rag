@@ -58,7 +58,10 @@ PLANNING RULES
    sales, or latest as a guessed fiscal year. Do not add total, net, segment,
    reported, consolidated, or most recent unless the user supplied that concept.
 5. Acronym expansion must be exact: CEO means Chief Executive Officer, and
-   COO means Chief Operating Officer.
+   COO means Chief Operating Officer. For a question asking who holds an
+   executive role, every company-specific subquery must use the full role title,
+   the company name, and the word `name`; omit interrogative filler. For example,
+   plan `Who is Ford's CEO?` as `Ford Chief Executive Officer name`.
 
 COMPANY RULES
 6. Company targets are limited to the supplied allowed corpus tickers. Copy every
@@ -85,13 +88,16 @@ INTENT RULES
     user did not request.
 
 EXAMPLES
-- `Who is the CEO of Tesla, and who is the CEO of Mobileye?` requires separate
-  TSLA and MBLY subqueries, needs_multiple_retrievals true, comparison false,
-  operation null, and resolved_tickers [TSLA, MBLY].
+- `Who is the CEO of Tesla, and who is the CEO of Mobileye?` requires the
+  subqueries `Tesla Chief Executive Officer name` targeting TSLA and
+  `Mobileye Chief Executive Officer name` targeting MBLY,
+  needs_multiple_retrievals true, comparison false, operation null, and
+  resolved_tickers [TSLA, MBLY].
 - `Compare Tesla and Mobileye revenue` requires company-specific subqueries,
   needs_multiple_retrievals true, comparison true, and only an explicitly
   requested arithmetic operation (otherwise null).
-- `Who is Tesla's CEO?` requires one TSLA subquery,
+- `Who is Tesla's CEO?` requires the one subquery
+  `Tesla Chief Executive Officer name` targeting TSLA,
   needs_multiple_retrievals false, comparison false, and operation null."""
 
 PLANNER_JSON_FORMAT = (
