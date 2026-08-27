@@ -1,4 +1,4 @@
-"""Deterministic-first company and ticker resolution for the fixed AVA corpus."""
+"""Company-name hints and planner-owned scope for the fixed AVA corpus."""
 
 from __future__ import annotations
 
@@ -110,11 +110,13 @@ class CompanyResolution:
     comparison: bool
     needs_clarification: bool
     explicit_scope_tickers: tuple[str, ...] = ()
+    planner_scope_tickers: tuple[str, ...] = ()
 
     @property
     def resolved_tickers(self) -> tuple[str, ...]:
         present = {
             *self.explicit_scope_tickers,
+            *self.planner_scope_tickers,
             *(mention.ticker for mention in self.mentions),
         }
         return tuple(ticker for ticker in ACTIVE_FILINGS if ticker in present)
@@ -131,6 +133,7 @@ class CompanyResolution:
                 mention.__dict__ for mention in self.unresolved_mentions
             ],
             "explicit_scope_tickers": list(self.explicit_scope_tickers),
+            "planner_scope_tickers": list(self.planner_scope_tickers),
             "resolved_tickers": list(self.resolved_tickers),
             "scope": self.scope,
             "comparison": self.comparison,
@@ -482,17 +485,14 @@ class CompanyResolver:
         allowed = set(ACTIVE_FILINGS)
         if any(ticker not in allowed for ticker in planner_resolved_tickers):
             raise ValueError("Planner returned an out-of-corpus ticker.")
-        deterministic_tickers = set(deterministic.resolved_tickers)
-        deterministic_by_raw = {
-            normalize_company_text(item.raw_text): item.ticker
-            for item in deterministic.mentions
-        }
-        unresolved_by_key = {
-            normalize_company_text(item.raw_text): item
-            for item in deterministic.unresolved_mentions
-        }
-        additions: list[CompanyMention] = []
-        resolved_unresolved: set[str] = set()
+        planner_tickers = set(planner_resolved_tickers)
+        retained_deterministic = [
+            mention
+            for mention in deterministic.mentions
+            if mention.ticker in planner_tickers
+        ]
+        planner_mentions_resolved: list[CompanyMention] = []
+        planner_unresolved: list[UnresolvedMention] = []
         ambiguous = False
         for value in planner_mentions:
             if set(value) != {"raw_text", "ticker"}:
@@ -504,49 +504,35 @@ class CompanyResolver:
                 or ticker not in {*allowed, "none", "ambiguous"}
             ):
                 raise ValueError("Planner company mention has an invalid value.")
-            key = normalize_company_text(raw_text)
-            unresolved = unresolved_by_key.get(key)
-            if unresolved is None:
-                # Providers sometimes echo supplied deterministic matches. A
-                # matching echo is harmless; a conflict or new mention is not.
-                if deterministic_by_raw.get(key) == ticker:
-                    continue
-                raise ValueError("Planner attempted to resolve an unrequested company mention.")
             if ticker in {"none", "ambiguous"}:
                 ambiguous = ambiguous or ticker == "ambiguous"
+                planner_unresolved.append(
+                    UnresolvedMention(
+                        raw_text=raw_text,
+                        reason=f"planner_{ticker}",
+                    )
+                )
                 continue
-            if ticker not in unresolved.candidate_tickers:
-                raise ValueError("Planner ticker is outside the deterministic shortlist.")
-            additions.append(
+            if ticker not in planner_tickers:
+                raise ValueError("Planner mention ticker is absent from resolved_tickers.")
+            planner_mentions_resolved.append(
                 CompanyMention(
                     raw_text, ticker, COMPANY_NAMES[ticker], "llm", 0.70
                 )
             )
-            resolved_unresolved.add(key)
 
-        mentions = self._deduplicate_mentions([*deterministic.mentions, *additions])
-        final_tickers = {
-            *deterministic.explicit_scope_tickers,
-            *(mention.ticker for mention in mentions),
-        }
-        if deterministic_tickers - final_tickers:
-            raise ValueError("Planner attempted to override a deterministic company match.")
-        if set(planner_resolved_tickers) != final_tickers:
-            raise ValueError("Planner resolved_tickers disagree with validated mentions.")
-        remaining = tuple(
-            item
-            for item in deterministic.unresolved_mentions
-            if normalize_company_text(item.raw_text) not in resolved_unresolved
+        mentions = self._deduplicate_mentions(
+            [*retained_deterministic, *planner_mentions_resolved]
         )
-        tickers = tuple(ticker for ticker in ACTIVE_FILINGS if ticker in final_tickers)
+        tickers = tuple(ticker for ticker in ACTIVE_FILINGS if ticker in planner_tickers)
         return CompanyResolution(
             original_query=deterministic.original_query,
             mentions=tuple(mentions),
-            unresolved_mentions=remaining,
+            unresolved_mentions=tuple(planner_unresolved),
             scope=_scope(deterministic.original_query, tickers),
             comparison=_is_comparison(deterministic.original_query),
-            needs_clarification=bool(remaining) or ambiguous,
-            explicit_scope_tickers=deterministic.explicit_scope_tickers,
+            needs_clarification=bool(planner_unresolved) or ambiguous,
+            planner_scope_tickers=tickers,
         )
 
     def retrieval_query(self, query: str, tickers: Sequence[str]) -> str:

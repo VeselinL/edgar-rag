@@ -28,14 +28,15 @@ Implemented:
   promoted chunk files
 - versioned Mobileye gold-v2 labels and a post-migration semantic baseline
 - corpus-wide scope-aware hybrid BGE/BM25 retrieval with reciprocal-rank fusion
-- one LLM planner for atomic search-query reformatting and semantic intent, with
-  deterministic exact/fuzzy company guardrails and constrained handling of
-  unresolved mentions against the fixed eleven-ticker enum
+- one LLM planner for company scope, atomic search-query reformatting, and
+  semantic intent, using exact/fuzzy matches as advisory hints and constraining
+  final targets to the fixed eleven-ticker enum
 - independently ticker-filtered pools of 10 candidates per relevant
   company/subquery
-- typed evidence budgets with five final chunks per explicit company, five or
-  seven supplemental slots for two-/three-company requests, and exact
-  generation-token packing of complete chunks
+- typed evidence budgets targeting five final chunks per explicit company, five
+  or seven supplemental slots for two-/three-company requests, exact
+  generation-token packing of complete chunks, and balanced partial results
+  when the full quota cannot fit
 - cited-only backend source resolution and narrative/table-schema-v2 adaptation
 - one versioned backend request record with corpus/index identity, complete
   evidence-chain diagnostics, stage/first-token/complete latency, cancellation,
@@ -141,9 +142,9 @@ AVA_EVIDENCE_FOUR_PLUS_SUPPLEMENTAL=0
 ```
 
 Leaving it unset returns a safe request-narrowing response. A request for all
-eleven companies reserves at least 55 complete chunks, so the configured model
-context window must be large enough; AVA fails safely instead of truncating or
-starving a requested company.
+eleven companies targets 55 complete chunks, so the configured model context
+window should be large enough. If the full quota cannot fit, AVA keeps a
+round-robin partial evidence set and answers the supported company parts.
 
 Optional gateway headers retain the notebook names `OPENAI_APP_ID`,
 `OPENAI_USER_ID`, `OPENAI_COMPANY_ID`, and `OPENAI_API_VERSION`. Never expose

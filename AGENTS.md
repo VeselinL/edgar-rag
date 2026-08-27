@@ -362,7 +362,11 @@ Do not report only an overall chatbot score.
 - The frontend sends the original query unchanged. Company detection, Comparison Cue detection, subquery planning, retrieval scope, evidence allocation, merging, context selection, and citation validation are backend responsibilities.
 - Do not change core retrieval behaviour merely to make FastAPI integration easier, and do not create a second scope detector in the API.
 - Before connecting or changing the endpoint, compare the shared API/evaluation path on representative queries. Detected companies, comparison status, retrieval scopes, selected-evidence companies, final count, and internal chunk IDs must match before frontend normalization.
-- For a multi-company comparison, the planner's company-specific subqueries must each retain at least two available evidence chunks within the 10-chunk final context. Reject a plan whose subquery count makes that invariant impossible rather than silently starving a subquery.
+- For a multi-company request, allocate evidence fairly across the planner's
+  company-specific subqueries. If available candidates or the token limit make
+  the configured quota impossible, retain and generate from the balanced
+  partial evidence instead of discarding every supported company; record the
+  unmet quota only in backend diagnostics.
 
 ### API and source adaptation
 

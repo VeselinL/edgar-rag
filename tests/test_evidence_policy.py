@@ -4,7 +4,6 @@ from unittest.mock import patch
 from src.resolution.companies import default_company_resolver
 from src.retrieval.evidence_policy import (
     EvidenceBudgetPolicy,
-    EvidencePackingError,
     EvidencePolicyError,
 )
 from src.retrieval.scope_aware import retrieve_generation_context
@@ -220,15 +219,21 @@ class CompanyBalancedPackingTests(unittest.TestCase):
                 _selected_text(selected, chunks), by_id[selected["chunk_id"]]["text"]
             )
 
-    def test_impossible_token_quota_fails_instead_of_dropping_a_company(self):
+    def test_token_limit_returns_fair_partial_evidence_instead_of_failing(self):
         counter = lambda query, evidence: 100 + 100 * len(evidence)
         policy = EvidenceBudgetPolicy(
             context_window_tokens=1_000, reserved_output_tokens=200
         )
-        with self.assertRaisesRegex(EvidencePackingError, "complete chunks"):
-            self.run_retrieval(
-                ("TSLA", "F"), policy=policy, token_counter=counter
-            )
+        diagnostics, _, _ = self.run_retrieval(
+            ("TSLA", "F"), policy=policy, token_counter=counter
+        )
+
+        self.assertEqual(len(diagnostics["selected"]), 7)
+        self.assertFalse(diagnostics["quota_satisfied"])
+        self.assertEqual(
+            diagnostics["selected_counts_by_company"], {"TSLA": 4, "F": 3}
+        )
+        self.assertLessEqual(diagnostics["context_input_tokens"], 800)
 
 
 def _selected_text(candidate: dict, chunks: list[dict]) -> str:

@@ -681,15 +681,21 @@ def _retrieve_company_balanced_context(
                     False,
                 )
 
-    for ticker in companies:
-        for candidate in company_orders[ticker]:
+    # Add the remaining company-minimum evidence round-robin. If a company has
+    # too few candidates or the token limit is reached, retain the evidence that
+    # did fit for every other company and expose quota_satisfied=false in
+    # diagnostics instead of discarding the entire answer context.
+    for _ in range(policy.minimum_final_per_company):
+        for ticker in companies:
             if selected_counts[ticker] >= policy.minimum_final_per_company:
-                break
-            try_select(candidate, "company_minimum")
-        if selected_counts[ticker] < policy.minimum_final_per_company:
-            raise EvidencePackingError(
-                f"Could not pack {policy.minimum_final_per_company} complete chunks for {ticker} "
-                f"within {policy.input_token_limit} input tokens."
+                continue
+            next(
+                (
+                    True
+                    for candidate in company_orders[ticker]
+                    if try_select(candidate, "company_minimum")
+                ),
+                False,
             )
 
     if len(selected) > final_total:
@@ -714,12 +720,6 @@ def _retrieve_company_balanced_context(
         if len(selected) >= final_total:
             break
         try_select(candidate, "supplemental_relevance")
-    if len(selected) < final_total:
-        raise EvidencePackingError(
-            f"Could not pack the configured {final_total}-chunk evidence budget within "
-            f"{policy.input_token_limit} input tokens."
-        )
-
     for final_rank, candidate in enumerate(selected, start=1):
         candidate["selected"] = True
         candidate["final_context_rank"] = final_rank
@@ -753,10 +753,12 @@ def _retrieve_company_balanced_context(
     ):
         required = min(policy.minimum_final_per_subquery, available)
         if coverage < required:
-            raise EvidencePackingError(
-                f"Subquery {subquery_index} retained {coverage} chunks; {required} were "
-                "available and required by policy."
-            )
+            for candidate in merged_by_id.values():
+                if any(
+                    match["subquery_index"] == subquery_index
+                    for match in candidate["subquery_matches"]
+                ) and not candidate["selected"] and candidate["rejection_reason"] is None:
+                    candidate["rejection_reason"] = "partial_subquery_coverage"
     diagnostics = sorted(
         merged_by_id.values(), key=lambda candidate: candidate["first_seen_order"]
     )

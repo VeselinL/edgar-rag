@@ -543,3 +543,34 @@ and was not included in AVA commits.
   exception to the previous canonical-single-avatar rule, while retaining
   `favicon.png` as the favicon source.
 - Added a frontend regression assertion for both selected avatar assets.
+
+### Planner-authoritative scope and partial evidence delivery
+
+- At the owner's direction, removed the exact-set agreement requirement between
+  deterministic company hints and `resolved_tickers`. The single LLM planner now
+  owns final scope, query decomposition, and intent; runtime validation still
+  rejects tickers outside the fixed eleven-company corpus and inconsistent
+  subquery targets.
+- Exact/fuzzy/full-corpus resolution is passed to the planner as advisory hints.
+  A structurally valid planner subset now proceeds to retrieval instead of
+  raising `Planner resolved_tickers disagree with validated mentions.`
+- Replaced all-or-nothing company/token packing with fair round-robin partial
+  selection. When five complete chunks per company or the configured final total
+  cannot fit, AVA retains the supported evidence, records
+  `quota_satisfied=false`, and lets generation answer supported company parts.
+- Normalized the observed harmless provider representation that echoed
+  `all companies` as a company mention with an empty ticker while returning the
+  correct complete ticker/subquery scope. Direct pipeline and CLI settings now
+  load the project `.env` before constructing the evidence policy, matching
+  FastAPI startup behavior.
+- The final real buffered all-company run used the current 65,536-token window
+  and five supplemental chunks. The planner produced 11 company-specific
+  subqueries; selection retained 5/5/5/5/7/5/5/5/7/6/5 chunks across the corpus
+  (60 total, 25,243 generation-input tokens), satisfied every quota, and emitted
+  `delta`, `sources`, and `done` with no safe error.
+- The focused planner/resolver/evidence/pipeline suite passed 58 tests plus two
+  subtests. The repository suite passed after excluding only the same two
+  pre-existing consistency failures (currency-symbol table embedding text and
+  stale Mobileye baseline review). Frontend ESLint, all 11 Vitest tests, strict
+  TypeScript checking, production build, Python compilation, and whitespace
+  validation passed.

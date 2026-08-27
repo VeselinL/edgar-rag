@@ -92,10 +92,13 @@ The following invariants apply to every phase:
   are backend responsibilities. The frontend sends user text unchanged.
 - The user's original query and transcript text are never silently rewritten.
   Canonical company names may be added only to an internal retrieval query.
-- A resolved company must be one of the eleven configured tickers. An LLM cannot
-  invent a target, broaden the corpus, or override an exact deterministic match.
-- Every explicitly requested company with sufficient relevant candidates gets at
-  least five final text/table evidence chunks before supplemental slots are used.
+- A resolved company must be one of the eleven configured tickers. The LLM
+  planner owns final in-corpus scope; exact/fuzzy resolution supplies advisory
+  hints and never authorizes an out-of-corpus ticker.
+- Every planner-targeted company should receive five final text/table evidence
+  chunks before supplemental slots are used. If candidates or complete-chunk
+  token limits make that impossible, preserve a fair partial result and record
+  the unmet quota instead of discarding evidence for every company.
 - Candidate evidence, final generation evidence, cited/used evidence, and
   user-visible sources are distinct sets and must be logged separately.
 - Only exact, validated cited/used evidence is shown. No-citation means an empty
@@ -107,8 +110,8 @@ The following invariants apply to every phase:
 - Retrieval behavior is evaluated separately from generation and citation
   behavior. Every failed answer is diagnosed at the earliest failing stage.
 - All new limits are both count-aware and token-aware. A chunk-count quota must
-  not silently overflow the model context, and a token limit must not silently
-  starve one requested company.
+  not silently overflow the model context; partial packing proceeds round-robin
+  so a token limit does not preferentially erase later companies.
 - Raw SEC HTML stays unchanged. New image bytes and derivative metadata live in
   a separate versioned asset tree.
 - Long-term memory requires identity/tenant isolation, deletion, and retention
@@ -290,10 +293,11 @@ did not cite.
 
 ## 8. Phase 2 — Robust company and ticker resolution (P0)
 
-The single existing LLM planner owns query decomposition, retrieval-query
-reformatting, semantic comparison intent, and operation classification. Keep the
-layered resolver as a validation guardrail—not a second planner—so exact known
-input stays safe and an LLM still cannot invent or broaden company scope.
+The single existing LLM planner owns company scope, query decomposition,
+retrieval-query reformatting, semantic comparison intent, and operation
+classification. Exact/fuzzy resolution remains an advisory hint generator, not
+a competing scope authority. Schema validation still rejects any ticker outside
+the fixed corpus.
 
 ### Resolution pipeline
 
@@ -306,12 +310,11 @@ input stays safe and an LLM still cannot invent or broaden company scope.
 3. Run deterministic typo matching against the configured alias lexicon using a
    normalized Damerau-Levenshtein/token similarity score. Apply stricter
    thresholds to short strings and never auto-resolve a low-margin tie.
-4. Because an LLM planner is already called, extend its structured schema to
-   resolve only still-unresolved company-like mentions against an enum of the
-   eleven tickers plus `none`/`ambiguous`. Do not make a second call merely to
-   resolve `frod` when fuzzy matching is high-confidence.
-5. Validate the LLM result against `ACTIVE_FILINGS` and the deterministic
-   shortlist. Exact deterministic matches win on conflict.
+4. Supply exact/fuzzy results and unresolved candidates to the existing LLM
+   planner as advisory hints. The planner selects final scope against the enum of
+   eleven tickers plus `none`/`ambiguous`; do not add a second LLM call.
+5. Validate every planner and subquery ticker against `ACTIVE_FILINGS`, but do
+   not require equality with the advisory deterministic result.
 6. For a low-confidence or ambiguous target, ask a concise clarification instead
    of silently searching the wrong filing. Global queries must remain global and
    must not be forced to a company.
@@ -329,16 +332,16 @@ CompanyResolution
     confidence
   unresolved_mentions[]
   explicit_scope_tickers[]  # deterministic "each/all company" corpus quantifier
+  planner_scope_tickers[]   # authoritative validated in-corpus planner scope
   scope
   comparison
   needs_clarification
 ```
 
-An unqualified `each company`, `every company`, or `all companies` request in AVA
-deterministically targets the complete configured corpus through
-`explicit_scope_tickers`; it is not an LLM-invented company mention. Exclusion
-phrases do not use this expansion and require clarification rather than being
-silently broadened.
+An unqualified `each company`, `every company`, or `all companies` phrase is
+supplied to the planner as a complete-corpus hint. The planner contract strongly
+instructs all eleven targets, but runtime accepts any structurally valid
+in-corpus scope it returns rather than failing on hint disagreement.
 
 `detect_scope` must consume this result. There must be one resolver shared by the
 API, evaluator, and notebooks/scripts; do not leave a duplicate detector in
@@ -357,8 +360,8 @@ degrading already-canonical company queries.
 were requested. Independent facts for multiple companies use `comparison=false`
 while retaining every company target and the same five-per-company evidence
 allocation. Planner ticker output is constrained by the resolver's exact/fuzzy
-matches and unresolved shortlists; deterministic code validates company safety
-but does not override planner-owned semantic intent.
+matches and unresolved shortlists are advisory. Deterministic code validates the
+fixed ticker allowlist but does not override planner-owned scope or intent.
 
 For `who` questions about an executive acronym, planner subqueries use the
 company name plus the exact expanded role and `name` (for example,
@@ -430,8 +433,8 @@ logic. Record the policy name/version in evaluation output and request logs.
 - Compute actual generation tokens after context formatting, not just chunk
   counts. Reserve output tokens and prompt/history overhead first.
 - Never cut a table cell or silently truncate a source. If a complete table makes
-  the policy impossible, return a diagnosable packing failure during development;
-  do not secretly drop a company's quota.
+  the full policy impossible, retain the fair partial set of complete sources
+  and record the unmet company/subquery quota in backend diagnostics.
 - Prefer non-redundant sections and distinct evidence needed by the subqueries.
   Near-duplicate overlapping narrative chunks should not consume five company
   slots unless the gold evidence actually spans them.
@@ -444,17 +447,18 @@ logic. Record the policy name/version in evaluation output and request logs.
 
 Five-per-company is required for explicitly requested companies, not every global
 question. Enumeration/global questions keep a separate policy with diversity by
-company and a configurable cap. A question explicitly requesting all eleven
-companies is an explicit-company request and must either satisfy the token-aware
-quota or fail clearly; it must not silently become a global top-10 query.
+company and a configurable cap. An all-company planner scope uses the explicit
+company budget; if the full quota cannot fit, it remains an explicitly scoped
+partial result and must not silently become a global top-10 query.
 
 ### Acceptance gates
 
-- Two-company comparisons retain at least five available relevant chunks from
-  each company and use the configured five supplemental slots.
-- Three-company comparisons retain at least five from each and use the configured
-  seven supplemental slots.
-- A weak company cannot be starved by a strong company's scores.
+- Two-company comparisons target at least five available relevant chunks from
+  each company and use up to the configured five supplemental slots.
+- Three-company comparisons target at least five from each and use up to the
+  configured seven supplemental slots.
+- Partial allocation is round-robin, so a weak or later company is not erased by
+  a strong company's scores before generation.
 - Deduplication, per-subquery coverage, table integrity, and stable source IDs are
   preserved.
 - Recall@k, MRR, per-company evidence coverage, quota satisfaction, context-token
@@ -775,7 +779,8 @@ AVA is “finished” only when:
 
 - all P0/P1 acceptance gates pass in CI and a production-like environment;
 - the eleven-company index is reproducible and rollback/restore tested;
-- real multi-company questions meet the five-per-company invariant;
+- real multi-company questions meet the five-per-company target or expose a
+  measured balanced-partial diagnostic while still answering supported parts;
 - visible sources exactly match validated used evidence;
 - image and memory isolation/provenance tests pass;
 - generation/citation evaluation has signed-off thresholds;

@@ -64,18 +64,18 @@ PLANNING RULES
    plan `Who is Ford's CEO?` as `Ford Chief Executive Officer name`.
 
 COMPANY RULES
-6. Company targets are limited to the supplied allowed corpus tickers. Copy every
-   supplied required ticker into resolved_tickers. Never remove, replace, or
-   override one. Never emit an out-of-corpus ticker.
-7. Classify only supplied unresolved mentions. For each classification, copy its
-   raw_text exactly and choose a ticker from its supplied candidate_tickers,
-   `none`, or `ambiguous`. Never create a company_mentions item for text that was
-   not supplied as unresolved.
-8. resolved_tickers must equal the union of validated required tickers and safely
-   resolved unresolved mentions. Every resolved ticker must occur in at least one
-   subquery's tickers. Every subquery ticker must occur in resolved_tickers. A
-   genuinely global subquery has an empty ticker list.
-9. Set ambiguity true if any supplied unresolved mention is `none` or `ambiguous`;
+6. You own company resolution and final in-corpus scope. The supplied detected
+   tickers and unresolved candidates are advisory hints, not required output.
+   Resolve the user's intended targets against the allowed corpus ticker list.
+   Never emit an out-of-corpus ticker. `all companies`, `every company`, or
+   `each company` means every allowed corpus ticker.
+7. Classify supplied unresolved mentions when they affect scope. Copy raw_text
+   exactly and choose an allowed ticker, `none`, or `ambiguous`. Do not silently
+   map an explicitly out-of-corpus company to an unrelated corpus company.
+8. resolved_tickers is the final scope you selected. Every resolved ticker must
+   occur in at least one subquery's tickers, and every subquery ticker must occur
+   in resolved_tickers. A genuinely global subquery has an empty ticker list.
+9. Set ambiguity true when the intended company scope cannot be resolved safely;
    otherwise set it false.
 
 INTENT RULES
@@ -333,7 +333,7 @@ class GenerationService:
         )
         resolution_context = json.dumps(
             {
-                "required_tickers": list(resolution.resolved_tickers),
+                "detected_ticker_hints": list(resolution.resolved_tickers),
                 "unresolved_mentions": [
                     {
                         "raw_text": mention.raw_text,
@@ -351,7 +351,7 @@ class GenerationService:
                 {"role": "system", "content": PLANNER_JSON_FORMAT},
                 {
                     "role": "system",
-                    "content": "Validated company guardrails: " + resolution_context,
+                    "content": "Company-resolution hints: " + resolution_context,
                 },
                 {"role": "user", "content": original_query},
             ],
@@ -396,6 +396,33 @@ class GenerationService:
                 and len(value) == len(set(value))
             )
 
+        # Some providers echo a full-corpus phrase as a company mention with an
+        # empty ticker even though resolved_tickers and the subquery targets are
+        # complete. It is a quantifier, not a company mention, so remove only
+        # this harmless representation before validating the plan.
+        if isinstance(plan.get("company_mentions"), list):
+            cleaned_mentions = []
+            removed_full_corpus_echo = False
+            for item in plan["company_mentions"]:
+                raw_text = item.get("raw_text") if isinstance(item, dict) else None
+                ticker = item.get("ticker") if isinstance(item, dict) else None
+                normalized_raw = (
+                    " ".join(raw_text.casefold().split())
+                    if isinstance(raw_text, str)
+                    else ""
+                )
+                if ticker == "" and re.fullmatch(
+                    r"(?:all|each|every)(?: of)?(?: the)? companies?",
+                    normalized_raw,
+                ):
+                    removed_full_corpus_echo = True
+                    continue
+                cleaned_mentions.append(item)
+            if removed_full_corpus_echo:
+                plan["company_mentions"] = cleaned_mentions
+                normalizations.append("empty_full_corpus_mention")
+                LOGGER.warning("AVA removed an empty full-corpus planner mention")
+
         # Some compatible gateways occasionally contradict the single-retrieval
         # contract by returning an empty list. Reusing the original question is
         # the only recovery that neither rewrites user text nor invents scope.
@@ -404,7 +431,6 @@ class GenerationService:
             and plan.get("needs_multiple_retrievals") is False
             and plan.get("subqueries") == []
             and valid_ticker_list(plan.get("resolved_tickers"))
-            and set(resolution.resolved_tickers) <= set(plan["resolved_tickers"])
         ):
             plan["subqueries"] = [
                 {"query": original_query, "tickers": list(plan["resolved_tickers"])}

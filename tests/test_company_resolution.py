@@ -132,29 +132,28 @@ class CompanyResolverTests(unittest.TestCase):
         self.assertEqual(resolved.mentions[0].method, "llm")
         self.assertFalse(resolved.needs_clarification)
 
-    def test_llm_cannot_invent_or_override_company(self):
+    def test_planner_scope_can_omit_or_replace_deterministic_hints(self):
         deterministic = self.resolver.resolve("Summarize Tesla revenue.")
-        with self.assertRaisesRegex(ValueError, "disagree"):
-            self.resolver.apply_planner_resolution(deterministic, [], [])
+        omitted = self.resolver.apply_planner_resolution(deterministic, [], [])
+        self.assertEqual(omitted.resolved_tickers, ())
+        self.assertEqual(omitted.mentions, ())
 
-        unresolved = self.resolver.resolve("Summarize Telsaaa revenue.")
-        with self.assertRaisesRegex(ValueError, "shortlist"):
+        replaced = self.resolver.apply_planner_resolution(
+            deterministic,
+            [{"raw_text": "Tesla", "ticker": "GM"}],
+            ["GM"],
+        )
+        self.assertEqual(replaced.resolved_tickers, ("GM",))
+        self.assertEqual(replaced.mentions[0].method, "llm")
+
+        with self.assertRaisesRegex(ValueError, "out-of-corpus"):
             self.resolver.apply_planner_resolution(
-                unresolved,
-                [{"raw_text": "Telsaaa", "ticker": "GM"}],
-                ["GM"],
+                deterministic,
+                [],
+                ["TM"],
             )
 
-        out_of_corpus = self.resolver.resolve("Summarize Toyota revenue.")
-        self.assertEqual(out_of_corpus.unresolved_mentions[0].candidate_tickers, ())
-        with self.assertRaisesRegex(ValueError, "shortlist"):
-            self.resolver.apply_planner_resolution(
-                out_of_corpus,
-                [{"raw_text": "Toyota", "ticker": "TSLA"}],
-                ["TSLA"],
-            )
-
-    def test_redundant_matching_planner_mention_cannot_change_fuzzy_result(self):
+    def test_matching_planner_mention_preserves_stronger_fuzzy_diagnostic(self):
         deterministic = self.resolver.resolve("What are frod's segments?")
         validated = self.resolver.apply_planner_resolution(
             deterministic,
@@ -162,12 +161,6 @@ class CompanyResolverTests(unittest.TestCase):
             ["F"],
         )
         self.assertEqual(validated.mentions, deterministic.mentions)
-        with self.assertRaisesRegex(ValueError, "unrequested"):
-            self.resolver.apply_planner_resolution(
-                deterministic,
-                [{"raw_text": "Frod", "ticker": "GM"}],
-                ["GM"],
-            )
 
     def test_internal_retrieval_query_adds_canonical_scope_only(self):
         original = "What are frod's risks?"

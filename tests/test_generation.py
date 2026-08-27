@@ -1,6 +1,8 @@
+import json
 import unittest
 from types import SimpleNamespace
 
+from src.filings.corpus import ACTIVE_FILINGS
 from src.resolution.companies import default_company_resolver
 from src.generation.rag import (
     PLANNER_INSTRUCTION,
@@ -188,7 +190,7 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(completions.arguments["temperature"], 0.0)
         planner_messages = completions.arguments["messages"]
         self.assertIn("Allowed corpus tickers", planner_messages[1]["content"])
-        self.assertIn("required_tickers", planner_messages[2]["content"])
+        self.assertIn("detected_ticker_hints", planner_messages[2]["content"])
         self.assertIn("unresolved_mentions", planner_messages[2]["content"])
         self.assertIn("semantic comparison, not company count", PLANNER_INSTRUCTION)
         self.assertIn("CEO of Tesla", PLANNER_INSTRUCTION)
@@ -255,7 +257,7 @@ class GenerationTests(unittest.TestCase):
             plan["_normalizations"], ["single_query_empty_subqueries"]
         )
 
-    def test_planner_does_not_repair_omitted_deterministic_ticker(self):
+    def test_planner_can_choose_empty_scope_despite_deterministic_hint(self):
         response = SimpleNamespace(
             choices=[SimpleNamespace(message=SimpleNamespace(content=(
                 '{"needs_multiple_retrievals": false, "subqueries": [], '
@@ -267,10 +269,13 @@ class GenerationTests(unittest.TestCase):
             chat=SimpleNamespace(completions=FakeCompletions(response))
         )
         resolution = default_company_resolver.resolve("What are Tesla's risks?")
-        with self.assertRaisesRegex(ValueError, "invalid retrieval plan"):
-            GenerationService(client, model="test").plan_retrieval(
-                "What are Tesla's risks?", resolution
-            )
+        plan = GenerationService(client, model="test").plan_retrieval(
+            "What are Tesla's risks?", resolution
+        )
+        self.assertEqual(plan["resolved_tickers"], [])
+        self.assertEqual(
+            plan["subqueries"], [{"query": "What are Tesla's risks?", "tickers": []}]
+        )
 
     def test_planner_rejects_out_of_corpus_ticker(self):
         response = SimpleNamespace(
@@ -284,6 +289,35 @@ class GenerationTests(unittest.TestCase):
         client = SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(response)))
         with self.assertRaisesRegex(ValueError, "invalid retrieval plan"):
             GenerationService(client, model="test").plan_retrieval("Toyota")
+
+    def test_planner_removes_empty_full_corpus_mention_echo(self):
+        tickers = list(ACTIVE_FILINGS)
+        payload = json.dumps(
+            {
+                "needs_multiple_retrievals": False,
+                "subqueries": [{"query": "CEO names", "tickers": tickers}],
+                "operation": None,
+                "resolved_tickers": tickers,
+                "company_mentions": [
+                    {"raw_text": "all companies", "ticker": ""}
+                ],
+                "comparison": False,
+                "ambiguity": False,
+            }
+        )
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content=payload))]
+        )
+        client = SimpleNamespace(
+            chat=SimpleNamespace(completions=FakeCompletions(response))
+        )
+
+        plan = GenerationService(client, model="test").plan_retrieval(
+            "Who are the CEOs of all companies?"
+        )
+
+        self.assertEqual(plan["company_mentions"], [])
+        self.assertIn("empty_full_corpus_mention", plan["_normalizations"])
 
     def test_planner_rejects_non_string_ticker_without_type_error(self):
         response = SimpleNamespace(

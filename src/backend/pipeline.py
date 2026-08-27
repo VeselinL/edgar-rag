@@ -16,6 +16,7 @@ from typing import Any
 from uuid import uuid4
 
 import bm25s
+import dotenv
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
@@ -79,6 +80,9 @@ class PipelineSettings:
 
     @classmethod
     def from_environment(cls) -> "PipelineSettings":
+        # Keep direct production-module/CLI use consistent with FastAPI startup.
+        # Existing process environment values retain precedence over `.env`.
+        dotenv.load_dotenv(PROJECT_ROOT / ".env")
         mode = os.getenv("AVA_PIPELINE_MODE", "real").strip().casefold()
         if mode not in {"real", "mock"}:
             raise ValueError("AVA_PIPELINE_MODE must be 'real' or 'mock'.")
@@ -305,6 +309,7 @@ class RealPipeline:
                 "ava_company_resolution": {
                     "resolved_tickers": list(resolution.resolved_tickers),
                     "explicit_scope_tickers": list(resolution.explicit_scope_tickers),
+                    "planner_scope_tickers": list(resolution.planner_scope_tickers),
                     "mentions": [
                         {
                             "raw_text": mention.raw_text,
@@ -326,6 +331,7 @@ class RealPipeline:
         trace.resolver = {
             "resolved_tickers": list(resolution.resolved_tickers),
             "explicit_scope_tickers": list(resolution.explicit_scope_tickers),
+            "planner_scope_tickers": list(resolution.planner_scope_tickers),
             "mentions": [
                 {
                     "raw_text": mention.raw_text,

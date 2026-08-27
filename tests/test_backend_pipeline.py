@@ -175,6 +175,23 @@ class IndependentCeoGenerator(FakeGenerator):
         }
 
 
+class PartialAllCompanyGenerator(FakeGenerator):
+    def plan_retrieval(self, query, deterministic_resolution=None):
+        self.planned_query = query
+        self.deterministic_resolution = deterministic_resolution
+        return {
+            "needs_multiple_retrievals": False,
+            "subqueries": [
+                {"query": "Tesla Chief Executive Officer name", "tickers": ["TSLA"]}
+            ],
+            "operation": None,
+            "resolved_tickers": ["TSLA"],
+            "company_mentions": [],
+            "comparison": False,
+            "ambiguity": False,
+        }
+
+
 class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
     def test_deployment_corpus_includes_rivian(self):
         self.assertEqual(FILINGS["RIVN"], "2025-10-K")
@@ -189,6 +206,12 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             settings = PipelineSettings.from_environment()
 
         self.assertFalse(settings.llm_streaming)
+
+    def test_settings_load_project_dotenv_before_reading_values(self):
+        with patch("src.backend.pipeline.dotenv.load_dotenv") as load_dotenv:
+            PipelineSettings.from_environment()
+
+        load_dotenv.assert_called_once()
 
     def test_settings_reject_ambiguous_streaming_value(self):
         with patch.dict("os.environ", {"AVA_LLM_STREAMING": "off"}, clear=False):
@@ -335,6 +358,28 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
                 "Mobileye Chief Executive Officer",
             ],
         )
+        self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
+
+    async def test_planner_subset_of_all_companies_continues_to_generation(self):
+        retriever = FakeRetriever()
+        generator = PartialAllCompanyGenerator()
+        pipeline = RealPipeline(retriever, generator, llm_streaming=False)
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Who are the CEOs of all companies?", connected
+            )
+        ]
+
+        self.assertEqual(
+            generator.deterministic_resolution.resolved_tickers, tuple(FILINGS)
+        )
+        self.assertEqual(retriever.arguments[2].resolved_tickers, ("TSLA",))
+        self.assertEqual(retriever.arguments[3], [["TSLA"]])
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
 
     async def test_buffered_mode_emits_completed_answer_as_one_delta(self):
