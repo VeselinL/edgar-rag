@@ -39,63 +39,60 @@ If the evidence is incomplete, ambiguous, conflicting, or absent in a way that p
 Interpret standard executive acronyms accurately: CEO means Chief Executive Officer, and COO means Chief Operating Officer.
 Return a concise answer in text format. Start with the answer, then add brief qualifying detail only when helpful."""
 
-PLANNER_INSTRUCTION = """Analyze the user question only for retrieval planning.
+PLANNER_INSTRUCTION = """You are AVA's retrieval planner. Convert the current user
+query into a strict search plan for the fixed SEC-filing corpus. Do not answer the
+question and do not provide prose outside the required JSON object.
 
-Split it into independent factual subqueries only if multiple pieces of evidence are required to answer it.
-Do not change the vocabulary, do not add facts/adjectives which are not present in the original query.
+PLANNING RULES
+1. Preserve the user's meaning. Never invent a company, fact, date, reporting
+   period, unit, financial qualifier, product, or requested operation.
+2. Produce one self-contained search subquery per atomic fact and company target.
+   If the same fact is requested for two companies, normally produce two
+   subqueries, one for each company. Set needs_multiple_retrievals to true exactly
+   when there is more than one subquery.
+3. A one-subquery plan may reformat the text for filing search, but it must not
+   narrow, broaden, or otherwise change the user's meaning. The original query is
+   retained separately for final answer generation.
+4. Preserve company names, dates, units, and financial terms. Do not silently
+   rewrite revenue as consolidated revenue, profit as net income, sales as net
+   sales, or latest as a guessed fiscal year. Do not add total, net, segment,
+   reported, consolidated, or most recent unless the user supplied that concept.
+5. Acronym expansion must be exact: CEO means Chief Executive Officer, and
+   COO means Chief Operating Officer.
 
-Each subquery must retrieve one atomic fact.
+COMPANY RULES
+6. Company targets are limited to the supplied allowed corpus tickers. Copy every
+   supplied required ticker into resolved_tickers. Never remove, replace, or
+   override one. Never emit an out-of-corpus ticker.
+7. Classify only supplied unresolved mentions. For each classification, copy its
+   raw_text exactly and choose a ticker from its supplied candidate_tickers,
+   `none`, or `ambiguous`. Never create a company_mentions item for text that was
+   not supplied as unresolved.
+8. resolved_tickers must equal the union of validated required tickers and safely
+   resolved unresolved mentions. Every resolved ticker must occur in at least one
+   subquery's tickers. Every subquery ticker must occur in resolved_tickers. A
+   genuinely global subquery has an empty ticker list.
+9. Set ambiguity true if any supplied unresolved mention is `none` or `ambiguous`;
+   otherwise set it false.
 
-Preserve company names, dates, units, and important financial terminology.
+INTENT RULES
+10. comparison describes semantic comparison, not company count. Set comparison
+    true only when the user asks to compare, contrast, rank, choose between,
+    calculate a difference/ratio, or make a relative judgment. Set it false when
+    the user asks the same independent fact for several companies.
+11. operation is exactly one of percentage, difference, ratio, growth_rate, sum,
+    or JSON null. comparison is never an operation. Do not infer arithmetic the
+    user did not request.
 
-Do not answer the question.
-
-For single-fact queries:
-DO NOT rewrite.
-Retrieve the original user query.
-
-Do NOT rewrite:
-"revenue" → "total consolidated revenue"
-"profit" → "net income"
-"sales" → "net sales"
-"latest" → a specific fiscal year unless explicitly necessary
-
-Do NOT add:
-"consolidated"
-"segment"
-"total"
-"net"
-"reported"
-"most recent fiscal year"
-
-unless those concepts are explicitly present in the user's query, or anything similar to this instruction.
-
-You may expand an acronym supplied by the user without changing its meaning. CEO means Chief Executive Officer, and COO means Chief Operating Officer.
-
-If one retrieval is sufficient, return the original query as the only subquery.
-
-Do not create unnecessary subqueries.
-
-Also identify whether the final answer requires one deterministic operation:
-percentage, difference, ratio, growth_rate, sum, or null.
-`comparison` is a JSON boolean and is not an operation. Use JSON null, not the
-string "null", when no arithmetic operation is required.
-When generating subqueries:
-- preserve or infer the relevant reporting period from the original question/context;
-- use explicit financial terminology;
-- prefer "total consolidated revenue" over vague phrases such as "overall revenue";
-- include the company name and fiscal year in every financial subquery;
-- make each subquery self-contained.
-
-Company resolution is constrained to AVA's fixed filing corpus. Deterministic
-exact and fuzzy matches are supplied separately and cannot be removed, changed,
-or overridden. Classify only supplied unresolved company-like mentions. A
-classification ticker must be one of the allowed tickers, `none`, or `ambiguous`.
-Never infer or invent an out-of-corpus ticker. Copy every supplied deterministic
-ticker into resolved_tickers, then add only validated resolutions of supplied
-unresolved mentions. Every subquery must declare the resolved ticker or tickers
-it targets; a genuinely global subquery uses an empty list. Set ambiguity true
-when any supplied company-like mention remains none or ambiguous."""
+EXAMPLES
+- `Who is the CEO of Tesla, and who is the CEO of Mobileye?` requires separate
+  TSLA and MBLY subqueries, needs_multiple_retrievals true, comparison false,
+  operation null, and resolved_tickers [TSLA, MBLY].
+- `Compare Tesla and Mobileye revenue` requires company-specific subqueries,
+  needs_multiple_retrievals true, comparison true, and only an explicitly
+  requested arithmetic operation (otherwise null).
+- `Who is Tesla's CEO?` requires one TSLA subquery,
+  needs_multiple_retrievals false, comparison false, and operation null."""
 
 PLANNER_JSON_FORMAT = (
     "Return only a valid JSON object with exactly these keys: "
@@ -330,7 +327,7 @@ class GenerationService:
         )
         resolution_context = json.dumps(
             {
-                "deterministic_resolved_tickers": list(resolution.resolved_tickers),
+                "required_tickers": list(resolution.resolved_tickers),
                 "unresolved_mentions": [
                     {
                         "raw_text": mention.raw_text,
@@ -348,7 +345,7 @@ class GenerationService:
                 {"role": "system", "content": PLANNER_JSON_FORMAT},
                 {
                     "role": "system",
-                    "content": "Validated deterministic resolution input: " + resolution_context,
+                    "content": "Validated company guardrails: " + resolution_context,
                 },
                 {"role": "user", "content": original_query},
             ],
@@ -435,12 +432,34 @@ class GenerationService:
                 for item in plan["company_mentions"]
             )
         )
+        subquery_ticker_union = (
+            {
+                ticker
+                for item in plan.get("subqueries", [])
+                if isinstance(item, dict) and isinstance(item.get("tickers"), list)
+                for ticker in item["tickers"]
+                if isinstance(ticker, str)
+            }
+            if isinstance(plan.get("subqueries"), list)
+            else set()
+        )
+        valid_multiplicity = (
+            valid_subqueries
+            and plan.get("needs_multiple_retrievals")
+            == (len(plan["subqueries"]) > 1)
+        )
+        valid_target_coverage = (
+            valid_ticker_list(plan.get("resolved_tickers"))
+            and subquery_ticker_union == set(plan["resolved_tickers"])
+        )
         if (
             set(plan) != required_keys
             or not isinstance(plan.get("needs_multiple_retrievals"), bool)
             or not valid_subqueries
+            or not valid_multiplicity
             or plan.get("operation") not in valid_operations
             or not valid_ticker_list(plan.get("resolved_tickers"))
+            or not valid_target_coverage
             or not valid_company_mentions
             or not isinstance(plan.get("comparison"), bool)
             or not isinstance(plan.get("ambiguity"), bool)

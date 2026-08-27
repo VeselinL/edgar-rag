@@ -157,6 +157,24 @@ class EachCompanyGenerator(FakeGenerator):
         }
 
 
+class IndependentCeoGenerator(FakeGenerator):
+    def plan_retrieval(self, query, deterministic_resolution=None):
+        self.planned_query = query
+        self.deterministic_resolution = deterministic_resolution
+        return {
+            "needs_multiple_retrievals": True,
+            "subqueries": [
+                {"query": "Tesla Chief Executive Officer", "tickers": ["TSLA"]},
+                {"query": "Mobileye Chief Executive Officer", "tickers": ["MBLY"]},
+            ],
+            "operation": None,
+            "resolved_tickers": ["TSLA", "MBLY"],
+            "company_mentions": [],
+            "comparison": False,
+            "ambiguity": False,
+        }
+
+
 class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
     def test_deployment_corpus_includes_rivian(self):
         self.assertEqual(FILINGS["RIVN"], "2025-10-K")
@@ -296,6 +314,28 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
         self.assertIn("evidence budget is not configured", events[0].data["text"])
         self.assertEqual(events[1].data["sources"], [])
+
+    async def test_independent_multi_company_facts_are_not_forced_to_comparison(self):
+        retriever = FakeRetriever()
+        generator = IndependentCeoGenerator()
+        pipeline = RealPipeline(retriever, generator, llm_streaming=False)
+
+        async def connected():
+            return False
+
+        query = "Who is the CEO of Tesla, who is the CEO of Mobileye?"
+        events = [event async for event in pipeline.stream(query, connected)]
+
+        self.assertEqual(generator.deterministic_resolution.resolved_tickers, ("TSLA", "MBLY"))
+        self.assertFalse(retriever.arguments[2].comparison)
+        self.assertEqual(
+            retriever.arguments[1],
+            [
+                "Tesla Chief Executive Officer\nCompany scope: Tesla, Inc. (TSLA)",
+                "Mobileye Chief Executive Officer\nCompany scope: Mobileye Global Inc. (MBLY)",
+            ],
+        )
+        self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
 
     async def test_buffered_mode_emits_completed_answer_as_one_delta(self):
         retriever = FakeRetriever()

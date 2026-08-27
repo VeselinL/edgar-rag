@@ -52,10 +52,10 @@ export async function streamChat(query: string, handlers: StreamHandlers): Promi
     })
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') throw error
-    throw new ChatStreamError('AVA is unavailable right now. Please try again.')
+    throw new ChatStreamError('The AVA service could not be reached. Check the connection and retry.')
   }
   if (!response.ok) {
-    throw new ChatStreamError('AVA could not begin this request. Please try again.')
+    throw new ChatStreamError('The AVA service rejected the request before analysis began.')
   }
   if (!response.body) throw new ChatStreamError('AVA returned an empty response stream.')
   handlers.onOpen()
@@ -92,7 +92,9 @@ export async function streamChat(query: string, handlers: StreamHandlers): Promi
     if (raw.event === 'error') {
       terminal = true
       throw new ChatStreamError(
-        typeof raw.data.message === 'string' ? raw.data.message : 'AVA could not complete this response.',
+        typeof raw.data.message === 'string'
+          ? raw.data.message
+          : 'The filing-analysis service returned an unusable error response.',
       )
     }
     throw new ChatStreamError('AVA returned an unknown stream event.')

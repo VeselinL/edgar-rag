@@ -7,7 +7,7 @@ import { Header } from './components/Header'
 import { useTheme } from './hooks/useTheme'
 import type { AssistantMessage, ChatMessage } from './types'
 
-const PRE_TOKEN_ERROR = 'AVA could not complete this response. Please try again.'
+const PRE_TOKEN_ERROR = 'The filing-analysis service is temporarily unavailable. Please retry shortly.'
 const MID_STREAM_ERROR = 'The response was interrupted. Please try again.'
 
 export default function App() {

@@ -187,8 +187,10 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(completions.arguments["temperature"], 0.0)
         planner_messages = completions.arguments["messages"]
         self.assertIn("Allowed corpus tickers", planner_messages[1]["content"])
-        self.assertIn("deterministic_resolved_tickers", planner_messages[2]["content"])
+        self.assertIn("required_tickers", planner_messages[2]["content"])
         self.assertIn("unresolved_mentions", planner_messages[2]["content"])
+        self.assertIn("semantic comparison, not company count", PLANNER_INSTRUCTION)
+        self.assertIn("CEO of Tesla", PLANNER_INSTRUCTION)
 
     def test_planner_rejects_invalid_contract(self):
         response = SimpleNamespace(
@@ -199,6 +201,36 @@ class GenerationTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "invalid retrieval plan"):
             GenerationService(client, model="test").plan_retrieval("Question")
+
+    def test_planner_rejects_multiplicity_and_target_coverage_disagreement(self):
+        invalid_plans = (
+            (
+                '{"needs_multiple_retrievals": false, "subqueries": ['
+                '{"query": "Tesla CEO", "tickers": ["TSLA"]}, '
+                '{"query": "Mobileye CEO", "tickers": ["MBLY"]}], '
+                '"operation": null, "resolved_tickers": ["TSLA", "MBLY"], '
+                '"company_mentions": [], "comparison": false, "ambiguity": false}'
+            ),
+            (
+                '{"needs_multiple_retrievals": true, "subqueries": ['
+                '{"query": "Tesla CEO", "tickers": ["TSLA"]}, '
+                '{"query": "Mobileye CEO", "tickers": []}], '
+                '"operation": null, "resolved_tickers": ["TSLA", "MBLY"], '
+                '"company_mentions": [], "comparison": false, "ambiguity": false}'
+            ),
+        )
+        for payload in invalid_plans:
+            with self.subTest(payload=payload):
+                response = SimpleNamespace(
+                    choices=[SimpleNamespace(message=SimpleNamespace(content=payload))]
+                )
+                client = SimpleNamespace(
+                    chat=SimpleNamespace(completions=FakeCompletions(response))
+                )
+                with self.assertRaisesRegex(ValueError, "invalid retrieval plan"):
+                    GenerationService(client, model="test").plan_retrieval(
+                        "Who is the CEO of Tesla and Mobileye?"
+                    )
 
     def test_planner_repairs_empty_single_query_with_original_text(self):
         response = SimpleNamespace(

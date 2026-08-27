@@ -1179,7 +1179,11 @@ class ScopeAwareRetriever:
             query=query,
             scope=scope,
             detected_companies=tuple(companies),
-            comparison=bool(targets) or scope == "enumeration",
+            comparison=(
+                company_resolution.comparison
+                if company_resolution is not None
+                else bool(targets) or scope == "enumeration"
+            ),
             retrieval_scopes=tuple(
                 dict.fromkeys(
                     match["retrieval_scope"]

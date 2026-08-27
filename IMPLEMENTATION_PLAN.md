@@ -291,8 +291,10 @@ did not cite.
 
 ## 8. Phase 2 — Robust company and ticker resolution (P0)
 
-Do not replace regex with an unrestricted LLM call. Use a layered resolver so
-exact known input stays fast and deterministic while typos and ambiguity improve.
+The single existing LLM planner owns query decomposition, retrieval-query
+reformatting, semantic comparison intent, and operation classification. Keep the
+layered resolver as a validation guardrail—not a second planner—so exact known
+input stays safe and an LLM still cannot invent or broaden company scope.
 
 ### Resolution pipeline
 
@@ -347,6 +349,13 @@ The validated plan should include `resolved_tickers`, atomic subqueries whose
 company targets are explicit, comparison intent, operation, and ambiguity state.
 The original query remains the generation question. Internal retrieval queries
 may append the canonical name/ticker so `frod` retrieves Ford evidence.
+
+`comparison` means semantic comparison, not merely that two or more companies
+were requested. Independent facts for multiple companies use `comparison=false`
+while retaining every company target and the same five-per-company evidence
+allocation. Planner ticker output is constrained by the resolver's exact/fuzzy
+matches and unresolved shortlists; deterministic code validates company safety
+but does not override planner-owned semantic intent.
 
 ### Acceptance gates
 
@@ -746,6 +755,9 @@ ownership, idempotency, pagination, tenant checks, and deletion cannot be omitte
   keyboard, focus, reduced-motion, contrast, live-region, table, and image access.
 - Make clarification, no-evidence, no-citation, partial-stream, reconnect, image
   failure, and deleted-conversation states explicit and tested.
+- Represent pre-answer service and plan failures as distinct actionable error
+  states, never as the generic assistant text `AVA could not complete this
+  response. Please try again.`
 - Add user feedback tied to answer/evidence/version metadata without exposing
   internal scores.
 

@@ -218,11 +218,10 @@ def _requests_full_corpus(query: str) -> bool:
     )
 
 
-def _is_comparison(query: str, ticker_count: int) -> bool:
+def _is_comparison(query: str) -> bool:
     normalized = f" {normalize_company_text(query)} "
     return (
-        ticker_count > 1
-        or any(cue in normalized for cue in COMPARISON_CUES)
+        any(cue in normalized for cue in COMPARISON_CUES)
         or _is_enumeration(query)
     )
 
@@ -230,7 +229,7 @@ def _is_comparison(query: str, ticker_count: int) -> bool:
 def _scope(query: str, tickers: Sequence[str]) -> str:
     if _is_enumeration(query):
         return "enumeration"
-    comparison_cue = _is_comparison(query, len(tickers))
+    comparison_cue = _is_comparison(query)
     if not tickers:
         return "global"
     if len(tickers) == 1 and comparison_cue:
@@ -430,7 +429,7 @@ class CompanyResolver:
             mentions=tuple(mentions),
             unresolved_mentions=tuple(unresolved),
             scope=scope,
-            comparison=_is_comparison(query, len(tickers)),
+            comparison=_is_comparison(query),
             needs_clarification=bool(unresolved),
             explicit_scope_tickers=explicit_scope_tickers,
         )
@@ -538,7 +537,7 @@ class CompanyResolver:
             mentions=tuple(mentions),
             unresolved_mentions=remaining,
             scope=_scope(deterministic.original_query, tickers),
-            comparison=_is_comparison(deterministic.original_query, len(tickers)),
+            comparison=_is_comparison(deterministic.original_query),
             needs_clarification=bool(remaining) or ambiguous,
             explicit_scope_tickers=deterministic.explicit_scope_tickers,
         )

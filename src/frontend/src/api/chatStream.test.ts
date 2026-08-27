@@ -64,4 +64,18 @@ describe('streamChat', () => {
     })
     expect(onDelta).not.toHaveBeenCalled()
   })
+
+  it('uses a safe error-state fallback when an error event has no message', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(streamedResponse([
+      'event: error\ndata: {}\n\n',
+    ]))
+
+    await expect(streamChat('Question', {
+      signal: new AbortController().signal,
+      onOpen: vi.fn(),
+      onDelta: vi.fn(),
+      onSources: vi.fn(),
+      onDone: vi.fn(),
+    })).rejects.toThrow('unusable error response')
+  })
 })

@@ -451,3 +451,37 @@ and was not included in AVA commits.
   two unrelated pre-existing consistency failures. Frontend ESLint, strict
   TypeScript, all 10 Vitest tests, production build, Python compilation, and
   whitespace validation passed.
+
+### Planner-owned semantic intent and actionable error states
+
+- Diagnosed the Tesla/Mobileye CEO failure as a conflation of company count with
+  semantic comparison: both company resolvers agreed on TSLA/MBLY, but the shared
+  resolver forced `comparison=true` while the planner correctly returned false
+  for two independent factual questions.
+- Made the single LLM planner authoritative for atomic search-query reformatting,
+  comparison intent, and operation. Replaced the planner instruction with an
+  explicit numbered contract and concrete independent-fact/comparison/single-fact
+  examples. Deterministic exact/fuzzy resolution remains only as the required
+  fixed-corpus safety boundary; it no longer overrides planner semantic intent.
+- Strengthened plan validation so the multiple-retrieval flag exactly matches
+  subquery count and the union of subquery ticker targets exactly matches the
+  resolved ticker set. Independent ticker-filtered candidate pools and the
+  configurable five-per-company plus supplemental allocation are unchanged.
+- Removed the generic `AVA could not complete this response. Please try again.`
+  runtime copy. Pre-answer plan failures and service failures are now distinct
+  safe SSE error states rendered separately from assistant answer text, without
+  raw provider/internal details.
+- The configured real planner returned two atomic CEO subqueries targeted to
+  TSLA and MBLY, `comparison=false`, and no ambiguity. A real buffered end-to-end
+  request emitted `delta`, `sources`, `done`; selected 7 Tesla and 8 Mobileye
+  chunks (15 total), satisfied both five-chunk minima, resolved two citations,
+  and recorded no safe error.
+- Added focused planner contract, independent multi-company, resolver semantics,
+  safe API copy, and frontend malformed-error regressions. The complete backend
+  suite reached 166 passing tests with only the same two unrelated pre-existing
+  consistency failures. Frontend ESLint, strict TypeScript, all 11 Vitest tests,
+  and the production build passed.
+- Conversation behavior remains intentionally stateless. Phase 7 still requires
+  server-owned conversation IDs, ordered/idempotent turns, a token-bounded recent
+  window and rolling summary, topic-switch handling, isolation, persistence, and
+  deletion gates before short-term or long-term memory is enabled.

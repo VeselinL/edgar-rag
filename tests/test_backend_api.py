@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
-from src.backend.app import create_app
+from src.backend.app import create_app, safe_stream_error
 from src.backend.pipeline import MockPipeline
 
 
@@ -61,8 +61,29 @@ class BackendApiTests(unittest.TestCase):
     def test_pre_token_failure_is_safe(self):
         response = self.client.post("/api/chat/stream", json={"query": "[mock:pre-error]"})
         events = parse_sse(response.text)
-        self.assertEqual(events, [("error", {"message": "AVA could not complete this response. Please try again."})])
+        self.assertEqual(
+            events,
+            [
+                (
+                    "error",
+                    {
+                        "message": (
+                            "The filing-analysis service is temporarily unavailable. "
+                            "Please retry shortly."
+                        )
+                    },
+                )
+            ],
+        )
         self.assertNotIn("Deterministic", response.text)
+        self.assertNotIn("could not complete this response", response.text)
+
+    def test_plan_validation_failure_has_actionable_safe_copy(self):
+        message = safe_stream_error(ValueError("raw internal planner details"))
+
+        self.assertIn("restate the question", message)
+        self.assertNotIn("raw internal", message)
+        self.assertNotIn("could not complete this response", message)
 
     def test_mid_stream_failure_preserves_delta_then_errors(self):
         response = self.client.post("/api/chat/stream", json={"query": "[mock:mid-error]"})

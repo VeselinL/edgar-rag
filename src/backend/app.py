@@ -20,7 +20,20 @@ from .pipeline import PipelineEvent, PipelineSettings, build_pipeline
 
 
 LOGGER = logging.getLogger("ava.api")
-SAFE_STREAM_ERROR = "AVA could not complete this response. Please try again."
+SAFE_SERVICE_ERROR = (
+    "The filing-analysis service is temporarily unavailable. Please retry shortly."
+)
+SAFE_PLAN_ERROR = (
+    "I couldn't map that wording to a reliable filing search. Please restate the "
+    "question with the company names and facts you want."
+)
+
+
+def safe_stream_error(error: Exception) -> str:
+    """Map internal failures to actionable browser-safe error states."""
+    if isinstance(error, ValueError):
+        return SAFE_PLAN_ERROR
+    return SAFE_SERVICE_ERROR
 
 
 class ChatRequest(BaseModel):
@@ -94,9 +107,11 @@ def create_app(*, pipeline: Any | None = None) -> FastAPI:
                     body.query, request.is_disconnected, request_id=request_id
                 ):
                     yield encode_sse(event)
-            except Exception:
+            except Exception as error:
                 LOGGER.exception("AVA stream failed")
-                yield encode_sse(PipelineEvent("error", {"message": SAFE_STREAM_ERROR}))
+                yield encode_sse(
+                    PipelineEvent("error", {"message": safe_stream_error(error)})
+                )
 
         return StreamingResponse(
             event_stream(),

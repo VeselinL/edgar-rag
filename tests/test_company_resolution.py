@@ -75,13 +75,23 @@ class CompanyResolverTests(unittest.TestCase):
         self.assertEqual(result.resolved_tickers, tuple(ACTIVE_FILINGS))
         self.assertEqual(result.mentions, ())
         self.assertEqual(result.scope, "explicit_subset")
-        self.assertTrue(result.comparison)
+        self.assertFalse(result.comparison)
         self.assertFalse(result.needs_clarification)
 
         validated = self.resolver.apply_planner_resolution(
             result, [], list(ACTIVE_FILINGS)
         )
         self.assertEqual(validated.resolved_tickers, tuple(ACTIVE_FILINGS))
+
+    def test_multiple_companies_do_not_imply_semantic_comparison(self):
+        independent = self.resolver.resolve(
+            "Who is the CEO of Tesla, who is the CEO of Mobileye?"
+        )
+        comparative = self.resolver.resolve("Compare Tesla and Mobileye revenue.")
+
+        self.assertEqual(independent.resolved_tickers, ("TSLA", "MBLY"))
+        self.assertFalse(independent.comparison)
+        self.assertTrue(comparative.comparison)
 
     def test_full_corpus_cue_with_exclusion_is_not_silently_broadened(self):
         result = self.resolver.resolve("Who is the CEO of each company except Tesla?")

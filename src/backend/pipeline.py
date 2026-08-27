@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import hashlib
 import json
 import logging
@@ -292,19 +292,10 @@ class RealPipeline:
                 plan["company_mentions"],
                 plan["resolved_tickers"],
             )
-        if plan["comparison"] != resolution.comparison:
-            if resolution.explicit_scope_tickers:
-                plan["comparison"] = resolution.comparison
-                plan.setdefault("_normalizations", []).append(
-                    "full_corpus_comparison_intent"
-                )
-                LOGGER.warning(
-                    "AVA normalized planner comparison intent for an explicit full-corpus request"
-                )
-            else:
-                raise ValueError(
-                    "Planner comparison intent disagrees with validated resolution."
-                )
+        # The LLM planner owns semantic intent. Deterministic resolution only
+        # guards the allowed company set and ambiguity boundary; requesting
+        # several companies does not automatically make a query comparative.
+        resolution = replace(resolution, comparison=plan["comparison"])
         if plan["ambiguity"] != resolution.needs_clarification:
             raise ValueError("Planner ambiguity disagrees with validated resolution.")
 

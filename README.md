@@ -28,10 +28,11 @@ Implemented:
   promoted chunk files
 - versioned Mobileye gold-v2 labels and a post-migration semantic baseline
 - corpus-wide scope-aware hybrid BGE/BM25 retrieval with reciprocal-rank fusion
-- deterministic exact/fuzzy company resolution plus validated planner-only handling
-  of unresolved mentions against the fixed eleven-ticker enum
-- LLM atomic-subquery planning and independently ticker-filtered pools of 10
-  candidates per relevant company/subquery
+- one LLM planner for atomic search-query reformatting and semantic intent, with
+  deterministic exact/fuzzy company guardrails and constrained handling of
+  unresolved mentions against the fixed eleven-ticker enum
+- independently ticker-filtered pools of 10 candidates per relevant
+  company/subquery
 - typed evidence budgets with five final chunks per explicit company, five or
   seven supplemental slots for two-/three-company requests, and exact
   generation-token packing of complete chunks
