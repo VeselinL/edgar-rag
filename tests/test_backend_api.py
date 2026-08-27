@@ -54,6 +54,8 @@ class BackendApiTests(unittest.TestCase):
         events = parse_sse(response.text)
         self.assertEqual([event for event, _ in events], ["delta", "delta", "delta", "sources", "done"])
         self.assertEqual(len(events[-2][1]["sources"]), 2)
+        self.assertEqual(events[-2][1]["source_status"], "cited")
+        self.assertNotIn("citation_fallback", events[-2][1])
 
     def test_pre_token_failure_is_safe(self):
         response = self.client.post("/api/chat/stream", json={"query": "[mock:pre-error]"})

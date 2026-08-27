@@ -1,4 +1,4 @@
-import type { Source } from '../types'
+import type { Source, SourceStatus } from '../types'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000').replace(/\/$/, '')
 
@@ -6,7 +6,7 @@ interface StreamHandlers {
   signal: AbortSignal
   onOpen: () => void
   onDelta: (text: string) => void
-  onSources: (sources: Source[], citationFallback: boolean, malformedSourceCount: number) => void
+  onSources: (sources: Source[], sourceStatus: SourceStatus, malformedSourceCount: number) => void
   onDone: () => void
 }
 
@@ -35,6 +35,10 @@ function parseFrame(frame: string): RawEvent | null {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
+}
+
+function isSourceStatus(value: unknown): value is SourceStatus {
+  return value === 'cited' || value === 'none_cited' || value === 'cited_with_unrenderable_items'
 }
 
 export async function streamChat(query: string, handlers: StreamHandlers): Promise<void> {
@@ -70,9 +74,12 @@ export async function streamChat(query: string, handlers: StreamHandlers): Promi
     }
     if (raw.event === 'sources') {
       const sources = Array.isArray(raw.data.sources) ? (raw.data.sources as Source[]) : []
+      if (!isSourceStatus(raw.data.source_status)) {
+        throw new ChatStreamError('AVA returned an invalid source status.')
+      }
       handlers.onSources(
         sources,
-        raw.data.citation_fallback === true,
+        raw.data.source_status,
         typeof raw.data.malformed_source_count === 'number' ? raw.data.malformed_source_count : 0,
       )
       return

@@ -205,3 +205,32 @@ and was not included in AVA commits.
 - Frontend ESLint, all eight Vitest tests, strict TypeScript checking, and the
   Vite production build passed. The build still contains the non-canonical
   theme-specific avatar assets, as expected before the Phase 1 correctness fix.
+
+### Completion Phase 1 — cited-only sources and verified baseline repairs
+
+- Replaced citation fallback with an exact `CitationResolution` result containing
+  answer-order parsed, resolved, and rejected IDs plus a backend-only diagnostic.
+  No valid final-evidence citation now resolves to an empty evidence set.
+- Replaced the public `citation_fallback` field with `source_status` values
+  `cited`, `none_cited`, and `cited_with_unrenderable_items`. The API returns no
+  candidate or final-context fallback, while malformed cited tables increment the
+  public unrenderable count without causing unrelated sources to appear.
+- Updated the TypeScript stream contract and message/source components for the
+  new status. A completed answer with no resolved citation renders the existing
+  no-reference state and never offers a source-card expander.
+- Corrected both generation and planner instructions: CEO is Chief Executive
+  Officer and COO is Chief Operating Officer. Added a regression assertion over
+  both prompts.
+- Replaced the duplicate theme-specific AVA images with one import of canonical
+  `avatar/ava.png`, removed the duplicate component props declaration and obsolete
+  CSS swapping, and changed the favicon to canonical `avatar/favicon.png`.
+- The production build contains hashed outputs derived from `ava.png` and
+  `favicon.png` and contains no `ava-light` or `ava-dark` references.
+- Added cited-only, no-citation, invented-ID, malformed-table, stream-contract,
+  no-reference UI, canonical-avatar, and CEO/COO coverage. All 50 focused Python
+  tests and all 10 frontend tests passed; ESLint, TypeScript, and production build
+  also passed.
+- Compared Phase 1 with the frozen P0 baseline on the same corpus fingerprint.
+  Source-display exactness improved from 42.86% to 100% (+57.14 percentage
+  points). Resolution, candidate recall, final recall, context token proxy, all
+  retrieval candidate/selected IDs, and company balance were unchanged.

@@ -1,6 +1,7 @@
 """Grounded answer generation over selected filing evidence."""
 
 from .rag import (
+    CitationResolution,
     SYSTEM_PROMPT,
     GenerationService,
     format_context,
@@ -8,6 +9,7 @@ from .rag import (
 )
 
 __all__ = [
+    "CitationResolution",
     "SYSTEM_PROMPT",
     "GenerationService",
     "format_context",

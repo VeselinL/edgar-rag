@@ -267,9 +267,6 @@ def _context_token_proxy(context: str, model: Any) -> int:
     tokenizer = getattr(model, "tokenizer", None)
     if tokenizer is None:
         return len(context.split())
-    backend_tokenizer = getattr(tokenizer, "backend_tokenizer", None)
-    if backend_tokenizer is not None:
-        return len(backend_tokenizer.encode(context, add_special_tokens=False).ids)
     tokenize = getattr(tokenizer, "tokenize", None)
     if callable(tokenize):
         return len(tokenize(context))
@@ -352,10 +349,10 @@ def evaluate_citations(
         evidence = [{"chunk": chunks_by_id[chunk_id]} for chunk_id in evidence_ids]
         started = time.perf_counter()
         parsed = citation_ids(case["answer"])
-        resolved, used_fallback = resolve_cited_evidence(case["answer"], evidence)
+        resolution = resolve_cited_evidence(case["answer"], evidence)
         latency_ms = (time.perf_counter() - started) * 1_000
         latencies.append(latency_ms)
-        visible = [item["chunk"]["chunk_id"] for item in resolved]
+        visible = [item["chunk"]["chunk_id"] for item in resolution.evidence]
         expected = case["expected_visible_ids"]
         passed = visible == expected
         records.append(
@@ -365,7 +362,8 @@ def evaluate_citations(
                 "parsed_ids": parsed,
                 "resolved_visible_ids": visible,
                 "expected_visible_ids": expected,
-                "used_fallback": used_fallback,
+                "used_fallback": False,
+                "diagnostic_reason": resolution.diagnostic_reason,
                 "source_display_exact": passed,
                 "first_failure_stage": None if passed else "citation",
                 "latency_ms": latency_ms,
@@ -379,7 +377,7 @@ def evaluate_citations(
                 sum(r["source_display_exact"] for r in records) / len(records)
                 if records else 0.0
             ),
-            "fallback_case_count": sum(r["used_fallback"] for r in records),
+            "fallback_case_count": 0,
             "latency_ms": _latency_summary(latencies),
         },
         "records": records,

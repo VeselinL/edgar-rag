@@ -22,6 +22,7 @@ describe('App', () => {
   it('describes the active eleven-company filing corpus', () => {
     render(<App />)
     expect(screen.getByText(/SEC 10-K filings from eleven companies/)).toBeInTheDocument()
+    expect(screen.getByAltText('AVA').getAttribute('src')).toContain('ava.png')
   })
 
   it('submits with Enter, shows waiting, and removes it on first token', async () => {
@@ -72,7 +73,7 @@ describe('App', () => {
     mockedStream.mockImplementation(async (_query, handlers) => {
       handlers.onOpen()
       handlers.onDelta('Grounded answer.')
-      handlers.onSources(sources, false, 0)
+      handlers.onSources(sources, 'cited', 0)
       handlers.onDone()
     })
     render(<App />)
@@ -83,6 +84,19 @@ describe('App', () => {
     expect(screen.getByRole('table')).toBeInTheDocument()
     expect(screen.getByRole('columnheader', { name: '2025' })).toBeInTheDocument()
     expect(screen.queryByText(/CHUNK-/)).not.toBeInTheDocument()
+  })
+
+  it('shows the no-reference state when no citation resolves', async () => {
+    mockedStream.mockImplementation(async (_query, handlers) => {
+      handlers.onOpen()
+      handlers.onDelta('Answer without a citation.')
+      handlers.onSources([], 'none_cited', 0)
+      handlers.onDone()
+    })
+    render(<App />)
+    await userEvent.type(screen.getByLabelText('Ask AVA about the SEC filings'), 'Question{enter}')
+    expect(await screen.findByText('No source references were available for this answer.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /View sources/ })).not.toBeInTheDocument()
   })
 
   it('prevents duplicate submissions while active', async () => {

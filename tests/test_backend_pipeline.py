@@ -28,12 +28,32 @@ class FakeRetriever:
         )
 
 
+class MalformedTableRetriever:
+    def retrieve(self, query, subqueries):
+        return SimpleNamespace(
+            evidence=(
+                {
+                    "chunk": {
+                        "chunk_id": "TSLA-2025-CHUNK-000099",
+                        "company": "Tesla, Inc.",
+                        "ticker": "TSLA",
+                        "filing_year": 2025,
+                        "section": "Item 8 — Financial Statements",
+                        "content_type": "table",
+                        "text": "Unrenderable table.",
+                    }
+                },
+            )
+        )
+
+
 class FakeGenerator:
-    def __init__(self):
+    def __init__(self, answer_text="Buffered answer [TSLA-2025-CHUNK-000001]"):
         self.planned_query = None
         self.answer_arguments = None
         self.stream_answer_called = False
         self.answer_called = False
+        self.answer_text = answer_text
 
     def plan_retrieval(self, query):
         self.planned_query = query
@@ -46,12 +66,12 @@ class FakeGenerator:
     def stream_answer(self, query, evidence):
         self.stream_answer_called = True
         self.answer_arguments = (query, evidence)
-        yield "Answer [TSLA-2025-CHUNK-000001]"
+        yield self.answer_text
 
     def answer(self, query, evidence):
         self.answer_called = True
         self.answer_arguments = (query, evidence)
-        return "Buffered answer [TSLA-2025-CHUNK-000001]"
+        return self.answer_text
 
 
 class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
@@ -76,7 +96,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_planner_subqueries_drive_shared_retrieval_before_streaming(self):
         retriever = FakeRetriever()
-        generator = FakeGenerator()
+        generator = FakeGenerator("Answer [TSLA-2025-CHUNK-000001]")
         pipeline = RealPipeline(retriever, generator)
 
         async def connected():
@@ -129,12 +149,54 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
                                 "text": "Tesla evidence.",
                             }
                         ],
-                        "citation_fallback": False,
+                        "source_status": "cited",
                         "malformed_source_count": 0,
                     },
                 ),
                 ("done", {}),
             ],
+        )
+
+    async def test_no_citation_emits_no_sources_without_fallback(self):
+        pipeline = RealPipeline(
+            FakeRetriever(),
+            FakeGenerator("Answer with no citation."),
+            llm_streaming=False,
+        )
+
+        async def connected():
+            return False
+
+        events = [event async for event in pipeline.stream("Original query", connected)]
+
+        self.assertEqual(
+            events[-2].data,
+            {
+                "sources": [],
+                "source_status": "none_cited",
+                "malformed_source_count": 0,
+            },
+        )
+
+    async def test_cited_malformed_table_does_not_add_unrelated_sources(self):
+        pipeline = RealPipeline(
+            MalformedTableRetriever(),
+            FakeGenerator("Answer [TSLA-2025-CHUNK-000099]."),
+            llm_streaming=False,
+        )
+
+        async def connected():
+            return False
+
+        events = [event async for event in pipeline.stream("Original query", connected)]
+
+        self.assertEqual(
+            events[-2].data,
+            {
+                "sources": [],
+                "source_status": "cited_with_unrenderable_items",
+                "malformed_source_count": 1,
+            },
         )
 
 

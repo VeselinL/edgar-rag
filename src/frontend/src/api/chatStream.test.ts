@@ -17,7 +17,7 @@ describe('streamChat', () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(streamedResponse([
       'event: delta\ndata: {"text":"First "}\n',
       '\nevent: delta\ndata: {"text":" part"}\n\n',
-      'event: sources\ndata: {"sources":[]}\n\nevent: done\ndata: {}\n\n',
+      'event: sources\ndata: {"sources":[],"source_status":"none_cited","malformed_source_count":0}\n\nevent: done\ndata: {}\n\n',
     ]))
     const fragments: string[] = []
     const eventOrder: string[] = []
@@ -34,6 +34,19 @@ describe('streamChat', () => {
       'http://localhost:8000/api/chat/stream',
       expect.objectContaining({ body: JSON.stringify({ query: 'Original query' }) }),
     )
+  })
+
+  it('rejects a missing or unknown source status', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(streamedResponse([
+      'event: sources\ndata: {"sources":[]}\n\n',
+    ]))
+    await expect(streamChat('Question', {
+      signal: new AbortController().signal,
+      onOpen: vi.fn(),
+      onDelta: vi.fn(),
+      onSources: vi.fn(),
+      onDone: vi.fn(),
+    })).rejects.toThrow('invalid source status')
   })
 
   it('ignores empty delta text', async () => {

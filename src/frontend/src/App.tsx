@@ -46,7 +46,7 @@ export default function App() {
       text: '',
       state: 'waiting_for_first_token',
       sources: null,
-      citationFallback: false,
+      sourceStatus: 'none_cited',
       malformedSourceCount: 0,
     }
     setMessages((current) => [
@@ -74,11 +74,11 @@ export default function App() {
             text: message.text + text,
           }))
         },
-        onSources: (sources, citationFallback, malformedSourceCount) => {
+        onSources: (sources, sourceStatus, malformedSourceCount) => {
           updateAssistant(assistantId, (message) => ({
             ...message,
             sources,
-            citationFallback,
+            sourceStatus,
             malformedSourceCount,
           }))
         },

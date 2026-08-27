@@ -29,6 +29,7 @@ export interface TableSource extends SourceBase {
 }
 
 export type Source = NarrativeSource | TableSource
+export type SourceStatus = 'cited' | 'none_cited' | 'cited_with_unrenderable_items'
 
 export interface UserMessage {
   id: string
@@ -42,7 +43,7 @@ export interface AssistantMessage {
   text: string
   state: Exclude<RequestState, 'idle' | 'submitting'>
   sources: Source[] | null
-  citationFallback: boolean
+  sourceStatus: SourceStatus
   malformedSourceCount: number
   error?: string
 }

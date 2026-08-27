@@ -194,17 +194,21 @@ class EvidenceSelectionTests(unittest.TestCase):
 
     def test_citation_resolution_is_limited_to_final_evidence(self):
         evidence = [hydrated("TSLA-1", "TSLA", 1), hydrated("OUST-1", "OUST", 2)]
-        resolved, fallback = resolve_cited_evidence(
+        resolution = resolve_cited_evidence(
             "Supported [OUST-1], invented [GM-999].", evidence
         )
-        self.assertFalse(fallback)
-        self.assertEqual([item["chunk"]["chunk_id"] for item in resolved], ["OUST-1"])
+        self.assertEqual(resolution.resolved_ids, ("OUST-1",))
+        self.assertEqual(resolution.rejected_ids, ("GM-999",))
+        self.assertEqual(
+            [item["chunk"]["chunk_id"] for item in resolution.evidence],
+            ["OUST-1"],
+        )
 
-    def test_no_citation_returns_final_evidence_fallback(self):
+    def test_no_citation_returns_no_evidence(self):
         evidence = [hydrated("TSLA-1", "TSLA", 1)]
-        resolved, fallback = resolve_cited_evidence("No identifier here.", evidence)
-        self.assertTrue(fallback)
-        self.assertEqual(resolved, evidence)
+        resolution = resolve_cited_evidence("No identifier here.", evidence)
+        self.assertEqual(resolution.evidence, ())
+        self.assertEqual(resolution.diagnostic_reason, "no_resolved_citations")
 
 
 if __name__ == "__main__":

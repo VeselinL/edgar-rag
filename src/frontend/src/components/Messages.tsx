@@ -36,7 +36,7 @@ function AssistantMessage({ message }: { message: AssistantMessageType }) {
         {(message.state === 'completed' || (message.state === 'error' && message.sources !== null)) && message.sources !== null && (
           <Sources
             sources={message.sources}
-            citationFallback={message.citationFallback}
+            sourceStatus={message.sourceStatus}
             malformedCount={message.malformedSourceCount}
           />
         )}

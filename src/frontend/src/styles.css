@@ -148,18 +148,6 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
   padding: 5px;
 }
 
-.avatar img.avatar__dark {
-  display: none;
-}
-
-:root[data-theme="dark"] .avatar img.avatar__light {
-  display: none;
-}
-
-:root[data-theme="dark"] .avatar img.avatar__dark {
-  display: block;
-}
-
 .icon-button, .send-button {
   display: inline-grid;
   flex: none;

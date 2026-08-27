@@ -177,13 +177,23 @@ class RealPipeline:
         if not answer_fragments:
             raise RuntimeError("The LLM returned no generated text.")
 
-        cited, used_fallback = resolve_cited_evidence("".join(answer_fragments), evidence)
-        sources, malformed_count = normalize_sources(cited)
+        citation_resolution = resolve_cited_evidence(
+            "".join(answer_fragments), evidence
+        )
+        sources, malformed_count = normalize_sources(
+            list(citation_resolution.evidence)
+        )
+        if citation_resolution.resolved_ids and malformed_count:
+            source_status = "cited_with_unrenderable_items"
+        elif citation_resolution.resolved_ids:
+            source_status = "cited"
+        else:
+            source_status = "none_cited"
         yield PipelineEvent(
             "sources",
             {
                 "sources": sources,
-                "citation_fallback": used_fallback,
+                "source_status": source_status,
                 "malformed_source_count": malformed_count,
             },
         )
@@ -254,7 +264,7 @@ class MockPipeline:
             "sources",
             {
                 "sources": [MOCK_NARRATIVE, MOCK_TABLE],
-                "citation_fallback": False,
+                "source_status": "cited",
                 "malformed_source_count": 0,
             },
         )

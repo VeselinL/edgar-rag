@@ -6,6 +6,7 @@ import json
 import os
 import re
 from collections.abc import Iterable, Iterator, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -27,7 +28,7 @@ Do not weaken a clear condition. For example, evidence of autonomous goods deliv
 
 If the evidence is incomplete, ambiguous, conflicting, or absent in a way that prevents answering the question or a required part of it, say so plainly. Otherwise, omit negative evidence and retrieval commentary.
 
-Infer from acronyms as well, if user asks for CEO, that means Chief Operating Officer.
+Interpret standard executive acronyms accurately: CEO means Chief Executive Officer, and COO means Chief Operating Officer.
 Return a concise answer in text format. Start with the answer, then add brief qualifying detail only when helpful."""
 
 PLANNER_INSTRUCTION = """Analyze the user question only for retrieval planning.
@@ -61,7 +62,7 @@ Do NOT add:
 
 unless those concepts are explicitly present in the user's query, or anything similar to this instruction.
 
-You can only rewrite words that were supplied as acronyms by the user, or make them sound more professional.(eg. if user asks for ceo, rewrite as Chief Operating Officer)
+You may expand an acronym supplied by the user without changing its meaning. CEO means Chief Executive Officer, and COO means Chief Operating Officer.
 
 If one retrieval is sufficient, return the original query as the only subquery.
 
@@ -83,6 +84,17 @@ PLANNER_JSON_FORMAT = (
 
 CITATION_GROUP_PATTERN = re.compile(r"\[([^\[\]]+)\]")
 CITATION_ID_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:-]*")
+
+
+@dataclass(frozen=True)
+class CitationResolution:
+    """Exact used-evidence resolution within the supplied generation context."""
+
+    evidence: tuple[dict[str, Any], ...]
+    parsed_ids: tuple[str, ...]
+    resolved_ids: tuple[str, ...]
+    rejected_ids: tuple[str, ...]
+    diagnostic_reason: str
 
 
 def format_context(retrieved_evidence: Sequence[dict[str, Any]]) -> str:
@@ -116,20 +128,23 @@ def citation_ids(answer: str) -> list[str]:
 def resolve_cited_evidence(
     answer: str,
     final_evidence: Sequence[dict[str, Any]],
-) -> tuple[list[dict[str, Any]], bool]:
-    """Resolve exact citations only within the context supplied to generation.
-
-    Returns ``(evidence, used_fallback)``. When no citation resolves, the final
-    context is returned as retrieved-evidence fallback; callers must not label
-    every fallback item as explicit sentence support.
-    """
+) -> CitationResolution:
+    """Resolve cited IDs in answer order without any evidence fallback."""
     by_id = {
         result.get("chunk", result)["chunk_id"]: result for result in final_evidence
     }
-    resolved = [by_id[chunk_id] for chunk_id in citation_ids(answer) if chunk_id in by_id]
-    if resolved:
-        return resolved, False
-    return list(final_evidence), True
+    parsed = citation_ids(answer)
+    resolved_ids = [chunk_id for chunk_id in parsed if chunk_id in by_id]
+    rejected_ids = [chunk_id for chunk_id in parsed if chunk_id not in by_id]
+    return CitationResolution(
+        evidence=tuple(by_id[chunk_id] for chunk_id in resolved_ids),
+        parsed_ids=tuple(parsed),
+        resolved_ids=tuple(resolved_ids),
+        rejected_ids=tuple(rejected_ids),
+        diagnostic_reason=(
+            "resolved_citations" if resolved_ids else "no_resolved_citations"
+        ),
+    )
 
 
 def make_llm_client(project_root: Path | None = None) -> OpenAI:

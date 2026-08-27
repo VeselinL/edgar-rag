@@ -1,7 +1,13 @@
 import unittest
 from types import SimpleNamespace
 
-from src.generation.rag import GenerationService, citation_ids, format_context
+from src.generation.rag import (
+    PLANNER_INSTRUCTION,
+    SYSTEM_PROMPT,
+    GenerationService,
+    citation_ids,
+    format_context,
+)
 
 
 class FakeStream:
@@ -79,6 +85,12 @@ class GenerationTests(unittest.TestCase):
         context = format_context(self.evidence())
         self.assertIn('<source id="TSLA-2025-CHUNK-000001"', context)
         self.assertIn("Evidence text.", context)
+
+    def test_ceo_and_coo_are_expanded_correctly(self):
+        for prompt in (SYSTEM_PROMPT, PLANNER_INSTRUCTION):
+            self.assertIn("CEO means Chief Executive Officer", prompt)
+            self.assertIn("COO means Chief Operating Officer", prompt)
+            self.assertNotIn("CEO, that means Chief Operating Officer", prompt)
 
     def test_citation_ids_accept_grouped_ids_without_matching_prose(self):
         answer = (
