@@ -238,6 +238,7 @@ def evaluate_retrieval(
                     "candidate_ids_by_company": {},
                     "candidate_counts_by_company": {},
                     "candidate_counts_by_company_subquery": {},
+                    "target_counts_by_company": {},
                     "selected_ids": [],
                     "selected_company_counts": {},
                     "coverage_by_subquery": [],
@@ -324,6 +325,9 @@ def evaluate_retrieval(
                 ),
                 "candidate_counts_by_company_subquery": dict(
                     outcome.candidate_counts_by_company_subquery
+                ),
+                "target_counts_by_company": dict(
+                    outcome.target_counts_by_company
                 ),
                 "quota_satisfied": outcome.quota_satisfied,
                 "context_input_tokens": outcome.context_input_tokens,

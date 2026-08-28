@@ -72,6 +72,7 @@ class RetrievalOutcome:
     candidate_counts_by_company: tuple[tuple[str, int], ...]
     candidate_counts_by_company_subquery: tuple[tuple[str, int], ...]
     selected_counts_by_company: tuple[tuple[str, int], ...]
+    target_counts_by_company: tuple[tuple[str, int], ...]
     quota_satisfied: bool
     context_input_tokens: int | None
     context_input_limit: int | None
@@ -499,6 +500,9 @@ def _retrieve_company_balanced_context(
 ) -> dict[str, Any]:
     scope, companies = original_scope
     final_total = policy.final_total(len(companies))
+    company_targets = dict(
+        zip(companies, policy.company_target_counts(len(companies)))
+    )
     if candidate_k < policy.candidate_k_per_company:
         raise ValueError("candidate_k must cover candidate_k_per_company.")
     if subquery_targets is not None and len(subquery_targets) != len(subqueries):
@@ -644,6 +648,11 @@ def _retrieve_company_balanced_context(
         nonlocal context_tokens
         if candidate["chunk_id"] in selected_ids:
             return False
+        ticker = candidate.get("ticker")
+        ticker_limit = company_targets.get(ticker, policy.per_company_final_limit)
+        if ticker and selected_counts[ticker] >= ticker_limit:
+            candidate["rejection_reason"] = "company_limit"
+            return False
         proposed = [
             dict(item, chunk=_candidate_chunk(item, all_chunks))
             for item in [*selected, candidate]
@@ -660,8 +669,8 @@ def _retrieve_company_balanced_context(
         context_tokens = proposed_tokens
         return True
 
-    # Preserve the existing per-subquery minimum inside each relevant company
-    # pool before completing the stronger five-per-company quota.
+    # Preserve the per-subquery minimum inside each relevant company pool without
+    # allowing coverage to consume more than that company's balanced allocation.
     for _ in range(policy.minimum_final_per_subquery):
         for subquery_index, targets in enumerate(targets_by_subquery):
             for ticker in targets:
@@ -681,45 +690,28 @@ def _retrieve_company_balanced_context(
                     False,
                 )
 
-    # Add the remaining company-minimum evidence round-robin. If a company has
-    # too few candidates or the token limit is reached, retain the evidence that
-    # did fit for every other company and expose quota_satisfied=false in
-    # diagnostics instead of discarding the entire answer context.
-    for _ in range(policy.minimum_final_per_company):
+    # Fill the balanced allocation round-robin. Up to five companies receive ten
+    # chunks each; above five, the 50-chunk corpus cap is divided as evenly as
+    # possible. Scarce candidates or token pressure produce balanced partial
+    # evidence and an unmet-quota diagnostic rather than erasing supported firms.
+    for _ in range(max(company_targets.values(), default=0)):
         for ticker in companies:
-            if selected_counts[ticker] >= policy.minimum_final_per_company:
+            if selected_counts[ticker] >= company_targets[ticker]:
                 continue
             next(
                 (
                     True
                     for candidate in company_orders[ticker]
-                    if try_select(candidate, "company_minimum")
+                    if try_select(candidate, "company_allocation")
                 ),
                 False,
             )
 
     if len(selected) > final_total:
         raise EvidencePackingError(
-            "Per-subquery coverage and company minima exceed the configured final evidence total."
+            "Per-subquery coverage and company targets exceed the final evidence cap."
         )
 
-    supplemental = sorted(
-        (
-            candidate
-            for candidate in merged_by_id.values()
-            if candidate["chunk_id"] not in selected_ids
-        ),
-        key=lambda candidate: (
-            -candidate["selection_score"],
-            min(match["subquery_rank"] for match in candidate["subquery_matches"]),
-            candidate["first_seen_order"],
-            candidate["chunk_id"],
-        ),
-    )
-    for candidate in supplemental:
-        if len(selected) >= final_total:
-            break
-        try_select(candidate, "supplemental_relevance")
     for final_rank, candidate in enumerate(selected, start=1):
         candidate["selected"] = True
         candidate["final_context_rank"] = final_rank
@@ -785,8 +777,9 @@ def _retrieve_company_balanced_context(
             for (ticker, subquery_index), chunk_ids in candidates_by_company_subquery.items()
         },
         "selected_counts_by_company": dict(selected_counts),
+        "target_counts_by_company": company_targets,
         "quota_satisfied": all(
-            selected_counts[ticker] >= policy.minimum_final_per_company
+            selected_counts[ticker] >= company_targets[ticker]
             for ticker in companies
         ),
         "context_input_tokens": context_tokens,
@@ -856,6 +849,7 @@ def retrieve_generation_context(
             token_counter=token_counter,
         )
 
+    final_context_k = min(final_context_k, policy.corpus_final_limit)
     if len(subqueries) * min_chunks_per_subquery > final_context_k:
         raise ValueError(
             "The final context budget cannot preserve the minimum evidence for every subquery."
@@ -938,6 +932,19 @@ def retrieve_generation_context(
 
     selected_ids: list[str] = []
     selected_id_set: set[str] = set()
+    selected_counts: Counter[str] = Counter()
+
+    def can_select(chunk_id: str) -> bool:
+        ticker = merged_by_id[chunk_id].get("ticker")
+        return not ticker or selected_counts[ticker] < policy.per_company_final_limit
+
+    def select(chunk_id: str, reason: str) -> None:
+        selected_ids.append(chunk_id)
+        selected_id_set.add(chunk_id)
+        ticker = merged_by_id[chunk_id].get("ticker")
+        if ticker:
+            selected_counts[ticker] += 1
+        merged_by_id[chunk_id]["selection_reason"] = reason
 
     for _ in range(min_chunks_per_subquery):
         for subquery_chunk_ids in candidates_by_subquery:
@@ -949,10 +956,8 @@ def retrieve_generation_context(
             if covered_count >= min_chunks_per_subquery:
                 continue
             for chunk_id in subquery_chunk_ids:
-                if chunk_id not in selected_id_set:
-                    selected_ids.append(chunk_id)
-                    selected_id_set.add(chunk_id)
-                    merged_by_id[chunk_id]["selection_reason"] = "coverage"
+                if chunk_id not in selected_id_set and can_select(chunk_id):
+                    select(chunk_id, "coverage")
                     break
 
     remaining = sorted(
@@ -971,9 +976,8 @@ def retrieve_generation_context(
     for candidate in remaining:
         if len(selected_ids) >= final_context_k:
             break
-        selected_ids.append(candidate["chunk_id"])
-        selected_id_set.add(candidate["chunk_id"])
-        candidate["selection_reason"] = "global_score"
+        if can_select(candidate["chunk_id"]):
+            select(candidate["chunk_id"], "global_score")
 
     coverage_by_subquery = [
         sum(chunk_id in selected_id_set for chunk_id in subquery_chunk_ids)
@@ -1026,9 +1030,8 @@ def retrieve_generation_context(
             Counter(candidate.get("ticker") for candidate in diagnostics)
         ),
         "candidate_counts_by_company_subquery": {},
-        "selected_counts_by_company": dict(
-            Counter(candidate.get("ticker") for candidate in selected)
-        ),
+        "selected_counts_by_company": dict(selected_counts),
+        "target_counts_by_company": {},
         "quota_satisfied": True,
         "context_input_tokens": context_input_tokens,
         "context_input_limit": policy.input_token_limit if token_counter else None,
@@ -1206,6 +1209,9 @@ class ScopeAwareRetriever:
             ),
             selected_counts_by_company=tuple(
                 diagnostics["selected_counts_by_company"].items()
+            ),
+            target_counts_by_company=tuple(
+                diagnostics["target_counts_by_company"].items()
             ),
             quota_satisfied=diagnostics["quota_satisfied"],
             context_input_tokens=diagnostics["context_input_tokens"],

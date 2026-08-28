@@ -121,7 +121,7 @@ class EvidenceSelectionTests(unittest.TestCase):
         self.assertEqual({item["ticker"] for item in retrieved}, {"TSLA", "OUST"})
         self.assertEqual(observed_scopes, [{"TSLA", "OUST"}])
 
-    def test_planned_context_keeps_five_per_company_and_five_supplemental(self):
+    def test_planned_context_keeps_ten_per_company(self):
         def fake_hybrid_retrieve(query, *args, allowed_tickers=None, **kwargs):
             ticker = "TSLA" if "Tesla" in query else "OUST"
             self.assertEqual(allowed_tickers, {ticker})
@@ -145,19 +145,16 @@ class EvidenceSelectionTests(unittest.TestCase):
                 all_chunks=[],
             )
 
-        self.assertEqual(len(diagnostics["selected_chunk_ids"]), 15)
-        self.assertGreaterEqual(diagnostics["coverage_by_subquery"][0], 5)
-        self.assertGreaterEqual(diagnostics["coverage_by_subquery"][1], 5)
+        self.assertEqual(len(diagnostics["selected_chunk_ids"]), 20)
+        self.assertGreaterEqual(diagnostics["coverage_by_subquery"][0], 10)
+        self.assertGreaterEqual(diagnostics["coverage_by_subquery"][1], 10)
         self.assertTrue(all(value >= 2 for value in diagnostics["coverage_by_subquery"]))
-        self.assertEqual(len(set(diagnostics["selected_chunk_ids"])), 15)
+        self.assertEqual(len(set(diagnostics["selected_chunk_ids"])), 20)
         self.assertEqual(
-            sum(diagnostics["selected_counts_by_company"].values()), 15
+            sum(diagnostics["selected_counts_by_company"].values()), 20
         )
-        self.assertTrue(
-            all(
-                count >= 5
-                for count in diagnostics["selected_counts_by_company"].values()
-            )
+        self.assertEqual(
+            diagnostics["selected_counts_by_company"], {"TSLA": 10, "OUST": 10}
         )
 
     def test_planned_context_deduplicates_and_rewards_multi_subquery_matches(self):
@@ -203,6 +200,41 @@ class EvidenceSelectionTests(unittest.TestCase):
                 bm25_retriever=object(),
                 all_chunks=[],
             )
+
+    def test_global_context_enforces_both_hard_chunk_caps(self):
+        tickers = ("TSLA", "F", "GM", "MBLY", "NVDA", "QCOM")
+
+        def fake_scope_retrieve(query, *args, **kwargs):
+            ticker = query.split()[-1]
+            return (
+                [
+                    result(f"{ticker}-{index}", ticker, 0.03 - index / 10_000)
+                    for index in range(10)
+                ],
+                "global",
+                [],
+            )
+
+        with patch(
+            "src.retrieval.scope_aware.scope_aware_hybrid_retrieve",
+            side_effect=fake_scope_retrieve,
+        ):
+            diagnostics = retrieve_generation_context(
+                original_query="What patterns appear across the filings?",
+                subqueries=[f"pattern {ticker}" for ticker in tickers],
+                model=object(),
+                query_prefix="",
+                normalized_embeddings=object(),
+                bm25_retriever=object(),
+                all_chunks=[],
+                final_context_k=100,
+            )
+
+        self.assertEqual(len(diagnostics["selected"]), 50)
+        self.assertLessEqual(
+            max(diagnostics["selected_counts_by_company"].values()), 10
+        )
+        self.assertEqual(diagnostics["final_context_k"], 50)
 
     def test_global_context_fails_closed_when_complete_evidence_exceeds_tokens(self):
         candidates = [result(f"GLOBAL-{index}", "TSLA") for index in range(10)]

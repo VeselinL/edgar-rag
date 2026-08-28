@@ -19,7 +19,7 @@ import tiktoken
 from src.filings.corpus import ACTIVE_FILINGS
 from src.resolution.companies import CompanyResolution, default_company_resolver
 
-DEFAULT_LLM_MODEL = "AZURE_GPT_4o_2024_1120"
+DEFAULT_LLM_MODEL = "gpt-5.1"
 DEFAULT_MAX_OUTPUT_TOKENS = 4_096
 DEFAULT_GENERATION_ENCODING = "o200k_base"
 LOGGER = logging.getLogger(__name__)

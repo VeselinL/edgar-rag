@@ -340,6 +340,7 @@ def evaluate_scope_aware_retrieval(
             outcome.candidate_counts_by_company_subquery
         ),
         "selected_counts_by_company": dict(outcome.selected_counts_by_company),
+        "target_counts_by_company": dict(outcome.target_counts_by_company),
         "quota_satisfied": outcome.quota_satisfied,
         "context_input_tokens": outcome.context_input_tokens,
         "context_input_limit": outcome.context_input_limit,

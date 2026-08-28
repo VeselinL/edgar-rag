@@ -71,11 +71,10 @@ class PipelineEvent:
 class PipelineSettings:
     mode: str = "real"
     model_device: str = "cpu"
-    llm_model: str = "AZURE_GPT_4o_2024_1120"
+    llm_model: str = "gpt-5.1"
     llm_streaming: bool = True
     context_window_tokens: int = 32_768
     reserved_output_tokens: int = 4_096
-    four_plus_supplemental: int | None = None
     observability_retention_days: int = 30
 
     @classmethod
@@ -91,25 +90,20 @@ class PipelineSettings:
             raise ValueError("AVA_LLM_STREAMING must be 'true' or 'false'.")
         context_window_tokens = int(os.getenv("AVA_LLM_CONTEXT_WINDOW_TOKENS", "32768"))
         reserved_output_tokens = int(os.getenv("AVA_LLM_RESERVED_OUTPUT_TOKENS", "4096"))
-        raw_four_plus = os.getenv("AVA_EVIDENCE_FOUR_PLUS_SUPPLEMENTAL", "").strip()
-        four_plus_supplemental = int(raw_four_plus) if raw_four_plus else None
         observability_retention_days = int(
             os.getenv("AVA_OBSERVABILITY_RETENTION_DAYS", "30")
         )
         if context_window_tokens <= 0 or reserved_output_tokens <= 0:
             raise ValueError("AVA LLM token budgets must be positive.")
-        if four_plus_supplemental is not None and four_plus_supplemental < 0:
-            raise ValueError("AVA_EVIDENCE_FOUR_PLUS_SUPPLEMENTAL cannot be negative.")
         if observability_retention_days <= 0:
             raise ValueError("AVA_OBSERVABILITY_RETENTION_DAYS must be positive.")
         return cls(
             mode=mode,
             model_device=os.getenv("AVA_MODEL_DEVICE", "cpu"),
-            llm_model=os.getenv("AVA_LLM_MODEL", "AZURE_GPT_4o_2024_1120"),
+            llm_model=os.getenv("AVA_LLM_MODEL", "gpt-5.1"),
             llm_streaming=raw_streaming == "true",
             context_window_tokens=context_window_tokens,
             reserved_output_tokens=reserved_output_tokens,
-            four_plus_supplemental=four_plus_supplemental,
             observability_retention_days=observability_retention_days,
         )
 
@@ -205,7 +199,6 @@ class RealPipeline:
         evidence_policy = EvidenceBudgetPolicy(
             context_window_tokens=settings.context_window_tokens,
             reserved_output_tokens=settings.reserved_output_tokens,
-            four_plus_supplemental=settings.four_plus_supplemental,
         )
         retriever = ScopeAwareRetriever(
             model=embedder,
@@ -395,9 +388,8 @@ class RealPipeline:
             trace.safe_error_class = type(error).__name__
             trace.source_status = "none_cited"
             trace.generated_answer = (
-                "AVA could not assemble complete, balanced filing evidence for "
-                "that company set because its evidence budget is not configured. "
-                "Please request three or fewer companies."
+                "AVA could not apply the configured filing-evidence policy. "
+                "Please try again or contact the service operator."
             )
             trace.mark_first_token()
             LOGGER.warning("AVA evidence policy could not satisfy request: %s", error)
@@ -456,6 +448,9 @@ class RealPipeline:
                     "selected_counts_by_company": dict(
                         outcome.selected_counts_by_company
                     ),
+                    "target_counts_by_company": dict(
+                        outcome.target_counts_by_company
+                    ),
                     "quota_satisfied": outcome.quota_satisfied,
                     "context_input_tokens": outcome.context_input_tokens,
                     "context_input_limit": outcome.context_input_limit,
@@ -492,6 +487,7 @@ class RealPipeline:
         trace.selection = {
             "policy": outcome.policy_name,
             "selected_counts_by_company": dict(outcome.selected_counts_by_company),
+            "target_counts_by_company": dict(outcome.target_counts_by_company),
             "quota_satisfied": outcome.quota_satisfied,
             "context_input_tokens": outcome.context_input_tokens,
             "context_input_limit": outcome.context_input_limit,

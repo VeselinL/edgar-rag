@@ -4,7 +4,6 @@ from unittest.mock import patch
 from src.resolution.companies import default_company_resolver
 from src.retrieval.evidence_policy import (
     EvidenceBudgetPolicy,
-    EvidencePolicyError,
 )
 from src.retrieval.scope_aware import retrieve_generation_context
 
@@ -44,26 +43,35 @@ def fake_result(chunk: dict, index: int, rank: int) -> dict:
 
 
 class EvidenceBudgetPolicyTests(unittest.TestCase):
-    def test_fixed_two_and_three_company_budgets(self):
+    def test_company_totals_obey_per_company_and_corpus_caps(self):
         policy = EvidenceBudgetPolicy()
         self.assertEqual(policy.final_total(1), 10)
-        self.assertEqual(policy.final_total(2), 15)
-        self.assertEqual(policy.final_total(3), 22)
+        self.assertEqual(policy.final_total(2), 20)
+        self.assertEqual(policy.final_total(3), 30)
+        self.assertEqual(policy.final_total(4), 40)
+        self.assertEqual(policy.final_total(5), 50)
+        self.assertEqual(policy.final_total(6), 50)
+        self.assertEqual(policy.final_total(10), 50)
         self.assertEqual(policy.input_token_limit, 28_672)
 
-    def test_four_plus_requires_explicit_configuration(self):
-        with self.assertRaisesRegex(EvidencePolicyError, "four or more"):
-            EvidenceBudgetPolicy().final_total(4)
+    def test_company_targets_divide_the_corpus_cap_evenly(self):
+        policy = EvidenceBudgetPolicy()
         self.assertEqual(
-            EvidenceBudgetPolicy(four_plus_supplemental=9).final_total(4), 29
+            policy.company_target_counts(6),
+            (9, 9, 8, 8, 8, 8),
         )
+        self.assertEqual(policy.company_target_counts(10), (5,) * 10)
 
-    def test_invalid_supplement_and_subquery_budgets_are_rejected(self):
-        with self.assertRaisesRegex(ValueError, "cannot be negative"):
-            EvidenceBudgetPolicy(two_company_supplemental=-1)
+    def test_invalid_company_and_subquery_budgets_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, "company limit"):
+            EvidenceBudgetPolicy(
+                candidate_k_per_company=5, per_company_final_limit=6
+            )
         with self.assertRaisesRegex(ValueError, "per-subquery minimum"):
             EvidenceBudgetPolicy(
-                candidate_k_per_company=5, minimum_final_per_subquery=6
+                candidate_k_per_company=5,
+                per_company_final_limit=5,
+                minimum_final_per_subquery=6,
             )
 
 
@@ -116,26 +124,17 @@ class CompanyBalancedPackingTests(unittest.TestCase):
             )
         return diagnostics, observed_scopes, chunks
 
-    def test_two_company_pools_are_independent_and_keep_five_each(self):
+    def test_two_company_pools_are_independent_and_keep_ten_each(self):
         diagnostics, scopes, _ = self.run_retrieval(("TSLA", "F"))
         self.assertEqual(scopes, [{"TSLA"}, {"F"}])
         self.assertEqual(
             diagnostics["candidate_counts_by_company"], {"TSLA": 10, "F": 10}
         )
-        self.assertEqual(len(diagnostics["selected"]), 15)
-        self.assertTrue(
-            all(
-                count >= 5
-                for count in diagnostics["selected_counts_by_company"].values()
-            )
-        )
+        self.assertEqual(len(diagnostics["selected"]), 20)
         self.assertEqual(
-            sum(
-                candidate["selection_reason"] == "supplemental_relevance"
-                for candidate in diagnostics["selected"]
-            ),
-            5,
+            diagnostics["selected_counts_by_company"], {"TSLA": 10, "F": 10}
         )
+        self.assertEqual(diagnostics["target_counts_by_company"], {"TSLA": 10, "F": 10})
         self.assertTrue(diagnostics["quota_satisfied"])
         self.assertTrue(
             all(
@@ -145,25 +144,34 @@ class CompanyBalancedPackingTests(unittest.TestCase):
             )
         )
 
-    def test_three_company_budget_uses_seven_supplemental_slots(self):
+    def test_three_company_budget_keeps_ten_per_company(self):
         diagnostics, scopes, _ = self.run_retrieval(("TSLA", "MBLY", "F"))
         self.assertEqual(scopes, [{"TSLA"}, {"MBLY"}, {"F"}])
-        self.assertEqual(len(diagnostics["selected"]), 22)
-        self.assertTrue(
-            all(
-                count >= 5
-                for count in diagnostics["selected_counts_by_company"].values()
-            )
-        )
+        self.assertEqual(len(diagnostics["selected"]), 30)
         self.assertEqual(
-            sum(
-                candidate["selection_reason"] == "supplemental_relevance"
-                for candidate in diagnostics["selected"]
-            ),
-            7,
+            diagnostics["selected_counts_by_company"],
+            {"TSLA": 10, "MBLY": 10, "F": 10},
         )
 
-    def test_anchored_global_keeps_five_anchor_chunks_and_global_supplements(self):
+    def test_ten_company_budget_keeps_five_per_company(self):
+        tickers = (
+            "APTV", "AUR", "F", "GM", "GOOGL",
+            "MBLY", "NVDA", "OUST", "QCOM", "TSLA",
+        )
+        diagnostics, scopes, _ = self.run_retrieval(tickers)
+        self.assertEqual(scopes, [{ticker} for ticker in tickers])
+        self.assertEqual(len(diagnostics["selected"]), 50)
+        self.assertEqual(
+            diagnostics["selected_counts_by_company"],
+            {ticker: 5 for ticker in tickers},
+        )
+        self.assertEqual(
+            diagnostics["target_counts_by_company"],
+            {ticker: 5 for ticker in tickers},
+        )
+        self.assertTrue(diagnostics["quota_satisfied"])
+
+    def test_anchored_global_keeps_ten_anchor_chunks(self):
         chunks = corpus_for(("TSLA", "F"))
         index_by_id = {
             chunk["chunk_id"]: index for index, chunk in enumerate(chunks)
@@ -199,8 +207,7 @@ class CompanyBalancedPackingTests(unittest.TestCase):
             )
         self.assertEqual(observed_scopes, [{"TSLA"}, None])
         self.assertEqual(len(diagnostics["selected"]), 10)
-        self.assertGreaterEqual(diagnostics["selected_counts_by_company"]["TSLA"], 5)
-        self.assertIn("F", diagnostics["selected_counts_by_company"])
+        self.assertEqual(diagnostics["selected_counts_by_company"], {"TSLA": 10})
 
     def test_complete_chunks_are_counted_and_never_truncated(self):
         counter = lambda query, evidence: 100 + sum(

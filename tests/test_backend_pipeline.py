@@ -28,10 +28,11 @@ class FakeRetriever:
                     }
                 },
             ),
-            policy_name="company-balanced-token-aware-v1",
+            policy_name="company-balanced-token-aware-v2",
             candidate_counts_by_company=(("TSLA", 10),),
             candidate_counts_by_company_subquery=(("TSLA:0", 10),),
             selected_counts_by_company=(("TSLA", 10),),
+            target_counts_by_company=(("TSLA", 10),),
             quota_satisfied=True,
             context_input_tokens=100,
             context_input_limit=28_672,
@@ -58,10 +59,11 @@ class MalformedTableRetriever:
                     }
                 },
             ),
-            policy_name="company-balanced-token-aware-v1",
+            policy_name="company-balanced-token-aware-v2",
             candidate_counts_by_company=(("TSLA", 10),),
             candidate_counts_by_company_subquery=(("TSLA:0", 10),),
             selected_counts_by_company=(("TSLA", 10),),
+            target_counts_by_company=(("TSLA", 10),),
             quota_satisfied=True,
             context_input_tokens=100,
             context_input_limit=28_672,
@@ -72,7 +74,7 @@ class MalformedTableRetriever:
 
 class PolicyErrorRetriever:
     def retrieve(self, *args, **kwargs):
-        raise EvidencePolicyError("four-plus budget is not configured")
+        raise EvidencePolicyError("evidence policy is invalid")
 
 
 class FakeGenerator:
@@ -218,13 +220,12 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaisesRegex(ValueError, "AVA_LLM_STREAMING"):
                 PipelineSettings.from_environment()
 
-    def test_settings_read_typed_token_and_four_plus_budgets(self):
+    def test_settings_read_typed_token_and_observability_budgets(self):
         with patch.dict(
             "os.environ",
             {
                 "AVA_LLM_CONTEXT_WINDOW_TOKENS": "65536",
                 "AVA_LLM_RESERVED_OUTPUT_TOKENS": "8192",
-                "AVA_EVIDENCE_FOUR_PLUS_SUPPLEMENTAL": "9",
                 "AVA_OBSERVABILITY_RETENTION_DAYS": "14",
             },
             clear=False,
@@ -232,7 +233,6 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             settings = PipelineSettings.from_environment()
         self.assertEqual(settings.context_window_tokens, 65_536)
         self.assertEqual(settings.reserved_output_tokens, 8_192)
-        self.assertEqual(settings.four_plus_supplemental, 9)
         self.assertEqual(settings.observability_retention_days, 14)
 
     async def test_planner_subqueries_drive_shared_retrieval_before_streaming(self):
@@ -314,10 +314,10 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
 
         events = [event async for event in pipeline.stream("Original query", connected)]
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
-        self.assertIn("three or fewer companies", events[0].data["text"])
+        self.assertIn("configured filing-evidence policy", events[0].data["text"])
         self.assertEqual(events[1].data["sources"], [])
 
-    async def test_each_company_plan_reaches_four_plus_policy_gate(self):
+    async def test_each_company_plan_preserves_scope_before_policy_failure(self):
         generator = EachCompanyGenerator()
         pipeline = RealPipeline(PolicyErrorRetriever(), generator)
 
@@ -335,7 +335,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             generator.deterministic_resolution.resolved_tickers, tuple(FILINGS)
         )
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
-        self.assertIn("evidence budget is not configured", events[0].data["text"])
+        self.assertIn("configured filing-evidence policy", events[0].data["text"])
         self.assertEqual(events[1].data["sources"], [])
 
     async def test_independent_multi_company_facts_are_not_forced_to_comparison(self):
