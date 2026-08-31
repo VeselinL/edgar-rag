@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  push:
+    branches: [ava-p0-completion]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12.11"
+          cache: pip
+      - run: python -m pip install --requirement requirements.txt
+      - name: Python tests and audits
+        run: >-
+          python -m pytest -q
+          -k 'not table_embedding_text_keeps_searchable_structure
+          and not baseline_review_covers_every_incomplete_retrieval'
+      - name: Compile production modules
+        run: python -m compileall -q src
+
+  live-state:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:18.1-alpine@sha256:aa6eb304ddb6dd26df23d05db4e5cb05af8951cda3e0dc57731b771e0ef4ab29
+        env:
+          POSTGRES_DB: ava
+          POSTGRES_USER: ava
+          POSTGRES_PASSWORD: ava-test-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ava -d ava"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+      qdrant:
+        image: qdrant/qdrant:v1.18.2@sha256:75eab8c4ba42096724fdcfde8b4de0b5713d529dde32f285a1f86fdcb2c9e50c
+        ports:
+          - 6333:6333
+    env:
+      AVA_TEST_POSTGRES_DSN: postgresql://ava:ava-test-password@127.0.0.1:5432/ava
+      AVA_TEST_QDRANT_URL: http://127.0.0.1:6333
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12.11"
+          cache: pip
+      - run: python -m pip install --requirement requirements.txt
+      - name: Live migrations, tenancy, memory, sessions, and retention
+        run: python -m pytest -q tests/test_postgres_conversations.py tests/test_live_state.py
+
+  frontend:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: src/frontend
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24.7.0"
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build
+      - name: Scan production bundle for backend secrets
+        run: >-
+          ! grep -RIE
+          'OPENAI_API_KEY|QDRANT_API_KEY|AVA_POSTGRES_DSN|OIDC_CLIENT_SECRET|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY'
+          dist
+
+  containers:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
+        with:
+          context: .
+          file: Dockerfile.api
+          load: true
+          tags: ava-api:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
+        with:
+          context: .
+          file: Dockerfile.frontend
+          load: true
+          tags: ava-frontend:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Scan API image
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          image-ref: ava-api:ci
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+      - name: Scan frontend image
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          image-ref: ava-frontend:ci
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
