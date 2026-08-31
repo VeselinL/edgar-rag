@@ -38,6 +38,7 @@ class ConversationRepository(Protocol):
     def count_expired_conversations(self, cutoff: datetime) -> int: ...
     def list_expired_conversations(self, cutoff: datetime, limit: int) -> list[Conversation]: ...
     def delete_expired_conversation(self, tenant_id: str, user_id: str, conversation_id: str, cutoff: datetime) -> bool: ...
+    def submit_feedback(self, tenant_id: str, user_id: str, conversation_id: str, assistant_message_id: str, value: str, comment: str | None, answer_version: dict[str, Any]) -> None: ...
 
 
 class InMemoryConversationRepository:
@@ -49,6 +50,7 @@ class InMemoryConversationRepository:
         self._messages: dict[str, list[Message]] = {}
         self._summaries: dict[str, Summary] = {}
         self.deletion_audit: list[dict[str, Any]] = []
+        self.feedback: dict[str, dict[str, Any]] = {}
 
     def health_check(self) -> bool:
         return True
@@ -237,6 +239,38 @@ class InMemoryConversationRepository:
             self._summaries[conversation_id] = summary
             return summary
 
+    def submit_feedback(
+        self,
+        tenant_id: str,
+        user_id: str,
+        conversation_id: str,
+        assistant_message_id: str,
+        value: str,
+        comment: str | None,
+        answer_version: dict[str, Any],
+    ) -> None:
+        with self._lock:
+            self._owned(tenant_id, user_id, conversation_id)
+            message = next(
+                (
+                    item for item in self._messages.get(conversation_id, [])
+                    if item.id == assistant_message_id
+                    and item.role == "assistant"
+                    and item.status == "completed"
+                ),
+                None,
+            )
+            if message is None:
+                raise ConversationNotFoundError("Assistant response was not found.")
+            self.feedback[assistant_message_id] = {
+                "value": value,
+                "comment": comment,
+                "source_ids": list(message.metadata.get("used_source_ids", [])),
+                "answer_version": deepcopy(
+                    message.metadata.get("answer_version", answer_version)
+                ),
+            }
+
 
 class PostgresConversationRepository:
     """PostgreSQL source of truth with owner filtering on every operation."""
@@ -266,9 +300,10 @@ class PostgresConversationRepository:
             return connection.execute("SELECT 1 AS value").fetchone()["value"] == 1
 
     def migrate(self) -> None:
-        migration = Path(__file__).with_name("migrations") / "0001_conversations.sql"
         with self._connect() as connection:
-            connection.execute(migration.read_text(encoding="utf-8"))
+            migrations = Path(__file__).with_name("migrations")
+            for migration in sorted(migrations.glob("*.sql")):
+                connection.execute(migration.read_text(encoding="utf-8"))
 
     def ensure_identity(self, tenant_id: str, user_id: str) -> None:
         with self._connect() as connection:
@@ -453,6 +488,55 @@ class PostgresConversationRepository:
                 (str(uuid4()), conversation_id, through_ordinal, version, content),
             ).fetchone()
         return Summary(str(row["summary_id"]), str(row["conversation_id"]), row["through_ordinal"], row["version"], row["content"], row["updated_at"])
+
+    def submit_feedback(
+        self,
+        tenant_id: str,
+        user_id: str,
+        conversation_id: str,
+        assistant_message_id: str,
+        value: str,
+        comment: str | None,
+        answer_version: dict[str, Any],
+    ) -> None:
+        with self._connect() as connection:
+            message = connection.execute(
+                """SELECT m.message_id, m.metadata,
+                          COALESCE(array_agg(s.source_id ORDER BY s.source_order)
+                            FILTER (WHERE s.source_id IS NOT NULL), '{}') AS source_ids
+                   FROM ava_messages m
+                   JOIN ava_conversations c ON c.conversation_id=m.conversation_id
+                   LEFT JOIN ava_source_uses s ON s.assistant_message_id=m.message_id
+                   WHERE m.message_id=%s AND m.conversation_id=%s
+                     AND m.role='assistant' AND m.status='completed'
+                     AND c.tenant_id=%s AND c.user_id=%s AND c.deleted_at IS NULL
+                   GROUP BY m.message_id, m.metadata""",
+                (assistant_message_id, conversation_id, tenant_id, user_id),
+            ).fetchone()
+            if message is None:
+                raise ConversationNotFoundError("Assistant response was not found.")
+            metadata = {
+                "source_ids": list(message["source_ids"]),
+                "answer_version": message["metadata"].get(
+                    "answer_version", answer_version
+                ),
+            }
+            connection.execute(
+                """INSERT INTO ava_feedback
+                   (feedback_id, conversation_id, assistant_message_id, value, comment, answer_metadata)
+                   VALUES (%s,%s,%s,%s,%s,%s::jsonb)
+                   ON CONFLICT (assistant_message_id) DO UPDATE SET
+                     value=EXCLUDED.value, comment=EXCLUDED.comment,
+                     answer_metadata=EXCLUDED.answer_metadata, updated_at=NOW()""",
+                (
+                    str(uuid4()),
+                    conversation_id,
+                    assistant_message_id,
+                    value,
+                    comment,
+                    json.dumps(metadata),
+                ),
+            )
 
     def list_expired_conversations(
         self, cutoff: datetime, limit: int

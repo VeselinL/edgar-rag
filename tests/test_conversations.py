@@ -192,6 +192,38 @@ class ConversationServiceTests(unittest.TestCase):
         self.assertIn(f"summary:{active.id}", self.memory.items)
         self.assertEqual(self.repository.deletion_audit[-1]["scope"], "retention")
 
+    def test_feedback_is_bound_to_owned_completed_answer_and_saved_version(self):
+        conversation = self.service.create()
+        turn_id = str(uuid4())
+        turn = self.service.begin_turn(
+            conversation.id, turn_id, "Question", str(uuid4())
+        )
+        self.service.complete_turn(
+            conversation.id,
+            turn_id,
+            "Answer",
+            {
+                "source_event": {},
+                "used_source_ids": ["chunk-1"],
+                "answer_version": {"corpus_version": "corpus-1"},
+            },
+            ["chunk-1"],
+        )
+
+        self.service.submit_feedback(
+            conversation.id,
+            turn.assistant_message.id,
+            "helpful",
+            " Clear. ",
+            {"corpus_version": "current-not-used"},
+        )
+
+        feedback = self.repository.feedback[turn.assistant_message.id]
+        self.assertEqual(feedback["value"], "helpful")
+        self.assertEqual(feedback["comment"], "Clear.")
+        self.assertEqual(feedback["source_ids"], ["chunk-1"])
+        self.assertEqual(feedback["answer_version"]["corpus_version"], "corpus-1")
+
     def item_for_retention(self, conversation_id, content):
         return MemoryItem(
             id=f"summary:{conversation_id}",

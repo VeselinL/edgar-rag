@@ -10,7 +10,15 @@ function UserMessage({ text }: { text: string }) {
   return <div className="message message--user"><p>{text}</p></div>
 }
 
-function AssistantMessage({ message, theme }: { message: AssistantMessageType; theme: Theme }) {
+function AssistantMessage({
+  message,
+  theme,
+  onFeedback,
+}: {
+  message: AssistantMessageType
+  theme: Theme
+  onFeedback: (messageId: string, value: 'helpful' | 'not_helpful') => void
+}) {
   const waiting = message.state === 'waiting_for_first_token'
   return (
     <article className="message message--assistant" aria-label="AVA response">
@@ -41,17 +49,48 @@ function AssistantMessage({ message, theme }: { message: AssistantMessageType; t
             malformedCount={message.malformedSourceCount}
           />
         )}
+        {message.feedbackEligible && message.state === 'completed' && (
+          <div className="feedback" aria-label="Rate this answer">
+            <span>Was this answer useful?</span>
+            <button
+              type="button"
+              aria-label="Mark answer as helpful"
+              aria-pressed={message.feedback === 'helpful'}
+              disabled={message.feedback === 'submitting'}
+              onClick={() => onFeedback(message.id, 'helpful')}
+            >Yes</button>
+            <button
+              type="button"
+              aria-label="Mark answer as not helpful"
+              aria-pressed={message.feedback === 'not_helpful'}
+              disabled={message.feedback === 'submitting'}
+              onClick={() => onFeedback(message.id, 'not_helpful')}
+            >No</button>
+            {message.feedback === 'error' && <span role="status">Feedback was not saved.</span>}
+            {(message.feedback === 'helpful' || message.feedback === 'not_helpful') && (
+              <span role="status">Feedback saved.</span>
+            )}
+          </div>
+        )}
       </div>
     </article>
   )
 }
 
-export function Messages({ messages, theme }: { messages: ChatMessage[]; theme: Theme }) {
+export function Messages({
+  messages,
+  theme,
+  onFeedback,
+}: {
+  messages: ChatMessage[]
+  theme: Theme
+  onFeedback: (messageId: string, value: 'helpful' | 'not_helpful') => void
+}) {
   return (
     <>
       {messages.map((message) => message.role === 'user'
         ? <UserMessage key={message.id} text={message.text} />
-        : <AssistantMessage key={message.id} message={message} theme={theme} />)}
+        : <AssistantMessage key={message.id} message={message} theme={theme} onFeedback={onFeedback} />)}
     </>
   )
 }

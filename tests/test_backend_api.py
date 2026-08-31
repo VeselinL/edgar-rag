@@ -197,6 +197,35 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(len(messages), 2)
         self.assertEqual(messages[0]["role"], "user")
         self.assertEqual(messages[1]["role"], "assistant")
+        self.assertEqual(len(parse_sse(replay.text)[1][1]["sources"]), 2)
+
+    def test_feedback_is_owner_scoped_to_completed_answer(self):
+        repository = InMemoryConversationRepository()
+        service = ConversationService(repository, tenant_id="tenant", user_id="user")
+        conversation = service.create()
+        turn_id = str(uuid4())
+        turn = service.begin_turn(conversation.id, turn_id, "Question", str(uuid4()))
+        service.complete_turn(
+            conversation.id,
+            turn_id,
+            "Answer",
+            {"answer_version": {"corpus_version": "stored"}},
+            [],
+        )
+        with TestClient(
+            create_app(pipeline=MockPipeline(delay_seconds=0), conversation_service=service)
+        ) as client:
+            response = client.post(
+                f"/api/conversations/{conversation.id}/messages/"
+                f"{turn.assistant_message.id}/feedback",
+                json={"value": "helpful"},
+            )
+            missing = client.post(
+                f"/api/conversations/{conversation.id}/messages/{uuid4()}/feedback",
+                json={"value": "not_helpful"},
+            )
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(missing.status_code, 404)
 
     def test_history_routes_are_owner_scoped_and_deletion_is_complete(self):
         repository = InMemoryConversationRepository()

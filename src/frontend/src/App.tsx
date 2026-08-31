@@ -8,6 +8,7 @@ import {
   deleteConversation,
   listConversations,
   listMessages,
+  submitFeedback,
   updateConversation,
 } from './api/conversations'
 import { Composer } from './components/Composer'
@@ -83,6 +84,7 @@ export default function App() {
         sources: sourceEvent?.sources ?? [],
         sourceStatus: sourceEvent?.source_status ?? 'none_cited',
         malformedSourceCount: sourceEvent?.malformed_source_count ?? 0,
+        feedbackEligible: message.status === 'completed',
         ...(message.status === 'failed' ? { error: MID_STREAM_ERROR } : {}),
       }
     })
@@ -186,6 +188,9 @@ export default function App() {
       } else {
         await streamChat(query, handlers)
       }
+      if (currentConversation) {
+        setMessages(storedMessages(await listMessages(currentConversation.id)))
+      }
       await refreshConversations()
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return
@@ -282,7 +287,19 @@ export default function App() {
             </section>
           ) : (
             <>
-              {isEmpty ? <EmptyState theme={theme} /> : <Conversation messages={messages} theme={theme} />}
+              {isEmpty ? <EmptyState theme={theme} /> : (
+                <Conversation
+                  messages={messages}
+                  theme={theme}
+                  onFeedback={(messageId, value) => {
+                    if (!currentConversation) return
+                    updateAssistant(messageId, (message) => ({ ...message, feedback: 'submitting' }))
+                    void submitFeedback(currentConversation.id, messageId, value)
+                      .then(() => updateAssistant(messageId, (message) => ({ ...message, feedback: value })))
+                      .catch(() => updateAssistant(messageId, (message) => ({ ...message, feedback: 'error' })))
+                  }}
+                />
+              )}
               <Composer
                 value={draft}
                 active={active || historyInitializing}

@@ -3,7 +3,15 @@ import type { Theme } from '../hooks/useTheme'
 import type { ChatMessage } from '../types'
 import { Messages } from './Messages'
 
-export function Conversation({ messages, theme }: { messages: ChatMessage[]; theme: Theme }) {
+export function Conversation({
+  messages,
+  theme,
+  onFeedback,
+}: {
+  messages: ChatMessage[]
+  theme: Theme
+  onFeedback: (messageId: string, value: 'helpful' | 'not_helpful') => void
+}) {
   const container = useRef<HTMLDivElement>(null)
   const nearBottom = useRef(true)
 
@@ -23,7 +31,7 @@ export function Conversation({ messages, theme }: { messages: ChatMessage[]; the
       }}
     >
       <div className="conversation" aria-label="Conversation">
-        <Messages messages={messages} theme={theme} />
+        <Messages messages={messages} theme={theme} onFeedback={onFeedback} />
       </div>
     </div>
   )

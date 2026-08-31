@@ -8,6 +8,7 @@ import {
   createConversation,
   listConversations,
   listMessages,
+  submitFeedback,
   updateConversation,
 } from './api/conversations'
 import type { Source } from './types'
@@ -30,6 +31,7 @@ vi.mock('./api/conversations', () => ({
   deleteConversation: vi.fn(),
   listConversations: vi.fn(),
   listMessages: vi.fn(),
+  submitFeedback: vi.fn(),
   updateConversation: vi.fn(),
 }))
 
@@ -40,6 +42,7 @@ const mockedHistoryEnabled = vi.mocked(conversationHistoryEnabled)
 const mockedCreateConversation = vi.mocked(createConversation)
 const mockedListConversations = vi.mocked(listConversations)
 const mockedListMessages = vi.mocked(listMessages)
+const mockedSubmitFeedback = vi.mocked(submitFeedback)
 const mockedUpdateConversation = vi.mocked(updateConversation)
 type Handlers = Parameters<typeof streamChat>[1]
 
@@ -55,6 +58,8 @@ describe('App', () => {
     mockedCreateConversation.mockReset()
     mockedListConversations.mockReset()
     mockedListMessages.mockReset()
+    mockedSubmitFeedback.mockReset()
+    mockedSubmitFeedback.mockResolvedValue(undefined)
     mockedUpdateConversation.mockReset()
     localStorage.clear()
     document.documentElement.dataset.theme = 'light'
@@ -219,6 +224,9 @@ describe('App', () => {
     render(<App />)
 
     expect(await screen.findByText('Saved answer.')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Mark answer as helpful' }))
+    expect(mockedSubmitFeedback).toHaveBeenCalledWith('conversation-1', 'message-2', 'helpful')
+    expect(await screen.findByText('Feedback saved.')).toBeInTheDocument()
     await userEvent.type(screen.getByLabelText('Ask AVA about the SEC filings'), 'What about its risks?{enter}')
 
     expect(mockedStream).toHaveBeenCalledWith(

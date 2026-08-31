@@ -310,6 +310,10 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
 .sources-button:hover { border-color: var(--citation); }
 .source-kind { margin-left: 10px; color: var(--text-secondary); font-size: 0.84rem; }
 .source-empty { margin: 16px 0 0; color: var(--text-secondary); font-size: 0.88rem; }
+.feedback { display: flex; min-height: 34px; align-items: center; gap: 7px; margin-top: 12px; color: var(--text-secondary); font-size: 0.78rem; }
+.feedback button { min-width: 42px; min-height: 32px; padding: 4px 9px; border: 1px solid var(--border); border-radius: 8px; color: var(--text); background: var(--surface); cursor: pointer; }
+.feedback button:hover:not(:disabled), .feedback button[aria-pressed="true"] { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, var(--surface)); }
+.feedback button:disabled { cursor: wait; opacity: 0.65; }
 .sources-panel { display: grid; gap: 12px; margin-top: 12px; }
 .source-card { min-width: 0; padding: 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
 .source-heading { display: flex; flex-direction: column; gap: 3px; margin-bottom: 12px; }

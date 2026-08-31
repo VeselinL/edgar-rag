@@ -9,7 +9,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID, uuid4
 
 from dotenv import load_dotenv
@@ -77,6 +77,11 @@ class UpdateConversationRequest(BaseModel):
     memory_enabled: bool | None = None
 
 
+class FeedbackRequest(BaseModel):
+    value: Literal["helpful", "not_helpful"]
+    comment: str | None = None
+
+
 def encode_sse(event: PipelineEvent) -> bytes:
     payload = json.dumps(event.data, ensure_ascii=False, separators=(",", ":"))
     return f"event: {event.event}\ndata: {payload}\n\n".encode("utf-8")
@@ -103,7 +108,7 @@ def _message_payload(value: Any) -> dict[str, Any]:
         "created_at": value.created_at.isoformat(),
     }
     if value.role == "assistant":
-        payload["source_event"] = value.metadata.get("source_event", {
+        payload["source_event"] = value.metadata.get("source_event", value.metadata if "sources" in value.metadata else {
             "sources": [],
             "source_status": "none_cited",
             "malformed_source_count": 0,
@@ -510,6 +515,38 @@ def create_app(
         await asyncio.to_thread(service.delete_all)
         return Response(status_code=204)
 
+    @application.post(
+        "/api/conversations/{conversation_id}/messages/{message_id}/feedback",
+        status_code=204,
+    )
+    async def submit_feedback(
+        conversation_id: UUID,
+        message_id: UUID,
+        body: FeedbackRequest,
+        request: Request,
+    ) -> Response:
+        if body.comment is not None and len(body.comment) > 1000:
+            raise HTTPException(status_code=422, detail="Feedback comment is too long.")
+        active_pipeline = getattr(request.app.state, "pipeline", None)
+        generator = getattr(active_pipeline, "generator", None)
+        answer_version = {
+            "corpus_version": getattr(active_pipeline, "corpus_version", "unknown"),
+            "index_version": getattr(active_pipeline, "index_version", "unknown"),
+            "model": getattr(generator, "model", "unknown"),
+        }
+        try:
+            await asyncio.to_thread(
+                (await conversation_service_for(request, require_csrf=True)).submit_feedback,
+                str(conversation_id),
+                str(message_id),
+                body.value,
+                body.comment,
+                answer_version,
+            )
+        except ConversationNotFoundError as error:
+            raise HTTPException(status_code=404, detail="Assistant response was not found.") from error
+        return Response(status_code=204)
+
     @application.post("/api/chat/stream")
     async def chat_stream(body: ChatRequest, request: Request) -> StreamingResponse:
         if not body.query.strip():
@@ -574,7 +611,10 @@ def create_app(
             try:
                 if turn is not None and turn.replay:
                     replay_sources = turn.assistant_message.metadata.get(
-                        "source_event", source_event
+                        "source_event",
+                        turn.assistant_message.metadata
+                        if "sources" in turn.assistant_message.metadata
+                        else source_event,
                     )
                     yield encode_sse(PipelineEvent("delta", {"text": turn.assistant_message.content}))
                     yield encode_sse(PipelineEvent("sources", replay_sources))
@@ -596,12 +636,21 @@ def create_app(
                             source_event = event.data
                             used_source_ids = list((event.internal or {}).get("used_source_ids", []))
                         elif event.event == "done" and service is not None and body.conversation_id and body.client_turn_id:
+                            stored_metadata = {
+                                "source_event": source_event,
+                                "used_source_ids": used_source_ids,
+                                "answer_version": {
+                                    "corpus_version": getattr(active_pipeline, "corpus_version", "unknown"),
+                                    "index_version": getattr(active_pipeline, "index_version", "unknown"),
+                                    "model": getattr(getattr(active_pipeline, "generator", None), "model", "unknown"),
+                                },
+                            }
                             await asyncio.to_thread(
                                 service.complete_turn,
                                 str(body.conversation_id),
                                 str(body.client_turn_id),
                                 "".join(answer_fragments),
-                                source_event,
+                                stored_metadata,
                                 used_source_ids,
                             )
                             turn_completed = True

@@ -46,6 +46,8 @@ export interface AssistantMessage {
   sourceStatus: SourceStatus
   malformedSourceCount: number
   error?: string
+  feedbackEligible?: boolean
+  feedback?: 'helpful' | 'not_helpful' | 'submitting' | 'error'
 }
 
 export type ChatMessage = UserMessage | AssistantMessage

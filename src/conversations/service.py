@@ -178,6 +178,27 @@ class ConversationService:
         self.memory_store.delete_conversation(self.tenant_id, self.user_id, conversation_id)
         self.repository.delete_conversation(self.tenant_id, self.user_id, conversation_id)
 
+    def submit_feedback(
+        self,
+        conversation_id: str,
+        assistant_message_id: str,
+        value: str,
+        comment: str | None,
+        answer_version: dict[str, Any],
+    ) -> None:
+        if value not in {"helpful", "not_helpful"}:
+            raise ValueError("Feedback value must be helpful or not_helpful.")
+        clean_comment = comment.strip()[:1000] if comment else None
+        self.repository.submit_feedback(
+            self.tenant_id,
+            self.user_id,
+            conversation_id,
+            assistant_message_id,
+            value,
+            clean_comment or None,
+            answer_version,
+        )
+
     def delete_all(self) -> int:
         existing = self.list()
         self.memory_store.delete_all(self.tenant_id, self.user_id)
@@ -280,13 +301,19 @@ class ConversationService:
         )
 
     def complete_turn(self, conversation_id: str, client_turn_id: str, answer: str, source_event: dict[str, Any], used_source_ids: Sequence[str]) -> Message:
+        metadata = (
+            dict(source_event)
+            if "source_event" in source_event
+            else {"source_event": source_event}
+        )
+        metadata.setdefault("used_source_ids", list(used_source_ids))
         message = self.repository.complete_turn(
             self.tenant_id,
             self.user_id,
             conversation_id,
             client_turn_id,
             answer,
-            {"source_event": source_event},
+            metadata,
             used_source_ids,
         )
         self._sync_conversation_memory(conversation_id)

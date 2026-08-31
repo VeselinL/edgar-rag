@@ -60,3 +60,14 @@ export function deleteConversation(conversationId: string): Promise<void> {
 export function deleteAllConversations(): Promise<void> {
   return api('/api/conversations', { method: 'DELETE' })
 }
+
+export function submitFeedback(
+  conversationId: string,
+  messageId: string,
+  value: 'helpful' | 'not_helpful',
+): Promise<void> {
+  return api(
+    `/api/conversations/${encodeURIComponent(conversationId)}/messages/${encodeURIComponent(messageId)}/feedback`,
+    { method: 'POST', body: JSON.stringify({ value }) },
+  )
+}
