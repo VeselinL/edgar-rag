@@ -1,11 +1,11 @@
 # AVA Deployment Guide
 
-**Status date:** 20 August 2026
+**Status date:** 31 August 2026
 **Product:** AVA — Autonomous Vehicle Analyst
 
 This document defines the local vertical slice and the direction for a later production deployment. It does not select a hosting provider.
 
-> This document records the currently verified stateless deployment. The
+> This document records the currently verified local deployment. The
 > authoritative future architecture, priorities, Qdrant migration, image source
 > contract, conversation history, and release gates are in
 > [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). Where this document describes
@@ -18,7 +18,10 @@ This document defines the local vertical slice and the direction for a later pro
 Browser
   → React + TypeScript frontend
   → FastAPI API
+  → optional PostgreSQL transcript/summary store
   → shared LLM-planned scope-aware hybrid retrieval pipeline
+  → Qdrant named dense vector + local BM25/custom RRF
+  → optional separate tenant-filtered Qdrant conversation-memory collection
   → existing OpenAI-compatible LLM generation
 ```
 
@@ -28,7 +31,12 @@ The frontend owns presentation and current-tab transcript state. It contains no 
 
 FastAPI is a thin adapter around independently usable Python modules. The same shared scope-aware entry point is used by the deployed API, `notebooks/hybrid_rag_generation.ipynb`, and `src/scripts/evaluate_scope_aware_hybrid_retrieval.py` (the repository implementation of `evaluate_scope_aware_retrieval`). The notebook is not a runtime dependency. The adapter validates requests, invokes the shared pipeline, streams generation events, resolves citations, and maps internal chunks to frontend-safe source objects.
 
-The first version is stateless. A browser tab may display several messages, but only the current query is sent in each request. Reloading clears the transcript. No conversation memory, account, upload, corpus-management, or persistent-history service is present.
+The stateless path remains available. The optional persistent path stores ordered
+messages and summaries in PostgreSQL, sends a bounded recent-turn window plus a
+rebuildable summary to the planner/generator, and can retrieve opt-in summary
+memory from a separate Qdrant collection. It is limited to an explicitly
+acknowledged single-user deployment boundary until an authentication provider is
+selected; browser IDs never define tenant ownership.
 
 ### Source-of-truth reconciliation
 
@@ -44,11 +52,11 @@ The production adapter uses deterministic-first company resolution and validated
 planner targets. Each relevant company/subquery pair gets an independently
 ticker-filtered 10-candidate dense/BM25/RRF pool. Stable-ID merge preserves all
 pool ranks, deterministic diversity precedes quota allocation, and the selector
-reserves five complete chunks per explicit company. Two-company requests pack 15
-chunks and three-company requests pack 22; the supplemental counts and four-plus
-policy are typed backend configuration. The complete formatted generation input
-is counted with `o200k_base`, with output tokens reserved before packing. No table
-or narrative source is truncated. The cross-encoder experiment remains disabled.
+uses a fixed typed policy with hard limits of 10 final chunks per company and 50
+per request. One through five companies target 10 each; larger scopes divide 50
+slots as evenly as possible. The complete formatted generation input is counted
+with `o200k_base`, with output tokens reserved before packing. No table or
+narrative source is truncated. The cross-encoder experiment remains disabled.
 
 ## Local development architecture
 
@@ -77,8 +85,23 @@ AVA_LLM_STREAMING=true
 AVA_LLM_CONTEXT_WINDOW_TOKENS=32768
 AVA_LLM_RESERVED_OUTPUT_TOKENS=4096
 AVA_OBSERVABILITY_RETENTION_DAYS=30
-# Required before serving explicit requests for four or more companies:
-# AVA_EVIDENCE_FOUR_PLUS_SUPPLEMENTAL=9
+AVA_QDRANT_MODE=shadow
+QDRANT_URL=http://127.0.0.1:6333
+QDRANT_COLLECTION_ALIAS=ava_filing_chunks_current
+QDRANT_TIMEOUT_SECONDS=30
+QDRANT_API_KEY=<production secret when authentication is enabled>
+AVA_CONVERSATION_MODE=single_user
+AVA_SINGLE_USER_BOUNDARY_ACKNOWLEDGED=true
+AVA_POSTGRES_DSN=postgresql://ava:<password>@127.0.0.1:5432/ava
+AVA_TENANT_ID=local-tenant
+AVA_USER_ID=local-user
+AVA_SHORT_TERM_TOKEN_BUDGET=2048
+AVA_SUMMARY_TOKEN_BUDGET=768
+AVA_LONG_TERM_MEMORY_STORE=qdrant
+AVA_LONG_TERM_TOKEN_BUDGET=512
+AVA_LONG_TERM_CANDIDATE_K=5
+AVA_LONG_TERM_SCORE_THRESHOLD=0.55
+AVA_CONVERSATION_RETENTION_DAYS=90
 OPENAI_API_KEY=<backend secret>
 OPENAI_API_URL=<OpenAI-compatible or Azure gateway base URL>
 OPENAI_APP_ID=<optional gateway header>
@@ -96,16 +119,17 @@ answer as one SSE `delta`. It never splits or delays a buffered answer to imitat
 token streaming. The currently configured local Unique route requires `false`.
 
 The context window and reserved output values form the token-packing contract;
-the generation request uses the same reserved output limit. The four-plus
-supplemental setting is intentionally unset by default because that product
-budget remains an owner decision. Without it, AVA returns a safe request to
-narrow the company set instead of silently reducing the five-per-company quota.
+the generation request uses the same reserved output limit. Company-scoped
+evidence has fixed hard limits of 50 chunks per request and 10 per company.
+One through five requested companies target 10 each; larger scopes divide the
+50 slots as evenly as possible. Token pressure retains balanced partial evidence
+and records the unmet target in backend diagnostics.
 
 Every real request emits one access-controlled structured completion record and
 returns an opaque `X-Request-ID` response header for correlation. The external
 log sink must enforce `AVA_OBSERVABILITY_RETENTION_DAYS` independently from any
-future conversation retention. The current application remains stateless and
-does not persist these records itself. Provider token usage is recorded when the
+conversation retention. Operational logs are not the PostgreSQL transcript and
+do not replace it. Provider token usage is recorded when the
 configured gateway supplies it; the verified local gateway currently omits it.
 See [OBSERVABILITY.md](OBSERVABILITY.md).
 
@@ -117,9 +141,122 @@ AVA_PIPELINE_MODE=mock
 
 Mock mode does not load embeddings, BGE, BM25, or an LLM client. It emits deterministic real-time test events for normal, pre-token-failure, and mid-stream-failure cases. It is for frontend development and automated tests only. The health response exposes the active mode so mock readiness cannot be mistaken for the production pipeline.
 
+### Local Qdrant service and migration
+
+The pinned versions are Qdrant server `v1.18.2` and Python client `1.19.0`.
+The Docker service binds REST and gRPC only to loopback and persists storage in
+the `ava_qdrant_data` volume. Both local launch paths disable Qdrant telemetry:
+
+```bash
+docker compose -f docker-compose.qdrant.yml up -d
+curl --fail http://127.0.0.1:6333/healthz
+```
+
+If Docker is unavailable, download the matching Qdrant binary and start it with
+the repository wrapper. The wrapper binds to loopback and stores data and
+snapshots under the ignored `data/indexes/qdrant_server/` directory:
+
+```bash
+QDRANT_BINARY=/absolute/path/to/qdrant scripts/run_qdrant_local.sh
+```
+
+Before every import, validate the frozen JSONL, NPZ, and manifest artifacts:
+
+```bash
+.venv/bin/python -m src.embeddings.audit_embeddings --strict
+```
+
+The importer derives a content-addressed physical collection name, validates
+embedding input hashes and normalization, idempotently upserts deterministic
+point UUIDs, verifies every returned point ID/payload/vector, performs a filtered
+exact-search smoke test, creates a snapshot, and switches the stable alias only
+after all audits pass:
+
+```bash
+.venv/bin/python -m src.indexing.qdrant_index build \
+  --url http://127.0.0.1:6333 \
+  --activate --snapshot --batch-size 128 --parallel 4
+```
+
+The import manifest is written to `data/indexes/qdrant/`. Re-running `build`
+recovers a partial import through idempotent upserts. Check the deployed state
+and rerun the strict audit independently with:
+
+```bash
+.venv/bin/python -m src.indexing.qdrant_index status
+.venv/bin/python -m src.indexing.qdrant_index audit \
+  --collection ava_filing_chunks_current
+.venv/bin/python -m src.evaluation.evaluate_qdrant_parity
+```
+
+Restore a snapshot into a new physical collection, audit it, then test an atomic
+cutover and rollback while the API is stopped:
+
+```bash
+.venv/bin/python -m src.indexing.qdrant_index restore \
+  --snapshot-location http://127.0.0.1:6333/collections/SOURCE/snapshots/SNAPSHOT \
+  --restore-collection RESTORED_COLLECTION
+.venv/bin/python -m src.indexing.qdrant_index activate \
+  --collection RESTORED_COLLECTION
+.venv/bin/python -m src.indexing.qdrant_index rollback \
+  --collection PREVIOUS_COLLECTION
+```
+
+Use `AVA_QDRANT_MODE=shadow` first. It returns local NPZ dense results while
+recording Qdrant candidate IDs, top-10 order, candidate overlap, and latency.
+The accepted dense tolerance is exact top-10 order plus at least 98% overlap in
+the 50-candidate pool. Final hybrid evidence order must remain exact. Promote to
+`primary` only after the shadow soak is accepted. Qdrant-native sparse vectors
+remain deferred; local `bm25s` and custom RRF are still authoritative.
+
+For a non-local deployment, enable Qdrant authentication and TLS, set
+`QDRANT_API_KEY`, use an HTTPS `QDRANT_URL`, keep ports private, and supply the
+secret only to the backend. Never expose it through a `VITE_*` variable.
+
+### Conversation persistence and memory
+
+Start the pinned loopback PostgreSQL service with a non-committed password:
+
+```bash
+AVA_POSTGRES_PASSWORD=<local-password> \
+  docker compose -f docker-compose.postgres.yml up -d
+```
+
+`AVA_CONVERSATION_MODE=disabled` is the explicit stateless deployment. To use
+persistence, set `single_user`, provide the PostgreSQL DSN and server-owned
+tenant/user IDs, and explicitly acknowledge that boundary. This is suitable for
+one trusted user only; it is not authentication and must not be deployed as a
+multi-user service.
+
+PostgreSQL migrations run idempotently at startup. It remains authoritative for
+conversation/message order, summaries, source-use records, and deletion audit.
+Each chat request carries an opaque conversation UUID and a new client-turn UUID;
+retries with the same pair replay a completed answer or resume a failed turn
+without inserting another user message.
+
+Short-term context defaults to 2,048 tokens and the rebuildable older-message
+summary to 768 tokens. The exact formatted conversation context is included in
+the existing generation-input count, so history cannot silently overflow or
+steal later companies' evidence after packing.
+
+`AVA_LONG_TERM_MEMORY_STORE=qdrant` enables the separate
+`ava_conversation_memory_v1` collection. Individual conversations remain
+memory-off until the user enables them. Every search/delete uses server-owned
+tenant and user filters; summaries are never represented as SEC filing evidence
+or source cards. Disabling memory removes that conversation's derived point.
+Delete-one and delete-all remove derived points before canonical rows, and the
+relational deletion audit deliberately retains no transcript content.
+
+Run the live database contract when a PostgreSQL test instance is available:
+
+```bash
+AVA_TEST_POSTGRES_DSN=postgresql://... \
+  .venv/bin/python -m pytest -q tests/test_postgres_conversations.py
+```
+
 ### Startup and readiness
 
-In real mode, application startup loads and validates the eleven chunk files and aligned BGE-base NPZ artifacts, normalizes the embedding matrix, builds the in-memory BM25 index, then loads the BGE query embedder. Loading occurs once per API process, not once per request. Startup fails closed when artifact counts or required configuration are invalid.
+In real mode, application startup loads and validates the eleven chunk files and aligned BGE-base NPZ artifacts, normalizes the embedding matrix, builds the in-memory BM25 index, then loads the BGE query embedder. It does not rebuild or upload Qdrant. Loading occurs once per API process, not once per request. Startup fails closed when artifact counts or required configuration are invalid. When Qdrant shadow or primary mode is configured, the alias and exact point count are also required; an unavailable or incomplete Qdrant leaves the real pipeline alive but not ready and never falls back to mock output.
 
 `GET /api/health` distinguishes liveness from readiness:
 
@@ -128,7 +265,14 @@ In real mode, application startup loads and validates the eleven chunk files and
   "status": "ok",
   "mode": "real",
   "pipeline_ready": true,
-  "answer_delivery": "buffered"
+  "answer_delivery": "buffered",
+  "qdrant": {
+    "configured": true,
+    "mode": "shadow",
+    "status": "ok",
+    "alias_target": "ava_filing_chunks_<artifact-version>",
+    "point_count": 4526
+  }
 }
 ```
 
@@ -156,9 +300,15 @@ Use `npm run build` for the static production bundle. In a static deployment, se
 
 One `POST /api/chat/stream` request performs this lifecycle:
 
-1. The frontend submits `{ "query": "..." }` with the original current query only.
-2. FastAPI validates that the query is non-empty and no longer than the configured limit.
-3. The backend LLM planner returns the notebook's structured plan containing atomic subqueries and any deterministic operation label; it does not answer the question.
+1. Stateless mode submits `{ "query": "..." }`. Persistent mode additionally
+   submits the server-issued `conversation_id` and a fresh UUID
+   `client_turn_id`; the original current query remains unchanged.
+2. FastAPI validates the request and atomically starts or replays the owned turn.
+   It loads only a token-bounded recent window, a versioned rolling summary, and
+   any opted-in thresholded memory—not the full transcript.
+3. The backend LLM planner receives that context only for follow-up/pronoun and
+   topic-switch resolution, then returns the same validated atomic retrieval
+   plan; it does not answer the question.
 4. For every subquery, shared regex logic detects supported company names, tickers, and aliases, while Comparison Cue logic determines single-company, explicit subset, anchored-global, enumeration, or global scope. A single-company scope detected in the original query is inherited by its subqueries.
 5. Every subquery runs normalized BGE dense search and BM25 search; reciprocal-rank fusion combines them and retains up to 10 candidates.
 6. Candidates from all subqueries are merged and deduplicated by stable internal chunk ID while preserving each subquery match and rank.
@@ -171,7 +321,9 @@ One `POST /api/chat/stream` request performs this lifecycle:
     no valid citation resolves. This is a known correctness bug; Phase 1 of the
     canonical plan changes the result to an empty source list so only exact
     cited/used chunks are ever shown.
-12. One `done` event terminates a successful stream.
+12. Before `done`, the completed answer, frontend-safe source event, and exact
+    used-source IDs are committed to PostgreSQL. One `done` event terminates a
+    successful stream; interruption marks the turn retryable.
 
 Internal chunk IDs remain available for correlation, validation, and logs, but are not the primary source representation shown in the UI. A source is never returned as answer support unless it was in the final generation context.
 
@@ -308,7 +460,9 @@ Do not choose a provider or compute size until these are measured on the local v
 1. **Local vertical slice:** real LLM planning, scope-aware retrieval, explicit buffered or provider-streamed answer delivery, citation resolution, structured sources, and responsive themes pass automated and visual checks. Native provider streaming remains the preferred production configuration.
 2. **Containerized reproducible build:** pin backend/frontend dependencies, build without local caches, validate artifact hashes, and document measured startup/RAM/latency.
 3. **Hosted preview:** deploy static frontend and right-sized backend, enable HTTPS/restricted CORS/readiness, and verify unbuffered streaming.
-4. **Persistent conversations:** design storage, retention, deletion, and bounded-context policy before implementation.
+4. **Persistent conversations:** the single-user PostgreSQL/Qdrant foundation is
+   implemented; complete live deployment, provider follow-up evaluation,
+   retention automation, backups, and restore/deletion drills.
 5. **Authentication and accounts:** add only with an explicit identity/security design.
 6. **Document uploads and corpus management:** define tenancy, validation, provenance, storage, and re-indexing first.
 7. **Vector-database migration:** consider only if measured scale, filtering, durability, or concurrency makes the current in-memory artifacts insufficient.

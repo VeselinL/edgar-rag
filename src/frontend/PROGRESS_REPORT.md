@@ -574,3 +574,88 @@ and was not included in AVA commits.
   stale Mobileye baseline review). Frontend ESLint, all 11 Vitest tests, strict
   TypeScript checking, production build, Python compilation, and whitespace
   validation passed.
+
+## 2026-08-28
+
+### Fixed corpus-wide and per-company evidence limits
+
+- Replaced the former five-per-company plus supplemental-slot policy with
+  policy v2: a hard 50-chunk final-evidence limit per request and a hard
+  10-chunk limit per company.
+- One through five explicitly scoped companies now target 10 chunks each.
+  Larger scopes divide 50 slots as evenly as possible; ten companies target
+  five chunks each. Allocation remains round-robin and returns balanced partial
+  evidence with `quota_satisfied=false` when candidates or complete-chunk token
+  packing cannot meet the target.
+- Applied the caps in both the explicit company-balanced path and the generic
+  multi-subquery path. Added target counts to evaluator and backend diagnostics.
+- Removed the obsolete `AVA_EVIDENCE_FOUR_PLUS_SUPPLEMENTAL` configuration and
+  updated the runtime, notebook handoff, deployment guidance, roadmap, and
+  canonical implementation plan to use the shared fixed policy.
+- The 45-test focused evidence/scope/pipeline suite passed. Frontend ESLint, all
+  11 Vitest tests, strict TypeScript checking, and the production build passed.
+  The 173-test repository backend suite retained only the same two documented,
+  unrelated failures: currency-symbol table embedding text and the stale
+  Mobileye baseline-review hash.
+
+### Updated default generation model
+
+- Changed the backend pipeline, generation fallback, local real-mode
+  configuration, and README example from the legacy GPT-4o deployment name to
+  `AZURE_GPT_51_2025_1113`, the Azure GPT-5.1 snapshot deployment.
+- The focused backend pipeline and generation suite passed (37 tests).
+
+### Added persistent Qdrant deployment with parity-first cutover
+
+- Pinned Qdrant server `v1.18.2` and client `1.19.0`; added loopback Docker and
+  standalone local-server configuration with persistent ignored storage.
+- Added the versioned index builder, deterministic UUID points, named BGE dense
+  vector, complete metadata payloads, indexed filter fields, idempotent upserts,
+  strict point/payload/vector audits, import manifests, snapshots, restores,
+  alias cutover, and explicit rollback commands.
+- Migrated and audited all 4,526 current vectors into
+  `ava_filing_chunks_89d3a5be9e7d7a8e`, activated the stable
+  `ava_filing_chunks_current` alias, created a snapshot, restored and audited a
+  second collection, tested alias cutover, and rolled back to the original.
+- Added local/Qdrant dense-retriever implementations behind the shared
+  scope-aware retrieval module. Local BM25 and custom RRF remain unchanged.
+  Backend `disabled`, `shadow`, and `primary` modes include readiness and health;
+  configured Qdrant failure leaves real mode unready without mock fallback.
+- Saved representative parity evidence: all 11 dense cases met exact top-10 plus
+  98% candidate-overlap gates, and all three final hybrid-selection cases had
+  exact selected chunk IDs/order. Local configuration now uses shadow mode for
+  the soak before an explicit primary promotion.
+- The complete backend suite passed 183 tests and 159 subtests; only the two
+  pre-existing unrelated failures remained (currency-symbol table embedding
+  text and the stale Mobileye baseline-review hash). Frontend ESLint, all 11
+  Vitest tests, strict TypeScript checking, and the production build passed.
+
+## 2026-08-31
+
+### Added bounded conversation history and opt-in semantic memory
+
+- Added PostgreSQL-backed, server-owned conversation and message persistence,
+  atomic UUID turn idempotency, stored source events/source-use IDs, versioned
+  summaries, feedback-ready schema, and deletion audit records.
+- Added create/list/resume/rename/delete-one/delete-all API routes with bounded
+  pagination and a safe explicit stateless mode. Persistent mode requires an
+  acknowledged single-user deployment boundary and never trusts a browser ID as
+  tenant identity.
+- Added whole-turn short-term selection and rebuildable extractive summaries.
+  The planner can resolve follow-ups from that context, while retrieval still
+  uses the unchanged current query and evidence packing counts the exact history
+  prompt before selecting complete chunks.
+- Added a separate Qdrant long-term-memory collection with mandatory tenant and
+  user filters, score/count/token bounds, summary-only eligibility, per-chat
+  opt-in, and derived-point removal on disable/delete.
+- Added responsive History, New chat, rename, delete, delete-all, resume, and
+  Memory on/off controls. New chats start memory-off and the browser does not
+  persist transcript content independently.
+- Pinned `psycopg` and added a loopback PostgreSQL 18 Docker configuration plus
+  an opt-in live database contract test. Docker-engine access was unavailable in
+  this workspace, so the live test remains gated by `AVA_TEST_POSTGRES_DSN`.
+- Focused backend coverage passed 81 tests plus two subtests; frontend ESLint,
+  strict TypeScript, all 14 Vitest tests, and production build passed. The
+  repository backend suite reached 198 passing tests and one expected skipped
+  live-PostgreSQL test; only
+  the two unchanged pre-existing embedding/baseline consistency failures remain.

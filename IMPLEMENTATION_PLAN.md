@@ -1,6 +1,6 @@
 # AVA — Canonical Completion Plan
 
-**Status date:** 27 August 2026
+**Status date:** 31 August 2026
 **Authority:** This is the single source of truth for AVA's next implementation
 phases, target architecture, priorities, contracts, release gates, and open
 product decisions. `README.md` describes the repository as it exists today;
@@ -15,8 +15,8 @@ An implementation agent must:
    storage, image, API, or conversation paths.
 2. Work in the phase order below. Do not combine storage migration with ranking
    changes, because that makes regressions impossible to attribute.
-3. Keep every provisional number in configuration. The owner has not made the
-   final supplemental-evidence decision yet.
+3. Keep evidence limits in the shared typed policy. The owner-fixed values are
+   10 final chunks per company and 50 per request.
 4. Update this file in the same change whenever a contract or accepted decision
    changes. Do not copy its configurable values into another planning document.
 5. Preserve the fixed eleven-company corpus and immutable files under
@@ -95,10 +95,12 @@ The following invariants apply to every phase:
 - A resolved company must be one of the eleven configured tickers. The LLM
   planner owns final in-corpus scope; exact/fuzzy resolution supplies advisory
   hints and never authorizes an out-of-corpus ticker.
-- Every planner-targeted company should receive five final text/table evidence
-  chunks before supplemental slots are used. If candidates or complete-chunk
-  token limits make that impossible, preserve a fair partial result and record
-  the unmet quota instead of discarding evidence for every company.
+- Every planner-targeted company receives an even share under hard limits of 10
+  final text/table chunks per company and 50 per request. One through five
+  companies target 10 each; larger scopes divide 50 slots as evenly as possible.
+  If candidates or complete-chunk token limits make that impossible, preserve a
+  fair partial result and record the unmet target instead of discarding evidence
+  for every company.
 - Candidate evidence, final generation evidence, cited/used evidence, and
   user-visible sources are distinct sets and must be logged separately.
 - Only exact, validated cited/used evidence is shown. No-citation means an empty
@@ -144,8 +146,8 @@ Evidence service
   ├─ independent per-company/per-subquery candidate retrieval
   ├─ dense + lexical fusion
   ├─ per-company reranking/diversity
-  ├─ five-per-company reservation
-  ├─ supplemental global fill
+  ├─ balanced company-target allocation
+  ├─ 10-per-company / 50-per-request enforcement
   ├─ token-aware context packing
   └─ nearby-image relevance and novelty gate
           │
@@ -195,7 +197,7 @@ started by weakening or skipping the P0 release gates.
 - Add typo and ambiguity queries for every company/alias, including `frod`,
   transpositions, punctuation, casing, ticker/name collisions, multiple typos,
   global questions, and text that should resolve to no company.
-- Add two-, three-, and four-plus-company comparison cases whose gold evidence
+- Add two-, three-, six-, and ten-company comparison cases whose gold evidence
   requires at least five relevant chunks per company.
 - Add cases where the required evidence is ranked 11–30 globally but top 10
   within the correct company.
@@ -358,8 +360,8 @@ degrading already-canonical company queries.
 
 `comparison` means semantic comparison, not merely that two or more companies
 were requested. Independent facts for multiple companies use `comparison=false`
-while retaining every company target and the same five-per-company evidence
-allocation. Planner ticker output is constrained by the resolver's exact/fuzzy
+while retaining every company target and the same balanced evidence allocation
+policy. Planner ticker output is constrained by the resolver's exact/fuzzy
 matches and unresolved shortlists are advisory. Deterministic code validates the
 fixed ticker allowlist but does not override planner-owned scope or intent.
 
@@ -400,10 +402,9 @@ all three companies.
   → stable-ID merge inside each company
   → optional measured rerank inside each company
   → redundancy/section/content-type diversification
-  → reserve 5 best available chunks per explicit company
-  → merge remaining candidates across companies
-  → fill configurable supplemental slots by relevance and coverage
-  → token-aware pack without breaking company minima
+  → compute an even company target under the 50-chunk request cap
+  → reserve up to that target, never exceeding 10 for any company
+  → token-aware pack without breaking balanced company allocation
   → final generation evidence
 ```
 
@@ -414,16 +415,17 @@ flag after it improves the new multi-company evaluation set.
 
 ### Evidence-budget configuration
 
-The owner's fixed requirements are `candidate_k_per_company = 10` and
-`minimum_final_per_company = 5`. Supplemental counts remain configurable until
-the owner decides them.
+The owner's fixed requirements are `candidate_k_per_company = 10`,
+`per_company_final_limit = 10`, and `corpus_final_limit = 50`.
 
-| Explicit companies | Required minimum | Provisional total budget |
+| Explicit companies | Target allocation | Total target |
 |---:|---:|---:|
-| 1 | 5 | 10 |
-| 2 | 10 | 15 (5 each + 5 supplemental) |
-| 3 | 15 | 22 (5 each + 7 supplemental) |
-| 4+ | `5 × company_count` | configuration decision required |
+| 1 | 10 each | 10 |
+| 2 | 10 each | 20 |
+| 3 | 10 each | 30 |
+| 4 | 10 each | 40 |
+| 5 | 10 each | 50 |
+| 6–10 | even division of 50, remainder assigned deterministically | 50 |
 
 Store this in one typed backend policy, not scattered constants or frontend
 logic. Record the policy name/version in evaluation output and request logs.
@@ -445,18 +447,19 @@ logic. Record the policy name/version in evaluation output and request logs.
 
 ### Global and enumeration queries
 
-Five-per-company is required for explicitly requested companies, not every global
-question. Enumeration/global questions keep a separate policy with diversity by
-company and a configurable cap. An all-company planner scope uses the explicit
-company budget; if the full quota cannot fit, it remains an explicitly scoped
-partial result and must not silently become a global top-10 query.
+Balanced company targets apply to explicitly requested companies, not every
+global question. Enumeration/global questions retain their smaller target while
+still enforcing the hard 10-per-company and 50-per-request caps. An all-company
+planner scope uses the explicit company budget; if the full target cannot fit,
+it remains an explicitly scoped partial result and must not silently become a
+global top-10 query.
 
 ### Acceptance gates
 
-- Two-company comparisons target at least five available relevant chunks from
-  each company and use up to the configured five supplemental slots.
-- Three-company comparisons target at least five from each and use up to the
-  configured seven supplemental slots.
+- Two-company comparisons target 10 available relevant chunks from each company.
+- Three-company comparisons target 10 available relevant chunks from each company.
+- Five-company requests target 10 each; larger requests divide 50 slots evenly,
+  including five each for ten companies.
 - Partial allocation is round-robin, so a weak or later company is not erased by
   a strong company's scores before generation.
 - Deduplication, per-subquery coverage, table integrity, and stable source IDs are
@@ -512,8 +515,8 @@ from user conversation retention.
   persistence. Safe error classes never contain raw provider messages.
 - `src.observability.summarize_request_records` provides backend-neutral p50/p95
   stage, first-token, and complete latency plus usage, error, cancellation, and
-  observed-concurrency metrics. Qdrant latency remains explicitly unavailable
-  until Phase 5 shadow reads exist.
+  observed-concurrency metrics. Qdrant latency was explicitly unavailable at
+  Phase 4 completion; Phase 5 shadow reads now populate it.
 - `src.evaluation.generation_quality` evaluates seven reviewed categories from
   fixed final evidence, separately from retrieval. Reference mode tests the
   deterministic metric/citation contract; provider mode records fresh answers,
@@ -588,6 +591,45 @@ artifact version.
 - Unavailable Qdrant makes readiness false; real mode must not fall back silently
   to mock answers.
 - Backup, restore, alias cutover, rollback, and partial-import recovery are tested.
+
+### Implemented Phase 5 foundation — 2026-08-28
+
+- Pinned Qdrant server `v1.18.2` and Python client `1.19.0`; added loopback-only
+  Docker configuration plus a standalone-binary wrapper with ignored persistent
+  storage and snapshot paths.
+- Added a content-addressed collection builder for the current 4,526-point,
+  eleven-company corpus. It validates manifest-v3 source/embedding hashes,
+  ordered embedding-input hashes, dimensions, dtype, normalization, and chunk
+  alignment before idempotent batched upserts.
+- Each point uses a deterministic UUID and the named
+  `dense_bge_base_v1_5` 768-dimensional dot-product vector. Payload contains the
+  complete chunk and its filing/source/table metadata, artifact/model identity,
+  content and embedding-input hashes, and image-asset placeholder IDs. Required
+  filter fields are indexed.
+- Strict post-import audit verifies all point counts, canonical chunk IDs,
+  deterministic point IDs, complete payload hashes, every vector, and a
+  ticker-filtered exact-search smoke query before alias activation. The emitted
+  import manifest records source paths, hashes, counts, alias, previous target,
+  and snapshot name.
+- Added interchangeable local and Qdrant dense retrievers behind the shared
+  scope-aware module. BM25 and custom RRF are unchanged. Backend modes are
+  `disabled`, `shadow`, and `primary`; configured Qdrant failure makes real-mode
+  readiness false without mock fallback.
+- Shadow requests retain local dense answers and record Qdrant latency, complete
+  candidate IDs/order, exact top-10 order, and overlap. The declared dense gate
+  is exact top-10 order plus at least 98% overlap at candidate depth 50; final
+  hybrid selected-evidence IDs/order remain an exact gate.
+- The live migration imported and strictly audited all 4,526 points into
+  `ava_filing_chunks_89d3a5be9e7d7a8e`, activated
+  `ava_filing_chunks_current`, created a server snapshot, restored it into a
+  separate collection, audited through the restored alias, and atomically
+  rolled the alias back. The original and restore-tested collections remain
+  available; nothing was deleted.
+- The saved parity report accepted all 11 dense cases (nine full exact-order,
+  every case exact through top 10, minimum overlap 98%) and all three shared
+  final-selection cases with exact chunk IDs/order. Local `.env` is configured
+  for shadow soak; promotion to `primary` remains intentionally gated on the
+  soak rather than being silently enabled.
 
 ## 12. Phase 6 — Filing image retrieval and display (P1)
 
@@ -732,6 +774,49 @@ ownership, idempotency, pagination, tenant checks, and deletion cannot be omitte
 - Deletion is complete and auditable; retention and backup behavior are documented.
 - A user can start a new stateless conversation with no inherited memory.
 
+### Implemented Phase 7 foundation — 2026-08-31
+
+- Added PostgreSQL schema and repository boundaries for server-owned tenants,
+  users, conversations, ordered messages, summaries, exact source-use records,
+  feedback, and deletion audit records. The API supports create/list/resume,
+  rename, per-conversation memory control, delete-one, delete-all, and paginated
+  transcript reads.
+- Chat requests accept server-owned `conversation_id` plus UUID
+  `client_turn_id`. Beginning a turn is atomic; completed retries replay the
+  stored answer and source event, in-progress duplicates return a conflict, and
+  interrupted turns become retryable without duplicating the user message.
+- Short-term context selects whole completed turns under a configurable token
+  budget and rebuilds a versioned extractive summary from canonical older
+  messages. Conversation text remains a distinct prompt section, and the exact
+  formatted history is counted during the existing evidence-packing pass.
+- The same planner receives bounded context for follow-up/pronoun resolution
+  while the deterministic resolver and retrieval path still receive the current
+  original query unchanged. Explicit topic switches remain planner-owned.
+- Added a separate named Qdrant memory collection for eligible conversation
+  summaries. Every query and deletion includes tenant and user filters;
+  cross-conversation retrieval is thresholded and separately token bounded.
+  Memory is off for every new conversation and disabling it removes that
+  conversation's derived points.
+- Cross-session history is available only in an explicitly acknowledged
+  `single_user` deployment with server-configured tenant/user identity and
+  PostgreSQL. `disabled` retains the stateless path. Multi-user deployment still
+  requires a selected authentication provider and is not authorized by browser
+  IDs.
+- Added the minimal responsive history UI for resume, rename, delete, delete
+  all, new-memory-off chat, and memory enable/disable controls. Transcript text
+  is loaded from the API and is not copied into browser persistence.
+- Unit/local-Qdrant coverage validates idempotency, prompt separation, bounded
+  summaries, cross-user isolation, opt-in memory, filtered search, and complete
+  derived-memory deletion. A live PostgreSQL contract test is available behind
+  `AVA_TEST_POSTGRES_DSN`.
+
+The foundation does not close every Phase 7 gate. Provider-backed follow-up and
+topic-switch evaluation, a live PostgreSQL/Qdrant deployment run, retention and
+backup policy sign-off, and multi-user authentication remain pending owner or
+environment decisions. Phase 6 image work also remains unimplemented pending
+the owner-controlled vision/OCR decision; this memory milestone does not imply
+that the earlier image gate was accepted or skipped.
+
 ## 14. Phase 8 — Production hardening and finished-product gates (P1)
 
 ### Backend and infrastructure
@@ -779,7 +864,7 @@ AVA is “finished” only when:
 
 - all P0/P1 acceptance gates pass in CI and a production-like environment;
 - the eleven-company index is reproducible and rollback/restore tested;
-- real multi-company questions meet the five-per-company target or expose a
+- real multi-company questions meet the balanced 10-per-company/50-total target or expose a
   measured balanced-partial diagnostic while still answering supported parts;
 - visible sources exactly match validated used evidence;
 - image and memory isolation/provenance tests pass;
@@ -795,7 +880,7 @@ Implement only after a saved failure demonstrates the need:
 - Cross-encoder reranking, first behind an experiment flag and evaluated per
   company/content type. Keep the non-reranked RRF baseline.
 - A small LLM evidence selector after deterministic quota allocation. It may
-  order or reject supplemental candidates but cannot violate company minima,
+  order or reject candidates but cannot violate company targets or hard caps,
   invent IDs, or become the only auditable ranking signal.
 - Query expansion or HyDE for terminology gaps, with original-query retrieval
   preserved as one fusion input.

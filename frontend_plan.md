@@ -29,8 +29,8 @@ deterministic exact/fuzzy and validated planner company/ticker resolution
 → LLM atomic-subquery planning
 → independently ticker-filtered dense + BM25 pools for each company/subquery
 → RRF ranking, stable-ID merge, and deterministic diversity
-→ minimum 5 complete chunks per explicitly requested company
-→ configurable supplemental slots and generation-token-aware packing
+→ even company allocation under hard caps of 10 per company and 50 total
+→ complete-chunk, generation-token-aware packing
 → grounded generation and citation resolution
 → frontend-safe source normalization
 ```

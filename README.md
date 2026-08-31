@@ -28,15 +28,17 @@ Implemented:
   promoted chunk files
 - versioned Mobileye gold-v2 labels and a post-migration semantic baseline
 - corpus-wide scope-aware hybrid BGE/BM25 retrieval with reciprocal-rank fusion
+- persistent Qdrant dense retrieval with a versioned physical collection,
+  stable read alias, deterministic point IDs, complete chunk payloads, strict
+  import audits, snapshots, restore/rollback checks, and local NPZ shadow parity
 - one LLM planner for company scope, atomic search-query reformatting, and
   semantic intent, using exact/fuzzy matches as advisory hints and constraining
   final targets to the fixed eleven-ticker enum
 - independently ticker-filtered pools of 10 candidates per relevant
   company/subquery
-- typed evidence budgets targeting five final chunks per explicit company, five
-  or seven supplemental slots for two-/three-company requests, exact
-  generation-token packing of complete chunks, and balanced partial results
-  when the full quota cannot fit
+- typed evidence budgets capped at 50 final chunks per request and 10 per
+  company, with an even company allocation, exact generation-token packing of
+  complete chunks, and balanced partial results when the target cannot fit
 - cited-only backend source resolution and narrative/table-schema-v2 adaptation
 - one versioned backend request record with corpus/index identity, complete
   evidence-chain diagnostics, stage/first-token/complete latency, cancellation,
@@ -46,16 +48,23 @@ Implemented:
 - FastAPI liveness/readiness and streamed POST/SSE endpoints
 - React + TypeScript AVA interface with real stream consumption, structured HTML
   table sources, accessibility, responsive layout, and light/dark themes
+- PostgreSQL-backed conversation transcripts with server-owned single-user
+  isolation, idempotent turn retries, resume/rename/delete controls, and
+  source-use records
+- token-bounded recent-turn context plus versioned rebuildable summaries, with
+  the exact conversation prompt included in generation-token packing
+- opt-in long-term conversation-summary memory in a separate tenant/user-filtered
+  Qdrant collection; new conversations start with long-term memory disabled
 - deterministic mock streaming for normal, pre-token-error, and partial-error UI testing
 
 Not implemented yet:
 
-- persistent vector database (the local vertical slice intentionally uses aligned NPZ artifacts)
+- Qdrant-native sparse retrieval and hybrid fusion; BM25 plus the evaluated
+  custom RRF remain the active lexical/fusion path during the parity soak
 - native provider token streaming through the currently configured gateway
-- a configured supplemental policy for explicit requests covering four or more
-  companies (these currently fail clearly instead of silently starving evidence)
 - filing-image ingestion, retrieval, generation, and source display
-- persistent short- and long-term conversation history, authentication, and accounts
+- multi-user authentication/accounts and production retention/backup automation;
+  persistent history currently requires the explicit single-user boundary
 
 The `table-v2-chunk-v3.20260813-r2` table repair release was promoted on 13
 August 2026 for the original ten filings. Rivian was added as the eleventh
@@ -92,6 +101,7 @@ SEC EDGAR API
   -> chunk-schema-v3 logical-table chunks
   -> manifest-v3 BGE-base embeddings
   -> vector retrieval
+  -> bounded PostgreSQL conversation context + optional isolated Qdrant memory
   -> grounded conversational answers
   -> separate retrieval and generation evaluation
 ```
@@ -106,6 +116,7 @@ written separately under `data/processed/`.
 - `python-dotenv`
 - `langchain-text-splitters`
 - `sentence-transformers`
+- PostgreSQL 18 and `psycopg`
 - Node.js 22 and npm 10 for the AVA frontend
 
 Install dependencies with `.venv/bin/pip install -r requirements.txt`.
@@ -123,8 +134,18 @@ For the local AVA API, also configure backend-only generation values:
 
 ```dotenv
 AVA_PIPELINE_MODE=real
-AVA_LLM_MODEL=AZURE_GPT_4o_2024_1120
+AVA_LLM_MODEL=AZURE_GPT_51_2025_1113
 AVA_LLM_STREAMING=false
+AVA_QDRANT_MODE=shadow
+QDRANT_URL=http://127.0.0.1:6333
+QDRANT_COLLECTION_ALIAS=ava_filing_chunks_current
+QDRANT_TIMEOUT_SECONDS=30
+AVA_CONVERSATION_MODE=single_user
+AVA_SINGLE_USER_BOUNDARY_ACKNOWLEDGED=true
+AVA_POSTGRES_DSN=postgresql://ava:<password>@127.0.0.1:5432/ava
+AVA_TENANT_ID=local-tenant
+AVA_USER_ID=local-user
+AVA_LONG_TERM_MEMORY_STORE=qdrant
 OPENAI_API_KEY=<backend secret>
 OPENAI_API_URL=<OpenAI-compatible gateway base URL>
 ```
@@ -133,22 +154,61 @@ Set `AVA_LLM_STREAMING=true` only when the configured provider returns genuine
 `text/event-stream` Chat Completions. The current local Unique gateway requires
 `false`; AVA then waits for its completed JSON answer and displays it at once.
 
-Explicit requests for four or more companies intentionally require an evidence
-budget decision. Configure the number of supplemental chunks (in addition to
-the five-per-company minimum) with, for example:
-
-```dotenv
-AVA_EVIDENCE_FOUR_PLUS_SUPPLEMENTAL=0
-```
-
-Leaving it unset returns a safe request-narrowing response. A request for all
-eleven companies targets 55 complete chunks, so the configured model context
-window should be large enough. If the full quota cannot fit, AVA keeps a
-round-robin partial evidence set and answers the supported company parts.
+Explicit company requests use one fixed evidence policy: at most 50 chunks
+across the request and at most 10 chunks per company. Requests for one through
+five companies target 10 chunks from each company. Above five companies, AVA
+divides the 50 slots as evenly as possible; a ten-company request targets five
+chunks per company. If complete chunks or the token budget make the target
+impossible, AVA keeps a balanced partial evidence set and answers the supported
+company parts.
 
 Optional gateway headers retain the notebook names `OPENAI_APP_ID`,
 `OPENAI_USER_ID`, `OPENAI_COMPANY_ID`, and `OPENAI_API_VERSION`. Never expose
 these values through a `VITE_*` variable.
+
+Start the pinned local Qdrant server with Docker:
+
+```bash
+docker compose -f docker-compose.qdrant.yml up -d
+```
+
+Without Docker, install the Qdrant `v1.18.2` binary and run:
+
+```bash
+QDRANT_BINARY=/path/to/qdrant scripts/run_qdrant_local.sh
+```
+
+Build, strictly audit, snapshot, and atomically activate the current corpus:
+
+```bash
+.venv/bin/python -m src.indexing.qdrant_index build \
+  --url http://127.0.0.1:6333 --activate --snapshot
+```
+
+Verify dense and final hybrid-selection parity:
+
+```bash
+.venv/bin/python -m src.evaluation.evaluate_qdrant_parity
+```
+
+`AVA_QDRANT_MODE=shadow` keeps local NPZ dense results authoritative while
+querying Qdrant and recording latency/parity. `primary` makes Qdrant dense
+results authoritative. Configured Qdrant failures make real-mode readiness
+false; AVA never substitutes mock answers.
+
+Start the pinned local PostgreSQL service separately:
+
+```bash
+AVA_POSTGRES_PASSWORD=<local-password> \
+  docker compose -f docker-compose.postgres.yml up -d
+```
+
+`AVA_CONVERSATION_MODE=disabled` preserves the explicit stateless path. The
+`single_user` mode is not multi-user authentication: startup requires a
+server-side tenant/user identity and
+`AVA_SINGLE_USER_BOUNDARY_ACKNOWLEDGED=true`. Long-term memory is separately
+configured and remains opt-in for each conversation; its Qdrant points never
+share the filing collection and are never presented as SEC citations.
 
 Start the API from the repository root:
 
@@ -159,7 +219,7 @@ Start the API from the repository root:
 For deterministic frontend development while provider streaming is unavailable:
 
 ```bash
-AVA_PIPELINE_MODE=mock .venv/bin/uvicorn src.backend.app:app --reload --port 8000
+AVA_PIPELINE_MODE=real .venv/bin/uvicorn src.backend.app:app --reload --port 8000
 ```
 
 Start the frontend in another terminal:
