@@ -22,7 +22,7 @@ export function Conversation({ messages, theme }: { messages: ChatMessage[]; the
         nearBottom.current = element.scrollHeight - element.scrollTop - element.clientHeight < 80
       }}
     >
-      <div className="conversation" aria-label="Current session conversation">
+      <div className="conversation" aria-label="Conversation">
         <Messages messages={messages} theme={theme} />
       </div>
     </div>

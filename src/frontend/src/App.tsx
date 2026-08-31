@@ -1,11 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChatStreamError, streamChat } from './api/chatStream'
+import {
+  conversationHistoryEnabled,
+  createConversation,
+  deleteAllConversations,
+  deleteConversation,
+  listConversations,
+  listMessages,
+  updateConversation,
+} from './api/conversations'
 import { Composer } from './components/Composer'
 import { Conversation } from './components/Conversation'
 import { EmptyState } from './components/EmptyState'
 import { Header } from './components/Header'
+import { HistoryPanel } from './components/HistoryPanel'
 import { useTheme } from './hooks/useTheme'
-import type { AssistantMessage, ChatMessage } from './types'
+import type { AssistantMessage, ChatMessage, ConversationSummary, PersistedMessage } from './types'
 
 const PRE_TOKEN_ERROR = 'The filing-analysis service is temporarily unavailable. Please retry shortly.'
 const MID_STREAM_ERROR = 'The response was interrupted. Please try again.'
@@ -16,10 +26,79 @@ export default function App() {
   const [draft, setDraft] = useState('')
   const [active, setActive] = useState(false)
   const [validation, setValidation] = useState('')
+  const [historyEnabled, setHistoryEnabled] = useState(false)
+  const [historyInitializing, setHistoryInitializing] = useState(true)
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const [conversations, setConversations] = useState<ConversationSummary[]>([])
+  const [currentConversation, setCurrentConversation] = useState<ConversationSummary | null>(null)
   const controller = useRef<AbortController | null>(null)
   const idSequence = useRef(0)
 
-  useEffect(() => () => controller.current?.abort(), [])
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        if (!await conversationHistoryEnabled() || cancelled) return
+        setHistoryEnabled(true)
+        const saved = await listConversations()
+        if (cancelled) return
+        const selected = saved[0] ?? await createConversation(false)
+        const next = saved.length ? saved : [selected]
+        const stored = await listMessages(selected.id)
+        if (cancelled) return
+        setConversations(next)
+        setCurrentConversation(selected)
+        setMessages(storedMessages(stored))
+      } catch {
+        // The explicit stateless path remains usable when history is disabled
+        // or its separate persistence service is unavailable.
+      } finally {
+        if (!cancelled) setHistoryInitializing(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+      controller.current?.abort()
+    }
+  }, [])
+
+  const storedMessages = (stored: PersistedMessage[]): ChatMessage[] => stored
+    .filter((message) => message.role === 'user' || message.status !== 'in_progress')
+    .map((message) => {
+      if (message.role === 'user') return { id: message.id, role: 'user', text: message.text }
+      const sourceEvent = message.source_event
+      return {
+        id: message.id,
+        role: 'assistant',
+        text: message.text,
+        state: message.status === 'failed' ? 'error' : 'completed',
+        sources: sourceEvent?.sources ?? [],
+        sourceStatus: sourceEvent?.source_status ?? 'none_cited',
+        malformedSourceCount: sourceEvent?.malformed_source_count ?? 0,
+        ...(message.status === 'failed' ? { error: MID_STREAM_ERROR } : {}),
+      }
+    })
+
+  const refreshConversations = async () => {
+    if (!historyEnabled) return
+    setConversations(await listConversations())
+  }
+
+  const selectConversation = async (conversation: ConversationSummary) => {
+    if (active) return
+    setCurrentConversation(conversation)
+    setMessages(storedMessages(await listMessages(conversation.id)))
+    setHistoryOpen(false)
+  }
+
+  const newConversation = async () => {
+    if (!historyEnabled || active) return
+    const created = await createConversation(false)
+    setCurrentConversation(created)
+    setConversations((current) => [created, ...current])
+    setMessages([])
+    setHistoryOpen(false)
+  }
 
   const updateAssistant = (id: string, update: (message: AssistantMessage) => AssistantMessage) => {
     setMessages((current) => current.map((message) =>
@@ -34,10 +113,15 @@ export default function App() {
       return
     }
     if (active) return
+    if (historyInitializing) {
+      setValidation('AVA is preparing conversation history. Please try again shortly.')
+      return
+    }
     setValidation('')
     setActive(true)
     idSequence.current += 1
     const requestId = idSequence.current
+    const clientTurnId = crypto.randomUUID()
     const userId = `user-${requestId}`
     const assistantId = `assistant-${requestId}`
     const newAssistant: AssistantMessage = {
@@ -60,7 +144,7 @@ export default function App() {
     let opened = false
     let receivedText = false
     try {
-      await streamChat(query, {
+      const handlers: Parameters<typeof streamChat>[1] = {
         signal: abortController.signal,
         onOpen: () => {
           opened = true
@@ -85,7 +169,16 @@ export default function App() {
         onDone: () => {
           updateAssistant(assistantId, (message) => ({ ...message, state: 'completed' }))
         },
-      })
+      }
+      if (currentConversation) {
+        await streamChat(query, handlers, {
+          conversationId: currentConversation.id,
+          clientTurnId,
+        })
+      } else {
+        await streamChat(query, handlers)
+      }
+      await refreshConversations()
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return
       const message = error instanceof ChatStreamError ? error.message : PRE_TOKEN_ERROR
@@ -104,20 +197,73 @@ export default function App() {
   const isEmpty = messages.length === 0
   return (
     <div className="app-shell">
-      <Header theme={theme} onToggleTheme={toggleTheme} />
-      <main className={`main ${isEmpty ? 'main--empty' : ''}`}>
-        {isEmpty ? <EmptyState theme={theme} /> : <Conversation messages={messages} theme={theme} />}
-        <Composer
-          value={draft}
-          active={active}
-          validationMessage={validation}
-          onChange={(value) => {
-            setDraft(value)
-            if (validation) setValidation('')
-          }}
-          onSubmit={() => void submit()}
-        />
-      </main>
+      <Header
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        historyEnabled={historyEnabled}
+        memoryEnabled={currentConversation?.memory_enabled}
+        onToggleHistory={() => setHistoryOpen((value) => !value)}
+        onNewConversation={() => void newConversation()}
+        onToggleMemory={() => {
+          if (!currentConversation) return
+          void updateConversation(currentConversation.id, { memory_enabled: !currentConversation.memory_enabled })
+            .then((updated) => {
+              setCurrentConversation(updated)
+              setConversations((items) => items.map((item) => item.id === updated.id ? updated : item))
+            })
+        }}
+      />
+      <div className="workspace">
+        {historyEnabled && historyOpen && (
+          <HistoryPanel
+            conversations={conversations}
+            activeId={currentConversation?.id}
+            onSelect={(conversation) => void selectConversation(conversation)}
+            onRename={(conversation) => {
+              const title = window.prompt('Conversation name', conversation.title)
+              if (!title?.trim()) return
+              void updateConversation(conversation.id, { title }).then((updated) => {
+                setConversations((items) => items.map((item) => item.id === updated.id ? updated : item))
+                if (currentConversation?.id === updated.id) setCurrentConversation(updated)
+              })
+            }}
+            onDelete={(conversation) => {
+              void deleteConversation(conversation.id).then(async () => {
+                const remaining = conversations.filter((item) => item.id !== conversation.id)
+                setConversations(remaining)
+                if (currentConversation?.id === conversation.id) {
+                  if (remaining[0]) await selectConversation(remaining[0])
+                  else await newConversation()
+                }
+              })
+            }}
+            onDeleteAll={() => {
+              if (!window.confirm('Delete all saved conversations? This cannot be undone.')) return
+              void deleteAllConversations().then(async () => {
+                const created = await createConversation(false)
+                setConversations([created])
+                setCurrentConversation(created)
+                setMessages([])
+                setHistoryOpen(false)
+              })
+            }}
+            onClose={() => setHistoryOpen(false)}
+          />
+        )}
+        <main className={`main ${isEmpty ? 'main--empty' : ''}`}>
+          {isEmpty ? <EmptyState theme={theme} /> : <Conversation messages={messages} theme={theme} />}
+          <Composer
+            value={draft}
+            active={active || historyInitializing}
+            validationMessage={validation}
+            onChange={(value) => {
+              setDraft(value)
+              if (validation) setValidation('')
+            }}
+            onSubmit={() => void submit()}
+          />
+        </main>
+      </div>
     </div>
   )
 }

@@ -49,3 +49,26 @@ export interface AssistantMessage {
 }
 
 export type ChatMessage = UserMessage | AssistantMessage
+
+export interface ConversationSummary {
+  id: string
+  title: string
+  memory_enabled: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface PersistedMessage {
+  id: string
+  client_turn_id: string
+  role: 'user' | 'assistant'
+  text: string
+  status: 'in_progress' | 'completed' | 'failed'
+  ordinal: number
+  created_at: string
+  source_event?: {
+    sources: Source[]
+    source_status: SourceStatus
+    malformed_source_count: number
+  }
+}

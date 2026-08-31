@@ -49,6 +49,34 @@ describe('streamChat', () => {
     })).rejects.toThrow('invalid source status')
   })
 
+  it('sends server conversation and idempotent client-turn IDs without rewriting the query', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(streamedResponse([
+      'event: done\ndata: {}\n\n',
+    ]))
+
+    await streamChat('What about its risks?', {
+      signal: new AbortController().signal,
+      onOpen: vi.fn(),
+      onDelta: vi.fn(),
+      onSources: vi.fn(),
+      onDone: vi.fn(),
+    }, {
+      conversationId: 'conversation-id',
+      clientTurnId: 'client-turn-id',
+    })
+
+    expect(fetch).toHaveBeenCalledWith(
+      'http://localhost:8000/api/chat/stream',
+      expect.objectContaining({
+        body: JSON.stringify({
+          query: 'What about its risks?',
+          conversation_id: 'conversation-id',
+          client_turn_id: 'client-turn-id',
+        }),
+      }),
+    )
+  })
+
   it('ignores empty delta text', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(streamedResponse([
       'event: delta\ndata: {"text":""}\n\n',

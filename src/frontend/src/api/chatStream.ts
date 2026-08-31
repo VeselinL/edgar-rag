@@ -41,13 +41,28 @@ function isSourceStatus(value: unknown): value is SourceStatus {
   return value === 'cited' || value === 'none_cited' || value === 'cited_with_unrenderable_items'
 }
 
-export async function streamChat(query: string, handlers: StreamHandlers): Promise<void> {
+export interface ConversationTurn {
+  conversationId: string
+  clientTurnId: string
+}
+
+export async function streamChat(
+  query: string,
+  handlers: StreamHandlers,
+  conversation?: ConversationTurn,
+): Promise<void> {
   let response: Response
   try {
     response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({
+        query,
+        ...(conversation ? {
+          conversation_id: conversation.conversationId,
+          client_turn_id: conversation.clientTurnId,
+        } : {}),
+      }),
       signal: handlers.signal,
     })
   } catch (error) {

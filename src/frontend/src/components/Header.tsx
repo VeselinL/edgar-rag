@@ -18,7 +18,25 @@ function MoonIcon() {
   )
 }
 
-export function Header({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: () => void }) {
+interface HeaderProps {
+  theme: Theme
+  onToggleTheme: () => void
+  historyEnabled?: boolean
+  memoryEnabled?: boolean
+  onToggleHistory?: () => void
+  onNewConversation?: () => void
+  onToggleMemory?: () => void
+}
+
+export function Header({
+  theme,
+  onToggleTheme,
+  historyEnabled = false,
+  memoryEnabled = false,
+  onToggleHistory,
+  onNewConversation,
+  onToggleMemory,
+}: HeaderProps) {
   const label = theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'
   return (
     <header className="header">
@@ -30,9 +48,25 @@ export function Header({ theme, onToggleTheme }: { theme: Theme; onToggleTheme: 
             <span>Autonomous Vehicle Analyst</span>
           </span>
         </div>
-        <button className="icon-button" type="button" onClick={onToggleTheme} aria-label={label} title={label}>
-          {theme === 'light' ? <SunIcon /> : <MoonIcon />}
-        </button>
+        <div className="header-actions">
+          {historyEnabled && (
+            <>
+              <button className="header-button" type="button" onClick={onToggleHistory}>History</button>
+              <button className="header-button" type="button" onClick={onNewConversation}>New chat</button>
+              <button
+                className={`header-button ${memoryEnabled ? 'header-button--active' : ''}`}
+                type="button"
+                aria-pressed={memoryEnabled}
+                onClick={onToggleMemory}
+              >
+                {memoryEnabled ? 'Memory on' : 'Memory off'}
+              </button>
+            </>
+          )}
+          <button className="icon-button" type="button" onClick={onToggleTheme} aria-label={label} title={label}>
+            {theme === 'light' ? <SunIcon /> : <MoonIcon />}
+          </button>
+        </div>
       </div>
     </header>
   )
