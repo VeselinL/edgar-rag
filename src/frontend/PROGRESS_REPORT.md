@@ -659,3 +659,26 @@ and was not included in AVA commits.
   repository backend suite reached 198 passing tests and one expected skipped
   live-PostgreSQL test; only
   the two unchanged pre-existing embedding/baseline consistency failures remain.
+
+### Executed the frozen conversation-history acceptance gate
+
+- Added a provider-backed evaluator for all conversational turns in
+  `conversation_history_v1.json`. It compares query-only and history-aware
+  planner results and passes each through the exact company-resolution boundary
+  used by FastAPI before scoring scope.
+- Kept deletion and tenant/conversation-isolation execution separate from the
+  provider audit using deterministic repository and memory doubles. The audit
+  continues after an individual planner failure and records only safe failure
+  type/stage information.
+- The configured provider run passed: history-dependent accuracy improved from
+  0% to 100%, standalone accuracy remained 100% with zero regressions,
+  contextual topic-switch accuracy was 100%, no planner errors remained, and
+  all four deletion/isolation cases passed.
+- Normalized one observed harmless gateway inconsistency where a single valid
+  subquery retained a multi-retrieval boolean. The repair derives only that
+  redundant flag from validated subquery count and records the normalization;
+  it does not change queries, company scope, or retrieval.
+- The repository suite passes 204 tests with one expected live-PostgreSQL skip
+  when the two unchanged pre-existing consistency failures are excluded.
+  Frontend ESLint, all 14 Vitest tests, strict TypeScript checking, and the
+  production build also pass.

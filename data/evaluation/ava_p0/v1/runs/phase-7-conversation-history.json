@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-31T08:01:27.218313+00:00",
+  "planner": {
+    "summary": {
+      "turn_count": 9,
+      "query_only_accuracy": 0.6666666666666666,
+      "contextual_accuracy": 1.0,
+      "history_dependent_count": 2,
+      "history_query_only_accuracy": 0.0,
+      "history_contextual_accuracy": 1.0,
+      "history_accuracy_delta": 1.0,
+      "standalone_count": 4,
+      "standalone_query_only_accuracy": 1.0,
+      "standalone_contextual_accuracy": 1.0,
+      "standalone_regression_count": 0,
+      "topic_switch_count": 3,
+      "topic_switch_contextual_accuracy": 1.0,
+      "planner_error_count": 0,
+      "by_gate": {
+        "follow_up": {
+          "count": 1,
+          "query_only_accuracy": 0.0,
+          "contextual_accuracy": 1.0
+        },
+        "standalone": {
+          "count": 4,
+          "query_only_accuracy": 1.0,
+          "contextual_accuracy": 1.0
+        },
+        "summary_recall": {
+          "count": 1,
+          "query_only_accuracy": 0.0,
+          "contextual_accuracy": 1.0
+        },
+        "topic_switch": {
+          "count": 3,
+          "query_only_accuracy": 0.6666666666666666,
+          "contextual_accuracy": 1.0
+        }
+      },
+      "gate_pass": true
+    },
+    "records": [
+      {
+        "case_id": "follow-up-pronoun",
+        "turn_index": 0,
+        "gate": "standalone",
+        "query": "Summarize Mobileye's strategy.",
+        "expected_tickers": [
+          "MBLY"
+        ],
+        "deterministic_tickers": [
+          "MBLY"
+        ],
+        "query_only_tickers": [
+          "MBLY"
+        ],
+        "contextual_tickers": [
+          "MBLY"
+        ],
+        "query_only_pass": true,
+        "contextual_pass": true,
+        "query_only_latency_ms": 2507.000711004366,
+        "contextual_latency_ms": 2507.000711004366,
+        "query_only_normalizations": [],
+        "contextual_normalizations": [],
+        "query_only_error": null,
+        "contextual_error": null,
+        "context_turn_count": 0
+      },
+      {
+        "case_id": "follow-up-pronoun",
+        "turn_index": 1,
+        "gate": "follow_up",
+        "query": "How does it monetize that?",
+        "expected_tickers": [
+          "MBLY"
+        ],
+        "deterministic_tickers": [],
+        "query_only_tickers": [],
+        "contextual_tickers": [
+          "MBLY"
+        ],
+        "query_only_pass": false,
+        "contextual_pass": true,
+        "query_only_latency_ms": 1201.1502189998282,
+        "contextual_latency_ms": 2043.4813449974172,
+        "query_only_normalizations": [
+          "single_query_empty_subqueries"
+        ],
+        "contextual_normalizations": [],
+        "query_only_error": null,
+        "contextual_error": null,
+        "context_turn_count": 1
+      },
+      {
+        "case_id": "follow-up-ellipsis",
+        "turn_index": 0,
+        "gate": "standalone",
+        "query": "What was Tesla automotive revenue?",
+        "expected_tickers": [
+          "TSLA"
+        ],
+        "deterministic_tickers": [
+          "TSLA"
+        ],
+        "query_only_tickers": [
+          "TSLA"
+        ],
+        "contextual_tickers": [
+          "TSLA"
+        ],
+        "query_only_pass": true,
+        "contextual_pass": true,
+        "query_only_latency_ms": 1726.0243859927868,
+        "contextual_latency_ms": 1726.0243859927868,
+        "query_only_normalizations": [],
+        "contextual_normalizations": [],
+        "query_only_error": null,
+        "contextual_error": null,
+        "context_turn_count": 0
+      },
+      {
+        "case_id": "follow-up-ellipsis",
+        "turn_index": 1,
+        "gate": "topic_switch",
+        "query": "And Ford?",
+        "expected_tickers": [
+          "F"
+        ],
+        "deterministic_tickers": [
+          "F"
+        ],
+        "query_only_tickers": [],
+        "contextual_tickers": [
+          "F"
+        ],
+        "query_only_pass": false,
+        "contextual_pass": true,
+        "query_only_latency_ms": 994.8480659950292,
+        "contextual_latency_ms": 1760.4830479976954,
+        "query_only_normalizations": [
+          "single_query_empty_subqueries"
+        ],
+        "contextual_normalizations": [
+          "retrieval_multiplicity"
+        ],
+        "query_only_error": null,
+        "contextual_error": null,
+        "context_turn_count": 1
+      },
+      {
+        "case_id": "explicit-topic-switch",
+        "turn_index": 0,
+        "gate": "standalone",
+        "query": "Describe Aurora Driver.",
+        "expected_tickers": [
+          "AUR"
+        ],
+        "deterministic_tickers": [
+          "AUR"
+        ],
+        "query_only_tickers": [
+          "AUR"
+        ],
+        "contextual_tickers": [
+          "AUR"
+        ],
+        "query_only_pass": true,
+        "contextual_pass": true,
+        "query_only_latency_ms": 1425.8197820017813,
+        "contextual_latency_ms": 1425.8197820017813,
+        "query_only_normalizations": [],
+        "contextual_normalizations": [],
+        "query_only_error": null,
+        "contextual_error": null,
+        "context_turn_count": 0
+      },
+      {
+        "case_id": "explicit-topic-switch",
+        "turn_index": 1,
+        "gate": "topic_switch",
+        "query": "Now summarize Qualcomm automotive products.",
+        "expected_tickers": [
+          "QCOM"
+        ],
+        "deterministic_tickers": [
+          "QCOM"
+        ],
+        "query_only_tickers": [
+          "QCOM"
+        ],
+        "contextual_tickers": [
+          "QCOM"
+        ],
+        "query_only_pass": true,
+        "contextual_pass": true,
+        "query_only_latency_ms": 1513.3619429980172,
+        "contextual_latency_ms": 1538.2399630034342,
+        "query_only_normalizations": [],
+        "contextual_normalizations": [],
+        "query_only_error": null,
+        "contextual_error": null,
+        "context_turn_count": 1
+      },
+      {
+        "case_id": "old-turn-recall",
+        "turn_index": 0,
+        "gate": "standalone",
+        "query": "Compare Tesla and Mobileye.",
+        "expected_tickers": [
+          "TSLA",
+          "MBLY"
+        ],
+        "deterministic_tickers": [
+          "TSLA",
+          "MBLY"
+        ],
+        "query_only_tickers": [
+          "TSLA",
+          "MBLY"
+        ],
+        "contextual_tickers": [
+          "TSLA",
+          "MBLY"
+        ],
+        "query_only_pass": true,
+        "contextual_pass": true,
+        "query_only_latency_ms": 1915.8606529963436,
+        "contextual_latency_ms": 1915.8606529963436,
+        "query_only_normalizations": [],
+        "contextual_normalizations": [],
+        "query_only_error": null,
+        "contextual_error": null,
+        "context_turn_count": 0
+      },
+      {
+        "case_id": "old-turn-recall",
+        "turn_index": 1,
+        "gate": "topic_switch",
+        "query": "What does Ford disclose?",
+        "expected_tickers": [
+          "F"
+        ],
+        "deterministic_tickers": [
+          "F"
+        ],
+        "query_only_tickers": [
+          "F"
+        ],
+        "contextual_tickers": [
+          "F"
+        ],
+        "query_only_pass": true,
+        "contextual_pass": true,
+        "query_only_latency_ms": 2153.4040839906083,
+        "contextual_latency_ms": 1841.8898359959712,
+        "query_only_normalizations": [],
+        "contextual_normalizations": [],
+        "query_only_error": null,
+        "contextual_error": null,
+        "context_turn_count": 1
+      },
+      {
+        "case_id": "old-turn-recall",
+        "turn_index": 2,
+        "gate": "summary_recall",
+        "query": "Return to the first comparison: which uses EyeQ?",
+        "expected_tickers": [
+          "TSLA",
+          "MBLY"
+        ],
+        "deterministic_tickers": [
+          "MBLY"
+        ],
+        "query_only_tickers": [
+          "MBLY"
+        ],
+        "contextual_tickers": [
+          "TSLA",
+          "MBLY"
+        ],
+        "query_only_pass": false,
+        "contextual_pass": true,
+        "query_only_latency_ms": 1143.3087939949473,
+        "contextual_latency_ms": 2717.473943004734,
+        "query_only_normalizations": [],
+        "contextual_normalizations": [],
+        "query_only_error": null,
+        "contextual_error": null,
+        "context_turn_count": 2
+      }
+    ]
+  },
+  "state": {
+    "summary": {
+      "case_count": 4,
+      "pass_count": 4,
+      "gate_pass": true
+    },
+    "records": [
+      {
+        "case_id": "conversation-delete",
+        "category": "deletion",
+        "action": "delete_conversation",
+        "relational_rows": 0,
+        "memory_points": 0,
+        "pass": true
+      },
+      {
+        "case_id": "delete-all",
+        "category": "deletion",
+        "action": "delete_all_user_conversations",
+        "relational_rows": 0,
+        "memory_points": 0,
+        "pass": true
+      },
+      {
+        "case_id": "cross-user-isolation",
+        "category": "tenant_isolation",
+        "expected_seed_content_in_context": false,
+        "observed_seed_content_in_context": false,
+        "pass": true
+      },
+      {
+        "case_id": "cross-conversation-isolation",
+        "category": "conversation_isolation",
+        "expected_seed_content_in_context": false,
+        "observed_seed_content_in_context": false,
+        "pass": true
+      }
+    ]
+  },
+  "gate_pass": true,
+  "model": "AZURE_GPT_51_2025_1113",
+  "manifest": "data/evaluation/ava_p0/v1/conversation_history_v1.json"
+}

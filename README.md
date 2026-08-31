@@ -55,6 +55,9 @@ Implemented:
   the exact conversation prompt included in generation-token packing
 - opt-in long-term conversation-summary memory in a separate tenant/user-filtered
   Qdrant collection; new conversations start with long-term memory disabled
+- executable provider-backed conversation-scope evaluation covering follow-ups,
+  old-turn recall, explicit topic switches, standalone regression, deletion, and
+  tenant/conversation isolation
 - deterministic mock streaming for normal, pre-token-error, and partial-error UI testing
 
 Not implemented yet:
@@ -360,6 +363,19 @@ and evidence type. The historical 34-question comparison subset is unchanged at
 mean Recall@10 0.721 (exactly 0.720588); its single-narrative, single-table, and
 multi-chunk values remain 0.833, 0.625, and 0.5625. All incomplete retrievals are
 reviewed in `data/evaluation/mobileye_bgebase_table_v2_review.json`.
+
+Run the frozen Phase 7 conversation-history gate with the configured provider:
+
+```bash
+PYTHONPATH=. .venv/bin/python -m src.evaluation.conversation_history --overwrite
+```
+
+The saved `phase-7-conversation-history.json` run compares query-only and
+history-aware planner scope through the same validated resolver used by the API,
+then executes deletion and isolation cases independently with deterministic
+storage doubles. The accepted 31 August run improved history-dependent scope
+accuracy from 0% to 100%, retained 100% standalone accuracy with no regression,
+passed all topic switches, and passed all four state cases.
 
 ## Reference
 

@@ -226,15 +226,8 @@ class GenerationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "invalid retrieval plan"):
             GenerationService(client, model="test").plan_retrieval("Question")
 
-    def test_planner_rejects_multiplicity_and_target_coverage_disagreement(self):
+    def test_planner_rejects_target_coverage_disagreement(self):
         invalid_plans = (
-            (
-                '{"needs_multiple_retrievals": false, "subqueries": ['
-                '{"query": "Tesla CEO", "tickers": ["TSLA"]}, '
-                '{"query": "Mobileye CEO", "tickers": ["MBLY"]}], '
-                '"operation": null, "resolved_tickers": ["TSLA", "MBLY"], '
-                '"company_mentions": [], "comparison": false, "ambiguity": false}'
-            ),
             (
                 '{"needs_multiple_retrievals": true, "subqueries": ['
                 '{"query": "Tesla CEO", "tickers": ["TSLA"]}, '
@@ -255,6 +248,43 @@ class GenerationTests(unittest.TestCase):
                     GenerationService(client, model="test").plan_retrieval(
                         "Who is the CEO of Tesla and Mobileye?"
                     )
+
+    def test_planner_normalizes_redundant_multiplicity_from_subquery_count(self):
+        cases = (
+            (
+                '{"needs_multiple_retrievals": true, '
+                '"subqueries": [{"query": "Ford revenue", "tickers": ["F"]}], '
+                '"operation": null, "resolved_tickers": ["F"], '
+                '"company_mentions": [{"raw_text": "Ford", "ticker": "F"}], '
+                '"comparison": false, "ambiguity": false}',
+                False,
+            ),
+            (
+                '{"needs_multiple_retrievals": false, "subqueries": ['
+                '{"query": "Tesla CEO", "tickers": ["TSLA"]}, '
+                '{"query": "Mobileye CEO", "tickers": ["MBLY"]}], '
+                '"operation": null, "resolved_tickers": ["TSLA", "MBLY"], '
+                '"company_mentions": [], "comparison": false, "ambiguity": false}',
+                True,
+            ),
+        )
+        for payload, expected in cases:
+            with self.subTest(expected=expected):
+                response = SimpleNamespace(
+                    choices=[SimpleNamespace(message=SimpleNamespace(content=payload))]
+                )
+                client = SimpleNamespace(
+                    chat=SimpleNamespace(completions=FakeCompletions(response))
+                )
+
+                plan = GenerationService(client, model="test").plan_retrieval(
+                    "Planner multiplicity test"
+                )
+
+                self.assertIs(plan["needs_multiple_retrievals"], expected)
+                self.assertEqual(
+                    plan["_normalizations"], ["retrieval_multiplicity"]
+                )
 
     def test_planner_repairs_empty_single_query_with_original_text(self):
         response = SimpleNamespace(

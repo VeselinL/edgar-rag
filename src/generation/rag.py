@@ -503,6 +503,22 @@ class GenerationService:
                 for item in plan["company_mentions"]
             )
         )
+        if (
+            set(plan) == required_keys
+            and isinstance(plan.get("needs_multiple_retrievals"), bool)
+            and valid_subqueries
+            and valid_ticker_list(plan.get("resolved_tickers"))
+            and valid_company_mentions
+            and plan["needs_multiple_retrievals"]
+            != (len(plan["subqueries"]) > 1)
+        ):
+            # This flag is fully determined by the already validated subquery
+            # count. Compatible gateways occasionally retain the prior turn's
+            # multiplicity on a follow-up even while returning one valid
+            # subquery. Repair only that redundant representation.
+            plan["needs_multiple_retrievals"] = len(plan["subqueries"]) > 1
+            normalizations.append("retrieval_multiplicity")
+            LOGGER.warning("AVA normalized planner retrieval multiplicity")
         subquery_ticker_union = (
             {
                 ticker

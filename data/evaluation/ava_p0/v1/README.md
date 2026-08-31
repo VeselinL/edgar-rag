@@ -41,8 +41,19 @@ The 35-node image manifest is label-only and is validated against immutable raw
 HTML by `(ticker, DOM ordinal, src)`. It does not download assets. Low-confidence
 visual labels must be reviewed after Phase 6 acquires immutable image bytes.
 
-The history cases are frozen acceptance inputs, not claims that persistence,
-deletion, or tenant isolation exists in the current stateless application.
+The history cases are frozen acceptance inputs. Phase 7 executes them with:
+
+```bash
+PYTHONPATH=. .venv/bin/python -m src.evaluation.conversation_history --overwrite
+```
+
+The provider-backed planner portion compares the current query by itself with
+the same query plus prior-turn context, then validates both results through the
+runtime company resolver. It gates history-dependent improvement, standalone
+regression, explicit topic switches, and planner errors separately. Deletion
+and isolation labels run through deterministic repository/memory doubles, so a
+provider result is never treated as storage-isolation evidence. The versioned
+result is saved under `runs/phase-7-conversation-history.json`.
 
 Phase 4 adds `generation_quality_v1.json`. It uses reviewed complete filing
 chunks and keeps generation/citation grading separate from retrieval. Run its

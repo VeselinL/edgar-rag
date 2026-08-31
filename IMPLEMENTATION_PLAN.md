@@ -809,13 +809,24 @@ ownership, idempotency, pagination, tenant checks, and deletion cannot be omitte
   summaries, cross-user isolation, opt-in memory, filtered search, and complete
   derived-memory deletion. A live PostgreSQL contract test is available behind
   `AVA_TEST_POSTGRES_DSN`.
+- Added an executable provider-backed gate for the frozen history manifest. It
+  compares query-only and contextual planner scope through the same validated
+  resolver as the API, while deletion and isolation cases execute separately
+  against deterministic storage doubles. The accepted 31 August run improved
+  history-dependent scope accuracy from 0% to 100%, retained 100% standalone
+  accuracy with zero regressions, reached 100% contextual topic-switch accuracy,
+  recorded no planner errors, and passed all four state cases.
+- The live gate exposed a provider response that marked one valid subquery as a
+  multi-retrieval plan. Runtime now normalizes only this redundant boolean from
+  the already validated subquery count and records the normalization; company
+  scope, query text, subqueries, and retrieval behavior remain unchanged.
 
 The foundation does not close every Phase 7 gate. Provider-backed follow-up and
-topic-switch evaluation, a live PostgreSQL/Qdrant deployment run, retention and
-backup policy sign-off, and multi-user authentication remain pending owner or
-environment decisions. Phase 6 image work also remains unimplemented pending
-the owner-controlled vision/OCR decision; this memory milestone does not imply
-that the earlier image gate was accepted or skipped.
+topic-switch evaluation is now passing. A live PostgreSQL/Qdrant deployment run,
+retention and backup policy sign-off, and multi-user authentication remain
+pending owner or environment decisions. Phase 6 image work is explicitly skipped
+at the owner's direction for this continuation; no image implementation or
+acceptance claim is included in this memory milestone.
 
 ## 14. Phase 8 — Production hardening and finished-product gates (P1)
 
