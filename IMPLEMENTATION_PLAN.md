@@ -820,13 +820,23 @@ ownership, idempotency, pagination, tenant checks, and deletion cannot be omitte
   multi-retrieval plan. Runtime now normalizes only this redundant boolean from
   the already validated subquery count and records the normalization; company
   scope, query text, subqueries, and retrieval behavior remain unchanged.
+- Added provider-neutral multi-user OIDC authentication through a backend-for-
+  frontend authorization-code/PKCE flow. ID tokens are validated for fixed
+  algorithm, issuer, audience, nonce, expiry, and tenant claim; the browser gets
+  only an opaque HttpOnly session plus CSRF cookie, while hashed session state is
+  stored in PostgreSQL and every conversation operation is owner-bound.
+- Added dry-run-first retention with conditional expiry rechecks, derived-memory
+  deletion, cascaded canonical deletion, content-free audit records, and expired
+  auth-session cleanup. Added portable PostgreSQL/Qdrant backups with checksummed
+  manifests plus guarded isolated restore drills and a documented daily/weekly/
+  monthly retention policy.
 
-The foundation does not close every Phase 7 gate. Provider-backed follow-up and
-topic-switch evaluation is now passing. A live PostgreSQL/Qdrant deployment run,
-retention and backup policy sign-off, and multi-user authentication remain
-pending owner or environment decisions. Phase 6 image work is explicitly skipped
-at the owner's direction for this continuation; no image implementation or
-acceptance claim is included in this memory milestone.
+Provider-backed follow-up and topic-switch evaluation is passing. Automated and
+local-Qdrant isolation, idempotency, deletion, retention, authentication, and
+backup safeguards pass. A production-like live PostgreSQL/Qdrant run and restore
+drill remain Phase 8 release evidence because this workspace cannot access its
+Docker engine. Phase 6 image work is explicitly skipped at the owner's direction;
+no image implementation or acceptance claim is included in this memory milestone.
 
 ## 14. Phase 8 — Production hardening and finished-product gates (P1)
 

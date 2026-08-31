@@ -682,3 +682,21 @@ and was not included in AVA commits.
   when the two unchanged pre-existing consistency failures are excluded.
   Frontend ESLint, all 14 Vitest tests, strict TypeScript checking, and the
   production build also pass.
+
+### Added multi-user identity, retention, and recovery controls
+
+- Added provider-neutral OIDC authorization-code/PKCE sign-in with strict token
+  validation, PostgreSQL-backed opaque sessions, secure HttpOnly cookies, CSRF
+  protection, and server-side tenant/user ownership on every conversation route.
+- Added signed-in/signed-out frontend states without persisting access, ID, or
+  session tokens in browser storage. Signing out clears the in-memory transcript.
+- Added a dry-run-first retention command that deletes derived Qdrant memory and
+  eligible canonical records with a content-free audit trail, then purges expired
+  OIDC state and sessions.
+- Added checksummed PostgreSQL and Qdrant state backups plus guarded PostgreSQL
+  and Qdrant restore-drill commands. Documented daily/weekly/monthly retention and
+  quarterly isolated restore verification.
+- Focused backend retention, auth, API, and backup tests pass. Frontend ESLint,
+  strict TypeScript, all 19 Vitest tests, and the production build pass. Live
+  container validation is assigned to the production-like Phase 8 gate because
+  this workspace cannot access the installed Docker engine.

@@ -102,6 +102,13 @@ AVA_LONG_TERM_TOKEN_BUDGET=512
 AVA_LONG_TERM_CANDIDATE_K=5
 AVA_LONG_TERM_SCORE_THRESHOLD=0.55
 AVA_CONVERSATION_RETENTION_DAYS=90
+AVA_OIDC_ISSUER=https://identity.example.com
+AVA_OIDC_CLIENT_ID=<oidc-client-id>
+AVA_OIDC_CLIENT_SECRET=<backend-only-secret-if-required>
+AVA_OIDC_REDIRECT_URI=https://ava.example.com/api/auth/callback
+AVA_OIDC_TENANT_CLAIM=tenant_id
+AVA_AUTH_COOKIE_SECURE=true
+AVA_AUTH_COOKIE_SAME_SITE=lax
 OPENAI_API_KEY=<backend secret>
 OPENAI_API_URL=<OpenAI-compatible or Azure gateway base URL>
 OPENAI_APP_ID=<optional gateway header>
@@ -228,6 +235,15 @@ tenant/user IDs, and explicitly acknowledge that boundary. This is suitable for
 one trusted user only; it is not authentication and must not be deployed as a
 multi-user service.
 
+For multi-user deployment, set `AVA_CONVERSATION_MODE=oidc`. AVA uses the OIDC
+authorization-code flow with PKCE and nonce, validates a fixed signing algorithm,
+issuer, audience, expiry, and the configured tenant claim, and stores only hashed
+opaque sessions in PostgreSQL. OAuth tokens never enter browser storage. Session
+cookies are HttpOnly and Secure by default; state-changing requests additionally
+require the double-submit CSRF value. Register the redirect URI exactly and keep
+the client secret backend-only. Use `AVA_AUTH_COOKIE_SECURE=false` only for local
+HTTP development.
+
 PostgreSQL migrations run idempotently at startup. It remains authoritative for
 conversation/message order, summaries, source-use records, and deletion audit.
 Each chat request carries an opaque conversation UUID and a new client-turn UUID;
@@ -253,6 +269,56 @@ Run the live database contract when a PostgreSQL test instance is available:
 AVA_TEST_POSTGRES_DSN=postgresql://... \
   .venv/bin/python -m pytest -q tests/test_postgres_conversations.py
 ```
+
+### Retention, backups, and restore drills
+
+Conversation retention is 90 days by default. Schedule the dry run first and
+review its JSON count before applying the same configuration:
+
+```bash
+.venv/bin/python -m src.conversations.maintenance
+.venv/bin/python -m src.conversations.maintenance --apply --batch-size 100
+```
+
+The apply job deletes eligible derived Qdrant memory, then conditionally deletes
+the still-expired PostgreSQL conversation and its cascaded messages, summaries,
+source uses, and feedback. It records a content-free `retention` audit row and
+also purges expired login transactions and sessions in OIDC mode. Retain deletion
+audit rows for 365 days unless legal/privacy policy requires a shorter period;
+they contain identifiers and timestamps but no transcript text.
+
+Take daily state backups and retain 7 daily, 4 weekly, and 12 monthly copies in
+encrypted access-controlled storage. The command creates a custom-format
+PostgreSQL dump, snapshots both the filing collection and conversation-memory
+collection when present, downloads those snapshots, and writes SHA-256 checksums:
+
+```bash
+AVA_POSTGRES_DSN=postgresql://... QDRANT_URL=https://... \
+  .venv/bin/python -m src.operations.state_backup backup backups/2026-08-31
+.venv/bin/python -m src.operations.state_backup verify backups/2026-08-31
+```
+
+Run a quarterly restore drill in isolated targets. The PostgreSQL target must be
+a separate pre-created database whose name ends in `_restore`, `_restore_test`,
+or `_drill`; the Qdrant prefix must begin with `ava_restore_`. Both commands are
+fail-safe unless `--apply` is supplied:
+
+```bash
+AVA_POSTGRES_DSN=postgresql://... \
+  .venv/bin/python -m src.operations.state_backup restore-postgres-drill \
+  backups/2026-08-31 --restore-dsn postgresql://.../ava_restore_test --apply
+
+QDRANT_URL=https://... \
+  .venv/bin/python -m src.operations.state_backup restore-qdrant-drill \
+  backups/2026-08-31 --target-prefix ava_restore_20260831_ --apply
+```
+
+Verify migrations, row counts, owner isolation, transcript replay, Qdrant point
+counts, filtered memory search, and deletion against the restored targets before
+recording the drill as passed. Qdrant collection snapshots do not restore aliases;
+never repoint the production alias during a drill. Test restores with the same or
+next Qdrant minor version, then remove drill targets through the platform's normal
+approved cleanup process.
 
 ### Startup and readiness
 
