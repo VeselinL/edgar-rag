@@ -112,6 +112,7 @@ jobs:
         run: |
           docker compose -f docker-compose.smoke.yml up --detach
           python scripts/smoke_sse.py
+          python scripts/load_sse.py --label mock-proxy-ci --requests 10 --concurrency 2
       - name: Stop smoke deployment
         if: always()
         run: docker compose -f docker-compose.smoke.yml down --volumes
