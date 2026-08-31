@@ -234,7 +234,9 @@ class RealPipeline:
         embedding_config = MODEL_CONFIGS["bgebase"]
         model_started = time.perf_counter()
         embedder = SentenceTransformer(
-            embedding_config["repository"], device=settings.model_device
+            embedding_config["repository"],
+            revision=embedding_config["revision"],
+            device=settings.model_device,
         )
         model_ms = (time.perf_counter() - model_started) * 1_000
         corpus_id = corpus_version(chunks)

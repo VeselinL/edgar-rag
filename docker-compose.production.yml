@@ -1,0 +1,94 @@
+name: ava
+
+services:
+  postgres:
+    image: postgres:18.1-alpine@sha256:aa6eb304ddb6dd26df23d05db4e5cb05af8951cda3e0dc57731b771e0ef4ab29
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ava
+      POSTGRES_USER: ava
+      POSTGRES_PASSWORD: ${AVA_POSTGRES_PASSWORD:?Set AVA_POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ava -d ava"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - ava_postgres_data:/var/lib/postgresql
+    networks: [data]
+
+  qdrant:
+    image: qdrant/qdrant:v1.18.2@sha256:75eab8c4ba42096724fdcfde8b4de0b5713d529dde32f285a1f86fdcb2c9e50c
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:?Set QDRANT_API_KEY}
+      QDRANT__TELEMETRY_DISABLED: "true"
+    volumes:
+      - ava_qdrant_data:/qdrant/storage
+    networks: [data]
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 45s
+    environment:
+      AVA_PIPELINE_MODE: real
+      AVA_CORS_ORIGINS: ${AVA_PUBLIC_ORIGIN:?Set AVA_PUBLIC_ORIGIN}
+      AVA_MODEL_DEVICE: ${AVA_MODEL_DEVICE:-cpu}
+      AVA_LLM_MODEL: ${AVA_LLM_MODEL:?Set AVA_LLM_MODEL}
+      AVA_LLM_STREAMING: ${AVA_LLM_STREAMING:-true}
+      AVA_QDRANT_MODE: primary
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY:?Set QDRANT_API_KEY}
+      QDRANT_COLLECTION_ALIAS: ava_filing_chunks_current
+      AVA_CONVERSATION_MODE: oidc
+      AVA_POSTGRES_DSN: ${AVA_POSTGRES_DSN:?Set AVA_POSTGRES_DSN}
+      AVA_LONG_TERM_MEMORY_STORE: qdrant
+      AVA_OIDC_ISSUER: ${AVA_OIDC_ISSUER:?Set AVA_OIDC_ISSUER}
+      AVA_OIDC_CLIENT_ID: ${AVA_OIDC_CLIENT_ID:?Set AVA_OIDC_CLIENT_ID}
+      AVA_OIDC_CLIENT_SECRET: ${AVA_OIDC_CLIENT_SECRET:-}
+      AVA_OIDC_REDIRECT_URI: ${AVA_OIDC_REDIRECT_URI:?Set AVA_OIDC_REDIRECT_URI}
+      AVA_OIDC_TENANT_CLAIM: ${AVA_OIDC_TENANT_CLAIM:-tenant_id}
+      AVA_AUTH_COOKIE_SECURE: "true"
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?Set OPENAI_API_KEY}
+      OPENAI_API_URL: ${OPENAI_API_URL:?Set OPENAI_API_URL}
+      OPENAI_APP_ID: ${OPENAI_APP_ID:-}
+      OPENAI_USER_ID: ${OPENAI_USER_ID:-}
+      OPENAI_COMPANY_ID: ${OPENAI_COMPANY_ID:-}
+      OPENAI_API_VERSION: ${OPENAI_API_VERSION:-}
+    volumes:
+      - ./data/chunks:/app/data/chunks:ro
+      - ./data/embeddings:/app/data/embeddings:ro
+      - ava_model_cache:/home/ava/.cache/huggingface
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    networks: [edge, data]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_BASE_URL: ""
+    restart: unless-stopped
+    init: true
+    depends_on: [api]
+    ports:
+      - "127.0.0.1:${AVA_HTTP_PORT:-8080}:8080"
+    networks: [edge]
+
+networks:
+  edge:
+  data:
+    internal: true
+
+volumes:
+  ava_postgres_data:
+  ava_qdrant_data:
+  ava_model_cache:

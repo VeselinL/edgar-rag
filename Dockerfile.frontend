@@ -1,0 +1,18 @@
+FROM node:24.7.0-alpine3.22@sha256:be4d5e92ac68483ec71440bf5934865b4b7fcb93588f17a24d411d15f0204e4f AS build
+
+WORKDIR /app
+COPY src/frontend/package.json src/frontend/package-lock.json ./
+RUN npm ci
+COPY src/frontend/ ./
+ARG VITE_API_BASE_URL=
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+RUN npm run build
+
+FROM nginx:1.29.1-alpine3.22@sha256:42a516af16b852e33b7682d5ef8acbd5d13fe08fecadc7ed98605ba5e3b26ab8
+
+COPY deploy/nginx.conf /etc/nginx/nginx.conf
+COPY --from=build --chown=nginx:nginx /app/dist /usr/share/nginx/html
+USER nginx
+EXPOSE 8080
+
+CMD ["nginx", "-g", "daemon off;"]
