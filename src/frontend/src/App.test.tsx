@@ -84,6 +84,16 @@ describe('App', () => {
     expect(mockedHistoryEnabled).not.toHaveBeenCalled()
   })
 
+  it('shows an actionable startup failure instead of silently entering stateless mode', async () => {
+    mockedAuthSession.mockRejectedValue(new Error('network details'))
+    render(<App />)
+
+    expect(await screen.findByRole('heading', { name: 'AVA is temporarily unavailable' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument()
+    expect(screen.queryByLabelText('Ask AVA about the SEC filings')).not.toBeInTheDocument()
+    expect(screen.queryByText('network details')).not.toBeInTheDocument()
+  })
+
   it('signs out without retaining the saved transcript in browser state', async () => {
     mockedAuthSession.mockResolvedValue({ mode: 'oidc', authenticated: true })
     mockedHistoryEnabled.mockResolvedValue(false)

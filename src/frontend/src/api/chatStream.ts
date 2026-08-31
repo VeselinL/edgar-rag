@@ -76,7 +76,16 @@ export async function streamChat(
     throw new ChatStreamError('The AVA service could not be reached. Check the connection and retry.')
   }
   if (!response.ok) {
-    throw new ChatStreamError('The AVA service rejected the request before analysis began.')
+    const messages: Record<number, string> = {
+      401: 'Your AVA session expired. Sign in again to continue.',
+      404: 'This conversation was deleted or is no longer available. Start a new chat.',
+      409: 'This conversation turn is already in progress. Wait a moment, then retry.',
+      429: 'AVA is receiving too many requests. Wait briefly, then retry.',
+      503: 'AVA is still preparing its filing services. Please retry shortly.',
+    }
+    throw new ChatStreamError(
+      messages[response.status] ?? 'AVA could not start this analysis. Review the question and retry.',
+    )
   }
   if (!response.body) throw new ChatStreamError('AVA returned an empty response stream.')
   handlers.onOpen()

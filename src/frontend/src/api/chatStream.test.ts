@@ -134,4 +134,21 @@ describe('streamChat', () => {
       onDone: vi.fn(),
     })).rejects.toThrow('unusable error response')
   })
+
+  it.each([
+    [401, 'session expired'],
+    [404, 'conversation was deleted'],
+    [409, 'already in progress'],
+    [429, 'too many requests'],
+    [503, 'still preparing'],
+  ])('maps HTTP %s to an actionable pre-stream state', async (status, message) => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status }))
+    await expect(streamChat('Question', {
+      signal: new AbortController().signal,
+      onOpen: vi.fn(),
+      onDelta: vi.fn(),
+      onSources: vi.fn(),
+      onDone: vi.fn(),
+    })).rejects.toThrow(message)
+  })
 })

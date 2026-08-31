@@ -30,6 +30,7 @@ export default function App() {
   const [validation, setValidation] = useState('')
   const [historyEnabled, setHistoryEnabled] = useState(false)
   const [historyInitializing, setHistoryInitializing] = useState(true)
+  const [startupError, setStartupError] = useState('')
   const [historyOpen, setHistoryOpen] = useState(false)
   const [authenticationRequired, setAuthenticationRequired] = useState(false)
   const [authenticated, setAuthenticated] = useState(true)
@@ -59,8 +60,9 @@ export default function App() {
         setCurrentConversation(selected)
         setMessages(storedMessages(stored))
       } catch {
-        // The explicit stateless path remains usable when history is disabled
-        // or its separate persistence service is unavailable.
+        if (!cancelled) {
+          setStartupError('AVA could not initialize its account and conversation services.')
+        }
       } finally {
         if (!cancelled) setHistoryInitializing(false)
       }
@@ -283,6 +285,14 @@ export default function App() {
               <p>Your filing research and saved conversations stay isolated to your verified account.</p>
               <button type="button" className="auth-prompt__button" onClick={() => window.location.assign(signInUrl())}>
                 Continue to sign in
+              </button>
+            </section>
+          ) : startupError ? (
+            <section className="auth-prompt" aria-labelledby="startup-error-heading">
+              <h1 id="startup-error-heading">AVA is temporarily unavailable</h1>
+              <p>{startupError} Check the connection, then try again.</p>
+              <button type="button" className="auth-prompt__button" onClick={() => window.location.reload()}>
+                Retry
               </button>
             </section>
           ) : (
