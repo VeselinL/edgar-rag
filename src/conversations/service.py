@@ -31,8 +31,10 @@ class ConversationSettings:
     @classmethod
     def from_environment(cls) -> "ConversationSettings":
         mode = os.getenv("AVA_CONVERSATION_MODE", "disabled").strip().casefold()
-        if mode not in {"disabled", "single_user"}:
-            raise ValueError("AVA_CONVERSATION_MODE must be 'disabled' or 'single_user'.")
+        if mode not in {"disabled", "single_user", "oidc"}:
+            raise ValueError(
+                "AVA_CONVERSATION_MODE must be 'disabled', 'single_user', or 'oidc'."
+            )
         acknowledged = os.getenv("AVA_SINGLE_USER_BOUNDARY_ACKNOWLEDGED", "false").strip().casefold()
         if acknowledged not in {"true", "false"}:
             raise ValueError("AVA_SINGLE_USER_BOUNDARY_ACKNOWLEDGED must be true or false.")
@@ -77,6 +79,43 @@ class ConversationSettings:
                 "Single-user history requires AVA_POSTGRES_DSN, AVA_TENANT_ID, "
                 "AVA_USER_ID, and AVA_SINGLE_USER_BOUNDARY_ACKNOWLEDGED=true."
             )
+        if self.mode == "oidc" and not self.postgres_dsn:
+            raise ValueError("OIDC conversation history requires AVA_POSTGRES_DSN.")
+
+
+class ConversationServiceFactory:
+    """Create lightweight owner-bound services over shared authoritative stores."""
+
+    def __init__(
+        self,
+        repository: ConversationRepository,
+        *,
+        context_builder: ConversationContextBuilder,
+        memory_store: MemoryStore | None = None,
+        long_term_candidate_k: int = 5,
+        long_term_score_threshold: float = 0.55,
+        long_term_token_budget: int = 512,
+    ) -> None:
+        self.repository = repository
+        self.context_builder = context_builder
+        self.memory_store = memory_store or NullMemoryStore()
+        self.long_term_candidate_k = long_term_candidate_k
+        self.long_term_score_threshold = long_term_score_threshold
+        self.long_term_token_budget = long_term_token_budget
+
+    def for_owner(self, tenant_id: str, user_id: str) -> "ConversationService":
+        if not tenant_id or not user_id:
+            raise ValueError("Conversation ownership requires tenant and user IDs.")
+        return ConversationService(
+            self.repository,
+            tenant_id=tenant_id,
+            user_id=user_id,
+            context_builder=self.context_builder,
+            memory_store=self.memory_store,
+            long_term_candidate_k=self.long_term_candidate_k,
+            long_term_score_threshold=self.long_term_score_threshold,
+            long_term_token_budget=self.long_term_token_budget,
+        )
 
 
 class ConversationService:

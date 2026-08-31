@@ -6,6 +6,7 @@ import base64
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 import hashlib
+import os
 import secrets
 from typing import Any, Callable
 from urllib.parse import urlencode
@@ -25,6 +26,22 @@ class SessionSettings:
     session_ttl_seconds: int = 28_800
     cookie_secure: bool = True
     cookie_same_site: str = "lax"
+
+    @classmethod
+    def from_environment(cls) -> "SessionSettings":
+        secure = os.getenv("AVA_AUTH_COOKIE_SECURE", "true").strip().casefold()
+        if secure not in {"true", "false"}:
+            raise ValueError("AVA_AUTH_COOKIE_SECURE must be true or false.")
+        settings = cls(
+            cookie_name=os.getenv("AVA_AUTH_COOKIE_NAME", "ava_session").strip(),
+            csrf_cookie_name=os.getenv("AVA_AUTH_CSRF_COOKIE_NAME", "ava_csrf").strip(),
+            login_ttl_seconds=int(os.getenv("AVA_AUTH_LOGIN_TTL_SECONDS", "300")),
+            session_ttl_seconds=int(os.getenv("AVA_AUTH_SESSION_TTL_SECONDS", "28800")),
+            cookie_secure=secure == "true",
+            cookie_same_site=os.getenv("AVA_AUTH_COOKIE_SAME_SITE", "lax").strip().casefold(),
+        )
+        settings.validate()
+        return settings
 
     def validate(self) -> None:
         if self.login_ttl_seconds <= 0 or self.session_ttl_seconds <= 0:
@@ -162,7 +179,7 @@ class OIDCSessionService:
             expires_at=now + timedelta(seconds=self.settings.session_ttl_seconds),
         )
         self.repository.create_session(session)
-        return AuthenticatedSession(raw_session, raw_csrf, session)
+        return AuthenticatedSession(raw_session, raw_csrf, session, transaction.return_to)
 
     def authenticate(self, token: str | None) -> AuthSession:
         if not token:

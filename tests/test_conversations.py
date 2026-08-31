@@ -12,7 +12,11 @@ from src.conversations.repository import (
     InMemoryConversationRepository,
     TurnConflictError,
 )
-from src.conversations.service import ConversationService, ConversationSettings
+from src.conversations.service import (
+    ConversationService,
+    ConversationServiceFactory,
+    ConversationSettings,
+)
 
 
 class ConversationServiceTests(unittest.TestCase):
@@ -143,6 +147,26 @@ class ConversationServiceTests(unittest.TestCase):
                 tenant_id="tenant",
                 user_id="user",
             ).validate()
+
+    def test_factory_binds_each_service_to_verified_owner(self):
+        factory = ConversationServiceFactory(
+            self.repository,
+            context_builder=ConversationContextBuilder(self.repository),
+            memory_store=self.memory,
+        )
+        owner_a = factory.for_owner("tenant", "user-a")
+        owner_b = factory.for_owner("tenant", "user-b")
+        conversation = owner_a.create()
+
+        self.assertEqual([item.id for item in owner_a.list()], [conversation.id])
+        self.assertEqual(owner_b.list(), [])
+        with self.assertRaises(ConversationNotFoundError):
+            owner_b.get(conversation.id)
+
+    def test_oidc_mode_requires_postgres_but_not_static_browser_identity(self):
+        ConversationSettings(mode="oidc", postgres_dsn="postgresql://example").validate()
+        with self.assertRaisesRegex(ValueError, "POSTGRES"):
+            ConversationSettings(mode="oidc").validate()
 
 
 class FakeEmbedder:

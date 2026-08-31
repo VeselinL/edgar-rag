@@ -15,10 +15,13 @@ from uuid import UUID, uuid4
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import RedirectResponse, StreamingResponse
 from pydantic import BaseModel
 
 from .pipeline import PipelineEvent, PipelineSettings, build_pipeline
+from src.auth.oidc import AuthenticationError, OIDCSettings, OIDCTokenVerifier
+from src.auth.repository import PostgresAuthRepository
+from src.auth.service import OIDCSessionService, SessionSettings
 from src.conversations.context import ConversationContextBuilder
 from src.conversations.memory import NullMemoryStore, QdrantMemoryStore
 from src.conversations.repository import (
@@ -26,7 +29,11 @@ from src.conversations.repository import (
     PostgresConversationRepository,
     TurnConflictError,
 )
-from src.conversations.service import ConversationService, ConversationSettings
+from src.conversations.service import (
+    ConversationService,
+    ConversationServiceFactory,
+    ConversationSettings,
+)
 from src.embeddings.embed_chunks import MODEL_CONFIGS
 from src.indexing.qdrant_index import make_client
 
@@ -98,11 +105,11 @@ def _message_payload(value: Any) -> dict[str, Any]:
     return payload
 
 
-def _build_conversation_service(
+def _build_conversation_factory(
     settings: ConversationSettings,
     pipeline_settings: PipelineSettings,
     active_pipeline: Any,
-) -> ConversationService | None:
+) -> ConversationServiceFactory | None:
     if settings.mode == "disabled":
         return None
     repository = PostgresConversationRepository(settings.postgres_dsn or "")
@@ -132,10 +139,8 @@ def _build_conversation_service(
             model,
             query_prefix=MODEL_CONFIGS["bgebase"]["query_prefix"],
         )
-    return ConversationService(
+    return ConversationServiceFactory(
         repository,
-        tenant_id=settings.tenant_id or "",
-        user_id=settings.user_id or "",
         context_builder=context_builder,
         memory_store=memory_store,
         long_term_candidate_k=settings.long_term_candidate_k,
@@ -144,10 +149,26 @@ def _build_conversation_service(
     )
 
 
+def _build_auth_service(
+    settings: ConversationSettings,
+) -> OIDCSessionService | None:
+    if settings.mode != "oidc":
+        return None
+    verifier = OIDCTokenVerifier(OIDCSettings.from_environment())
+    repository = PostgresAuthRepository(settings.postgres_dsn or "")
+    return OIDCSessionService(
+        repository,
+        verifier,
+        session_settings=SessionSettings.from_environment(),
+    )
+
+
 def create_app(
     *,
     pipeline: Any | None = None,
     conversation_service: ConversationService | None = None,
+    conversation_factory: ConversationServiceFactory | None = None,
+    auth_service: OIDCSessionService | None = None,
 ) -> FastAPI:
     load_dotenv()
     settings = PipelineSettings.from_environment()
@@ -159,8 +180,19 @@ def create_app(
     @asynccontextmanager
     async def lifespan(application: FastAPI):
         application.state.pipeline = pipeline or build_pipeline(settings)
-        application.state.conversations = conversation_service or _build_conversation_service(
-            conversation_settings, settings, application.state.pipeline
+        application.state.conversation_service = conversation_service
+        application.state.conversation_factory = (
+            conversation_factory
+            or (
+                None
+                if conversation_service is not None
+                else _build_conversation_factory(
+                    conversation_settings, settings, application.state.pipeline
+                )
+            )
+        )
+        application.state.auth = auth_service or _build_auth_service(
+            conversation_settings
         )
         yield
 
@@ -174,12 +206,14 @@ def create_app(
         for origin in os.getenv("AVA_CORS_ORIGINS", "http://localhost:5173").split(",")
         if origin.strip()
     ]
+    if conversation_settings.mode == "oidc" and "*" in origins:
+        raise ValueError("OIDC deployments require explicit AVA_CORS_ORIGINS.")
     application.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
-        allow_credentials=False,
-        allow_methods=["GET", "POST", "OPTIONS"],
-        allow_headers=["Content-Type"],
+        allow_credentials=conversation_settings.mode == "oidc",
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type", "X-CSRF-Token"],
         expose_headers=["X-Request-ID"],
     )
 
@@ -195,24 +229,148 @@ def create_app(
         qdrant_health = getattr(active_pipeline, "qdrant_health", None)
         if qdrant_health is not None:
             response["qdrant"] = qdrant_health
+        history_enabled = (
+            getattr(request.app.state, "conversation_service", None) is not None
+            or getattr(request.app.state, "conversation_factory", None) is not None
+        )
         response["conversation_history"] = {
-            "enabled": getattr(request.app.state, "conversations", None) is not None,
+            "enabled": history_enabled,
             "deployment_boundary": (
-                "single_user" if getattr(request.app.state, "conversations", None) is not None else "stateless"
+                "oidc_multi_user"
+                if conversation_settings.mode == "oidc"
+                else "single_user"
+                if history_enabled
+                else "stateless"
             ),
             "long_term_store": conversation_settings.long_term_store,
         }
+        response["authentication"] = {
+            "mode": "oidc" if conversation_settings.mode == "oidc" else "none",
+            "required": conversation_settings.mode == "oidc",
+        }
         return response
 
-    def conversation_service_for(request: Request) -> ConversationService:
-        service = getattr(request.app.state, "conversations", None)
-        if service is None:
+    async def conversation_service_for(
+        request: Request, *, require_csrf: bool = False
+    ) -> ConversationService:
+        static_service = getattr(request.app.state, "conversation_service", None)
+        if static_service is not None:
+            return static_service
+        factory = getattr(request.app.state, "conversation_factory", None)
+        if factory is None:
             raise HTTPException(status_code=503, detail="Conversation history is not enabled.")
-        return service
+        if conversation_settings.mode == "single_user":
+            return factory.for_owner(
+                conversation_settings.tenant_id or "",
+                conversation_settings.user_id or "",
+            )
+        auth = getattr(request.app.state, "auth", None)
+        if auth is None:
+            raise HTTPException(status_code=503, detail="Authentication is not available.")
+        try:
+            session = await asyncio.to_thread(
+                auth.authenticate,
+                request.cookies.get(auth.settings.cookie_name),
+            )
+            if require_csrf:
+                supplied = request.headers.get("X-CSRF-Token")
+                cookie_value = request.cookies.get(auth.settings.csrf_cookie_name)
+                if supplied != cookie_value:
+                    raise AuthenticationError("The request security token is invalid.")
+                await asyncio.to_thread(auth.require_csrf, session, supplied)
+        except AuthenticationError as error:
+            raise HTTPException(status_code=401, detail=str(error)) from error
+        return factory.for_owner(
+            session.principal.tenant_id,
+            session.principal.user_id,
+        )
+
+    @application.get("/api/auth/session")
+    async def auth_session(request: Request) -> dict[str, Any]:
+        if conversation_settings.mode != "oidc":
+            return {"mode": "none", "authenticated": True}
+        auth = getattr(request.app.state, "auth", None)
+        if auth is None:
+            raise HTTPException(status_code=503, detail="Authentication is not available.")
+        try:
+            await asyncio.to_thread(
+                auth.authenticate,
+                request.cookies.get(auth.settings.cookie_name),
+            )
+        except AuthenticationError:
+            return {"mode": "oidc", "authenticated": False}
+        return {"mode": "oidc", "authenticated": True}
+
+    @application.get("/api/auth/login")
+    async def auth_login(request: Request, return_to: str = "/") -> RedirectResponse:
+        auth = getattr(request.app.state, "auth", None)
+        if conversation_settings.mode != "oidc" or auth is None:
+            raise HTTPException(status_code=404, detail="Authentication is not enabled.")
+        try:
+            location = await asyncio.to_thread(
+                auth.begin_login, return_to=return_to
+            )
+        except (AuthenticationError, ValueError) as error:
+            raise HTTPException(status_code=400, detail=str(error)) from error
+        return RedirectResponse(location, status_code=302)
+
+    @application.get("/api/auth/callback")
+    async def auth_callback(
+        request: Request,
+        state: str | None = None,
+        code: str | None = None,
+        error: str | None = None,
+    ) -> RedirectResponse:
+        auth = getattr(request.app.state, "auth", None)
+        if conversation_settings.mode != "oidc" or auth is None:
+            raise HTTPException(status_code=404, detail="Authentication is not enabled.")
+        if error or not state or not code:
+            raise HTTPException(status_code=401, detail="Sign-in was not completed.")
+        try:
+            authenticated = await asyncio.to_thread(
+                auth.complete_login, state=state, code=code
+            )
+        except AuthenticationError as failure:
+            raise HTTPException(status_code=401, detail=str(failure)) from failure
+        response = RedirectResponse(authenticated.return_to, status_code=303)
+        maximum_age = auth.settings.session_ttl_seconds
+        response.set_cookie(
+            auth.settings.cookie_name,
+            authenticated.token,
+            max_age=maximum_age,
+            httponly=True,
+            secure=auth.settings.cookie_secure,
+            samesite=auth.settings.cookie_same_site,
+            path="/",
+        )
+        response.set_cookie(
+            auth.settings.csrf_cookie_name,
+            authenticated.csrf_token,
+            max_age=maximum_age,
+            httponly=False,
+            secure=auth.settings.cookie_secure,
+            samesite=auth.settings.cookie_same_site,
+            path="/",
+        )
+        return response
+
+    @application.post("/api/auth/logout", status_code=204)
+    async def auth_logout(request: Request) -> Response:
+        auth = getattr(request.app.state, "auth", None)
+        if conversation_settings.mode != "oidc" or auth is None:
+            raise HTTPException(status_code=404, detail="Authentication is not enabled.")
+        await conversation_service_for(request, require_csrf=True)
+        await asyncio.to_thread(
+            auth.logout, request.cookies.get(auth.settings.cookie_name)
+        )
+        response = Response(status_code=204)
+        response.delete_cookie(auth.settings.cookie_name, path="/")
+        response.delete_cookie(auth.settings.csrf_cookie_name, path="/")
+        return response
 
     @application.post("/api/conversations", status_code=201)
     async def create_conversation(body: CreateConversationRequest, request: Request) -> dict[str, Any]:
-        service = conversation_service_for(request)
+        service = await conversation_service_for(request, require_csrf=True)
         try:
             value = await asyncio.to_thread(
                 service.create, title=body.title, memory_enabled=body.memory_enabled
@@ -227,7 +385,8 @@ def create_app(
         limit: int = Query(default=30, ge=1, le=100),
         cursor: str | None = None,
     ) -> dict[str, Any]:
-        values = await asyncio.to_thread(conversation_service_for(request).list)
+        service = await conversation_service_for(request)
+        values = await asyncio.to_thread(service.list)
         if cursor:
             positions = [index for index, item in enumerate(values) if item.id == cursor]
             if not positions:
@@ -248,7 +407,7 @@ def create_app(
     ) -> dict[str, Any]:
         try:
             values = await asyncio.to_thread(
-                conversation_service_for(request).messages, str(conversation_id)
+                (await conversation_service_for(request)).messages, str(conversation_id)
             )
         except ConversationNotFoundError as error:
             raise HTTPException(status_code=404, detail="Conversation was not found.") from error
@@ -268,7 +427,7 @@ def create_app(
             raise HTTPException(status_code=422, detail="No conversation change was supplied.")
         try:
             value = await asyncio.to_thread(
-                conversation_service_for(request).update,
+                (await conversation_service_for(request, require_csrf=True)).update,
                 str(conversation_id),
                 title=body.title,
                 memory_enabled=body.memory_enabled,
@@ -283,7 +442,8 @@ def create_app(
     async def delete_conversation(conversation_id: UUID, request: Request) -> Response:
         try:
             await asyncio.to_thread(
-                conversation_service_for(request).delete, str(conversation_id)
+                (await conversation_service_for(request, require_csrf=True)).delete,
+                str(conversation_id),
             )
         except ConversationNotFoundError as error:
             raise HTTPException(status_code=404, detail="Conversation was not found.") from error
@@ -291,7 +451,8 @@ def create_app(
 
     @application.delete("/api/conversations", status_code=204)
     async def delete_all_conversations(request: Request) -> Response:
-        await asyncio.to_thread(conversation_service_for(request).delete_all)
+        service = await conversation_service_for(request, require_csrf=True)
+        await asyncio.to_thread(service.delete_all)
         return Response(status_code=204)
 
     @application.post("/api/chat/stream")
@@ -308,15 +469,20 @@ def create_app(
             raise HTTPException(status_code=503, detail="AVA is still preparing its filing index.")
 
         request_id = str(uuid4())
-        service = getattr(request.app.state, "conversations", None)
+        service = None
         turn = None
         conversation_context = None
-        if service is not None:
+        history_enabled = (
+            getattr(request.app.state, "conversation_service", None) is not None
+            or getattr(request.app.state, "conversation_factory", None) is not None
+        )
+        if history_enabled:
             if not body.conversation_id or not body.client_turn_id:
                 raise HTTPException(
                     status_code=422,
                     detail="conversation_id and client_turn_id are required when history is enabled.",
                 )
+            service = await conversation_service_for(request, require_csrf=True)
             conversation_id = str(body.conversation_id)
             client_turn_id = str(body.client_turn_id)
             try:

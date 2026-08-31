@@ -31,3 +31,4 @@ class AuthenticatedSession:
     token: str
     csrf_token: str
     session: AuthSession
+    return_to: str

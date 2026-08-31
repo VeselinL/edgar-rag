@@ -1,16 +1,24 @@
 import json
 import os
+import time
 import unittest
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlparse
 from uuid import uuid4
 
+import jwt
+from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi.testclient import TestClient
 
+from src.auth.oidc import OIDCSettings, OIDCTokenVerifier
+from src.auth.repository import InMemoryAuthRepository
+from src.auth.service import OIDCSessionService, SessionSettings
 from src.backend.app import create_app, safe_stream_error
 from src.backend.pipeline import MockPipeline
 from src.backend.pipeline import PipelineEvent
 from src.conversations.repository import InMemoryConversationRepository
-from src.conversations.service import ConversationService
+from src.conversations.context import ConversationContextBuilder
+from src.conversations.service import ConversationService, ConversationServiceFactory
 
 
 def parse_sse(body: str) -> list[tuple[str, dict]]:
@@ -51,6 +59,7 @@ class BackendApiTests(unittest.TestCase):
                     "deployment_boundary": "stateless",
                     "long_term_store": "disabled",
                 },
+                "authentication": {"mode": "none", "required": False},
             },
         )
 
@@ -223,6 +232,173 @@ class BackendApiTests(unittest.TestCase):
             )
 
         self.assertEqual(response.status_code, 422)
+
+
+class OIDCBackendApiTests(unittest.TestCase):
+    def setUp(self):
+        self.environment = patch.dict(
+            os.environ,
+            {
+                "AVA_PIPELINE_MODE": "mock",
+                "AVA_CONVERSATION_MODE": "oidc",
+                "AVA_POSTGRES_DSN": "postgresql://not-used-by-injected-tests",
+                "AVA_CORS_ORIGINS": "http://testserver",
+            },
+            clear=False,
+        )
+        self.environment.start()
+        repository = InMemoryConversationRepository()
+        factory = ConversationServiceFactory(
+            repository,
+            context_builder=ConversationContextBuilder(repository),
+        )
+        private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        public_key = private_key.public_key()
+        oidc = OIDCSettings(
+            issuer="https://identity.example.test",
+            client_id="ava-web",
+            redirect_uri="http://testserver/api/auth/callback",
+            fixed_tenant_id="tenant-a",
+            clock_skew_seconds=0,
+        )
+        verifier = OIDCTokenVerifier(
+            oidc,
+            metadata_loader=lambda: {
+                "issuer": oidc.issuer,
+                "authorization_endpoint": oidc.issuer + "/authorize",
+                "token_endpoint": oidc.issuer + "/token",
+                "jwks_uri": oidc.issuer + "/jwks",
+            },
+            signing_key_loader=lambda _token, _algorithm: public_key,
+        )
+
+        def exchange(code, transaction):
+            now = int(time.time())
+            return {
+                "id_token": jwt.encode(
+                    {
+                        "iss": oidc.issuer,
+                        "aud": oidc.client_id,
+                        "sub": code,
+                        "iat": now,
+                        "exp": now + 300,
+                        "nonce": transaction.nonce,
+                    },
+                    private_key,
+                    algorithm="RS256",
+                )
+            }
+
+        self.auth = OIDCSessionService(
+            InMemoryAuthRepository(),
+            verifier,
+            session_settings=SessionSettings(cookie_secure=False),
+            token_exchange=exchange,
+        )
+        self.client_context = TestClient(
+            create_app(
+                pipeline=MockPipeline(delay_seconds=0),
+                conversation_factory=factory,
+                auth_service=self.auth,
+            )
+        )
+        self.client = self.client_context.__enter__()
+
+    def tearDown(self):
+        self.client_context.__exit__(None, None, None)
+        self.environment.stop()
+
+    def sign_in(self, subject: str) -> tuple[str, str]:
+        login = self.client.get("/api/auth/login", follow_redirects=False)
+        state = parse_qs(urlparse(login.headers["location"]).query)["state"][0]
+        callback = self.client.get(
+            "/api/auth/callback",
+            params={"state": state, "code": subject},
+            follow_redirects=False,
+        )
+        self.assertEqual(callback.status_code, 303)
+        return state, self.client.cookies.get("ava_csrf")
+
+    def test_oidc_health_and_unauthenticated_history_fail_closed(self):
+        health = self.client.get("/api/health").json()
+        history = self.client.get("/api/conversations")
+
+        self.assertEqual(
+            health["conversation_history"]["deployment_boundary"],
+            "oidc_multi_user",
+        )
+        self.assertEqual(
+            health["authentication"], {"mode": "oidc", "required": True}
+        )
+        self.assertEqual(history.status_code, 401)
+        self.assertEqual(
+            self.client.get("/api/auth/session").json(),
+            {"mode": "oidc", "authenticated": False},
+        )
+
+    def test_login_callback_sets_bounded_cookie_and_is_not_replayable(self):
+        login = self.client.get(
+            "/api/auth/login",
+            params={"return_to": "/research"},
+            follow_redirects=False,
+        )
+        query = parse_qs(urlparse(login.headers["location"]).query)
+        state = query["state"][0]
+        callback = self.client.get(
+            "/api/auth/callback",
+            params={"state": state, "code": "user-a"},
+            follow_redirects=False,
+        )
+
+        self.assertEqual(callback.status_code, 303)
+        self.assertEqual(callback.headers["location"], "/research")
+        cookies = callback.headers.get_list("set-cookie")
+        self.assertTrue(any("ava_session=" in value and "HttpOnly" in value for value in cookies))
+        self.assertTrue(all("SameSite=lax" in value for value in cookies))
+        replay = self.client.get(
+            "/api/auth/callback",
+            params={"state": state, "code": "user-a"},
+            follow_redirects=False,
+        )
+        self.assertEqual(replay.status_code, 401)
+
+    def test_mutations_require_csrf_and_owner_isolation_is_server_side(self):
+        _, csrf = self.sign_in("user-a")
+        rejected = self.client.post(
+            "/api/conversations",
+            json={"title": "A", "memory_enabled": False},
+        )
+        created = self.client.post(
+            "/api/conversations",
+            json={"title": "A", "memory_enabled": False},
+            headers={"X-CSRF-Token": csrf},
+        )
+        self.assertEqual(rejected.status_code, 401)
+        self.assertEqual(created.status_code, 201)
+        conversation_id = created.json()["id"]
+
+        self.client.cookies.clear()
+        _, other_csrf = self.sign_in("user-b")
+        hidden = self.client.get(
+            f"/api/conversations/{conversation_id}/messages"
+        )
+        own_list = self.client.get("/api/conversations").json()["conversations"]
+        self.assertEqual(hidden.status_code, 404)
+        self.assertEqual(own_list, [])
+        self.assertTrue(other_csrf)
+
+    def test_logout_requires_csrf_and_invalidates_session(self):
+        _, csrf = self.sign_in("user-a")
+        rejected = self.client.post("/api/auth/logout")
+        accepted = self.client.post(
+            "/api/auth/logout", headers={"X-CSRF-Token": csrf}
+        )
+
+        self.assertEqual(rejected.status_code, 401)
+        self.assertEqual(accepted.status_code, 204)
+        self.assertEqual(
+            self.client.get("/api/auth/session").json()["authenticated"], False
+        )
 
 
 if __name__ == "__main__":
