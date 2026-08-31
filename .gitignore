@@ -1,5 +1,6 @@
 # Environment variables
 .env
+.qdrant-initialized
 
 # Agent files
 /docs/
@@ -13,6 +14,8 @@ __pycache__/
 
 # Generated embedding vectors
 data/embeddings/**/*.npz
+data/indexes/qdrant_server/
+data/indexes/qdrant_local/
 
 
 # Internal documents, architectures..

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DEFAULT_QDRANT_BINARY="${PROJECT_ROOT}/.local/qdrant/qdrant"
+if [[ ! -x "${DEFAULT_QDRANT_BINARY}" ]]; then
+  DEFAULT_QDRANT_BINARY="${HOME}/.local/share/ava-qdrant/v1.18.2/qdrant"
+fi
+QDRANT_BINARY="${QDRANT_BINARY:-${DEFAULT_QDRANT_BINARY}}"
+QDRANT_STORAGE_PATH="${QDRANT_STORAGE_PATH:-${PROJECT_ROOT}/data/indexes/qdrant_server/storage}"
+QDRANT_SNAPSHOTS_PATH="${QDRANT_SNAPSHOTS_PATH:-${PROJECT_ROOT}/data/indexes/qdrant_server/snapshots}"
+
+mkdir -p "${QDRANT_STORAGE_PATH}" "${QDRANT_SNAPSHOTS_PATH}"
+
+export QDRANT__SERVICE__HOST="${QDRANT_HOST:-127.0.0.1}"
+export QDRANT__SERVICE__HTTP_PORT="${QDRANT_HTTP_PORT:-6333}"
+export QDRANT__SERVICE__GRPC_PORT="${QDRANT_GRPC_PORT:-6334}"
+export QDRANT__STORAGE__STORAGE_PATH="${QDRANT_STORAGE_PATH}"
+export QDRANT__STORAGE__SNAPSHOTS_PATH="${QDRANT_SNAPSHOTS_PATH}"
+export QDRANT__TELEMETRY_DISABLED="true"
+
+exec "${QDRANT_BINARY}"

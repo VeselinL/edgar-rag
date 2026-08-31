@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-08-28T10:13:58.440986+00:00",
+  "artifact_version": "sha256:89d3a5be9e7d7a8e0d1188f4a5564c7be9bf01b92e381a7410e048a07738610c",
+  "physical_collection": "ava_filing_chunks_89d3a5be9e7d7a8e",
+  "read_alias": "ava_filing_chunks_current",
+  "previous_alias_target": null,
+  "snapshot_name": "ava_filing_chunks_89d3a5be9e7d7a8e-558572223687256-2026-08-28-10-13-57.snapshot",
+  "audit": {
+    "collection_name": "ava_filing_chunks_89d3a5be9e7d7a8e",
+    "artifact_version": "sha256:89d3a5be9e7d7a8e0d1188f4a5564c7be9bf01b92e381a7410e048a07738610c",
+    "point_count": 4526,
+    "expected_point_count": 4526,
+    "company_count": 11,
+    "dimension": 768,
+    "vector_name": "dense_bge_base_v1_5",
+    "distance": "Dot",
+    "exact_search_smoke_chunk_id": "AUR-2025-CHUNK-000001",
+    "status": "passed"
+  },
+  "records": [
+    {
+      "ticker": "AUR",
+      "filing_name": "2025-10-K",
+      "chunk_path": "data/chunks/AUR/2025-10-K.chunks.jsonl",
+      "embedding_path": "data/embeddings/AUR/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "data/embeddings/AUR/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_sha256": "e4b37bb683d1a956a9c13a29a61480b8b706263cb518d4e0083cee15ce611658",
+      "embedding_sha256": "8a9b68a87cc3ebf1358b6d0afc6a8d2bab595c1380d80bcbf60424d773b07d18",
+      "manifest_sha256": "f8d39607a7804bea1544b67a8c697c7ce1e562e1c8496ab62cd9abd694854cd8",
+      "point_count": 261
+    },
+    {
+      "ticker": "TSLA",
+      "filing_name": "2025-10-K",
+      "chunk_path": "data/chunks/TSLA/2025-10-K.chunks.jsonl",
+      "embedding_path": "data/embeddings/TSLA/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "data/embeddings/TSLA/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_sha256": "9ac5a7ac8c9e048fd1c88401dc61abf5db9258a0b55e6738570845e805f4f58b",
+      "embedding_sha256": "0458802a4eaf811c815b627dcc0da765575139b44e0005d5f72e643acb0ce9d1",
+      "manifest_sha256": "21aa095c20e5e6cd97898680fd6f6e05607aec26a3b0ccdea9f42abc198cf53e",
+      "point_count": 341
+    },
+    {
+      "ticker": "MBLY",
+      "filing_name": "2025-10-K",
+      "chunk_path": "data/chunks/MBLY/2025-10-K.chunks.jsonl",
+      "embedding_path": "data/embeddings/MBLY/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "data/embeddings/MBLY/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_sha256": "a84fb4c9b6058d84e07b4f8f63479c64696e4608ea67da99fe1fb989b6dc7154",
+      "embedding_sha256": "32fa231e71460f74b555b66a9506d7f537c62d6bc0f381ebd7cc99a19b1b3dc2",
+      "manifest_sha256": "3f4b57a94023188dae77179de533d072a93fde7c1028c712b380e02f2ca3e3b3",
+      "point_count": 462
+    },
+    {
+      "ticker": "GOOGL",
+      "filing_name": "2025-10-K",
+      "chunk_path": "data/chunks/GOOGL/2025-10-K.chunks.jsonl",
+      "embedding_path": "data/embeddings/GOOGL/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "data/embeddings/GOOGL/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_sha256": "5b469395854eeacce94b2a45aaebe00a46d274863040315ab6a92b47c0d24353",
+      "embedding_sha256": "1ebc9d88a7bc353f770443a8d80f386d5123d989150740303c05d9d0ff1d4578",
+      "manifest_sha256": "29a3553ce9fad7d4c9d23c45e0a060478cae1b07999a169c69f02f0b211e5e6f",
+      "point_count": 512
+    },
+    {
+      "ticker": "GM",
+      "filing_name": "2025-10-K",
+      "chunk_path": "data/chunks/GM/2025-10-K.chunks.jsonl",
+      "embedding_path": "data/embeddings/GM/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "data/embeddings/GM/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_sha256": "501dc0c7b1d88ec393d53b0ac22e4e7d393e277a0aeeaad277a13d3b8a527ea0",
+      "embedding_sha256": "884f8039d233c6603f54b8aa0297e05711532888d73b6f35940d717b4cdbdf6c",
+      "manifest_sha256": "26d31ac91e33625bf7c255cece86a281cb3bc0239191f667364541ff881a6186",
+      "point_count": 410
+    },
+    {
+      "ticker": "F",
+      "filing_name": "2025-10-K",
+      "chunk_path": "data/chunks/F/2025-10-K.chunks.jsonl",
+      "embedding_path": "data/embeddings/F/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "data/embeddings/F/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_sha256": "c5b227f6dc7147a498ad4bd655d5b8442325a9e45e77eab9eaf4d9dc41bf8121",
+      "embedding_sha256": "0f42e881fb5715202b18a4abc89d4faf2e86baba535cb1edcb3e2302e82960a2",
+      "manifest_sha256": "831f9ea6d137174bfae311a331fad7821bead4b1ace4358338d703927fd50368",
+      "point_count": 576
+    },
+    {
+      "ticker": "NVDA",
+      "filing_name": "2026-10-K",
+      "chunk_path": "data/chunks/NVDA/2026-10-K.chunks.jsonl",
+      "embedding_path": "data/embeddings/NVDA/2026-10-K.bgebase.embeddings.npz",
+      "manifest_path": "data/embeddings/NVDA/2026-10-K.bgebase.embeddings.manifest.json",
+      "chunk_sha256": "9c540a847da9e12a671cf77f0be4728f42e5d6bc5e47c2e43f5b2260e63635f1",
+      "embedding_sha256": "0f380e789f5030d8173f7421ead3ba89c40632da3dd002a58cb822c94cf14c68",
+      "manifest_sha256": "fd5b1300a8352f02cedca5b9b95003feb05b478130ebbcaf768f402c092794d9",
+      "point_count": 329
+    },
+    {
+      "ticker": "QCOM",
+      "filing_name": "2025-10-K",
+      "chunk_path": "data/chunks/QCOM/2025-10-K.chunks.jsonl",
+      "embedding_path": "data/embeddings/QCOM/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "data/embeddings/QCOM/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_sha256": "20210e30da13a2f57ee813119e31d46d60547017ee762818ea7ac565522711e1",
+      "embedding_sha256": "26d359cd90d157a696700fa7b6380438318e8c5e676506158cbd2a69fc25938e",
+      "manifest_sha256": "756cae3a2eb926dd215c3e31e8cdf819640aac522e9dacbbc4c589df247b3737",
+      "point_count": 321
+    },
+    {
+      "ticker": "APTV",
+      "filing_name": "2025-10-K",
+      "chunk_path": "data/chunks/APTV/2025-10-K.chunks.jsonl",
+      "embedding_path": "data/embeddings/APTV/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "data/embeddings/APTV/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_sha256": "2bd10e5f4b9d4e0ed8c67bfc6e265362d1a1d6cf33e811bb21be3e4c14095558",
+      "embedding_sha256": "f8c988dd84cc31573d2fc034778c16a4baaad98401cee902819efcd57688d421",
+      "manifest_sha256": "8b539b540206b2a486e267a62b5c1cbdf29af197fa7186df9020dab479b7b7a1",
+      "point_count": 528
+    },
+    {
+      "ticker": "OUST",
+      "filing_name": "2025-10-K",
+      "chunk_path": "data/chunks/OUST/2025-10-K.chunks.jsonl",
+      "embedding_path": "data/embeddings/OUST/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "data/embeddings/OUST/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_sha256": "4dc8197d2c57e144273fa246ff3554f95e80838e3de50ae2c3bbcc0a82400c05",
+      "embedding_sha256": "44caef1b3abae21dcb21f2753471330e20fd03d3d3eef6885b28d353c476a7f4",
+      "manifest_sha256": "57c93b8c7466414f5dba9c2ce7c532491a39ac7ac0a0e9bb2ae69bed94eae149",
+      "point_count": 375
+    },
+    {
+      "ticker": "RIVN",
+      "filing_name": "2025-10-K",
+      "chunk_path": "data/chunks/RIVN/2025-10-K.chunks.jsonl",
+      "embedding_path": "data/embeddings/RIVN/2025-10-K.bgebase.embeddings.npz",
+      "manifest_path": "data/embeddings/RIVN/2025-10-K.bgebase.embeddings.manifest.json",
+      "chunk_sha256": "3d684ee926f9a50750e5d9f1c1c3e80794207ecaf61f859727c6f6841c623378",
+      "embedding_sha256": "68faf93298a2838ca55923c5a2fef00065d58af6c3964a61c9c3be82d960e57f",
+      "manifest_sha256": "47adb27fd69d3431f5b40b149efaf2141d0add35ba7b442ed35128ef4ff64063",
+      "point_count": 411
+    }
+  ]
+}
