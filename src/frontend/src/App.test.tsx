@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App'
+import { getAuthSession, signOut } from './api/auth'
 import { streamChat } from './api/chatStream'
 import {
   conversationHistoryEnabled,
@@ -16,6 +17,12 @@ vi.mock('./api/chatStream', () => ({
   streamChat: vi.fn(),
 }))
 
+vi.mock('./api/auth', () => ({
+  getAuthSession: vi.fn(async () => ({ mode: 'none', authenticated: true })),
+  signInUrl: vi.fn(() => 'http://localhost:8000/api/auth/login?return_to=%2F'),
+  signOut: vi.fn(async () => undefined),
+}))
+
 vi.mock('./api/conversations', () => ({
   conversationHistoryEnabled: vi.fn(async () => false),
   createConversation: vi.fn(),
@@ -27,6 +34,8 @@ vi.mock('./api/conversations', () => ({
 }))
 
 const mockedStream = vi.mocked(streamChat)
+const mockedAuthSession = vi.mocked(getAuthSession)
+const mockedSignOut = vi.mocked(signOut)
 const mockedHistoryEnabled = vi.mocked(conversationHistoryEnabled)
 const mockedCreateConversation = vi.mocked(createConversation)
 const mockedListConversations = vi.mocked(listConversations)
@@ -37,6 +46,10 @@ type Handlers = Parameters<typeof streamChat>[1]
 describe('App', () => {
   beforeEach(() => {
     mockedStream.mockReset()
+    mockedAuthSession.mockReset()
+    mockedAuthSession.mockResolvedValue({ mode: 'none', authenticated: true })
+    mockedSignOut.mockReset()
+    mockedSignOut.mockResolvedValue(undefined)
     mockedHistoryEnabled.mockReset()
     mockedHistoryEnabled.mockResolvedValue(false)
     mockedCreateConversation.mockReset()
@@ -52,6 +65,30 @@ describe('App', () => {
     await waitFor(() => expect(screen.getByLabelText('Ask AVA about the SEC filings')).not.toBeDisabled())
     expect(screen.getByText(/SEC 10-K filings from eleven companies/)).toBeInTheDocument()
     expect(screen.getByAltText('AVA').getAttribute('src')).toContain('ava-light.png')
+  })
+
+  it('requires explicit sign-in without exposing the composer', async () => {
+    mockedAuthSession.mockResolvedValue({ mode: 'oidc', authenticated: false })
+
+    render(<App />)
+
+    expect(await screen.findByRole('heading', { name: 'Sign in to AVA' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Continue to sign in' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument()
+    expect(screen.queryByLabelText('Ask AVA about the SEC filings')).not.toBeInTheDocument()
+    expect(mockedHistoryEnabled).not.toHaveBeenCalled()
+  })
+
+  it('signs out without retaining the saved transcript in browser state', async () => {
+    mockedAuthSession.mockResolvedValue({ mode: 'oidc', authenticated: true })
+    mockedHistoryEnabled.mockResolvedValue(false)
+    render(<App />)
+
+    const button = await screen.findByRole('button', { name: 'Sign out' })
+    await userEvent.click(button)
+
+    expect(mockedSignOut).toHaveBeenCalledOnce()
+    expect(await screen.findByRole('heading', { name: 'Sign in to AVA' })).toBeInTheDocument()
   })
 
   it('submits with Enter, shows waiting, and removes it on first token', async () => {

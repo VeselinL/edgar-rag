@@ -1,4 +1,5 @@
 import type { Source, SourceStatus } from '../types'
+import { csrfHeaders } from './auth'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000').replace(/\/$/, '')
 
@@ -55,7 +56,12 @@ export async function streamChat(
   try {
     response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream',
+        ...csrfHeaders(),
+      },
       body: JSON.stringify({
         query,
         ...(conversation ? {

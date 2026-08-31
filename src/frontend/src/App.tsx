@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChatStreamError, streamChat } from './api/chatStream'
+import { getAuthSession, signInUrl, signOut } from './api/auth'
 import {
   conversationHistoryEnabled,
   createConversation,
@@ -29,6 +30,8 @@ export default function App() {
   const [historyEnabled, setHistoryEnabled] = useState(false)
   const [historyInitializing, setHistoryInitializing] = useState(true)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [authenticationRequired, setAuthenticationRequired] = useState(false)
+  const [authenticated, setAuthenticated] = useState(true)
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
   const [currentConversation, setCurrentConversation] = useState<ConversationSummary | null>(null)
   const controller = useRef<AbortController | null>(null)
@@ -38,6 +41,11 @@ export default function App() {
     let cancelled = false
     void (async () => {
       try {
+        const auth = await getAuthSession()
+        if (cancelled) return
+        setAuthenticationRequired(auth.mode === 'oidc')
+        setAuthenticated(auth.authenticated)
+        if (!auth.authenticated) return
         if (!await conversationHistoryEnabled() || cancelled) return
         setHistoryEnabled(true)
         const saved = await listConversations()
@@ -195,6 +203,7 @@ export default function App() {
   }
 
   const isEmpty = messages.length === 0
+  const needsSignIn = authenticationRequired && !authenticated
   return (
     <div className="app-shell">
       <Header
@@ -211,6 +220,18 @@ export default function App() {
               setCurrentConversation(updated)
               setConversations((items) => items.map((item) => item.id === updated.id ? updated : item))
             })
+        }}
+        authenticationRequired={authenticationRequired}
+        authenticated={authenticated}
+        onSignIn={() => window.location.assign(signInUrl())}
+        onSignOut={() => {
+          void signOut().then(() => {
+            setAuthenticated(false)
+            setHistoryEnabled(false)
+            setCurrentConversation(null)
+            setConversations([])
+            setMessages([])
+          })
         }}
       />
       <div className="workspace">
@@ -251,17 +272,29 @@ export default function App() {
           />
         )}
         <main className={`main ${isEmpty ? 'main--empty' : ''}`}>
-          {isEmpty ? <EmptyState theme={theme} /> : <Conversation messages={messages} theme={theme} />}
-          <Composer
-            value={draft}
-            active={active || historyInitializing}
-            validationMessage={validation}
-            onChange={(value) => {
-              setDraft(value)
-              if (validation) setValidation('')
-            }}
-            onSubmit={() => void submit()}
-          />
+          {needsSignIn ? (
+            <section className="auth-prompt" aria-labelledby="auth-heading">
+              <h1 id="auth-heading">Sign in to AVA</h1>
+              <p>Your filing research and saved conversations stay isolated to your verified account.</p>
+              <button type="button" className="auth-prompt__button" onClick={() => window.location.assign(signInUrl())}>
+                Continue to sign in
+              </button>
+            </section>
+          ) : (
+            <>
+              {isEmpty ? <EmptyState theme={theme} /> : <Conversation messages={messages} theme={theme} />}
+              <Composer
+                value={draft}
+                active={active || historyInitializing}
+                validationMessage={validation}
+                onChange={(value) => {
+                  setDraft(value)
+                  if (validation) setValidation('')
+                }}
+                onSubmit={() => void submit()}
+              />
+            </>
+          )}
         </main>
       </div>
     </div>

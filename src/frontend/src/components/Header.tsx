@@ -26,6 +26,10 @@ interface HeaderProps {
   onToggleHistory?: () => void
   onNewConversation?: () => void
   onToggleMemory?: () => void
+  authenticationRequired?: boolean
+  authenticated?: boolean
+  onSignIn?: () => void
+  onSignOut?: () => void
 }
 
 export function Header({
@@ -36,6 +40,10 @@ export function Header({
   onToggleHistory,
   onNewConversation,
   onToggleMemory,
+  authenticationRequired = false,
+  authenticated = true,
+  onSignIn,
+  onSignOut,
 }: HeaderProps) {
   const label = theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'
   return (
@@ -62,6 +70,12 @@ export function Header({
                 {memoryEnabled ? 'Memory on' : 'Memory off'}
               </button>
             </>
+          )}
+          {authenticationRequired && !authenticated && (
+            <button className="header-button" type="button" onClick={onSignIn}>Sign in</button>
+          )}
+          {authenticationRequired && authenticated && (
+            <button className="header-button" type="button" onClick={onSignOut}>Sign out</button>
           )}
           <button className="icon-button" type="button" onClick={onToggleTheme} aria-label={label} title={label}>
             {theme === 'light' ? <SunIcon /> : <MoonIcon />}

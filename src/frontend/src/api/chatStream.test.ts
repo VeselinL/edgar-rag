@@ -32,8 +32,36 @@ describe('streamChat', () => {
     expect(eventOrder).toEqual(['open', 'delta', 'delta', 'sources', 'done'])
     expect(fetch).toHaveBeenCalledWith(
       'http://localhost:8000/api/chat/stream',
-      expect.objectContaining({ body: JSON.stringify({ query: 'Original query' }) }),
+      expect.objectContaining({
+        body: JSON.stringify({ query: 'Original query' }),
+        credentials: 'include',
+      }),
     )
+  })
+
+  it('sends the CSRF cookie value as a mutation header without storing a session token', async () => {
+    document.cookie = 'ava_csrf=csrf-test-value; path=/'
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(streamedResponse([
+      'event: done\ndata: {}\n\n',
+    ]))
+
+    await streamChat('Question', {
+      signal: new AbortController().signal,
+      onOpen: vi.fn(),
+      onDelta: vi.fn(),
+      onSources: vi.fn(),
+      onDone: vi.fn(),
+    })
+
+    expect(fetch).toHaveBeenCalledWith(
+      'http://localhost:8000/api/chat/stream',
+      expect.objectContaining({
+        credentials: 'include',
+        headers: expect.objectContaining({ 'X-CSRF-Token': 'csrf-test-value' }),
+      }),
+    )
+    expect(localStorage.getItem('ava_session')).toBeNull()
+    expect(sessionStorage.getItem('ava_session')).toBeNull()
   })
 
   it('rejects a missing or unknown source status', async () => {
