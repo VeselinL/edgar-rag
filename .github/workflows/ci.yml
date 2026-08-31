@@ -114,11 +114,19 @@ jobs:
           image-ref: ava-api:ci
           severity: CRITICAL,HIGH
           ignore-unfixed: true
-          exit-code: "1"
+          format: sarif
+          output: trivy-api.sarif
+          exit-code: "0"
+      - name: Enforce API image findings
+        run: python scripts/ci_sarif_gate.py trivy-api.sarif
       - name: Scan frontend image
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
         with:
           image-ref: ava-frontend:ci
           severity: CRITICAL,HIGH
           ignore-unfixed: true
-          exit-code: "1"
+          format: sarif
+          output: trivy-frontend.sarif
+          exit-code: "0"
+      - name: Enforce frontend image findings
+        run: python scripts/ci_sarif_gate.py trivy-frontend.sarif
