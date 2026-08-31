@@ -700,3 +700,22 @@ and was not included in AVA commits.
   strict TypeScript, all 19 Vitest tests, and the production build pass. Live
   container validation is assigned to the production-like Phase 8 gate because
   this workspace cannot access the installed Docker engine.
+
+### Added production hardening and release gates
+
+- Added pinned non-root API and frontend images, a private PostgreSQL/Qdrant
+  production topology, separate liveness/readiness probes, graceful shutdown,
+  and an SSE-safe Nginx edge configuration.
+- Added request IDs, structured JSON logs, security headers, body/rate/time
+  limits, provider retry/timeout controls, a measured circuit breaker, and safe
+  pre-stream and partial-stream failure states.
+- Added CI gates for the backend, frontend, live PostgreSQL/Qdrant contracts,
+  migrations, production builds, browser-bundle secret scanning, container
+  vulnerability scanning, and proxied SSE smoke/load probes.
+- Added answer feedback bound to owned completed messages and saved
+  answer/evidence/version metadata. Added an authenticated owner-scoped JSON
+  conversation export alongside complete delete-one/delete-all and retention
+  controls.
+- Added privacy and security documentation, operator incident/rotation guidance,
+  and production verification commands. Phase 6 image work remains explicitly
+  skipped at the owner's direction.

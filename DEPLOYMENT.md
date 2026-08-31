@@ -3,7 +3,8 @@
 **Status date:** 31 August 2026
 **Product:** AVA — Autonomous Vehicle Analyst
 
-This document defines the local vertical slice and the direction for a later production deployment. It does not select a hosting provider.
+This document defines the local vertical slice and the self-hosted production
+reference deployment. It does not select a hosting provider.
 
 > This document records the currently verified local deployment. The
 > authoritative future architecture, priorities, Qdrant migration, image source
@@ -34,9 +35,10 @@ FastAPI is a thin adapter around independently usable Python modules. The same s
 The stateless path remains available. The optional persistent path stores ordered
 messages and summaries in PostgreSQL, sends a bounded recent-turn window plus a
 rebuildable summary to the planner/generator, and can retrieve opt-in summary
-memory from a separate Qdrant collection. It is limited to an explicitly
-acknowledged single-user deployment boundary until an authentication provider is
-selected; browser IDs never define tenant ownership.
+memory from a separate Qdrant collection. Production uses provider-neutral OIDC
+and server-bound tenant/user ownership. An explicitly acknowledged single-user
+mode remains available only for trusted local deployments; browser IDs never
+define tenant ownership.
 
 ### Source-of-truth reconciliation
 
@@ -384,9 +386,8 @@ One `POST /api/chat/stream` request performs this lifecycle:
 10. Citation IDs found in the generated answer are resolved only against the selected generation evidence.
 11. The adapter emits normalized user-facing source objects in one `sources`
     event. The current implementation returns all final generation evidence when
-    no valid citation resolves. This is a known correctness bug; Phase 1 of the
-    canonical plan changes the result to an empty source list so only exact
-    cited/used chunks are ever shown.
+    no valid citation resolves. The API returns an empty source list in that case,
+    so candidates and uncited context are never presented as answer support.
 12. Before `done`, the completed answer, frontend-safe source event, and exact
     used-source IDs are committed to PostgreSQL. One `done` event terminates a
     successful stream; interruption marks the turn retryable.
