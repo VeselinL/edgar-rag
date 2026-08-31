@@ -92,12 +92,14 @@ class QdrantMemoryStore:
         *,
         query_prefix: str,
         collection_name: str = MEMORY_COLLECTION,
+        ensure_collection: bool = True,
     ) -> None:
         self.client = client
         self.embedder = embedder
         self.query_prefix = query_prefix
         self.collection_name = collection_name
-        self._ensure_collection()
+        if ensure_collection:
+            self._ensure_collection()
 
     def _ensure_collection(self) -> None:
         if not self.client.collection_exists(self.collection_name):
@@ -129,6 +131,8 @@ class QdrantMemoryStore:
             )
 
     def _embed(self, value: str, *, query: bool) -> list[float]:
+        if self.embedder is None:
+            raise RuntimeError("This Qdrant memory store is configured for maintenance only.")
         prefix = self.query_prefix if query else ""
         vector = self.embedder.encode(prefix + value, normalize_embeddings=True)
         return np.asarray(vector, dtype=np.float32).tolist()

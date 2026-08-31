@@ -1,10 +1,12 @@
 import unittest
+from datetime import timedelta
 from uuid import uuid4
 
 import numpy as np
 from qdrant_client import QdrantClient
 
 from src.conversations.context import ConversationContextBuilder
+from src.conversations.maintenance import ConversationRetentionJob
 from src.conversations.memory import InMemoryMemoryStore, QdrantMemoryStore
 from src.conversations.models import MemoryItem
 from src.conversations.repository import (
@@ -167,6 +169,39 @@ class ConversationServiceTests(unittest.TestCase):
         ConversationSettings(mode="oidc", postgres_dsn="postgresql://example").validate()
         with self.assertRaisesRegex(ValueError, "POSTGRES"):
             ConversationSettings(mode="oidc").validate()
+
+    def test_retention_is_dry_run_first_then_deletes_memory_and_audits(self):
+        expired = self.service.create(memory_enabled=True)
+        active = self.service.create(memory_enabled=True)
+        self.memory.upsert_summary(self.item_for_retention(expired.id, "old"))
+        self.memory.upsert_summary(self.item_for_retention(active.id, "new"))
+        cutoff = expired.updated_at + timedelta(microseconds=1)
+        self.repository._conversations[active.id] = type(active)(
+            **{**active.__dict__, "updated_at": cutoff + timedelta(seconds=1)}
+        )
+        job = ConversationRetentionJob(self.repository, self.memory)
+
+        preview = job.run(cutoff=cutoff)
+        self.assertTrue(preview.dry_run)
+        self.assertEqual(preview.discovered, 1)
+        self.assertIn(expired.id, [item.id for item in self.service.list()])
+
+        applied = job.run(cutoff=cutoff, apply=True)
+        self.assertEqual(applied.deleted, 1)
+        self.assertNotIn(f"summary:{expired.id}", self.memory.items)
+        self.assertIn(f"summary:{active.id}", self.memory.items)
+        self.assertEqual(self.repository.deletion_audit[-1]["scope"], "retention")
+
+    def item_for_retention(self, conversation_id, content):
+        return MemoryItem(
+            id=f"summary:{conversation_id}",
+            tenant_id="tenant-a",
+            user_id="user-a",
+            conversation_id=conversation_id,
+            source_id="summary",
+            memory_type="summary",
+            content=content,
+        )
 
 
 class FakeEmbedder:

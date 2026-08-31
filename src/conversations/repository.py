@@ -35,6 +35,9 @@ class ConversationRepository(Protocol):
     def list_messages(self, tenant_id: str, user_id: str, conversation_id: str) -> list[Message]: ...
     def get_summary(self, tenant_id: str, user_id: str, conversation_id: str) -> Summary | None: ...
     def upsert_summary(self, tenant_id: str, user_id: str, conversation_id: str, through_ordinal: int, version: int, content: str) -> Summary: ...
+    def count_expired_conversations(self, cutoff: datetime) -> int: ...
+    def list_expired_conversations(self, cutoff: datetime, limit: int) -> list[Conversation]: ...
+    def delete_expired_conversation(self, tenant_id: str, user_id: str, conversation_id: str, cutoff: datetime) -> bool: ...
 
 
 class InMemoryConversationRepository:
@@ -45,6 +48,7 @@ class InMemoryConversationRepository:
         self._conversations: dict[str, Conversation] = {}
         self._messages: dict[str, list[Message]] = {}
         self._summaries: dict[str, Summary] = {}
+        self.deletion_audit: list[dict[str, Any]] = []
 
     def create_conversation(self, tenant_id: str, user_id: str, title: str, memory_enabled: bool) -> Conversation:
         with self._lock:
@@ -93,14 +97,74 @@ class InMemoryConversationRepository:
             del self._conversations[conversation_id]
             self._messages.pop(conversation_id, None)
             self._summaries.pop(conversation_id, None)
+            self.deletion_audit.append({
+                "tenant_id": tenant_id,
+                "user_id": user_id,
+                "conversation_id": conversation_id,
+                "scope": "conversation",
+            })
             return True
 
     def delete_all_conversations(self, tenant_id: str, user_id: str) -> list[str]:
         with self._lock:
             ids = [item.id for item in self.list_conversations(tenant_id, user_id)]
             for conversation_id in ids:
-                self.delete_conversation(tenant_id, user_id, conversation_id)
+                del self._conversations[conversation_id]
+                self._messages.pop(conversation_id, None)
+                self._summaries.pop(conversation_id, None)
+            if ids:
+                self.deletion_audit.append({
+                    "tenant_id": tenant_id,
+                    "user_id": user_id,
+                    "conversation_id": None,
+                    "scope": "all_conversations",
+                })
             return ids
+
+    def list_expired_conversations(
+        self, cutoff: datetime, limit: int
+    ) -> list[Conversation]:
+        if limit <= 0:
+            raise ValueError("Retention batch limit must be positive.")
+        with self._lock:
+            return sorted(
+                [value for value in self._conversations.values() if value.updated_at < cutoff],
+                key=lambda value: (value.updated_at, value.id),
+            )[:limit]
+
+    def count_expired_conversations(self, cutoff: datetime) -> int:
+        with self._lock:
+            return sum(
+                value.updated_at < cutoff
+                for value in self._conversations.values()
+            )
+
+    def delete_expired_conversation(
+        self,
+        tenant_id: str,
+        user_id: str,
+        conversation_id: str,
+        cutoff: datetime,
+    ) -> bool:
+        with self._lock:
+            value = self._conversations.get(conversation_id)
+            if (
+                value is None
+                or value.tenant_id != tenant_id
+                or value.user_id != user_id
+                or value.updated_at >= cutoff
+            ):
+                return False
+            del self._conversations[conversation_id]
+            self._messages.pop(conversation_id, None)
+            self._summaries.pop(conversation_id, None)
+            self.deletion_audit.append({
+                "tenant_id": tenant_id,
+                "user_id": user_id,
+                "conversation_id": conversation_id,
+                "scope": "retention",
+            })
+            return True
 
     def begin_turn(self, tenant_id: str, user_id: str, conversation_id: str, client_turn_id: str, query: str, request_id: str) -> StoredTurn:
         with self._lock:
@@ -382,3 +446,57 @@ class PostgresConversationRepository:
                 (str(uuid4()), conversation_id, through_ordinal, version, content),
             ).fetchone()
         return Summary(str(row["summary_id"]), str(row["conversation_id"]), row["through_ordinal"], row["version"], row["content"], row["updated_at"])
+
+    def list_expired_conversations(
+        self, cutoff: datetime, limit: int
+    ) -> list[Conversation]:
+        if limit <= 0:
+            raise ValueError("Retention batch limit must be positive.")
+        with self._connect() as connection:
+            rows = connection.execute(
+                """SELECT * FROM ava_conversations
+                   WHERE deleted_at IS NULL AND updated_at<%s
+                   ORDER BY updated_at, conversation_id
+                   LIMIT %s""",
+                (cutoff, limit),
+            ).fetchall()
+        return [self._conversation(row) for row in rows]
+
+    def count_expired_conversations(self, cutoff: datetime) -> int:
+        with self._connect() as connection:
+            row = connection.execute(
+                """SELECT COUNT(*) AS value FROM ava_conversations
+                   WHERE deleted_at IS NULL AND updated_at<%s""",
+                (cutoff,),
+            ).fetchone()
+        return int(row["value"])
+
+    def delete_expired_conversation(
+        self,
+        tenant_id: str,
+        user_id: str,
+        conversation_id: str,
+        cutoff: datetime,
+    ) -> bool:
+        with self._connect() as connection:
+            row = connection.execute(
+                """SELECT conversation_id FROM ava_conversations
+                   WHERE conversation_id=%s AND tenant_id=%s AND user_id=%s
+                     AND deleted_at IS NULL AND updated_at<%s
+                   FOR UPDATE""",
+                (conversation_id, tenant_id, user_id, cutoff),
+            ).fetchone()
+            if row is None:
+                return False
+            connection.execute(
+                """INSERT INTO ava_deletion_audit
+                   (deletion_id, tenant_id, user_id, conversation_id, scope)
+                   VALUES (%s,%s,%s,%s,'retention')""",
+                (str(uuid4()), tenant_id, user_id, conversation_id),
+            )
+            connection.execute(
+                """DELETE FROM ava_conversations
+                   WHERE conversation_id=%s AND tenant_id=%s AND user_id=%s""",
+                (conversation_id, tenant_id, user_id),
+            )
+        return True
