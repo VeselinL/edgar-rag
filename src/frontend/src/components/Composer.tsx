@@ -56,7 +56,7 @@ export function Composer({ value, active, validationMessage, onChange, onSubmit 
         </button>
       </form>
       <div className="composer-meta">
-        <span id="composer-help">Enter to send · Shift+Enter for a new line</span>
+        <span id="composer-help">Enter to send · Shift+Enter for a new line · <a href="/privacy.html">Privacy</a></span>
         <span id="composer-status" role="status">{validationMessage}</span>
       </div>
     </div>

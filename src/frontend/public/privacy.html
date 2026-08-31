@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Privacy · AVA</title>
+    <link rel="stylesheet" href="/privacy.css" />
+  </head>
+  <body>
+    <main>
+      <h1>AVA privacy information</h1>
+      <p>AVA is Autonomous Vehicle Analyst, a filing-research assistant operated within your deployment.</p>
+      <h2>Data used</h2>
+      <p>AVA processes your current question, retrieved SEC filing excerpts, and—when signed-in history is enabled—a bounded portion of your saved conversation. Long-term semantic memory is off for each new conversation until you enable it.</p>
+      <h2>Storage and retention</h2>
+      <p>Saved conversations, answers, source-use records, feedback, and summaries are stored in PostgreSQL. Eligible opt-in summaries may also be indexed in Qdrant. The default conversation retention period is 90 days, but your deployment operator may configure a different approved period.</p>
+      <h2>Providers and access</h2>
+      <p>Your question and the selected context are sent to the configured model provider to produce an answer. Identity is handled by the configured OIDC provider. Access is limited by your verified tenant and user identity.</p>
+      <h2>Your controls</h2>
+      <p>You can start a memory-off chat, disable memory, rename conversations, delete one conversation, or delete all conversations. Deletion removes canonical conversation content and derived memory; a content-free deletion audit may remain for operational accountability.</p>
+      <h2>Operational records</h2>
+      <p>Restricted logs may contain questions, evidence identifiers, latency, token usage, and safe error classifications. They must not contain API keys, raw provider errors, system prompts, or retrieval scores exposed to the browser.</p>
+      <p>Contact your AVA deployment administrator for access, deletion, retention, provider, or incident questions.</p>
+      <p><a href="/">Return to AVA</a></p>
+    </main>
+  </body>
+</html>

@@ -482,22 +482,38 @@ Citation parsing accepts only exact IDs present in final evidence. A response
 with no resolved final-evidence citation returns no source cards; candidates and
 uncited context are never exposed as answer support.
 
-## Production direction
+## Production deployment
 
-A later deployment is expected to use:
+`docker-compose.production.yml` is the self-hosted reference topology. Every base
+image is pinned by version and multi-architecture digest. The frontend is a
+non-root Nginx process that proxies `/api` without SSE buffering. The non-root API
+runs one Uvicorn worker because each worker owns the BGE model, normalized dense
+matrix, and BM25 index. PostgreSQL and Qdrant are private on an internal network;
+only the frontend binds a loopback port for an external TLS proxy.
 
-- static hosting for the built React assets;
-- Docker-compatible backend compute able to retain models and the index in memory;
-- backend-only secret injection;
-- versioned, immutable retrieval/index artifacts with recorded hashes;
-- CORS restricted to the deployed frontend origin;
-- HTTPS end to end;
-- separate liveness and readiness probes;
-- request and idle-stream timeouts that accommodate model loading and generation;
-- cancellation propagation and graceful shutdown of active streams;
-- basic structured logs with request ID, scope, detected companies, evidence IDs, stage latency, citation resolution, and safe error class.
+Before startup, load and audit the immutable Qdrant filing collection, provide
+the checked local chunk/embedding artifacts, configure an OIDC client with the
+exact callback URI, and inject secrets from the host/orchestrator secret manager.
+For the compose reference, all `${...}` values must be supplied without checking
+them into a file. Never place secrets in `VITE_*` build arguments.
 
-Do not choose a provider or compute size until these are measured on the local vertical slice:
+Validate resolved configuration without printing it, then build and start:
+
+```bash
+docker compose -f docker-compose.production.yml config --quiet
+docker compose -f docker-compose.production.yml build --pull
+docker compose -f docker-compose.production.yml up -d
+curl --fail http://127.0.0.1:${AVA_HTTP_PORT:-8080}/api/live
+curl --fail http://127.0.0.1:${AVA_HTTP_PORT:-8080}/api/ready
+```
+
+Terminate TLS at the deployment edge, forward only to the loopback frontend,
+preserve streaming responses, and set an idle timeout above
+`AVA_STREAM_TIMEOUT_SECONDS`. Do not publish API, PostgreSQL, or Qdrant ports.
+The app emits JSON logs when `AVA_JSON_LOGS=true`; logs and request traces must be
+access-controlled and retained separately from conversations.
+
+Measure these values before choosing compute size or increasing worker count:
 
 - backend startup time;
 - idle and peak RAM;
@@ -519,17 +535,31 @@ Do not choose a provider or compute size until these are measured on the local v
 - Log technical exceptions server-side with request correlation; return concise safe errors to users.
 - Keep raw SEC filing files immutable.
 - Restrict production CORS; do not use wildcard origins with credentials.
-- Do not add authentication in this phase.
+- Follow the controls and incident process in `SECURITY.md`.
 
-## Future deployment milestones
+## Production verification
 
-1. **Local vertical slice:** real LLM planning, scope-aware retrieval, explicit buffered or provider-streamed answer delivery, citation resolution, structured sources, and responsive themes pass automated and visual checks. Native provider streaming remains the preferred production configuration.
-2. **Containerized reproducible build:** pin backend/frontend dependencies, build without local caches, validate artifact hashes, and document measured startup/RAM/latency.
-3. **Hosted preview:** deploy static frontend and right-sized backend, enable HTTPS/restricted CORS/readiness, and verify unbuffered streaming.
-4. **Persistent conversations:** the single-user PostgreSQL/Qdrant foundation is
-   implemented; complete live deployment, provider follow-up evaluation,
-   retention automation, backups, and restore/deletion drills.
-5. **Authentication and accounts:** add only with an explicit identity/security design.
-6. **Document uploads and corpus management:** define tenancy, validation, provenance, storage, and re-indexing first.
-7. **Vector-database migration:** consider only if measured scale, filtering, durability, or concurrency makes the current in-memory artifacts insufficient.
-8. **Agentic functionality:** require a concrete use case, threat model, and separate evaluation before adding tools or orchestration.
+CI builds both images, scans them for unfixed high/critical vulnerabilities, scans
+the browser bundle for backend secret names, runs live PostgreSQL/Qdrant tenancy,
+session, retention, and migration contracts, and sends an SSE request through the
+production Nginx configuration. The CI proxy load probe records mock transport
+p50/p95 only; it must not be presented as provider latency.
+
+For a provider-backed deployment, create a disposable conversation if OIDC mode
+is enabled, supply its IDs and session/CSRF values through environment variables,
+and run:
+
+```bash
+AVA_LOAD_SESSION_COOKIE=<opaque-cookie> \
+AVA_LOAD_CSRF_TOKEN=<csrf-cookie> \
+.venv/bin/python scripts/load_sse.py \
+  --origin https://ava.example.com \
+  --conversation-id <disposable-conversation-uuid> \
+  --requests 20 --concurrency 2 --label provider-production-like
+```
+
+Record p50/p95 time to first token, complete latency, error count, startup time,
+and peak RAM in the release record. Delete the disposable conversation, perform
+the documented backup restore drill, and test sign-in, logout, CSRF rejection,
+tenant isolation, history resume, feedback, deletion, and mobile keyboard/focus
+behavior before promotion.
