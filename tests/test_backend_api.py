@@ -63,6 +63,33 @@ class BackendApiTests(unittest.TestCase):
             },
         )
 
+    def test_liveness_and_readiness_are_separate(self):
+        self.assertEqual(self.client.get("/api/live").json(), {"status": "ok"})
+        ready = self.client.get("/api/ready")
+        self.assertEqual(ready.status_code, 200)
+        self.assertEqual(ready.json(), {"status": "ready"})
+
+    def test_body_limit_and_security_headers_are_enforced(self):
+        with patch.dict(os.environ, {"AVA_MAX_BODY_BYTES": "16"}, clear=False):
+            with TestClient(create_app(pipeline=MockPipeline(delay_seconds=0))) as client:
+                response = client.post(
+                    "/api/chat/stream", json={"query": "This body is too long"}
+                )
+                live = client.get("/api/live")
+        self.assertEqual(response.status_code, 413)
+        self.assertEqual(live.headers["x-content-type-options"], "nosniff")
+        self.assertEqual(live.headers["x-frame-options"], "DENY")
+        self.assertRegex(live.headers["x-request-id"], r"^[0-9a-f-]{36}$")
+
+    def test_application_rate_limit_returns_retry_hint(self):
+        with patch.dict(os.environ, {"AVA_REQUESTS_PER_MINUTE": "1"}, clear=False):
+            with TestClient(create_app(pipeline=MockPipeline(delay_seconds=0))) as client:
+                first = client.get("/api/auth/session")
+                limited = client.get("/api/auth/session")
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(limited.status_code, 429)
+        self.assertIn("retry-after", limited.headers)
+
     def test_health_exposes_unavailable_qdrant_without_mock_fallback(self):
         class UnavailableRealPipeline:
             mode = "real"

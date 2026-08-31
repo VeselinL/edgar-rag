@@ -19,6 +19,12 @@ from fastapi.responses import RedirectResponse, StreamingResponse
 from pydantic import BaseModel
 
 from .pipeline import PipelineEvent, PipelineSettings, build_pipeline
+from .operations import (
+    BodyLimitMiddleware,
+    OperationalMiddleware,
+    OperationalSettings,
+    configure_json_logging,
+)
 from src.auth.oidc import AuthenticationError, OIDCSettings, OIDCTokenVerifier
 from src.auth.repository import PostgresAuthRepository
 from src.auth.service import OIDCSessionService, SessionSettings
@@ -174,11 +180,13 @@ def create_app(
     settings = PipelineSettings.from_environment()
     conversation_settings = ConversationSettings.from_environment()
     query_max_length = int(os.getenv("AVA_QUERY_MAX_LENGTH", "4000"))
+    operational_settings = OperationalSettings.from_environment()
     if query_max_length < 1:
         raise ValueError("AVA_QUERY_MAX_LENGTH must be positive.")
 
     @asynccontextmanager
     async def lifespan(application: FastAPI):
+        configure_json_logging()
         application.state.pipeline = pipeline or build_pipeline(settings)
         application.state.conversation_service = conversation_service
         application.state.conversation_factory = (
@@ -194,7 +202,17 @@ def create_app(
         application.state.auth = auth_service or _build_auth_service(
             conversation_settings
         )
-        yield
+        try:
+            yield
+        finally:
+            factory = getattr(application.state, "conversation_factory", None)
+            memory_store = getattr(factory, "memory_store", None)
+            close_memory = getattr(memory_store, "close", None)
+            if callable(close_memory):
+                close_memory()
+            close_pipeline = getattr(application.state.pipeline, "close", None)
+            if callable(close_pipeline):
+                close_pipeline()
 
     application = FastAPI(
         title="AVA API",
@@ -216,6 +234,43 @@ def create_app(
         allow_headers=["Content-Type", "X-CSRF-Token"],
         expose_headers=["X-Request-ID"],
     )
+    application.add_middleware(
+        BodyLimitMiddleware, maximum_bytes=operational_settings.maximum_body_bytes
+    )
+    application.add_middleware(
+        OperationalMiddleware,
+        requests_per_minute=operational_settings.requests_per_minute,
+    )
+
+    @application.get("/api/live")
+    async def liveness() -> dict[str, str]:
+        return {"status": "ok"}
+
+    @application.get("/api/ready")
+    async def readiness(request: Request) -> Response:
+        active_pipeline = getattr(request.app.state, "pipeline", None)
+        ready = bool(getattr(active_pipeline, "ready", False))
+        dependencies = []
+        factory = getattr(request.app.state, "conversation_factory", None)
+        if factory is not None:
+            dependencies.extend([factory.repository, factory.memory_store])
+        auth = getattr(request.app.state, "auth", None)
+        if auth is not None:
+            dependencies.append(auth.repository)
+        try:
+            for dependency in dependencies:
+                check = getattr(dependency, "health_check", None)
+                if callable(check) and not await asyncio.to_thread(check):
+                    ready = False
+        except Exception:
+            ready = False
+            LOGGER.exception("AVA readiness dependency check failed")
+        payload = {"status": "ready" if ready else "not_ready"}
+        return Response(
+            content=json.dumps(payload),
+            status_code=200 if ready else 503,
+            media_type="application/json",
+        )
 
     @application.get("/api/health")
     async def health(request: Request) -> dict[str, Any]:
@@ -468,7 +523,7 @@ def create_app(
         if active_pipeline is None or not getattr(active_pipeline, "ready", False):
             raise HTTPException(status_code=503, detail="AVA is still preparing its filing index.")
 
-        request_id = str(uuid4())
+        request_id = getattr(request.state, "request_id", str(uuid4()))
         service = None
         turn = None
         conversation_context = None
@@ -531,25 +586,26 @@ def create_app(
                     "conversation_id": str(body.conversation_id) if body.conversation_id else None,
                     "turn_id": str(body.client_turn_id) if body.client_turn_id else None,
                 }
-                async for event in active_pipeline.stream(
-                    body.query, request.is_disconnected, **stream_arguments
-                ):
-                    if event.event == "delta":
-                        answer_fragments.append(str(event.data.get("text", "")))
-                    elif event.event == "sources":
-                        source_event = event.data
-                        used_source_ids = list((event.internal or {}).get("used_source_ids", []))
-                    elif event.event == "done" and service is not None and body.conversation_id and body.client_turn_id:
-                        await asyncio.to_thread(
-                            service.complete_turn,
-                            str(body.conversation_id),
-                            str(body.client_turn_id),
-                            "".join(answer_fragments),
-                            source_event,
-                            used_source_ids,
-                        )
-                        turn_completed = True
-                    yield encode_sse(event)
+                async with asyncio.timeout(operational_settings.stream_timeout_seconds):
+                    async for event in active_pipeline.stream(
+                        body.query, request.is_disconnected, **stream_arguments
+                    ):
+                        if event.event == "delta":
+                            answer_fragments.append(str(event.data.get("text", "")))
+                        elif event.event == "sources":
+                            source_event = event.data
+                            used_source_ids = list((event.internal or {}).get("used_source_ids", []))
+                        elif event.event == "done" and service is not None and body.conversation_id and body.client_turn_id:
+                            await asyncio.to_thread(
+                                service.complete_turn,
+                                str(body.conversation_id),
+                                str(body.client_turn_id),
+                                "".join(answer_fragments),
+                                source_event,
+                                used_source_ids,
+                            )
+                            turn_completed = True
+                        yield encode_sse(event)
             except Exception as error:
                 LOGGER.exception("AVA stream failed")
                 yield encode_sse(
@@ -579,7 +635,6 @@ def create_app(
             headers={
                 "Cache-Control": "no-cache",
                 "X-Accel-Buffering": "no",
-                "X-Request-ID": request_id,
             },
         )
 

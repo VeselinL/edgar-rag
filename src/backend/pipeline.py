@@ -25,6 +25,7 @@ from src.filings.corpus import ACTIVE_FILINGS
 from src.generation.rag import (
     GenerationResult,
     GenerationService,
+    ProviderCircuitBreaker,
     count_generation_input_tokens,
     make_llm_client,
     resolve_cited_evidence,
@@ -219,6 +220,18 @@ class RealPipeline:
     def _log_trace(record: dict[str, Any]) -> None:
         LOGGER.info("AVA request completed", extra={"ava_request": record})
 
+    def close(self) -> None:
+        close_provider = getattr(self.generator.client, "close", None)
+        if callable(close_provider):
+            close_provider()
+        dense = self.retriever.dense_retriever
+        if isinstance(dense, ShadowDenseRetriever):
+            dense = dense.shadow
+        client = getattr(dense, "client", None)
+        close_qdrant = getattr(client, "close", None)
+        if callable(close_qdrant):
+            close_qdrant()
+
     @classmethod
     def build(cls, settings: PipelineSettings) -> "RealPipeline":
         startup_started = time.perf_counter()
@@ -321,6 +334,10 @@ class RealPipeline:
             make_llm_client(),
             model=settings.llm_model,
             max_output_tokens=settings.reserved_output_tokens,
+            circuit_breaker=ProviderCircuitBreaker(
+                failure_threshold=int(os.getenv("AVA_PROVIDER_CIRCUIT_FAILURES", "5")),
+                recovery_seconds=float(os.getenv("AVA_PROVIDER_CIRCUIT_RECOVERY_SECONDS", "30")),
+            ),
         )
         startup_metrics = {
             "corpus_load_ms": round(load_ms, 3),

@@ -32,6 +32,9 @@ class InMemoryAuthRepository:
     def migrate(self) -> None:
         return None
 
+    def health_check(self) -> bool:
+        return True
+
     def create_transaction(self, value: LoginTransaction) -> None:
         with self._lock:
             self.transactions[value.state_hash] = value
@@ -100,6 +103,10 @@ class PostgresAuthRepository:
     def _connect(self):
         psycopg, dict_row = self._psycopg()
         return psycopg.connect(self.dsn, row_factory=dict_row)
+
+    def health_check(self) -> bool:
+        with self._connect() as connection:
+            return connection.execute("SELECT 1 AS value").fetchone()["value"] == 1
 
     def migrate(self) -> None:
         migration = Path(__file__).with_name("migrations") / "0001_auth_sessions.sql"

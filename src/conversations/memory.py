@@ -28,6 +28,9 @@ class MemoryStore(Protocol):
 
 
 class NullMemoryStore:
+    def health_check(self) -> bool:
+        return True
+
     def upsert_summary(self, item: MemoryItem) -> None:
         return None
 
@@ -47,6 +50,9 @@ class InMemoryMemoryStore:
     def __init__(self) -> None:
         self._lock = RLock()
         self.items: dict[str, MemoryItem] = {}
+
+    def health_check(self) -> bool:
+        return True
 
     def upsert_summary(self, item: MemoryItem) -> None:
         with self._lock:
@@ -129,6 +135,12 @@ class QdrantMemoryStore:
                 field_schema=models.PayloadSchemaType.KEYWORD,
                 wait=True,
             )
+
+    def health_check(self) -> bool:
+        return bool(self.client.collection_exists(self.collection_name))
+
+    def close(self) -> None:
+        self.client.close()
 
     def _embed(self, value: str, *, query: bool) -> list[float]:
         if self.embedder is None:

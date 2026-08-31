@@ -6,6 +6,8 @@ from src.filings.corpus import ACTIVE_FILINGS
 from src.resolution.companies import default_company_resolver
 from src.generation.rag import (
     PLANNER_INSTRUCTION,
+    ProviderCircuitBreaker,
+    ProviderCircuitOpenError,
     SYSTEM_PROMPT,
     GenerationService,
     citation_ids,
@@ -114,6 +116,17 @@ class GenerationTests(unittest.TestCase):
             provider_usage({"prompt_tokens": 5, "secret": "never", "total_tokens": "5"}),
             {"prompt_tokens": 5},
         )
+
+    def test_provider_circuit_opens_after_consecutive_failures_and_resets(self):
+        breaker = ProviderCircuitBreaker(failure_threshold=2, recovery_seconds=60)
+        breaker.before_request()
+        breaker.record_failure()
+        breaker.before_request()
+        breaker.record_failure()
+        with self.assertRaises(ProviderCircuitOpenError):
+            breaker.before_request()
+        breaker.record_success()
+        breaker.before_request()
 
     def test_context_uses_exact_internal_identifier(self):
         context = format_context(self.evidence())

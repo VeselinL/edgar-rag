@@ -50,6 +50,9 @@ class InMemoryConversationRepository:
         self._summaries: dict[str, Summary] = {}
         self.deletion_audit: list[dict[str, Any]] = []
 
+    def health_check(self) -> bool:
+        return True
+
     def create_conversation(self, tenant_id: str, user_id: str, title: str, memory_enabled: bool) -> Conversation:
         with self._lock:
             now = utc_now()
@@ -257,6 +260,10 @@ class PostgresConversationRepository:
     def _connect(self):
         psycopg, dict_row = self._psycopg()
         return psycopg.connect(self.dsn, row_factory=dict_row)
+
+    def health_check(self) -> bool:
+        with self._connect() as connection:
+            return connection.execute("SELECT 1 AS value").fetchone()["value"] == 1
 
     def migrate(self) -> None:
         migration = Path(__file__).with_name("migrations") / "0001_conversations.sql"

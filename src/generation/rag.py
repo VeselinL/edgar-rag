@@ -6,6 +6,8 @@ import json
 import logging
 import os
 import re
+from threading import Lock
+import time
 from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass
 from functools import lru_cache
@@ -156,11 +158,13 @@ def provider_usage(value: Any) -> dict[str, int]:
 class GenerationStream:
     """Provider fragment iterator that retains terminal usage without fake tokens."""
 
-    def __init__(self, response: Any) -> None:
+    def __init__(self, response: Any, *, breaker: "ProviderCircuitBreaker | None" = None) -> None:
         self.response = response
         self.usage: dict[str, int] = {}
+        self.breaker = breaker
 
     def __iter__(self) -> Iterator[str]:
+        completed = False
         try:
             for chunk in self.response:
                 observed_usage = provider_usage(getattr(chunk, "usage", None))
@@ -170,13 +174,61 @@ class GenerationStream:
                     continue
                 delta = chunk.choices[0].delta
                 yield from _content_fragments(getattr(delta, "content", None))
+            completed = True
+        except BaseException:
+            if self.breaker is not None:
+                self.breaker.record_failure()
+            raise
         finally:
+            if completed and self.breaker is not None:
+                self.breaker.record_success()
             self.close()
 
     def close(self) -> None:
         close = getattr(self.response, "close", None)
         if callable(close):
             close()
+
+
+class ProviderCircuitOpenError(RuntimeError):
+    pass
+
+
+class ProviderCircuitBreaker:
+    """Thread-safe consecutive-failure breaker with one half-open probe."""
+
+    def __init__(self, failure_threshold: int = 5, recovery_seconds: float = 30.0) -> None:
+        if failure_threshold <= 0 or recovery_seconds <= 0:
+            raise ValueError("Circuit-breaker threshold and recovery time must be positive.")
+        self.failure_threshold = failure_threshold
+        self.recovery_seconds = recovery_seconds
+        self._failures = 0
+        self._opened_at: float | None = None
+        self._probe_in_flight = False
+        self._lock = Lock()
+
+    def before_request(self) -> None:
+        with self._lock:
+            if self._opened_at is None:
+                return
+            if time.monotonic() - self._opened_at < self.recovery_seconds:
+                raise ProviderCircuitOpenError("The model provider circuit is open.")
+            if self._probe_in_flight:
+                raise ProviderCircuitOpenError("The model provider recovery probe is busy.")
+            self._probe_in_flight = True
+
+    def record_success(self) -> None:
+        with self._lock:
+            self._failures = 0
+            self._opened_at = None
+            self._probe_in_flight = False
+
+    def record_failure(self) -> None:
+        with self._lock:
+            self._probe_in_flight = False
+            self._failures += 1
+            if self._failures >= self.failure_threshold:
+                self._opened_at = time.monotonic()
 
 
 def format_context(retrieved_evidence: Sequence[dict[str, Any]]) -> str:
@@ -287,9 +339,15 @@ def make_llm_client(project_root: Path | None = None) -> OpenAI:
     base_url = os.getenv("OPENAI_API_URL")
     if not api_key or not base_url:
         raise RuntimeError("The backend LLM credentials are not configured.")
+    timeout_seconds = float(os.getenv("AVA_PROVIDER_TIMEOUT_SECONDS", "90"))
+    maximum_retries = int(os.getenv("AVA_PROVIDER_MAX_RETRIES", "2"))
+    if timeout_seconds <= 0 or not 0 <= maximum_retries <= 5:
+        raise ValueError("Provider timeout must be positive and retries must be between 0 and 5.")
     return OpenAI(
         api_key=api_key,
         base_url=base_url,
+        timeout=timeout_seconds,
+        max_retries=maximum_retries,
         default_headers={
             key: value
             for key, value in {
@@ -328,6 +386,7 @@ class GenerationService:
         model: str = DEFAULT_LLM_MODEL,
         temperature: float = 0.0,
         max_output_tokens: int = DEFAULT_MAX_OUTPUT_TOKENS,
+        circuit_breaker: ProviderCircuitBreaker | None = None,
     ) -> None:
         if max_output_tokens <= 0:
             raise ValueError("max_output_tokens must be positive.")
@@ -335,6 +394,18 @@ class GenerationService:
         self.model = model
         self.temperature = temperature
         self.max_output_tokens = max_output_tokens
+        self.circuit_breaker = circuit_breaker or ProviderCircuitBreaker()
+
+    def _create(self, *, streaming: bool = False, **arguments: Any) -> Any:
+        self.circuit_breaker.before_request()
+        try:
+            response = self.client.chat.completions.create(**arguments)
+        except Exception:
+            self.circuit_breaker.record_failure()
+            raise
+        if not streaming:
+            self.circuit_breaker.record_success()
+        return response
 
     def _messages(
         self,
@@ -391,7 +462,7 @@ class GenerationService:
                 }
             )
         planner_messages.append({"role": "user", "content": original_query})
-        response = self.client.chat.completions.create(
+        response = self._create(
             model=self.model,
             messages=planner_messages,
             temperature=0.0,
@@ -563,7 +634,8 @@ class GenerationService:
         *,
         conversation_context: str = "",
     ) -> GenerationStream:
-        response = self.client.chat.completions.create(
+        response = self._create(
+            streaming=True,
             model=self.model,
             messages=self._messages(
                 query, evidence, conversation_context=conversation_context
@@ -585,8 +657,9 @@ class GenerationService:
                 close = getattr(response, "close", None)
                 if callable(close):
                     close()
+                self.circuit_breaker.record_failure()
                 raise RuntimeError("The configured LLM gateway did not provide a streaming response.")
-            return GenerationStream(response)
+            return GenerationStream(response, breaker=self.circuit_breaker)
         except Exception:
             close = getattr(response, "close", None)
             if callable(close):
@@ -611,7 +684,7 @@ class GenerationService:
         *,
         conversation_context: str = "",
     ) -> GenerationResult:
-        response = self.client.chat.completions.create(
+        response = self._create(
             model=self.model,
             messages=self._messages(
                 query, evidence, conversation_context=conversation_context
@@ -619,10 +692,11 @@ class GenerationService:
             temperature=self.temperature,
             max_tokens=self.max_output_tokens,
         )
-        return GenerationResult(
+        result = GenerationResult(
             text=response.choices[0].message.content or "",
             usage=provider_usage(getattr(response, "usage", None)),
         )
+        return result
 
     def answer(
         self,
