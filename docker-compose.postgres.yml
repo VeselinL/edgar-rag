@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:18.1-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ava
+      POSTGRES_USER: ava
+      POSTGRES_PASSWORD: ${AVA_POSTGRES_PASSWORD:?Set AVA_POSTGRES_PASSWORD}
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ava -d ava"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - ava_postgres_data:/var/lib/postgresql
+
+volumes:
+  ava_postgres_data:

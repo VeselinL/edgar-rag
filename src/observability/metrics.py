@@ -40,6 +40,16 @@ def summarize_request_records(records: Sequence[dict[str, Any]]) -> dict[str, An
     for _, delta in sorted(intervals, key=lambda item: (item[0], item[1])):
         active += delta
         maximum = max(maximum, active)
+    qdrant_latencies = [
+        float(record["qdrant_latency_ms"])
+        for record in records
+        if isinstance(record.get("qdrant_latency_ms"), (int, float))
+    ]
+    parity_values = [
+        bool(record["qdrant_parity_satisfied"])
+        for record in records
+        if record.get("qdrant_parity_satisfied") is not None
+    ]
     return {
         "request_count": len(records),
         "stage_latency_ms": {
@@ -58,5 +68,8 @@ def summarize_request_records(records: Sequence[dict[str, Any]]) -> dict[str, An
         "cancellation_rate": sum(record["cancelled"] for record in records) / len(records) if records else 0.0,
         "observed_max_concurrency": maximum,
         "provider_total_tokens": sum(record["provider_usage"].get("total_tokens", 0) for record in records),
-        "qdrant_latency_ms": None,
+        "qdrant_latency_ms": _latency(qdrant_latencies) if qdrant_latencies else None,
+        "qdrant_parity_rate": (
+            sum(parity_values) / len(parity_values) if parity_values else None
+        ),
     }

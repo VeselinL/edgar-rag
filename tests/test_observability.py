@@ -38,6 +38,17 @@ class RequestTraceTests(unittest.TestCase):
         self.assertGreaterEqual(summary["observed_max_concurrency"], 1)
         self.assertIsNone(summary["qdrant_latency_ms"])
 
+    def test_operations_summary_reports_qdrant_latency_and_shadow_parity(self):
+        first = RequestTrace("one", request_id="one")
+        first.qdrant_latency_ms = 10.0
+        first.qdrant_parity_satisfied = True
+        second = RequestTrace("two", request_id="two")
+        second.qdrant_latency_ms = 30.0
+        second.qdrant_parity_satisfied = False
+        summary = summarize_request_records([first.as_record(), second.as_record()])
+        self.assertEqual(summary["qdrant_latency_ms"]["p50"], 20.0)
+        self.assertEqual(summary["qdrant_parity_rate"], 0.5)
+
 
 if __name__ == "__main__":
     unittest.main()

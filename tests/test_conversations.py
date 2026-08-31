@@ -1,0 +1,193 @@
+import unittest
+from uuid import uuid4
+
+import numpy as np
+from qdrant_client import QdrantClient
+
+from src.conversations.context import ConversationContextBuilder
+from src.conversations.memory import InMemoryMemoryStore, QdrantMemoryStore
+from src.conversations.models import MemoryItem
+from src.conversations.repository import (
+    ConversationNotFoundError,
+    InMemoryConversationRepository,
+    TurnConflictError,
+)
+from src.conversations.service import ConversationService, ConversationSettings
+
+
+class ConversationServiceTests(unittest.TestCase):
+    def setUp(self):
+        self.repository = InMemoryConversationRepository()
+        self.memory = InMemoryMemoryStore()
+        self.service = ConversationService(
+            self.repository,
+            tenant_id="tenant-a",
+            user_id="user-a",
+            context_builder=ConversationContextBuilder(
+                self.repository, recent_token_budget=80, summary_token_budget=80
+            ),
+            memory_store=self.memory,
+            long_term_score_threshold=0.0,
+        )
+
+    def _complete(self, conversation_id, turn_id, query, answer):
+        self.service.begin_turn(conversation_id, turn_id, query, str(uuid4()))
+        self.service.complete_turn(
+            conversation_id,
+            turn_id,
+            answer,
+            {
+                "sources": [],
+                "source_status": "none_cited",
+                "malformed_source_count": 0,
+            },
+            [],
+        )
+
+    def test_turn_retry_is_idempotent_and_replays_completed_answer(self):
+        conversation = self.service.create()
+        turn_id = str(uuid4())
+        self._complete(conversation.id, turn_id, "What does Tesla make?", "Vehicles.")
+
+        replay = self.service.begin_turn(
+            conversation.id, turn_id, "What does Tesla make?", str(uuid4())
+        )
+
+        self.assertTrue(replay.replay)
+        self.assertEqual(replay.assistant_message.content, "Vehicles.")
+        self.assertEqual(len(self.service.messages(conversation.id)), 2)
+        with self.assertRaises(TurnConflictError):
+            self.service.begin_turn(conversation.id, turn_id, "Different query", str(uuid4()))
+
+    def test_context_uses_prior_complete_turns_and_excludes_current_turn(self):
+        conversation = self.service.create()
+        self._complete(conversation.id, str(uuid4()), "Tell me about Tesla.", "Tesla evidence [TSLA-1].")
+        current_turn = str(uuid4())
+        self.service.begin_turn(conversation.id, current_turn, "What about its risks?", str(uuid4()))
+
+        context = self.service.prepare_context(
+            conversation.id, current_turn, "What about its risks?"
+        )
+
+        prompt = context.prompt_text()
+        self.assertIn("Tell me about Tesla", prompt)
+        self.assertNotIn("What about its risks", prompt)
+        self.assertEqual(len(context.short_term_ids), 2)
+
+    def test_old_turns_become_rebuildable_summary_not_unbounded_recent_context(self):
+        conversation = self.service.create(memory_enabled=True)
+        for index in range(6):
+            self._complete(
+                conversation.id,
+                str(uuid4()),
+                f"Question {index} about Ford fiscal year 2025 and a user constraint.",
+                f"Answer {index} with evidence [F-{index}].",
+            )
+
+        context = self.service.prepare_context(conversation.id, "unused", "Ford follow-up")
+        stored_summary = self.repository.get_summary("tenant-a", "user-a", conversation.id)
+
+        self.assertIsNotNone(stored_summary)
+        self.assertTrue(context.summary)
+        self.assertLess(len(context.recent_messages), 12)
+        self.assertIn(f"summary:{conversation.id}", self.memory.items)
+
+    def test_owner_isolation_and_complete_deletion_include_memory(self):
+        conversation = self.service.create(memory_enabled=True)
+        self.memory.upsert_summary(
+            MemoryItem(
+                id=f"summary:{conversation.id}",
+                tenant_id="tenant-a",
+                user_id="user-a",
+                conversation_id=conversation.id,
+                source_id="summary-1",
+                memory_type="summary",
+                content="Tesla preference",
+            )
+        )
+        other = ConversationService(
+            self.repository, tenant_id="tenant-a", user_id="user-b", memory_store=self.memory
+        )
+        with self.assertRaises(ConversationNotFoundError):
+            other.messages(conversation.id)
+
+        self.service.delete(conversation.id)
+
+        self.assertNotIn(f"summary:{conversation.id}", self.memory.items)
+        with self.assertRaises(ConversationNotFoundError):
+            self.service.get(conversation.id)
+
+    def test_new_conversation_has_long_term_memory_disabled_by_default(self):
+        self.assertFalse(self.service.create().memory_enabled)
+
+    def test_disabling_memory_removes_existing_derived_summary(self):
+        conversation = self.service.create(memory_enabled=True)
+        self._complete(
+            conversation.id,
+            str(uuid4()),
+            "Remember my Tesla comparison constraint.",
+            "Constraint acknowledged.",
+        )
+        self.assertIn(f"summary:{conversation.id}", self.memory.items)
+
+        updated = self.service.update(conversation.id, memory_enabled=False)
+
+        self.assertFalse(updated.memory_enabled)
+        self.assertNotIn(f"summary:{conversation.id}", self.memory.items)
+
+    def test_single_user_mode_fails_closed_without_boundary_acknowledgement(self):
+        with self.assertRaisesRegex(ValueError, "ACKNOWLEDGED"):
+            ConversationSettings(
+                mode="single_user",
+                postgres_dsn="postgresql://example",
+                tenant_id="tenant",
+                user_id="user",
+            ).validate()
+
+
+class FakeEmbedder:
+    def encode(self, text, *, normalize_embeddings):
+        vector = np.zeros(768, dtype=np.float32)
+        vector[0 if "tesla" in text.casefold() else 1] = 1.0
+        return vector
+
+
+class QdrantMemoryTests(unittest.TestCase):
+    def setUp(self):
+        self.store = QdrantMemoryStore(
+            QdrantClient(":memory:"), FakeEmbedder(), query_prefix=""
+        )
+
+    def item(self, item_id, tenant, user, conversation, content):
+        return MemoryItem(
+            id=item_id,
+            tenant_id=tenant,
+            user_id=user,
+            conversation_id=conversation,
+            source_id=f"source-{item_id}",
+            memory_type="summary",
+            content=content,
+        )
+
+    def test_search_requires_tenant_and_user_filters(self):
+        self.store.upsert_summary(self.item("one", "tenant-a", "user-a", "c1", "Tesla vehicles"))
+        self.store.upsert_summary(self.item("two", "tenant-a", "user-b", "c2", "Tesla private data"))
+
+        results = self.store.search(
+            "Tesla", "tenant-a", "user-a", limit=5, threshold=0.5
+        )
+
+        self.assertEqual([item.id for item in results], ["one"])
+
+    def test_delete_conversation_removes_only_owned_points(self):
+        self.store.upsert_summary(self.item("one", "tenant-a", "user-a", "c1", "Tesla one"))
+        self.store.upsert_summary(self.item("two", "tenant-a", "user-a", "c2", "Tesla two"))
+        self.store.delete_conversation("tenant-a", "user-a", "c1")
+
+        results = self.store.search("Tesla", "tenant-a", "user-a", limit=5, threshold=0.5)
+
+        self.assertEqual([item.id for item in results], ["two"])
+
+
+if __name__ == "__main__":
+    unittest.main()

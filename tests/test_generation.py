@@ -11,6 +11,7 @@ from src.generation.rag import (
     citation_ids,
     count_generation_input_tokens,
     format_context,
+    generation_messages,
     provider_usage,
 )
 
@@ -126,6 +127,26 @@ class GenerationTests(unittest.TestCase):
         self.assertGreater(
             with_evidence, len(format_context(self.evidence()).split())
         )
+
+    def test_conversation_context_is_separate_and_included_in_token_count(self):
+        history = "Recent conversation turns (not filing evidence):\nUser: Tell me about Tesla."
+        without_history = count_generation_input_tokens(
+            "What about its risks?", self.evidence()
+        )
+        with_history = count_generation_input_tokens(
+            "What about its risks?",
+            self.evidence(),
+            conversation_context=history,
+        )
+        messages = generation_messages(
+            "What about its risks?",
+            self.evidence(),
+            conversation_context=history,
+        )
+
+        self.assertGreater(with_history, without_history)
+        self.assertIn("Conversation context (not SEC evidence", messages[1]["content"])
+        self.assertIn("Retrieved filing excerpts", messages[1]["content"])
 
     def test_ceo_and_coo_are_expanded_correctly(self):
         for prompt in (SYSTEM_PROMPT, PLANNER_INSTRUCTION):

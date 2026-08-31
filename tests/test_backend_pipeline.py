@@ -2,6 +2,8 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import numpy as np
+
 from src.backend.pipeline import FILINGS, PipelineSettings, RealPipeline
 from src.retrieval.evidence_policy import EvidencePolicyError
 
@@ -194,6 +196,42 @@ class PartialAllCompanyGenerator(FakeGenerator):
         }
 
 
+class ContextAwareGenerator(FakeGenerator):
+    def __init__(self):
+        super().__init__("Follow-up answer [TSLA-2025-CHUNK-000001]")
+        self.planner_context = None
+        self.answer_context = None
+
+    def plan_retrieval(self, query, deterministic_resolution=None, conversation_context=""):
+        self.planner_context = conversation_context
+        return {
+            "needs_multiple_retrievals": False,
+            "subqueries": [{"query": "Tesla risk factors", "tickers": ["TSLA"]}],
+            "operation": None,
+            "resolved_tickers": ["TSLA"],
+            "company_mentions": [],
+            "comparison": False,
+            "ambiguity": False,
+        }
+
+    def answer(self, query, evidence, *, conversation_context=""):
+        self.answer_context = conversation_context
+        return self.answer_text
+
+
+class ContextAwareRetriever(FakeRetriever):
+    def retrieve(
+        self,
+        query,
+        subqueries,
+        company_resolution=None,
+        subquery_targets=None,
+        conversation_context="",
+    ):
+        self.conversation_context = conversation_context
+        return super().retrieve(query, subqueries, company_resolution, subquery_targets)
+
+
 class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
     def test_deployment_corpus_includes_rivian(self):
         self.assertEqual(FILINGS["RIVN"], "2025-10-K")
@@ -234,6 +272,60 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(settings.context_window_tokens, 65_536)
         self.assertEqual(settings.reserved_output_tokens, 8_192)
         self.assertEqual(settings.observability_retention_days, 14)
+
+    def test_settings_read_qdrant_shadow_configuration(self):
+        with patch.dict(
+            "os.environ",
+            {
+                "AVA_QDRANT_MODE": "shadow",
+                "QDRANT_URL": "http://127.0.0.1:6333",
+                "QDRANT_COLLECTION_ALIAS": "ava_test_current",
+                "QDRANT_TIMEOUT_SECONDS": "12",
+            },
+            clear=False,
+        ):
+            settings = PipelineSettings.from_environment()
+        self.assertEqual(settings.qdrant_mode, "shadow")
+        self.assertEqual(settings.qdrant_collection_alias, "ava_test_current")
+        self.assertEqual(settings.qdrant_timeout_seconds, 12)
+
+    def test_settings_reject_unknown_qdrant_mode(self):
+        with patch.dict(
+            "os.environ", {"AVA_QDRANT_MODE": "fallback"}, clear=False
+        ):
+            with self.assertRaisesRegex(ValueError, "AVA_QDRANT_MODE"):
+                PipelineSettings.from_environment()
+
+    def test_configured_unavailable_qdrant_makes_real_pipeline_unready(self):
+        chunks = [
+            {
+                "chunk_id": "TSLA-1",
+                "ticker": "TSLA",
+                "text": "Tesla evidence.",
+            }
+        ]
+        with (
+            patch(
+                "src.backend.pipeline.load_corpus",
+                return_value=(np.eye(1, 768, dtype="float32"), chunks),
+            ),
+            patch("src.backend.pipeline.build_bm25_index", return_value=object()),
+            patch("src.backend.pipeline.SentenceTransformer", return_value=object()),
+            patch("src.backend.pipeline.make_llm_client", return_value=object()),
+            patch(
+                "src.backend.pipeline.make_client",
+                side_effect=ConnectionError("qdrant is down"),
+            ),
+        ):
+            pipeline = RealPipeline.build(
+                PipelineSettings(qdrant_mode="shadow")
+            )
+        self.assertFalse(pipeline.ready)
+        self.assertEqual(pipeline.mode, "real")
+        self.assertEqual(pipeline.qdrant_health["status"], "unavailable")
+        self.assertEqual(
+            pipeline.qdrant_health["safe_error_class"], "provider_transport_error"
+        )
 
     async def test_planner_subqueries_drive_shared_retrieval_before_streaming(self):
         retriever = FakeRetriever()
@@ -380,6 +472,42 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(retriever.arguments[2].resolved_tickers, ("TSLA",))
         self.assertEqual(retriever.arguments[3], [["TSLA"]])
+        self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
+
+    async def test_follow_up_context_reaches_planner_packing_and_generation_separately(self):
+        retriever = ContextAwareRetriever()
+        generator = ContextAwareGenerator()
+        traces = []
+        pipeline = RealPipeline(
+            retriever, generator, llm_streaming=False, telemetry_sink=traces.append
+        )
+        context = SimpleNamespace(
+            prompt_text=lambda: "Recent conversation turns (not filing evidence):\nUser: Tell me about Tesla.",
+            short_term_ids=("message-1", "message-2"),
+            long_term_ids=("memory-1",),
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "What about its risks?",
+                connected,
+                conversation_context=context,
+                conversation_id="conversation-1",
+                turn_id="turn-2",
+            )
+        ]
+
+        self.assertIn("Tell me about Tesla", generator.planner_context)
+        self.assertEqual(retriever.conversation_context, generator.planner_context)
+        self.assertEqual(generator.answer_context, generator.planner_context)
+        self.assertEqual(traces[0]["conversation_id"], "conversation-1")
+        self.assertEqual(traces[0]["turn_id"], "turn-2")
+        self.assertEqual(traces[0]["short_term_memory_ids"], ["message-1", "message-2"])
+        self.assertEqual(traces[0]["long_term_memory_ids"], ["memory-1"])
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
 
     async def test_buffered_mode_emits_completed_answer_as_one_delta(self):

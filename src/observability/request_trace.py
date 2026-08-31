@@ -42,6 +42,10 @@ class RequestTrace:
     candidates: list[dict[str, Any]] = field(default_factory=list)
     candidate_counts_by_company: dict[str, int] = field(default_factory=dict)
     candidate_counts_by_company_subquery: dict[str, int] = field(default_factory=dict)
+    dense_backend: str = "local-npz-exact"
+    dense_search_records: list[dict[str, Any]] = field(default_factory=list)
+    qdrant_latency_ms: float | None = None
+    qdrant_parity_satisfied: bool | None = None
     selection: dict[str, Any] = field(default_factory=dict)
     final_generation_evidence_ids: list[str] = field(default_factory=list)
     generated_answer: str | None = None
@@ -101,6 +105,10 @@ class RequestTrace:
             "resolver": self.resolver,
             "candidate_counts_by_company": self.candidate_counts_by_company,
             "candidate_counts_by_company_subquery": self.candidate_counts_by_company_subquery,
+            "dense_backend": self.dense_backend,
+            "dense_search_records": self.dense_search_records,
+            "qdrant_latency_ms": self.qdrant_latency_ms,
+            "qdrant_parity_satisfied": self.qdrant_parity_satisfied,
             "candidates": self.candidates,
             "reranker": self.reranker,
             "selection": self.selection,

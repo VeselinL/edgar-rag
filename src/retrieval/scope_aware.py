@@ -18,6 +18,7 @@ import numpy as np
 
 from src.embeddings.embed_chunks import table_embedding_text
 from src.filings.corpus import COMPANY_ALIASES
+from src.retrieval.dense import DenseRetriever, LocalArtifactRetriever
 from src.retrieval.evidence_policy import (
     EvidenceBudgetPolicy,
     EvidencePackingError,
@@ -76,6 +77,10 @@ class RetrievalOutcome:
     quota_satisfied: bool
     context_input_tokens: int | None
     context_input_limit: int | None
+    dense_backend: str = "local-npz-exact"
+    dense_search_records: tuple[dict[str, Any], ...] = ()
+    qdrant_latency_ms: float | None = None
+    qdrant_parity_satisfied: bool | None = None
 
     @property
     def selected_evidence_companies(self) -> tuple[str, ...]:
@@ -164,6 +169,7 @@ def hybrid_retrieve(
     rrf_k: int,
     candidate_k: int,
     allowed_tickers: set[str] | None = None,
+    dense_retriever: DenseRetriever | None = None,
 ) -> list[dict[str, Any]]:
     """Run normalized dense + BM25 + RRF, optionally ticker-filtered."""
     allowed_indices = None
@@ -174,9 +180,14 @@ def hybrid_retrieve(
         if not len(allowed_indices):
             return []
 
-    dense_indices, dense_scores = dense_candidate_indices(
-        query, model, query_prefix, normalized_embeddings, candidate_k, allowed_indices
-    )
+    if dense_retriever is None:
+        dense_indices, dense_scores = dense_candidate_indices(
+            query, model, query_prefix, normalized_embeddings, candidate_k, allowed_indices
+        )
+    else:
+        dense_results = dense_retriever.search(query, candidate_k, allowed_tickers)
+        dense_indices = [result.index for result in dense_results]
+        dense_scores = {result.index: result.score for result in dense_results}
     bm25_indices, bm25_scores = bm25_candidate_indices(
         query, bm25_retriever, len(all_chunks), candidate_k, allowed_indices
     )
@@ -355,6 +366,7 @@ def scope_aware_hybrid_retrieve(
     top_k: int = DEFAULT_FINAL_EVIDENCE_K,
     anchored_company_k: int = DEFAULT_ANCHORED_COMPANY_K,
     resolved_scope: tuple[str, list[str]] | None = None,
+    dense_retriever: DenseRetriever | None = None,
 ) -> tuple[list[dict[str, Any]], str, list[str]]:
     """Apply the common query scope around the evaluated hybrid primitive."""
     scope, companies = resolved_scope or detect_scope(query)
@@ -362,6 +374,7 @@ def scope_aware_hybrid_retrieve(
         results = hybrid_retrieve(
             query, model, query_prefix, normalized_embeddings, bm25_retriever,
             all_chunks, rrf_k, candidate_k, allowed_tickers={companies[0]},
+            dense_retriever=dense_retriever,
         )[:top_k]
         return [dict(item, retrieval_source="scoped", retrieval_scope=scope) for item in results], scope, companies
 
@@ -376,6 +389,7 @@ def scope_aware_hybrid_retrieve(
             rrf_k,
             candidate_k,
             allowed_tickers=set(companies),
+            dense_retriever=dense_retriever,
         )[:top_k]
         return [
             dict(item, retrieval_source="scoped", retrieval_scope=scope)
@@ -386,12 +400,14 @@ def scope_aware_hybrid_retrieve(
         global_results = hybrid_retrieve(
             query, model, query_prefix, normalized_embeddings, bm25_retriever,
             all_chunks, rrf_k, max(candidate_k, DEFAULT_ENUMERATION_CANDIDATE_K),
+            dense_retriever=dense_retriever,
         )
         return select_enumeration_results(global_results, top_k), scope, companies
 
     global_results = hybrid_retrieve(
         query, model, query_prefix, normalized_embeddings, bm25_retriever,
         all_chunks, rrf_k, candidate_k,
+        dense_retriever=dense_retriever,
     )
     if scope == "global":
         return [
@@ -403,6 +419,7 @@ def scope_aware_hybrid_retrieve(
         ticker: hybrid_retrieve(
             query, model, query_prefix, normalized_embeddings, bm25_retriever,
             all_chunks, rrf_k, candidate_k, allowed_tickers={ticker},
+            dense_retriever=dense_retriever,
         )
         for ticker in companies
     }
@@ -497,6 +514,7 @@ def _retrieve_company_balanced_context(
     candidate_k: int,
     policy: EvidenceBudgetPolicy,
     token_counter: EvidenceTokenCounter | None,
+    dense_retriever: DenseRetriever | None,
 ) -> dict[str, Any]:
     scope, companies = original_scope
     final_total = policy.final_total(len(companies))
@@ -539,6 +557,7 @@ def _retrieve_company_balanced_context(
                 rrf_k,
                 candidate_k,
                 allowed_tickers={ticker},
+                dense_retriever=dense_retriever,
             )[: policy.candidate_k_per_company]
             leaked = {item.get("ticker") for item in results if item.get("ticker") != ticker}
             if leaked:
@@ -585,6 +604,7 @@ def _retrieve_company_balanced_context(
                 all_chunks,
                 rrf_k,
                 candidate_k,
+                dense_retriever=dense_retriever,
             )[: policy.candidate_k_per_company]
             global_ids: list[str] = []
             for global_rank, result in enumerate(global_results, start=1):
@@ -806,6 +826,7 @@ def retrieve_generation_context(
     subquery_targets: Sequence[Sequence[str]] | None = None,
     evidence_policy: EvidenceBudgetPolicy | None = None,
     token_counter: EvidenceTokenCounter | None = None,
+    dense_retriever: DenseRetriever | None = None,
 ) -> dict[str, Any]:
     """Retrieve and pack generation evidence under the shared typed policy."""
     if not subqueries:
@@ -847,6 +868,7 @@ def retrieve_generation_context(
             candidate_k=candidate_k,
             policy=policy,
             token_counter=token_counter,
+            dense_retriever=dense_retriever,
         )
 
     final_context_k = min(final_context_k, policy.corpus_final_limit)
@@ -873,6 +895,7 @@ def retrieve_generation_context(
             subquery_retrieval_k,
             anchored_company_k,
             resolved_scope=inherited_scope,
+            dense_retriever=dense_retriever,
         )
         results = results[:subquery_retrieval_k]
         if inherited_scope is not None:
@@ -1124,12 +1147,19 @@ class ScopeAwareRetriever:
         multi_subquery_bonus: float = DEFAULT_MULTI_SUBQUERY_BONUS,
         evidence_policy: EvidenceBudgetPolicy | None = None,
         token_counter: EvidenceTokenCounter | None = None,
+        dense_retriever: DenseRetriever | None = None,
     ) -> None:
         self.model = model
         self.query_prefix = query_prefix
         self.normalized_embeddings = normalized_embeddings
         self.bm25_retriever = bm25_retriever
         self.all_chunks = all_chunks
+        self.dense_retriever = dense_retriever or LocalArtifactRetriever(
+            model=model,
+            query_prefix=query_prefix,
+            normalized_embeddings=normalized_embeddings,
+            all_chunks=all_chunks,
+        )
         self.rrf_k = rrf_k
         self.candidate_k = candidate_k
         self.evidence_policy = evidence_policy or EvidenceBudgetPolicy(
@@ -1151,28 +1181,52 @@ class ScopeAwareRetriever:
         subqueries: Sequence[str] | None = None,
         company_resolution: CompanyResolution | None = None,
         subquery_targets: Sequence[Sequence[str]] | None = None,
+        conversation_context: str = "",
     ) -> RetrievalOutcome:
         planned_subqueries = list(subqueries or [query])
-        diagnostics = retrieve_generation_context(
-            original_query=query,
-            subqueries=planned_subqueries,
-            model=self.model,
-            query_prefix=self.query_prefix,
-            normalized_embeddings=self.normalized_embeddings,
-            bm25_retriever=self.bm25_retriever,
-            all_chunks=self.all_chunks,
-            rrf_k=self.rrf_k,
-            candidate_k=self.candidate_k,
-            anchored_company_k=self.anchored_company_k,
-            subquery_retrieval_k=self.subquery_retrieval_k,
-            final_context_k=self.final_evidence_k,
-            min_chunks_per_subquery=self.min_chunks_per_subquery,
-            multi_subquery_bonus=self.multi_subquery_bonus,
-            company_resolution=company_resolution,
-            subquery_targets=subquery_targets,
-            evidence_policy=self.evidence_policy,
-            token_counter=self.token_counter,
-        )
+        begin_request = getattr(self.dense_retriever, "begin_request", None)
+        consume_report = getattr(self.dense_retriever, "consume_report", None)
+        if callable(begin_request):
+            begin_request()
+        dense_search_records: tuple[dict[str, Any], ...] = ()
+        try:
+            token_counter = self.token_counter
+            if conversation_context and token_counter is not None:
+                base_counter = token_counter
+
+                def token_counter(
+                    current_query: str, evidence: Sequence[dict[str, Any]]
+                ) -> int:
+                    return base_counter(
+                        current_query,
+                        evidence,
+                        conversation_context=conversation_context,
+                    )
+
+            diagnostics = retrieve_generation_context(
+                original_query=query,
+                subqueries=planned_subqueries,
+                model=self.model,
+                query_prefix=self.query_prefix,
+                normalized_embeddings=self.normalized_embeddings,
+                bm25_retriever=self.bm25_retriever,
+                all_chunks=self.all_chunks,
+                rrf_k=self.rrf_k,
+                candidate_k=self.candidate_k,
+                anchored_company_k=self.anchored_company_k,
+                subquery_retrieval_k=self.subquery_retrieval_k,
+                final_context_k=self.final_evidence_k,
+                min_chunks_per_subquery=self.min_chunks_per_subquery,
+                multi_subquery_bonus=self.multi_subquery_bonus,
+                company_resolution=company_resolution,
+                subquery_targets=subquery_targets,
+                evidence_policy=self.evidence_policy,
+                token_counter=token_counter,
+                dense_retriever=self.dense_retriever,
+            )
+        finally:
+            if callable(consume_report):
+                dense_search_records = tuple(consume_report())
         candidates = diagnostics["candidates"]
         for candidate in candidates:
             candidate["chunk"] = self.all_chunks[candidate["index"]]
@@ -1180,6 +1234,16 @@ class ScopeAwareRetriever:
         scope = diagnostics["original_scope"]
         companies = diagnostics["original_companies"]
         targets = resolve_comparison_targets(scope, companies)
+        qdrant_latencies = [
+            float(record["qdrant_latency_ms"])
+            for record in dense_search_records
+            if isinstance(record.get("qdrant_latency_ms"), (int, float))
+        ]
+        parity_values = [
+            bool(record["parity_accepted"])
+            for record in dense_search_records
+            if "parity_accepted" in record
+        ]
         return RetrievalOutcome(
             query=query,
             scope=scope,
@@ -1216,4 +1280,12 @@ class ScopeAwareRetriever:
             quota_satisfied=diagnostics["quota_satisfied"],
             context_input_tokens=diagnostics["context_input_tokens"],
             context_input_limit=diagnostics["context_input_limit"],
+            dense_backend=self.dense_retriever.identity,
+            dense_search_records=dense_search_records,
+            qdrant_latency_ms=(
+                round(sum(qdrant_latencies), 3) if qdrant_latencies else None
+            ),
+            qdrant_parity_satisfied=(
+                all(parity_values) if parity_values else None
+            ),
         )
