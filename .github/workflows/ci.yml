@@ -108,6 +108,13 @@ jobs:
           tags: ava-frontend:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      - name: End-to-end SSE through production proxy
+        run: |
+          docker compose -f docker-compose.smoke.yml up --detach
+          python scripts/smoke_sse.py
+      - name: Stop smoke deployment
+        if: always()
+        run: docker compose -f docker-compose.smoke.yml down --volumes
       - name: Scan API image
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
         with:

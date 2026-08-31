@@ -1,0 +1,21 @@
+name: ava-smoke
+
+services:
+  api:
+    image: ava-api:ci
+    environment:
+      AVA_PIPELINE_MODE: mock
+      AVA_CONVERSATION_MODE: disabled
+      AVA_CORS_ORIGINS: http://127.0.0.1:18080
+      AVA_JSON_LOGS: "true"
+    networks: [smoke]
+
+  frontend:
+    image: ava-frontend:ci
+    depends_on: [api]
+    ports:
+      - "127.0.0.1:18080:8080"
+    networks: [smoke]
+
+networks:
+  smoke:
