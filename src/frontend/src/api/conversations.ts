@@ -29,6 +29,15 @@ export async function listConversations(): Promise<ConversationSummary[]> {
   return response.conversations
 }
 
+export async function exportConversations(): Promise<Blob> {
+  const response = await fetch(`${API_BASE_URL}/api/conversations/export`, {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  })
+  if (!response.ok) throw new Error(`Conversation export failed with ${response.status}.`)
+  return response.blob()
+}
+
 export function createConversation(memoryEnabled = false): Promise<ConversationSummary> {
   return api('/api/conversations', {
     method: 'POST',

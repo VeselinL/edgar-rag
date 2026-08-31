@@ -15,7 +15,7 @@ from uuid import UUID, uuid4
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse, StreamingResponse
+from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel
 
 from .pipeline import PipelineEvent, PipelineSettings, build_pipeline
@@ -457,6 +457,26 @@ def create_app(
             "conversations": [_conversation_payload(item) for item in page],
             "next_cursor": page[-1].id if len(values) > limit else None,
         }
+
+    @application.get("/api/conversations/export")
+    async def export_conversations(request: Request) -> JSONResponse:
+        """Export only the authenticated owner's browser-safe conversation data."""
+        service = await conversation_service_for(request)
+        conversations = await asyncio.to_thread(service.list)
+        exported = []
+        for conversation in conversations:
+            messages = await asyncio.to_thread(service.messages, conversation.id)
+            exported.append({
+                **_conversation_payload(conversation),
+                "messages": [_message_payload(message) for message in messages],
+            })
+        return JSONResponse(
+            {"schema_version": 1, "conversations": exported},
+            headers={
+                "Cache-Control": "no-store",
+                "Content-Disposition": 'attachment; filename="ava-conversations.json"',
+            },
+        )
 
     @application.get("/api/conversations/{conversation_id}/messages")
     async def list_messages(

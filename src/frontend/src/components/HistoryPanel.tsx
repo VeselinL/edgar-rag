@@ -7,6 +7,7 @@ interface HistoryPanelProps {
   onRename: (conversation: ConversationSummary) => void
   onDelete: (conversation: ConversationSummary) => void
   onDeleteAll: () => void
+  onExport: () => void
   onClose: () => void
 }
 
@@ -17,6 +18,7 @@ export function HistoryPanel({
   onRename,
   onDelete,
   onDeleteAll,
+  onExport,
   onClose,
 }: HistoryPanelProps) {
   return (
@@ -42,6 +44,7 @@ export function HistoryPanel({
           ))}
         </ul>
       )}
+      <button type="button" className="history-action" onClick={onExport}>Export my data</button>
       {conversations.length > 0 && (
         <button type="button" className="delete-all" onClick={onDeleteAll}>Delete all conversations</button>
       )}

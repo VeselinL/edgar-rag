@@ -240,6 +240,42 @@ class BackendApiTests(unittest.TestCase):
 
         self.assertEqual(hidden.status_code, 404)
 
+    def test_conversation_export_is_owner_scoped_and_browser_safe(self):
+        repository = InMemoryConversationRepository()
+        owner = ConversationService(repository, tenant_id="tenant", user_id="owner")
+        other = ConversationService(repository, tenant_id="tenant", user_id="other")
+        conversation = owner.create(title="Owner research")
+        other.create(title="Private other-user research")
+        turn_id = str(uuid4())
+        owner.begin_turn(conversation.id, turn_id, "Owner question", str(uuid4()))
+        owner.complete_turn(
+            conversation.id,
+            turn_id,
+            "Owner answer",
+            {"source_event": {"sources": [], "source_status": "none_cited"}},
+            [],
+        )
+
+        with TestClient(
+            create_app(pipeline=MockPipeline(delay_seconds=0), conversation_service=owner)
+        ) as client:
+            response = client.get("/api/conversations/export")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["cache-control"], "no-store")
+        self.assertIn("attachment", response.headers["content-disposition"])
+        exported = response.json()
+        self.assertEqual(exported["schema_version"], 1)
+        self.assertEqual(len(exported["conversations"]), 1)
+        self.assertEqual(exported["conversations"][0]["title"], "Owner research")
+        self.assertEqual(
+            [message["text"] for message in exported["conversations"][0]["messages"]],
+            ["Owner question", "Owner answer"],
+        )
+        self.assertNotIn("Private other-user research", response.text)
+        self.assertNotIn("tenant_id", response.text)
+        self.assertNotIn("user_id", response.text)
+
     def test_interrupted_persistent_turn_is_retryable_without_duplicate_user_message(self):
         class InterruptedPipeline:
             mode = "real"

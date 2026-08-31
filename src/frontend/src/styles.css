@@ -198,7 +198,7 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
 .history-item--active { border-color: var(--primary); background: var(--surface-subtle); }
 .history-item__title { width: 100%; padding: 2px; overflow: hidden; border: 0; color: var(--text); background: transparent; cursor: pointer; font-weight: 650; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
 .history-item__actions { display: flex; gap: 10px; margin-top: 7px; }
-.history-item__actions button, .delete-all { padding: 3px 2px; border: 0; color: var(--text-secondary); background: transparent; cursor: pointer; font-size: 0.78rem; text-decoration: underline; text-underline-offset: 2px; }
+.history-item__actions button, .history-action, .delete-all { padding: 3px 2px; border: 0; color: var(--text-secondary); background: transparent; cursor: pointer; font-size: 0.78rem; text-decoration: underline; text-underline-offset: 2px; }
 .delete-all { color: var(--error); }
 
 .main--empty { justify-content: flex-end; }

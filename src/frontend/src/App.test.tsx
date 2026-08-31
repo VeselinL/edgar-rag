@@ -6,6 +6,7 @@ import { streamChat } from './api/chatStream'
 import {
   conversationHistoryEnabled,
   createConversation,
+  exportConversations,
   listConversations,
   listMessages,
   submitFeedback,
@@ -29,6 +30,7 @@ vi.mock('./api/conversations', () => ({
   createConversation: vi.fn(),
   deleteAllConversations: vi.fn(),
   deleteConversation: vi.fn(),
+  exportConversations: vi.fn(),
   listConversations: vi.fn(),
   listMessages: vi.fn(),
   submitFeedback: vi.fn(),
@@ -40,6 +42,7 @@ const mockedAuthSession = vi.mocked(getAuthSession)
 const mockedSignOut = vi.mocked(signOut)
 const mockedHistoryEnabled = vi.mocked(conversationHistoryEnabled)
 const mockedCreateConversation = vi.mocked(createConversation)
+const mockedExportConversations = vi.mocked(exportConversations)
 const mockedListConversations = vi.mocked(listConversations)
 const mockedListMessages = vi.mocked(listMessages)
 const mockedSubmitFeedback = vi.mocked(submitFeedback)
@@ -56,6 +59,8 @@ describe('App', () => {
     mockedHistoryEnabled.mockReset()
     mockedHistoryEnabled.mockResolvedValue(false)
     mockedCreateConversation.mockReset()
+    mockedExportConversations.mockReset()
+    mockedExportConversations.mockResolvedValue(new Blob(['{}'], { type: 'application/json' }))
     mockedListConversations.mockReset()
     mockedListMessages.mockReset()
     mockedSubmitFeedback.mockReset()
@@ -263,5 +268,29 @@ describe('App', () => {
 
     expect(mockedUpdateConversation).toHaveBeenCalledWith('conversation-1', { memory_enabled: true })
     expect(await screen.findByRole('button', { name: 'Memory on' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('downloads the authenticated conversation export from history', async () => {
+    const conversation = {
+      id: 'conversation-1', title: 'Saved research', memory_enabled: false,
+      created_at: '2026-08-31T00:00:00Z', updated_at: '2026-08-31T00:00:00Z',
+    }
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValue([conversation])
+    mockedListMessages.mockResolvedValue([])
+    const createObjectURL = vi.fn(() => 'blob:ava-export')
+    const revokeObjectURL = vi.fn()
+    Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: createObjectURL })
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: revokeObjectURL })
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined)
+    render(<App />)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'History' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Export my data' }))
+
+    await waitFor(() => expect(mockedExportConversations).toHaveBeenCalledOnce())
+    expect(createObjectURL).toHaveBeenCalledOnce()
+    expect(click).toHaveBeenCalledOnce()
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:ava-export')
   })
 })

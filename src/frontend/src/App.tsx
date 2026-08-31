@@ -6,6 +6,7 @@ import {
   createConversation,
   deleteAllConversations,
   deleteConversation,
+  exportConversations,
   listConversations,
   listMessages,
   submitFeedback,
@@ -274,6 +275,18 @@ export default function App() {
                 setMessages([])
                 setHistoryOpen(false)
               })
+            }}
+            onExport={() => {
+              void exportConversations()
+                .then((blob) => {
+                  const url = URL.createObjectURL(blob)
+                  const link = document.createElement('a')
+                  link.href = url
+                  link.download = 'ava-conversations.json'
+                  link.click()
+                  URL.revokeObjectURL(url)
+                })
+                .catch(() => window.alert('Your data could not be exported. Please try again.'))
             }}
             onClose={() => setHistoryOpen(false)}
           />
