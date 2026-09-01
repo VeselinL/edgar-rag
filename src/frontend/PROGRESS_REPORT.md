@@ -874,3 +874,17 @@ and was not included in AVA commits.
 - Added immutable filesystem byte storage with UUID-only asset keys, private
   `0700` directories, `0600` files, exclusive creation, SHA-256 integrity, and
   explicit deletion. Five extraction/storage tests plus four subtests pass.
+
+### Added conversation-owned upload metadata and lifecycle
+
+- Added PostgreSQL tables for owner/chat-scoped upload metadata and rebuildable
+  document chunks, with conversation/user foreign keys, duplicate SHA protection,
+  source ordering, token/page bounds, and database cascade deletion.
+- Added matching in-memory and PostgreSQL repositories plus a document service
+  that authorizes the chat before every operation, enforces 20 documents and
+  100 MiB per chat, rolls back newly written bytes when metadata insertion fails,
+  and removes private bytes with metadata on explicit document deletion.
+- Verified upload/list/chunk/delete, duplicate rollback, cross-owner/cross-chat
+  isolation, migrations, and live document lifecycle against the running local
+  PostgreSQL service. The focused document/conversation suites pass 26 tests,
+  one intentional no-DSN skip, four subtests, and one local-Qdrant warning.
