@@ -162,6 +162,10 @@ describe('App', () => {
         retrieved_at: '2026-09-01T00:00:00+00:00', source_url: 'https://example.com/report',
         excerpt: 'Bounded web search evidence.',
       },
+      {
+        content_type: 'upload', document_id: 'document-1', filename: 'architecture.txt',
+        media_type: 'text/plain', page_number: null, excerpt: 'Uploaded source evidence.',
+      },
     ]
     mockedStream.mockImplementation(async (_query, handlers) => {
       handlers.onOpen()
@@ -172,13 +176,14 @@ describe('App', () => {
     render(<App />)
     await waitFor(() => expect(screen.getByLabelText('Ask AVA about the SEC filings')).not.toBeDisabled())
     await userEvent.type(screen.getByLabelText('Ask AVA about the SEC filings'), 'Show evidence{enter}')
-    const button = await screen.findByRole('button', { name: 'View sources (3)' })
+    const button = await screen.findByRole('button', { name: 'View sources (4)' })
     await userEvent.click(button)
     expect(screen.getByText('Complete narrative evidence.')).toBeInTheDocument()
     expect(screen.getByRole('table')).toBeInTheDocument()
     expect(screen.getByRole('columnheader', { name: '2025' })).toBeInTheDocument()
     expect(screen.getByText('Bounded web search evidence.')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open web source' })).toHaveAttribute('href', 'https://example.com/report')
+    expect(screen.getByText('Uploaded source evidence.')).toBeInTheDocument()
     expect(screen.queryByText(/CHUNK-/)).not.toBeInTheDocument()
   })
 

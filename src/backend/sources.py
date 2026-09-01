@@ -41,6 +41,23 @@ def normalize_source(result: dict[str, Any]) -> dict[str, Any]:
             "source_url": chunk["source_url"],
             "excerpt": chunk["text"],
         }
+    if chunk.get("content_type") == "upload":
+        required = ("document_id", "filename", "media_type", "text")
+        if any(not isinstance(chunk.get(key), str) or not chunk[key] for key in required):
+            raise SourceNormalizationError("Uploaded source has incomplete provenance.")
+        page_number = chunk.get("page_number")
+        if page_number is not None and (
+            not isinstance(page_number, int) or page_number < 1
+        ):
+            raise SourceNormalizationError("Uploaded source has an invalid page number.")
+        return {
+            "content_type": "upload",
+            "document_id": chunk["document_id"],
+            "filename": chunk["filename"],
+            "media_type": chunk["media_type"],
+            "page_number": page_number,
+            "excerpt": chunk["text"],
+        }
     source = _common_source(chunk)
     if chunk.get("content_type") != "table":
         text = chunk.get("text")

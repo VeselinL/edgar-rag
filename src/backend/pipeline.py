@@ -536,6 +536,213 @@ class RealPipeline:
         )
         yield PipelineEvent("done", {})
 
+    async def _stream_upload_route(
+        self,
+        query: str,
+        route: RequestRoute,
+        disconnected: Callable[[], Awaitable[bool]],
+        trace: RequestTrace,
+        document_service: Any,
+    ) -> AsyncIterator[PipelineEvent]:
+        with trace.stage("uploaded_document_search"):
+            results = await asyncio.to_thread(
+                document_service.search,
+                trace.conversation_id,
+                query,
+                limit=10,
+            )
+        if not results:
+            answer = "No relevant text was found in the files attached to this chat."
+            trace.generated_answer = answer
+            trace.source_status = "none_cited"
+            trace.mark_first_token()
+            yield PipelineEvent("delta", {"text": answer})
+            yield PipelineEvent(
+                "sources",
+                {"sources": [], "source_status": "none_cited", "malformed_source_count": 0},
+            )
+            yield PipelineEvent("done", {})
+            return
+        evidence = [
+            {
+                "chunk": {
+                    "chunk_id": result.source_id,
+                    "content_type": "upload",
+                    "document_id": result.document_id,
+                    "filename": result.filename,
+                    "media_type": result.media_type,
+                    "page_number": result.page_number,
+                    "text": result.text,
+                }
+            }
+            for result in results
+        ]
+        allowed_ids = [result.source_id for result in results]
+        trace.final_generation_evidence_ids = allowed_ids
+        trace.selected_asset_ids = list(
+            dict.fromkeys(result.document_id for result in results)
+        )
+        answer_fragments: list[str] = []
+        visible_fragments: list[str] = []
+        if route.uses_calculator:
+            operation = infer_calculation_operation(query)
+            if operation is None:
+                answer = (
+                    "I couldn't identify one supported calculation operation. Please "
+                    "specify a difference, ratio, percentage, growth rate, or sum."
+                )
+            else:
+                with trace.stage("calculation_operand_extraction"):
+                    calculation_plan = await asyncio.to_thread(
+                        self.generator.plan_evidence_calculation,
+                        query,
+                        evidence,
+                        operation,
+                        "upload",
+                    )
+                if not calculation_plan.ready:
+                    trace.tool_executions.append(
+                        {
+                            "tool": "calculator",
+                            "status": "not_executed",
+                            "safe_error_class": calculation_plan.message_code,
+                        }
+                    )
+                    answer = (
+                        "The attached files do not provide unambiguous, unit-compatible "
+                        "operands for that calculation."
+                    )
+                else:
+                    try:
+                        with trace.stage("calculator"):
+                            calculation = self.calculator.calculate_operation(
+                                calculation_plan.operation,
+                                [operand.value for operand in calculation_plan.operands],
+                                unit=calculation_plan.result_unit,
+                                decimal_places=calculation_plan.decimal_places,
+                                input_text=query,
+                            )
+                    except CalculationError:
+                        trace.tool_executions.append(
+                            {
+                                "tool": "calculator",
+                                "status": "rejected",
+                                "safe_error_class": "invalid_evidence_calculation",
+                            }
+                        )
+                        answer = "The uploaded-document operands could not be combined safely."
+                    else:
+                        trace.tool_executions.append(
+                            {
+                                "tool": "calculator",
+                                "status": "succeeded",
+                                "evidence_derived": True,
+                                **calculation.as_dict(),
+                            }
+                        )
+                        cited_operands = []
+                        for operand in calculation_plan.operands:
+                            citations = ", ".join(operand.source_ids)
+                            unit = f" {operand.unit}" if operand.unit else ""
+                            cited_operands.append(f"{operand.value}{unit} [{citations}]")
+                        result_unit = (
+                            "%"
+                            if calculation.unit == "%"
+                            else f" {calculation.unit}"
+                            if calculation.unit
+                            else ""
+                        )
+                        answer = (
+                            "Using "
+                            + " and ".join(cited_operands)
+                            + f", the {calculation.operation.replace('_', ' ')} is "
+                            + f"{calculation.result}{result_unit}."
+                        )
+            answer_fragments.append(answer)
+            visible = visible_answer_text(answer, allowed_ids)
+            if visible:
+                trace.mark_first_token()
+                visible_fragments.append(visible)
+                yield PipelineEvent("delta", {"text": visible})
+        elif self.llm_streaming:
+            generation_started = time.perf_counter()
+            with trace.stage("generation_start"):
+                provider_stream = self.generator.stream_upload_answer_with_metadata(
+                    query, evidence
+                )
+            sentinel = object()
+            citation_filter = CitationVisibilityFilter(allowed_ids)
+
+            def next_fragment() -> object:
+                return next(provider_stream, sentinel)
+
+            try:
+                while True:
+                    fragment = await asyncio.to_thread(next_fragment)
+                    if fragment is sentinel:
+                        break
+                    if await disconnected():
+                        return
+                    if isinstance(fragment, str) and fragment:
+                        answer_fragments.append(fragment)
+                        visible = citation_filter.feed(fragment)
+                        if visible:
+                            trace.mark_first_token()
+                            visible_fragments.append(visible)
+                            yield PipelineEvent("delta", {"text": visible})
+                tail = citation_filter.finish()
+                if tail:
+                    trace.mark_first_token()
+                    visible_fragments.append(tail)
+                    yield PipelineEvent("delta", {"text": tail})
+            finally:
+                close = getattr(provider_stream, "close", None)
+                if callable(close):
+                    close()
+                trace.provider_usage = dict(getattr(provider_stream, "usage", {}))
+                trace.stage_latency_ms["generation"] = round(
+                    (time.perf_counter() - generation_started) * 1_000, 3
+                )
+        else:
+            with trace.stage("generation"):
+                generated = await asyncio.to_thread(
+                    self.generator.upload_answer_with_metadata, query, evidence
+                )
+            trace.provider_usage = generated.usage
+            if generated.text:
+                answer_fragments.append(generated.text)
+                visible = visible_answer_text(generated.text, allowed_ids)
+                if visible:
+                    trace.mark_first_token()
+                    visible_fragments.append(visible)
+                    yield PipelineEvent("delta", {"text": visible})
+        if not answer_fragments or not visible_fragments:
+            raise RuntimeError("The generated uploaded-document answer was empty.")
+        trace.generated_answer = "".join(answer_fragments)
+        citation_resolution = resolve_cited_evidence(trace.generated_answer, evidence)
+        sources, malformed_count = normalize_sources(list(citation_resolution.evidence))
+        source_status = (
+            "cited_with_unrenderable_items"
+            if citation_resolution.resolved_ids and malformed_count
+            else "cited"
+            if citation_resolution.resolved_ids
+            else "none_cited"
+        )
+        trace.generated_citation_ids = list(citation_resolution.parsed_ids)
+        trace.resolved_used_ids = list(citation_resolution.resolved_ids)
+        trace.rejected_citation_ids = list(citation_resolution.rejected_ids)
+        trace.source_status = source_status
+        yield PipelineEvent(
+            "sources",
+            {
+                "sources": sources,
+                "source_status": source_status,
+                "malformed_source_count": malformed_count,
+            },
+            internal={"used_source_ids": list(citation_resolution.resolved_ids)},
+        )
+        yield PipelineEvent("done", {})
+
     def close(self) -> None:
         close_provider = getattr(self.generator.client, "close", None)
         if callable(close_provider):
@@ -705,6 +912,7 @@ class RealPipeline:
         conversation_context: Any | None = None,
         conversation_id: str | None = None,
         turn_id: str | None = None,
+        document_service: Any | None = None,
     ) -> AsyncIterator[PipelineEvent]:
         trace = RequestTrace(
             original_query=query,
@@ -717,7 +925,7 @@ class RealPipeline:
         )
         try:
             async for event in self._stream_traced(
-                query, is_disconnected, trace, conversation_context
+                query, is_disconnected, trace, conversation_context, document_service
             ):
                 yield event
         except asyncio.CancelledError:
@@ -738,6 +946,7 @@ class RealPipeline:
         is_disconnected: Callable[[], Awaitable[bool]],
         trace: RequestTrace,
         conversation_context: Any | None = None,
+        document_service: Any | None = None,
     ) -> AsyncIterator[PipelineEvent]:
         async def disconnected() -> bool:
             value = await is_disconnected()
@@ -753,16 +962,24 @@ class RealPipeline:
         if conversation_context is not None:
             trace.short_term_memory_ids = list(conversation_context.short_term_ids)
             trace.long_term_memory_ids = list(conversation_context.long_term_ids)
+        uploaded_documents = []
+        if document_service is not None and trace.conversation_id is not None:
+            with trace.stage("uploaded_document_listing"):
+                uploaded_documents = await asyncio.to_thread(
+                    document_service.list, trace.conversation_id
+                )
+        uploaded_source_names = [item.filename for item in uploaded_documents]
         with trace.stage("deterministic_resolution"):
             deterministic_resolution = self.company_resolver.resolve(query)
         with trace.stage("routing"):
             if hasattr(self.generator, "route_request"):
-                if prompt_context:
+                if prompt_context or uploaded_source_names:
                     route = await asyncio.to_thread(
                         self.generator.route_request,
                         query,
                         deterministic_resolution,
                         prompt_context,
+                        uploaded_source_names,
                     )
                 else:
                     route = await asyncio.to_thread(
@@ -845,6 +1062,32 @@ class RealPipeline:
         if route.uses_web_search:
             async for event in self._stream_web_route(
                 query, route, disconnected, trace
+            ):
+                yield event
+            return
+
+        if route.uses_uploads:
+            if document_service is None or trace.conversation_id is None:
+                response_text = (
+                    "That question needs a document attached to this chat, but no "
+                    "usable chat document source is available."
+                )
+                trace.generated_answer = response_text
+                trace.source_status = "none_cited"
+                trace.mark_first_token()
+                yield PipelineEvent("delta", {"text": response_text})
+                yield PipelineEvent(
+                    "sources",
+                    {
+                        "sources": [],
+                        "source_status": "none_cited",
+                        "malformed_source_count": 0,
+                    },
+                )
+                yield PipelineEvent("done", {})
+                return
+            async for event in self._stream_upload_route(
+                query, route, disconnected, trace, document_service
             ):
                 yield event
             return
@@ -1433,6 +1676,7 @@ class MockPipeline:
         conversation_context: Any | None = None,
         conversation_id: str | None = None,
         turn_id: str | None = None,
+        document_service: Any | None = None,
     ) -> AsyncIterator[PipelineEvent]:
         await asyncio.sleep(self.delay_seconds)
         if "[mock:pre-error]" in query.casefold():

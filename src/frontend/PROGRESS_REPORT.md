@@ -916,3 +916,17 @@ and was not included in AVA commits.
   limits, a private asset path, and a dedicated persistent `ava_upload_data` volume.
   The focused API/document/conversation suite passes 39 tests with one no-DSN skip
   and only the existing test-environment deprecation/local-Qdrant warnings.
+
+### Connected uploaded files to the bounded chat route
+
+- The router now receives only filenames attached to the exact current chat and
+  can select upload-only or upload-plus-calculator execution. Uploaded-document
+  search remains owner/chat-filtered in Qdrant and never invokes filing retrieval.
+- Added a dedicated uploaded-evidence prompt that explicitly ignores file-borne
+  system/developer/tool instructions, links, and secret requests. Only supplied
+  excerpts can support claims, citations are validated against retrieved upload
+  chunks, and internal `upload:*` IDs are removed from visible/persisted text.
+- Added frontend-safe uploaded source cards with filename, page provenance, and
+  excerpt, plus backend trace correlation through document IDs. Focused backend
+  tests pass 101 tests with one no-DSN skip, two expected environment warnings,
+  and three subtests; frontend lint, 26 tests, and production build pass.

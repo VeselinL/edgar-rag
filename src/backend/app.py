@@ -746,6 +746,7 @@ def create_app(
         service = None
         turn = None
         conversation_context = None
+        active_document_service = None
         history_enabled = (
             getattr(request.app.state, "conversation_service", None) is not None
             or getattr(request.app.state, "conversation_factory", None) is not None
@@ -774,6 +775,10 @@ def create_app(
                         client_turn_id,
                         body.query,
                     )
+                    if document_settings.enabled:
+                        active_document_service = getattr(
+                            service, "document_lifecycle", None
+                        )
             except ConversationNotFoundError as error:
                 raise HTTPException(status_code=404, detail="Conversation was not found.") from error
             except TurnConflictError as error:
@@ -808,6 +813,8 @@ def create_app(
                     "conversation_id": str(body.conversation_id) if body.conversation_id else None,
                     "turn_id": str(body.client_turn_id) if body.client_turn_id else None,
                 }
+                if active_document_service is not None:
+                    stream_arguments["document_service"] = active_document_service
                 async with asyncio.timeout(operational_settings.stream_timeout_seconds):
                     async for event in active_pipeline.stream(
                         body.query, request.is_disconnected, **stream_arguments

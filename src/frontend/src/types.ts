@@ -37,7 +37,16 @@ export interface WebSource {
   excerpt: string
 }
 
-export type Source = NarrativeSource | TableSource | WebSource
+export interface UploadedSource {
+  content_type: 'upload'
+  document_id: string
+  filename: string
+  media_type: string
+  page_number: number | null
+  excerpt: string
+}
+
+export type Source = NarrativeSource | TableSource | WebSource | UploadedSource
 export type SourceStatus = 'cited' | 'none_cited' | 'cited_with_unrenderable_items'
 
 export interface UserMessage {

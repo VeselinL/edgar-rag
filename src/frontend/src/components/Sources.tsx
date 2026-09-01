@@ -1,5 +1,5 @@
 import { useId, useState } from 'react'
-import type { NarrativeSource as NarrativeSourceType, Source, SourceStatus, TableSource as TableSourceType, WebSource as WebSourceType } from '../types'
+import type { NarrativeSource as NarrativeSourceType, Source, SourceStatus, TableSource as TableSourceType, UploadedSource as UploadedSourceType, WebSource as WebSourceType } from '../types'
 
 type FilingSource = NarrativeSourceType | TableSourceType
 
@@ -26,6 +26,18 @@ export function WebSource({ source }: { source: WebSourceType }) {
       </div>
       <p className="source-text">{source.excerpt}</p>
       <a href={source.source_url} target="_blank" rel="noreferrer">Open web source</a>
+    </article>
+  )
+}
+
+export function UploadedSource({ source }: { source: UploadedSourceType }) {
+  return (
+    <article className="source-card">
+      <div className="source-heading">
+        <strong>{source.filename}</strong>
+        <span>Chat upload{source.page_number ? ` · Page ${source.page_number}` : ''}</span>
+      </div>
+      <p className="source-text">{source.excerpt}</p>
     </article>
   )
 }
@@ -101,6 +113,8 @@ export function Sources({ sources, sourceStatus, malformedCount }: { sources: So
         <div className="sources-panel" id={panelId}>
           {sources.map((source, index) => source.content_type === 'web'
             ? <WebSource key={`${source.source_url}-${index}`} source={source} />
+            : source.content_type === 'upload'
+              ? <UploadedSource key={`${source.document_id}-${source.page_number ?? 0}-${index}`} source={source} />
             : source.content_type === 'table'
               ? <TableSource key={`${source.ticker}-${source.section}-${index}`} source={source} />
               : <NarrativeSource key={`${source.ticker}-${source.section}-${index}`} source={source} />)}

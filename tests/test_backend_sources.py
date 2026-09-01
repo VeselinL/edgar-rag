@@ -52,6 +52,22 @@ class SourceNormalizationTests(unittest.TestCase):
         self.assertEqual(source["excerpt"], "Bounded search excerpt.")
         self.assertNotIn("chunk_id", source)
 
+    def test_uploaded_source_keeps_file_and_page_without_internal_id(self):
+        source = normalize_source(
+            {
+                "chunk_id": "upload:doc:0",
+                "content_type": "upload",
+                "document_id": "doc",
+                "filename": "architecture.pdf",
+                "media_type": "application/pdf",
+                "page_number": 4,
+                "text": "Failover evidence.",
+            }
+        )
+        self.assertEqual(source["content_type"], "upload")
+        self.assertEqual(source["page_number"], 4)
+        self.assertNotIn("chunk_id", source)
+
     def test_malformed_table_is_not_reconstructed_from_markdown(self):
         with self.assertRaises(SourceNormalizationError):
             normalize_source(
