@@ -818,3 +818,16 @@ and was not included in AVA commits.
   using controlled filing-style table evidence; both values, their shared unit,
   source ID, operation, and rounding were accepted before local execution. The
   focused calculator/generation/pipeline suite passes 69 tests and 8 subtests.
+
+### Added the bounded web-search provider boundary
+
+- Added a provider-neutral web-search interface plus a Brave Search adapter that
+  follows the provider's documented HTTPS endpoint, subscription-token header,
+  400-character/50-word query limit, and moderate safe-search mode.
+- Limited AVA more tightly to 10 results, 1 MiB response bodies, 1,000-character
+  excerpts, safe public HTTPS result URLs, no redirects, no page follow-on fetches,
+  and no execution of returned markup or instructions. Each accepted result keeps
+  title, canonical URL, publisher domain, UTC retrieval time, and a bounded excerpt.
+- Added an explicit unavailable adapter so absent credentials cannot silently fall
+  back to model knowledge or filing retrieval. Nine calculator/web tool tests plus
+  eight subtests pass before runtime orchestration is connected.
