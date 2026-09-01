@@ -768,3 +768,18 @@ and was not included in AVA commits.
 - Moved measured retrieval/generation experiments to Phase 10 and deferred polish
   to Phase 11. Updated the repository instructions, roadmap index, and Codex
   handoff so they no longer reapply obsolete stateless/no-tool restrictions.
+
+### Froze the Phase 9 routing contract
+
+- Added a shared finite route model for conversation-only, filing, upload, web,
+  calculator, bounded evidence-plus-calculator, and clarification paths. The
+  contract records only a reason code and execution requirements, never private
+  reasoning.
+- Added deterministic high-confidence routing for greetings, AVA help, explicit
+  filing requests, and self-contained arithmetic. Other requests are formatted
+  for a strict model route decision with corpus company/product aliases and
+  separately delimited untrusted conversation context.
+- Froze 24 route cases before pipeline integration, covering the observed
+  greeting failure, ticker/name/product filing questions, no-ticker follow-ups,
+  unrelated/current web questions, mandatory arithmetic, chat uploads, and
+  genuine ambiguity. Seven focused tests plus 28 subtests pass.

@@ -67,3 +67,9 @@ PYTHONPATH=. .venv/bin/python -m src.evaluation.generation_quality \
 
 The optional judge is diagnostic and may vary by provider run. It never selects
 runtime sources or changes an answer.
+
+Phase 9 adds `request_routing_v1.json`, frozen before pipeline integration. It
+separates greetings/help, filing questions with names/tickers/products,
+current/external web questions, pure and evidence-derived arithmetic,
+conversation-scoped uploads, follow-ups, and genuine ambiguity. Route accuracy,
+unnecessary filing retrieval, and mandatory calculator use are scored separately.

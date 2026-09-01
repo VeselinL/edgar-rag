@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "description": "Phase 9 request-routing labels frozen before pipeline integration.",
+  "cases": [
+    {"id": "greeting-hello", "query": "Hello", "context": "", "uploads": [], "route": "conversation_only", "reason_code": "greeting", "arithmetic_required": false},
+    {"id": "greeting-hi-ava", "query": "Hi AVA!", "context": "", "uploads": [], "route": "conversation_only", "reason_code": "greeting", "arithmetic_required": false},
+    {"id": "ava-help", "query": "What can you do?", "context": "", "uploads": [], "route": "conversation_only", "reason_code": "ava_help", "arithmetic_required": false},
+    {"id": "filing-company-name", "query": "What autonomous driving strategy does Tesla disclose?", "context": "", "uploads": [], "route": "filing_rag", "reason_code": "filing_evidence", "arithmetic_required": false},
+    {"id": "filing-ticker", "query": "What risk factors does MBLY disclose?", "context": "", "uploads": [], "route": "filing_rag", "reason_code": "filing_evidence", "arithmetic_required": false},
+    {"id": "filing-explicit-10k", "query": "What does Ford's 10-K say about autonomous vehicles?", "context": "", "uploads": [], "route": "filing_rag", "reason_code": "filing_evidence", "arithmetic_required": false},
+    {"id": "filing-product-aurora", "query": "How does Aurora Driver technology work?", "context": "", "uploads": [], "route": "filing_rag", "reason_code": "filing_evidence", "arithmetic_required": false},
+    {"id": "filing-product-eyeq", "query": "What capabilities does EyeQ provide?", "context": "", "uploads": [], "route": "filing_rag", "reason_code": "filing_evidence", "arithmetic_required": false},
+    {"id": "filing-product-waymo", "query": "How is Waymo's technology described?", "context": "", "uploads": [], "route": "filing_rag", "reason_code": "filing_evidence", "arithmetic_required": false},
+    {"id": "filing-product-snapdragon", "query": "Explain Snapdragon Digital Chassis from the available company filing.", "context": "", "uploads": [], "route": "filing_rag", "reason_code": "filing_evidence", "arithmetic_required": false},
+    {"id": "filing-followup", "query": "What about its risk factors?", "context": "User: Tell me about Rivian's vehicle platform.\nAssistant: ...", "uploads": [], "route": "filing_rag", "reason_code": "filing_evidence", "arithmetic_required": false},
+    {"id": "filing-disclosed-number", "query": "What revenue did Ouster disclose for 2025?", "context": "", "uploads": [], "route": "filing_rag", "reason_code": "filing_evidence", "arithmetic_required": false},
+    {"id": "web-general", "query": "What is the capital of France?", "context": "", "uploads": [], "route": "web_search", "reason_code": "current_or_external", "arithmetic_required": false},
+    {"id": "web-current", "query": "What is Tesla's stock price today?", "context": "", "uploads": [], "route": "web_search", "reason_code": "current_or_external", "arithmetic_required": false},
+    {"id": "web-news", "query": "What autonomous vehicle news happened this week?", "context": "", "uploads": [], "route": "web_search", "reason_code": "current_or_external", "arithmetic_required": false},
+    {"id": "calculator-basic", "query": "What is 12.5 * 4?", "context": "", "uploads": [], "route": "calculator", "reason_code": "pure_arithmetic", "arithmetic_required": true},
+    {"id": "calculator-percentage", "query": "Calculate 18 as a percentage of 72.", "context": "", "uploads": [], "route": "calculator", "reason_code": "pure_arithmetic", "arithmetic_required": true},
+    {"id": "filing-calculation", "query": "Calculate the difference between GM's 2025 and 2024 revenue.", "context": "", "uploads": [], "route": "filing_and_calculator", "reason_code": "evidence_arithmetic", "arithmetic_required": true},
+    {"id": "filing-ratio", "query": "What is the ratio of Tesla's disclosed automotive revenue to energy revenue?", "context": "", "uploads": [], "route": "filing_and_calculator", "reason_code": "evidence_arithmetic", "arithmetic_required": true},
+    {"id": "web-calculation", "query": "Using today's prices, calculate the difference between TSLA and GM stock.", "context": "", "uploads": [], "route": "web_and_calculator", "reason_code": "evidence_arithmetic", "arithmetic_required": true},
+    {"id": "upload-question", "query": "What does the attached architecture document say about failover?", "context": "", "uploads": ["architecture.pdf"], "route": "uploaded_document_rag", "reason_code": "uploaded_evidence", "arithmetic_required": false},
+    {"id": "upload-calculation", "query": "Calculate the total of the three values in my attached text file.", "context": "", "uploads": ["values.txt"], "route": "upload_and_calculator", "reason_code": "evidence_arithmetic", "arithmetic_required": true},
+    {"id": "ambiguous-pronoun", "query": "How does its technology work?", "context": "", "uploads": [], "route": "clarify", "reason_code": "ambiguous_intent", "arithmetic_required": false},
+    {"id": "ambiguous-document", "query": "Summarize the document.", "context": "", "uploads": [], "route": "clarify", "reason_code": "ambiguous_intent", "arithmetic_required": false}
+  ]
+}
