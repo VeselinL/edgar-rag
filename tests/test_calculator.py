@@ -3,6 +3,7 @@ import unittest
 from src.tools.calculator import (
     CalculationError,
     CalculatorTool,
+    infer_calculation_operation,
     parse_evidence_number,
 )
 
@@ -61,6 +62,17 @@ class CalculatorToolTests(unittest.TestCase):
         self.assertEqual(str(parse_evidence_number("(42)")), "-42")
         with self.assertRaises(CalculationError):
             parse_evidence_number("about 42 million")
+
+    def test_infers_only_one_explicit_evidence_operation(self):
+        self.assertEqual(
+            infer_calculation_operation("Calculate the difference using today's prices"),
+            "difference",
+        )
+        self.assertEqual(
+            infer_calculation_operation("Find the percentage increase from 80 to 100"),
+            "growth_rate",
+        )
+        self.assertIsNone(infer_calculation_operation("Calculate these values"))
 
 
 if __name__ == "__main__":

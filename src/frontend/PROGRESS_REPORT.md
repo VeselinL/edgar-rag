@@ -831,3 +831,19 @@ and was not included in AVA commits.
 - Added an explicit unavailable adapter so absent credentials cannot silently fall
   back to model knowledge or filing retrieval. Nine calculator/web tool tests plus
   eight subtests pass before runtime orchestration is connected.
+
+### Connected cited web answers and web calculations
+
+- Routed current/external requests through exactly one configured bounded search
+  call, then into a web-specific grounding prompt that treats snippets as
+  untrusted evidence and requires `web-*` citations. Disabled, failed, empty, and
+  uncited searches do not fall back to SEC chunks or model knowledge.
+- Added search-plus-calculator execution for current numeric comparisons: search
+  first, validate quoted operands against cited web snippets, then run the same
+  deterministic calculator. Request telemetry records the ordered web and
+  calculator executions without provider response bodies or secrets.
+- Added a frontend-safe web source schema and distinct source cards with title,
+  publisher, retrieval time, bounded excerpt, and canonical external link; raw
+  internal IDs remain backend-only source correlation data. Backend tests pass
+  81 tests and 11 subtests; frontend lint, 26 component tests, and production
+  build pass.

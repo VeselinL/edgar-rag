@@ -1,7 +1,9 @@
 import { useId, useState } from 'react'
-import type { NarrativeSource as NarrativeSourceType, Source, SourceStatus, TableSource as TableSourceType } from '../types'
+import type { NarrativeSource as NarrativeSourceType, Source, SourceStatus, TableSource as TableSourceType, WebSource as WebSourceType } from '../types'
 
-function SourceHeading({ source }: { source: Source }) {
+type FilingSource = NarrativeSourceType | TableSourceType
+
+function SourceHeading({ source }: { source: FilingSource }) {
   return (
     <div className="source-heading">
       <strong>{source.company} ({source.ticker})</strong>
@@ -10,9 +12,22 @@ function SourceHeading({ source }: { source: Source }) {
   )
 }
 
-function SourceLink({ source }: { source: Source }) {
+function SourceLink({ source }: { source: FilingSource }) {
   if (!source.source_url) return null
   return <a href={source.source_url} target="_blank" rel="noreferrer">Open SEC filing</a>
+}
+
+export function WebSource({ source }: { source: WebSourceType }) {
+  return (
+    <article className="source-card">
+      <div className="source-heading">
+        <strong>{source.title}</strong>
+        <span>{source.publisher} · Retrieved {new Date(source.retrieved_at).toLocaleString()}</span>
+      </div>
+      <p className="source-text">{source.excerpt}</p>
+      <a href={source.source_url} target="_blank" rel="noreferrer">Open web source</a>
+    </article>
+  )
 }
 
 export function NarrativeSource({ source }: { source: NarrativeSourceType }) {
@@ -84,9 +99,11 @@ export function Sources({ sources, sourceStatus, malformedCount }: { sources: So
       </button>
       {open && (
         <div className="sources-panel" id={panelId}>
-          {sources.map((source, index) => source.content_type === 'table'
-            ? <TableSource key={`${source.ticker}-${source.section}-${index}`} source={source} />
-            : <NarrativeSource key={`${source.ticker}-${source.section}-${index}`} source={source} />)}
+          {sources.map((source, index) => source.content_type === 'web'
+            ? <WebSource key={`${source.source_url}-${index}`} source={source} />
+            : source.content_type === 'table'
+              ? <TableSource key={`${source.ticker}-${source.section}-${index}`} source={source} />
+              : <NarrativeSource key={`${source.ticker}-${source.section}-${index}`} source={source} />)}
           {malformedCount > 0 && <p className="source-warning">{malformedCount === 1 ? 'One source could not be displayed.' : `${malformedCount} sources could not be displayed.`}</p>}
         </div>
       )}

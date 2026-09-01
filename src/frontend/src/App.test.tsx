@@ -145,7 +145,7 @@ describe('App', () => {
     expect(mockedStream).not.toHaveBeenCalled()
   })
 
-  it('renders narrative and structured table sources without raw IDs', async () => {
+  it('renders filing, table, and web sources without raw IDs', async () => {
     const sources: Source[] = [
       {
         company: 'Tesla, Inc.', ticker: 'TSLA', filing_year: 2025,
@@ -157,6 +157,11 @@ describe('App', () => {
         units: 'USD millions', headers: ['Category', '2025', '2024'],
         rows: [['Product', '10', '']], column_units: ['text', 'USD millions', 'USD millions'],
       },
+      {
+        content_type: 'web', title: 'Current AV report', publisher: 'example.com',
+        retrieved_at: '2026-09-01T00:00:00+00:00', source_url: 'https://example.com/report',
+        excerpt: 'Bounded web search evidence.',
+      },
     ]
     mockedStream.mockImplementation(async (_query, handlers) => {
       handlers.onOpen()
@@ -167,11 +172,13 @@ describe('App', () => {
     render(<App />)
     await waitFor(() => expect(screen.getByLabelText('Ask AVA about the SEC filings')).not.toBeDisabled())
     await userEvent.type(screen.getByLabelText('Ask AVA about the SEC filings'), 'Show evidence{enter}')
-    const button = await screen.findByRole('button', { name: 'View sources (2)' })
+    const button = await screen.findByRole('button', { name: 'View sources (3)' })
     await userEvent.click(button)
     expect(screen.getByText('Complete narrative evidence.')).toBeInTheDocument()
     expect(screen.getByRole('table')).toBeInTheDocument()
     expect(screen.getByRole('columnheader', { name: '2025' })).toBeInTheDocument()
+    expect(screen.getByText('Bounded web search evidence.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open web source' })).toHaveAttribute('href', 'https://example.com/report')
     expect(screen.queryByText(/CHUNK-/)).not.toBeInTheDocument()
   })
 

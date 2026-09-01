@@ -28,7 +28,16 @@ export interface TableSource extends SourceBase {
   column_units?: string[]
 }
 
-export type Source = NarrativeSource | TableSource
+export interface WebSource {
+  content_type: 'web'
+  title: string
+  publisher: string
+  retrieved_at: string
+  source_url: string
+  excerpt: string
+}
+
+export type Source = NarrativeSource | TableSource | WebSource
 export type SourceStatus = 'cited' | 'none_cited' | 'cited_with_unrenderable_items'
 
 export interface UserMessage {

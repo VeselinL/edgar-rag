@@ -36,6 +36,22 @@ class SourceNormalizationTests(unittest.TestCase):
         self.assertEqual(source["rows"][0][-1], "")
         self.assertNotIn("text", source)
 
+    def test_web_source_keeps_public_provenance_without_internal_id(self):
+        source = normalize_source(
+            {
+                "chunk_id": "web-1",
+                "content_type": "web",
+                "title": "Current report",
+                "publisher": "example.com",
+                "retrieved_at": "2026-09-01T00:00:00+00:00",
+                "source_url": "https://example.com/report",
+                "text": "Bounded search excerpt.",
+            }
+        )
+        self.assertEqual(source["content_type"], "web")
+        self.assertEqual(source["excerpt"], "Bounded search excerpt.")
+        self.assertNotIn("chunk_id", source)
+
     def test_malformed_table_is_not_reconstructed_from_markdown(self):
         with self.assertRaises(SourceNormalizationError):
             normalize_source(

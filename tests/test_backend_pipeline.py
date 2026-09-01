@@ -8,6 +8,7 @@ from src.backend.pipeline import FILINGS, PipelineSettings, RealPipeline
 from src.orchestration.models import EvidenceCalculationPlan, EvidenceOperand
 from src.orchestration.routing import RequestRoute, RouteKind, RouteReason
 from src.retrieval.evidence_policy import EvidencePolicyError
+from src.tools.web_search import WebSearchResponse, WebSearchResult
 
 
 class FakeRetriever:
@@ -297,6 +298,61 @@ class FilingCalculationGenerator(FakeGenerator):
         raise AssertionError("Evidence calculations must not use answer generation.")
 
 
+class FakeWebSearch:
+    provider = "test-web"
+
+    def __init__(self):
+        self.query = None
+
+    def search(self, query, *, max_results=5):
+        self.query = query
+        return WebSearchResponse(
+            query,
+            self.provider,
+            (
+                WebSearchResult(
+                    "web-1",
+                    "Current report",
+                    "https://example.com/report",
+                    "example.com",
+                    "2026-09-01T00:00:00+00:00",
+                    "TSLA was 250 and GM was 60 at the stated time.",
+                ),
+            ),
+        )
+
+    def close(self):
+        return None
+
+
+class WebGenerator(RoutedGenerator):
+    def __init__(self, route=None):
+        super().__init__(
+            route
+            or RequestRoute(RouteKind.WEB_SEARCH, RouteReason.CURRENT_OR_EXTERNAL)
+        )
+
+    def web_answer_with_metadata(self, query, evidence):
+        return SimpleNamespace(
+            text="The current report provides the requested update [web-1].",
+            usage={"total_tokens": 10},
+        )
+
+    def plan_evidence_calculation(self, query, evidence, operation, source_kind):
+        self.source_kind = source_kind
+        return EvidenceCalculationPlan(
+            "ready",
+            operation,
+            (
+                EvidenceOperand("TSLA", "250", "250", "USD", ("web-1",)),
+                EvidenceOperand("GM", "60", "60", "USD", ("web-1",)),
+            ),
+            "USD",
+            None,
+            None,
+        )
+
+
 class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
     def test_deployment_corpus_includes_rivian(self):
         self.assertEqual(FILINGS["RIVN"], "2025-10-K")
@@ -324,6 +380,35 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             "os.environ", {"AVA_CALCULATOR_ENABLED": "off"}, clear=False
         ):
             with self.assertRaisesRegex(ValueError, "AVA_CALCULATOR_ENABLED"):
+                PipelineSettings.from_environment()
+
+    def test_settings_require_explicit_configured_web_provider(self):
+        with patch.dict(
+            "os.environ",
+            {
+                "AVA_WEB_SEARCH_ENABLED": "true",
+                "AVA_WEB_SEARCH_PROVIDER": "brave",
+                "BRAVE_SEARCH_API_KEY": "test-key",
+                "AVA_WEB_SEARCH_TIMEOUT_SECONDS": "6",
+                "AVA_WEB_SEARCH_MAX_RESULTS": "4",
+            },
+            clear=False,
+        ):
+            settings = PipelineSettings.from_environment()
+        self.assertTrue(settings.web_search_enabled)
+        self.assertEqual(settings.web_search_provider, "brave")
+        self.assertEqual(settings.web_search_max_results, 4)
+
+        with patch.dict(
+            "os.environ",
+            {
+                "AVA_WEB_SEARCH_ENABLED": "true",
+                "AVA_WEB_SEARCH_PROVIDER": "disabled",
+                "BRAVE_SEARCH_API_KEY": "",
+            },
+            clear=False,
+        ):
+            with self.assertRaisesRegex(ValueError, "requires"):
                 PipelineSettings.from_environment()
 
     def test_settings_load_project_dotenv_before_reading_values(self):
@@ -474,8 +559,67 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         ]
 
         self.assertIsNone(retriever.arguments)
-        self.assertIn("outside the available SEC filings", events[0].data["text"])
+        self.assertIn("web search is disabled", events[0].data["text"])
         self.assertEqual(events[1].data["sources"], [])
+
+    async def test_enabled_web_route_generates_only_from_cited_search_results(self):
+        retriever = FakeRetriever()
+        web_search = FakeWebSearch()
+        records = []
+        pipeline = RealPipeline(
+            retriever,
+            WebGenerator(),
+            llm_streaming=False,
+            web_search=web_search,
+            web_search_enabled=True,
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream("What happened today?", connected)
+        ]
+        self.assertIsNone(retriever.arguments)
+        self.assertEqual(web_search.query, "What happened today?")
+        self.assertEqual(events[1].data["sources"][0]["content_type"], "web")
+        self.assertEqual(events[1].data["sources"][0]["publisher"], "example.com")
+        self.assertEqual(records[0]["tool_executions"][0]["tool"], "web_search")
+
+    async def test_web_calculation_searches_then_executes_calculator(self):
+        route = RequestRoute(
+            RouteKind.WEB_AND_CALCULATOR,
+            RouteReason.EVIDENCE_ARITHMETIC,
+            arithmetic_required=True,
+        )
+        generator = WebGenerator(route)
+        records = []
+        pipeline = RealPipeline(
+            FakeRetriever(),
+            generator,
+            web_search=FakeWebSearch(),
+            web_search_enabled=True,
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Using today's prices, calculate the difference between TSLA and GM.",
+                connected,
+            )
+        ]
+        self.assertIn("difference is 190 USD", events[0].data["text"])
+        self.assertEqual(generator.source_kind, "web")
+        self.assertEqual(
+            [record["tool"] for record in records[0]["tool_executions"]],
+            ["web_search", "calculator"],
+        )
 
     async def test_calculation_route_executes_calculator_without_retrieval_or_model(self):
         retriever = FakeRetriever()

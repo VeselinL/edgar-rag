@@ -55,6 +55,23 @@ _ROUNDING_PATTERN = re.compile(
 )
 
 
+def infer_calculation_operation(query: str) -> str | None:
+    """Return one unambiguous allow-listed operation named by the user."""
+    lowered = " ".join(query.casefold().split())
+    matches: set[str] = set()
+    cues = {
+        "growth_rate": (r"\bgrowth\s+rate\b", r"\bpercentage\s+(?:increase|decrease|change)\b"),
+        "difference": (r"\bdifference\b", r"\bsubtract\b", r"\bhow\s+much\s+(?:higher|lower)\b"),
+        "ratio": (r"\bratio\b", r"\bdivide\b"),
+        "percentage": (r"\bas\s+a\s+percentage\s+of\b", r"\bpercent\s+of\b"),
+        "sum": (r"\bsum\b", r"\btotal\s+of\b", r"\badd\b"),
+    }
+    for operation, patterns in cues.items():
+        if any(re.search(pattern, lowered) for pattern in patterns):
+            matches.add(operation)
+    return next(iter(matches)) if len(matches) == 1 else None
+
+
 def _decimal_text(value: Decimal) -> str:
     if value == 0:
         return "0"

@@ -161,6 +161,13 @@ Set `AVA_LLM_STREAMING=true` only when the configured provider returns genuine
 `text/event-stream` Chat Completions. The current local Unique gateway requires
 `false`; AVA then waits for its completed JSON answer and displays it at once.
 
+Web search is off by default. To enable the bounded external adapter, set
+`AVA_WEB_SEARCH_ENABLED=true`, `AVA_WEB_SEARCH_PROVIDER=brave`, and a backend-only
+`BRAVE_SEARCH_API_KEY`. The adapter follows the [official Brave Web Search API](https://api-dashboard.search.brave.com/api-reference/web/search/get)
+contract and never exposes the subscription token to the browser. If those values
+are absent, external questions return an explicit unavailable response rather
+than falling back to filing chunks or unstated model knowledge.
+
 Explicit company requests use one fixed evidence policy: at most 50 chunks
 across the request and at most 10 chunks per company. Requests for one through
 five companies target 10 chunks from each company. Above five companies, AVA

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 import hashlib
 import json
 import logging
@@ -54,7 +54,15 @@ from src.retrieval.evidence_policy import (
     EvidencePackingError,
     EvidencePolicyError,
 )
-from src.tools import CalculationError, CalculatorTool
+from src.tools import (
+    BraveWebSearchTool,
+    CalculationError,
+    CalculatorTool,
+    UnavailableWebSearchTool,
+    WebSearchError,
+    WebSearchTool,
+    infer_calculation_operation,
+)
 
 from .sources import normalize_sources
 
@@ -98,6 +106,11 @@ class PipelineSettings:
     qdrant_local_path: str | None = None
     qdrant_timeout_seconds: int = 30
     calculator_enabled: bool = True
+    web_search_enabled: bool = False
+    web_search_provider: str = "disabled"
+    web_search_api_key: str | None = field(default=None, repr=False)
+    web_search_timeout_seconds: float = 8.0
+    web_search_max_results: int = 5
 
     @classmethod
     def from_environment(cls) -> "PipelineSettings":
@@ -115,6 +128,32 @@ class PipelineSettings:
         ).strip().casefold()
         if raw_calculator_enabled not in {"true", "false"}:
             raise ValueError("AVA_CALCULATOR_ENABLED must be 'true' or 'false'.")
+        raw_web_search_enabled = os.getenv(
+            "AVA_WEB_SEARCH_ENABLED", "false"
+        ).strip().casefold()
+        if raw_web_search_enabled not in {"true", "false"}:
+            raise ValueError("AVA_WEB_SEARCH_ENABLED must be 'true' or 'false'.")
+        web_search_provider = os.getenv(
+            "AVA_WEB_SEARCH_PROVIDER", "disabled"
+        ).strip().casefold()
+        if web_search_provider not in {"disabled", "brave"}:
+            raise ValueError("AVA_WEB_SEARCH_PROVIDER must be 'disabled' or 'brave'.")
+        web_search_api_key = os.getenv("BRAVE_SEARCH_API_KEY") or None
+        web_search_timeout_seconds = float(
+            os.getenv("AVA_WEB_SEARCH_TIMEOUT_SECONDS", "8")
+        )
+        web_search_max_results = int(os.getenv("AVA_WEB_SEARCH_MAX_RESULTS", "5"))
+        if not 0 < web_search_timeout_seconds <= 30:
+            raise ValueError("AVA_WEB_SEARCH_TIMEOUT_SECONDS must be between 0 and 30.")
+        if not 1 <= web_search_max_results <= 10:
+            raise ValueError("AVA_WEB_SEARCH_MAX_RESULTS must be between 1 and 10.")
+        if raw_web_search_enabled == "true" and (
+            web_search_provider != "brave" or not web_search_api_key
+        ):
+            raise ValueError(
+                "Enabled web search requires AVA_WEB_SEARCH_PROVIDER=brave and "
+                "BRAVE_SEARCH_API_KEY."
+            )
         qdrant_mode = os.getenv("AVA_QDRANT_MODE", "disabled").strip().casefold()
         if qdrant_mode not in {"disabled", "shadow", "primary"}:
             raise ValueError(
@@ -150,6 +189,11 @@ class PipelineSettings:
             qdrant_local_path=qdrant_local_path,
             qdrant_timeout_seconds=qdrant_timeout_seconds,
             calculator_enabled=raw_calculator_enabled == "true",
+            web_search_enabled=raw_web_search_enabled == "true",
+            web_search_provider=web_search_provider,
+            web_search_api_key=web_search_api_key,
+            web_search_timeout_seconds=web_search_timeout_seconds,
+            web_search_max_results=web_search_max_results,
         )
 
 
@@ -210,6 +254,9 @@ class RealPipeline:
         qdrant_health: dict[str, Any] | None = None,
         calculator: CalculatorTool | None = None,
         calculator_enabled: bool = True,
+        web_search: WebSearchTool | None = None,
+        web_search_enabled: bool = False,
+        web_search_max_results: int = 5,
     ) -> None:
         self.retriever = retriever
         self.generator = generator
@@ -228,15 +275,251 @@ class RealPipeline:
         }
         self.calculator = calculator or CalculatorTool()
         self.calculator_enabled = calculator_enabled
+        self.web_search = web_search or UnavailableWebSearchTool()
+        self.web_search_enabled = web_search_enabled
+        self.web_search_max_results = web_search_max_results
 
     @staticmethod
     def _log_trace(record: dict[str, Any]) -> None:
         LOGGER.info("AVA request completed", extra={"ava_request": record})
 
+    async def _stream_web_route(
+        self,
+        query: str,
+        route: RequestRoute,
+        disconnected: Callable[[], Awaitable[bool]],
+        trace: RequestTrace,
+    ) -> AsyncIterator[PipelineEvent]:
+        if not self.web_search_enabled:
+            answer = (
+                "That question needs current or external information, but web search "
+                "is disabled in this deployment."
+            )
+            trace.generated_answer = answer
+            trace.source_status = "none_cited"
+            trace.mark_first_token()
+            yield PipelineEvent("delta", {"text": answer})
+            yield PipelineEvent(
+                "sources",
+                {"sources": [], "source_status": "none_cited", "malformed_source_count": 0},
+            )
+            yield PipelineEvent("done", {})
+            return
+        try:
+            with trace.stage("web_search"):
+                response = await asyncio.to_thread(
+                    self.web_search.search,
+                    query,
+                    max_results=self.web_search_max_results,
+                )
+        except WebSearchError:
+            trace.tool_executions.append(
+                {
+                    "tool": "web_search",
+                    "provider": self.web_search.provider,
+                    "status": "failed",
+                    "safe_error_class": "web_search_unavailable",
+                }
+            )
+            answer = "Web search is temporarily unavailable, so I can't verify that answer."
+            trace.generated_answer = answer
+            trace.source_status = "none_cited"
+            trace.mark_first_token()
+            yield PipelineEvent("delta", {"text": answer})
+            yield PipelineEvent(
+                "sources",
+                {"sources": [], "source_status": "none_cited", "malformed_source_count": 0},
+            )
+            yield PipelineEvent("done", {})
+            return
+        trace.tool_executions.append(
+            {
+                "tool": "web_search",
+                "provider": response.provider,
+                "status": "succeeded",
+                "query": response.query,
+                "result_count": len(response.results),
+            }
+        )
+        if not response.results:
+            answer = "Web search returned no usable public sources for that question."
+            trace.generated_answer = answer
+            trace.source_status = "none_cited"
+            trace.mark_first_token()
+            yield PipelineEvent("delta", {"text": answer})
+            yield PipelineEvent(
+                "sources",
+                {"sources": [], "source_status": "none_cited", "malformed_source_count": 0},
+            )
+            yield PipelineEvent("done", {})
+            return
+        evidence = [
+            {
+                "chunk": {
+                    "chunk_id": result.source_id,
+                    "content_type": "web",
+                    "title": result.title,
+                    "publisher": result.publisher,
+                    "retrieved_at": result.retrieved_at,
+                    "source_url": result.url,
+                    "text": result.excerpt,
+                }
+            }
+            for result in response.results
+        ]
+        trace.final_generation_evidence_ids = [
+            result.source_id for result in response.results
+        ]
+        answer_fragments: list[str] = []
+        if route.uses_calculator:
+            operation = infer_calculation_operation(query)
+            if operation is None:
+                answer = (
+                    "I couldn't identify one supported calculation operation. Please "
+                    "specify a difference, ratio, percentage, growth rate, or sum."
+                )
+            else:
+                with trace.stage("calculation_operand_extraction"):
+                    calculation_plan = await asyncio.to_thread(
+                        self.generator.plan_evidence_calculation,
+                        query,
+                        evidence,
+                        operation,
+                        "web",
+                    )
+                if not calculation_plan.ready:
+                    trace.tool_executions.append(
+                        {
+                            "tool": "calculator",
+                            "status": "not_executed",
+                            "safe_error_class": calculation_plan.message_code,
+                        }
+                    )
+                    answer = (
+                        "The web results do not provide unambiguous, unit-compatible "
+                        "operands for that calculation."
+                    )
+                else:
+                    try:
+                        with trace.stage("calculator"):
+                            calculation = self.calculator.calculate_operation(
+                                calculation_plan.operation,
+                                [operand.value for operand in calculation_plan.operands],
+                                unit=calculation_plan.result_unit,
+                                decimal_places=calculation_plan.decimal_places,
+                                input_text=query,
+                            )
+                    except CalculationError:
+                        trace.tool_executions.append(
+                            {
+                                "tool": "calculator",
+                                "status": "rejected",
+                                "safe_error_class": "invalid_evidence_calculation",
+                            }
+                        )
+                        answer = "The web operands could not be combined safely."
+                    else:
+                        trace.tool_executions.append(
+                            {
+                                "tool": "calculator",
+                                "status": "succeeded",
+                                "evidence_derived": True,
+                                **calculation.as_dict(),
+                            }
+                        )
+                        cited_operands = []
+                        for operand in calculation_plan.operands:
+                            citations = ", ".join(operand.source_ids)
+                            unit = f" {operand.unit}" if operand.unit else ""
+                            cited_operands.append(f"{operand.value}{unit} [{citations}]")
+                        result_unit = (
+                            "%"
+                            if calculation.unit == "%"
+                            else f" {calculation.unit}"
+                            if calculation.unit
+                            else ""
+                        )
+                        answer = (
+                            "Using "
+                            + " and ".join(cited_operands)
+                            + f", the {calculation.operation.replace('_', ' ')} is "
+                            + f"{calculation.result}{result_unit}."
+                        )
+            trace.mark_first_token()
+            answer_fragments.append(answer)
+            yield PipelineEvent("delta", {"text": answer})
+        elif self.llm_streaming:
+            generation_started = time.perf_counter()
+            with trace.stage("generation_start"):
+                provider_stream = self.generator.stream_web_answer_with_metadata(
+                    query, evidence
+                )
+            sentinel = object()
+
+            def next_fragment() -> object:
+                return next(provider_stream, sentinel)
+
+            try:
+                while True:
+                    fragment = await asyncio.to_thread(next_fragment)
+                    if fragment is sentinel:
+                        break
+                    if await disconnected():
+                        return
+                    if isinstance(fragment, str) and fragment:
+                        trace.mark_first_token()
+                        answer_fragments.append(fragment)
+                        yield PipelineEvent("delta", {"text": fragment})
+            finally:
+                close = getattr(provider_stream, "close", None)
+                if callable(close):
+                    close()
+                trace.provider_usage = dict(getattr(provider_stream, "usage", {}))
+                trace.stage_latency_ms["generation"] = round(
+                    (time.perf_counter() - generation_started) * 1_000, 3
+                )
+        else:
+            with trace.stage("generation"):
+                result = await asyncio.to_thread(
+                    self.generator.web_answer_with_metadata, query, evidence
+                )
+            trace.provider_usage = result.usage
+            if result.text:
+                trace.mark_first_token()
+                answer_fragments.append(result.text)
+                yield PipelineEvent("delta", {"text": result.text})
+        if not answer_fragments:
+            raise RuntimeError("The LLM returned no generated web answer.")
+        trace.generated_answer = "".join(answer_fragments)
+        citation_resolution = resolve_cited_evidence(trace.generated_answer, evidence)
+        sources, malformed_count = normalize_sources(list(citation_resolution.evidence))
+        source_status = (
+            "cited_with_unrenderable_items"
+            if citation_resolution.resolved_ids and malformed_count
+            else "cited"
+            if citation_resolution.resolved_ids
+            else "none_cited"
+        )
+        trace.generated_citation_ids = list(citation_resolution.parsed_ids)
+        trace.resolved_used_ids = list(citation_resolution.resolved_ids)
+        trace.rejected_citation_ids = list(citation_resolution.rejected_ids)
+        trace.source_status = source_status
+        yield PipelineEvent(
+            "sources",
+            {
+                "sources": sources,
+                "source_status": source_status,
+                "malformed_source_count": malformed_count,
+            },
+            internal={"used_source_ids": list(citation_resolution.resolved_ids)},
+        )
+        yield PipelineEvent("done", {})
+
     def close(self) -> None:
         close_provider = getattr(self.generator.client, "close", None)
         if callable(close_provider):
             close_provider()
+        self.web_search.close()
         dense = self.retriever.dense_retriever
         if isinstance(dense, ShadowDenseRetriever):
             dense = dense.shadow
@@ -352,6 +635,12 @@ class RealPipeline:
                 recovery_seconds=float(os.getenv("AVA_PROVIDER_CIRCUIT_RECOVERY_SECONDS", "30")),
             ),
         )
+        web_search: WebSearchTool = UnavailableWebSearchTool()
+        if settings.web_search_enabled and settings.web_search_provider == "brave":
+            web_search = BraveWebSearchTool(
+                settings.web_search_api_key or "",
+                timeout_seconds=settings.web_search_timeout_seconds,
+            )
         startup_metrics = {
             "corpus_load_ms": round(load_ms, 3),
             "bm25_build_ms": round(bm25_ms, 3),
@@ -382,6 +671,9 @@ class RealPipeline:
             ready=ready,
             qdrant_health=qdrant_health,
             calculator_enabled=settings.calculator_enabled,
+            web_search=web_search,
+            web_search_enabled=settings.web_search_enabled,
+            web_search_max_results=settings.web_search_max_results,
         )
 
     async def stream(
@@ -527,6 +819,13 @@ class RealPipeline:
                 },
             )
             yield PipelineEvent("done", {})
+            return
+
+        if route.uses_web_search:
+            async for event in self._stream_web_route(
+                query, route, disconnected, trace
+            ):
+                yield event
             return
 
         if not route.uses_filing_retrieval:

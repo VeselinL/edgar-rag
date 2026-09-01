@@ -29,6 +29,18 @@ def _common_source(chunk: dict[str, Any]) -> dict[str, Any]:
 
 def normalize_source(result: dict[str, Any]) -> dict[str, Any]:
     chunk = result.get("chunk", result)
+    if chunk.get("content_type") == "web":
+        required = ("title", "publisher", "retrieved_at", "source_url", "text")
+        if any(not isinstance(chunk.get(key), str) or not chunk[key] for key in required):
+            raise SourceNormalizationError("Web source has incomplete provenance.")
+        return {
+            "content_type": "web",
+            "title": chunk["title"],
+            "publisher": chunk["publisher"],
+            "retrieved_at": chunk["retrieved_at"],
+            "source_url": chunk["source_url"],
+            "excerpt": chunk["text"],
+        }
     source = _common_source(chunk)
     if chunk.get("content_type") != "table":
         text = chunk.get("text")

@@ -4,6 +4,7 @@ from .calculator import (
     CalculationError,
     CalculationRecord,
     CalculatorTool,
+    infer_calculation_operation,
     parse_evidence_number,
 )
 from .web_search import (
@@ -20,6 +21,7 @@ __all__ = [
     "CalculationError",
     "CalculationRecord",
     "CalculatorTool",
+    "infer_calculation_operation",
     "parse_evidence_number",
     "BraveWebSearchTool",
     "UnavailableWebSearchTool",
