@@ -1,6 +1,6 @@
 # AVA — Roadmap Index
 
-**Status date:** 31 August 2026
+**Status date:** 1 September 2026
 
 The authoritative roadmap, target architecture, priorities, implementation
 contracts, acceptance gates, and unresolved decisions are maintained in
@@ -24,8 +24,12 @@ budgets or future architecture in this file.
    opt-in long-term memory;
 9. **P1:** complete production, security, accessibility, recovery, CI, and load
    gates;
-10. **P2/P3:** add reranking and other enhancements only in response to measured
-    failures.
+10. **P1:** add bounded intent/evidence routing, calculator and web-search tools,
+    conversation-scoped document sources, and the left conversation workspace;
+11. **P2:** add reranking and other retrieval/generation changes only in response
+    to measured failures;
+12. **P3:** consider explicitly deferred polish only after the core product is
+    evaluated and monitored.
 
 The owner-confirmed evidence rules are 10 retrieval candidates per explicitly
 requested company, a hard final limit of 10 chunks per company, and a hard
@@ -42,16 +46,13 @@ source display, text/table sources, and an optional PostgreSQL-backed
 single-user conversation path with bounded short-term context and isolated
 opt-in Qdrant summary memory. The explicit stateless path remains available.
 
-P0 Phases 0–4 and the Phase 5 Qdrant foundation are implemented on
-`ava-p0-completion`. The current release gate
-includes structured request diagnostics and separate reviewed/reference plus
-real-provider generation/citation evaluation. Release sign-off still requires an
-accepted threshold or fix for uncited concluding synthesis observed in the live
-comparison case. Qdrant is in the parity soak with the local NPZ/BM25 path as
-its oracle; native sparse retrieval and primary-mode promotion remain gated.
-Phase 7's implementation foundation is present, while live PostgreSQL/Qdrant
-deployment, provider-backed follow-up evaluation, multi-user authentication,
-and retention/backup sign-off remain release gates.
+Phases 0–5, 7, and the owner-authorized non-image scope of Phase 8 are
+implemented on `ava-p0-completion`. Phase 6 is explicitly skipped. Phase 9 is
+now active: route greetings and unrelated requests before filing retrieval,
+accept company/product descriptions without requiring a ticker, add mandatory
+deterministic calculation for arithmetic, integrate bounded cited web search,
+add chat-owned PDF/text sources, hide raw citation IDs in rendered answers, and
+move history/memory/chat actions into the left conversation workspace.
 
 See [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) for the audited file-level
 evidence and all release gates.

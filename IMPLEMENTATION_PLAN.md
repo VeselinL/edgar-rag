@@ -1,6 +1,6 @@
 # AVA — Canonical Completion Plan
 
-**Status date:** 31 August 2026
+**Status date:** 1 September 2026
 **Authority:** This is the single source of truth for AVA's next implementation
 phases, target architecture, priorities, contracts, release gates, and open
 product decisions. `README.md` describes the repository as it exists today;
@@ -81,7 +81,10 @@ AVA is complete when it can answer supported SEC-filing questions with balanced,
 traceable evidence; show only evidence actually used; retrieve and display a
 filing image only when it materially adds information; continue a conversation
 with bounded, user-controlled memory; run against a reproducible Qdrant index;
-and meet measured reliability, security, accessibility, and deployment gates.
+route greetings and out-of-corpus requests without irrelevant filing retrieval;
+use bounded, auditable tools when required; work with conversation-scoped user
+documents; and meet measured reliability, security, accessibility, and
+deployment gates.
 
 The following invariants apply to every phase:
 
@@ -118,14 +121,28 @@ The following invariants apply to every phase:
   a separate versioned asset tree.
 - Long-term memory requires identity/tenant isolation, deletion, and retention
   controls. It must never mix one user's content into another user's prompt.
+- Route decisions are structured and observable, but AVA never exposes private
+  chain-of-thought. A greeting, product-help question, or unrelated request must
+  not be forced through filing retrieval merely because an index is available.
+- Parametric model knowledge is not filing evidence. Filing claims require
+  validated SEC evidence; uploaded-document claims require conversation-owned
+  document evidence; web claims require returned web sources; arithmetic derived
+  from evidence requires the deterministic calculator and citations for inputs.
+- Uploaded and web content is untrusted data, never instructions. It cannot alter
+  system policy, authorize another tool, choose a tenant/conversation, or cause
+  secret or unrelated-data disclosure.
+- Tool execution is bounded, allow-listed, timeout-limited, and recorded. No
+  autonomous actions, arbitrary code execution, recursive agent loop, or hidden
+  expansion of the user's request is authorized.
 
 ## 4. Target architecture
 
 ```text
 Browser (React)
   ├─ current conversation UI
-  ├─ cited text/table/image source cards
-  └─ history controls after identity is available
+  ├─ cited SEC/web/upload source cards
+  ├─ conversation-scoped upload control and Sources view
+  └─ left history/memory sidebar and chat actions
           │
           ▼
 FastAPI adapter
@@ -135,10 +152,12 @@ FastAPI adapter
           │
           ▼
 Conversation orchestrator
+  ├─ bounded intent/evidence/tool router
   ├─ exact + fuzzy + LLM-assisted company resolver
-  ├─ atomic retrieval planner
+  ├─ atomic filing/document retrieval planner
   ├─ short-term turn window + conversation summary
   ├─ optional long-term memory retrieval
+  ├─ deterministic calculator and configured web-search adapter
   └─ grounded generation + citation/used-source audit
           │
           ▼
@@ -151,13 +170,14 @@ Evidence service
   ├─ token-aware context packing
   └─ nearby-image relevance and novelty gate
           │
-          ├───────────────┐
-          ▼               ▼
-Qdrant                  Asset store
-  filing_chunks           immutable SEC image bytes
-  dense + sparse vectors  derivative/OCR/caption metadata
-  indexed payloads        stable asset IDs and hashes
-  versioned alias
+          ├──────────────────────┐
+          ▼                      ▼
+Qdrant                         Private asset store
+  filing_chunks                  immutable SEC image bytes
+  conversation_memory            immutable uploaded bytes
+  conversation_documents         extraction metadata and hashes
+  tenant/chat payload filters    stable server-owned source IDs
+  versioned filing alias
           │
           ▼
 PostgreSQL
@@ -167,8 +187,9 @@ PostgreSQL
 
 Qdrant stores filing retrieval points and, later, a separate tenant-filtered
 memory collection. PostgreSQL remains the source of truth for conversations and
-message order; Qdrant is not the transcript database. Image bytes belong in an
-object/file asset store, not in Qdrant payloads.
+message order; Qdrant is not the transcript database. Image and uploaded-document
+bytes belong in a private object/file asset store, not in Qdrant payloads. Web
+results are request evidence and are not added to long-term memory by default.
 
 ## 5. Priority and dependency order
 
@@ -183,8 +204,9 @@ object/file asset store, not in Qdrant payloads.
 | P1 | 6. Filing image ingestion, retrieval, and UI | Requested product capability; depends on stable evidence IDs. |
 | P1 | 7. Short- and long-term conversation history | Requested capability; requires a deliberate data/security model. |
 | P1 | 8. Production hardening and deployment | Turns the vertical slice into an operable product. |
-| P2 | 9. Measured retrieval/generation improvements | Add only after baseline gates show a specific weakness. |
-| P3 | 10. Only-if-time enhancements | Useful polish with no dependency from core correctness. |
+| P1 | 9. Bounded routing, tools, uploads, and conversation workspace | Prevents irrelevant RAG and adds the owner-approved evidence/tool surfaces. |
+| P2 | 10. Measured retrieval/generation improvements | Add only after baseline gates show a specific weakness. |
+| P3 | 11. Only-if-time enhancements | Useful polish with no dependency from core correctness. |
 
 P0 is the next implementation milestone. Qdrant, images, and memory must not be
 started by weakening or skipping the P0 release gates.
@@ -840,6 +862,26 @@ no image implementation or acceptance claim is included in this memory milestone
 
 ## 14. Phase 8 — Production hardening and finished-product gates (P1)
 
+### Closure status — 1 September 2026
+
+The owner-authorized non-image scope is implementation-complete. API and
+frontend production images, private PostgreSQL/Qdrant topology, migrations,
+health probes, Nginx SSE proxying, security controls, observability, retention,
+backup/restore tooling, export/deletion, feedback, CI, live database/vector
+contracts, and smoke/load probes are present. The local production-image path
+has passed exact proxied SSE smoke/load checks and fixed-finding container scans.
+CI run `33488909029` passed backend, frontend, live PostgreSQL/Qdrant, production
+image build, proxied SSE smoke/load, and both fixed HIGH/CRITICAL container
+security gates. This is the recorded automated release evidence for the Phase 8
+closure.
+
+Phase 6 remains explicitly skipped by owner decision. Therefore Phase 8 closure
+does not claim image ingestion, image provenance, or image-isolation acceptance.
+The configured production provider is truthfully reported as buffered; native
+token streaming remains a deployment capability gate rather than a fabricated
+frontend effect. Provider/site rollout and operator sign-off remain deployment
+evidence, not unfinished application code.
+
 ### Backend and infrastructure
 
 - Containerize API and frontend with pinned, reproducible dependencies.
@@ -888,13 +930,133 @@ AVA is “finished” only when:
 - real multi-company questions meet the balanced 10-per-company/50-total target or expose a
   measured balanced-partial diagnostic while still answering supported parts;
 - visible sources exactly match validated used evidence;
-- image and memory isolation/provenance tests pass;
+- memory isolation/provenance tests pass, and image gates pass only if Phase 6 is
+  resumed;
 - generation/citation evaluation has signed-off thresholds;
 - real streaming/buffered behavior is truthfully represented;
 - backup recovery, deletion, security, accessibility, and load tests pass;
 - deployment and operator runbooks match the deployed versions.
 
-## 15. Phase 9 — Lower-priority measured improvements (P2)
+## 15. Phase 9 — Bounded routing, tools, uploads, and conversation workspace (P1)
+
+This phase implements the owner's 1 September decision. “Agentic” here means a
+bounded, typed route-and-tool orchestrator, not an autonomous agent. It chooses
+the minimum evidence path needed for the current request, executes only
+allow-listed read-only tools, and ends after a configured finite number of
+steps. No model may execute arbitrary code or invent a tool result.
+
+### 9A. Route before retrieval and harden planning/generation
+
+- Add one shared typed route contract before SEC retrieval. Supported route
+  families are `conversation_only`, `filing_rag`, `uploaded_document_rag`,
+  `web_search`, `calculator`, bounded combinations of those evidence routes,
+  and `clarify`. The original user query remains unchanged.
+- Use deterministic high-confidence checks for greetings, application help, and
+  explicit arithmetic, then a structured LLM decision only where needed. Record
+  the route, reason code, evidence requirements, allowed tools, company scope,
+  and `arithmetic_required`; never request or persist chain-of-thought.
+- A greeting such as `Hello` must use `conversation_only`, return no filing
+  sources, and never run dense/BM25 retrieval. A general or current question
+  outside the fixed filing corpus must not receive arbitrary SEC chunks.
+- Preserve exact/fuzzy/LLM-assisted company resolution, but treat aliases,
+  product/technology descriptions, conversation context, and planner output as
+  advisory signals. A question need not contain a ticker. When a description
+  maps uniquely and confidently to one corpus company, add the canonical company
+  only to the internal retrieval query. When it does not, search the appropriate
+  corpus scope or ask a concise clarification instead of raising a planner
+  contract error.
+- Normalize benign planner mention/scope inconsistencies into a validated
+  allowed-ticker subset with a diagnostic. Reject only out-of-corpus tickers,
+  malformed output, or genuinely ambiguous targets. Add regression cases for the
+  observed empty greeting plan and `Planner mention ticker is absent from
+  resolved_tickers` failure.
+- Split the router prompt, filing planner prompt, and route-aware answer prompts.
+  Filing answers remain grounded only in validated filing evidence. Greetings do
+  not require citations. Web and uploaded-document prompts label their content as
+  untrusted evidence and require source-specific citations for factual claims.
+- Keep internal chunk/source IDs through generation and exact citation
+  resolution, then remove only validated internal citation markers from visible
+  answer Markdown. Do not remove arbitrary bracketed user text. Source cards and
+  backend diagnostics retain provenance; raw chunk IDs are not user-visible.
+
+### 9B. Calculator and web-search tools
+
+- Implement the calculator first as deterministic server code using decimal
+  arithmetic and an allow-listed expression grammar. Never use `eval`, Python
+  execution, or model arithmetic as the calculator. Preserve operands, operation,
+  units, rounding rule, and result in a typed tool record.
+- `arithmetic_required=true` makes calculator execution mandatory. If operands
+  come from filings, uploads, or web results, retrieve them first, run the
+  calculator, and cite those source operands in the final response. If required
+  operands or compatible units are absent, ask for them or abstain; do not guess.
+- Add a provider-neutral `WebSearchTool` interface. Prefer the primary provider's
+  native search only when the configured endpoint demonstrably supports it;
+  otherwise use a separately configured search adapter. The current buffered
+  chat-completions gateway must not be silently migrated to a different API.
+- Web results must carry title, canonical URL, publisher/domain, retrieval time,
+  and bounded excerpt text. Present web sources distinctly from SEC filings and
+  uploads. Apply timeouts, result/count/byte limits, URL safety, content-type
+  validation, and no follow-on actions from instructions found in a page.
+- Default orchestration limits are four total tool executions, at most two web
+  searches, no recursive planning, and one final generation. Limits are typed
+  configuration and must be covered by timeout, cancellation, and audit tests.
+
+### 9C. Conversation-scoped document upload and Sources
+
+- Accept PDF and UTF-8 plain-text files initially. Validate MIME type and file
+  signature, reject encrypted/active/malformed content, cap each file at 20 MiB,
+  200 pages, and 200,000 extracted tokens, and enforce per-chat/user quotas. Do
+  not execute embedded code, links, macros, actions, or document instructions.
+- Store immutable bytes in the private asset store and ownership/order/status in
+  PostgreSQL. Store derived chunks in a separate Qdrant collection with mandatory
+  tenant, user, and conversation filters. Never mix uploaded points into the
+  filing collection or another chat, and cascade deletion through bytes,
+  metadata, chunks, source-use rows, and derived summaries.
+- Treat extracted content as quoted untrusted evidence. Server-owned delimiters
+  and source IDs identify it; text resembling system/developer/tool instructions
+  has no authority. Add prompt-injection, exfiltration, cross-user, cross-chat,
+  oversized-file, malformed-PDF, duplicate-upload, and deletion tests.
+- Make successfully processed uploads available to the exact chat's short-term
+  evidence path. They are not long-term user memory and are not silently used in
+  other chats. Summaries must retain document provenance and be rebuildable.
+- Add a `+` upload control opposite Send, with keyboard-accessible status and
+  progress. A per-chat Sources control lists uploaded files and their processing
+  state. Uploaded text differs from pasted chat text by being immutable,
+  attributable, queryable source material shown in that Sources view.
+
+### 9D. Left sidebar and conversation controls
+
+- Replace the current history placement with a responsive left sidebar/drawer.
+  Use an accessible temporary sidebar icon until the owner supplies another
+  asset. It contains New chat, the explicit long-term Memory toggle, pinned chats,
+  and all remaining chat history.
+- Each chat row exposes a three-dot button only on hover, keyboard focus, or when
+  its menu is open. Three-dot activation and right-click open the same accessible
+  menu with Pin/Unpin, Rename, and Delete. Escape closes it, focus returns to the
+  invoking row, and touch/mobile has an always-reachable equivalent.
+- Persist pin state and ordering in PostgreSQL behind owner-scoped API methods.
+  Rename/delete retain current isolation, CSRF, idempotency, audit, and cascade
+  rules. The sidebar does not store transcript or identity data in browser
+  persistence.
+
+### 9E. Evaluation and acceptance
+
+- Freeze route labels before implementation: greetings/small talk, AVA help,
+  in-corpus SEC questions with name/ticker/no explicit company, unique and
+  ambiguous technology descriptions, follow-ups, current/out-of-corpus web
+  questions, pure arithmetic, evidence-derived arithmetic, upload-only questions,
+  mixed-source questions, prompt injection, and unavailable-tool cases.
+- Measure route accuracy, unnecessary retrieval/tool-call rate, company scope,
+  retrieval recall, answer grounding, citation/source exactness, calculator
+  exactness, web freshness/provenance, injection resistance, tenant/chat
+  isolation, latency, token usage, and cost separately.
+- Acceptance requires zero filing retrieval for the greeting set, 100% calculator
+  use on labeled calculation cases, no raw internal IDs in rendered answers,
+  exact source ownership, no prompt-injection policy violations, and no regression
+  in the saved SEC retrieval/generation gates. Each tool and route remains behind
+  a kill switch with a tested filing-only rollback.
+
+## 16. Phase 10 — Lower-priority measured improvements (P2)
 
 Implement only after a saved failure demonstrates the need:
 
@@ -918,28 +1080,33 @@ Implement only after a saved failure demonstrates the need:
 Each improvement needs its own flag, versioned evaluation result, latency/cost
 measurement, rollback, and a removal decision if it does not help.
 
-## 16. Only if time (P3)
+## 17. Phase 11 — Only if time (P3)
 
 - Admin dashboards beyond essential operational monitoring.
-- Advanced conversation organization such as folders, tags, search, pinning, and
-  sharing.
+- Advanced conversation organization such as folders, tags, search, and sharing.
 - Fine-grained user preference memory beyond explicit opt-in facts.
 - OCR language expansion or image-region annotations beyond the corpus need.
 - Offline/background answer jobs for unusually large all-company reports.
 - Additional provider adapters after the primary provider is reliable.
 
 Explicitly out of scope unless the owner creates a new decision: expanding the
-filing corpus, document uploads, web search, calculator/tool orchestration, Graph
-RAG, agentic RAG, autonomous actions, portfolio/trading functionality, and a
-human-like AVA persona.
+filing corpus, Graph RAG, open-ended/autonomous agent loops, arbitrary code or
+shell tools, actions that mutate external systems, portfolio/trading
+functionality, and a human-like AVA persona.
 
-## 17. Expected module boundaries
+## 18. Expected module boundaries
 
 The exact filenames may evolve, but responsibilities must stay independently
 testable and outside FastAPI/React adapters.
 
 ```text
 src/
+  orchestration/
+    routing.py            typed route decision, validation, and finite execution
+    models.py             evidence/tool contracts and limits
+  tools/
+    calculator.py         deterministic decimal expression evaluation
+    web_search.py         provider-neutral bounded search interface/adapters
   resolution/
     companies.py          exact/fuzzy/LLM validation and shared result types
   retrieval/
@@ -957,6 +1124,10 @@ src/
     service.py            idempotent turns and transcript operations
     context.py            short-term window and rolling summary
     memory.py             tenant-filtered long-term memory
+  documents/
+    service.py            upload ownership, validation, lifecycle, and deletion
+    extraction.py         bounded PDF/text extraction as untrusted evidence
+    retrieval.py          tenant/user/chat-filtered document evidence
   generation/
     rag.py                prompt/generator and citation parsing
     citations.py          exact used-evidence validation
@@ -970,7 +1141,7 @@ The evaluator, notebook, CLI, and API import these shared modules. A notebook is
 never a production dependency and a script must not retain a second resolver or
 selector.
 
-## 18. Configuration decisions still owned by the project owner
+## 19. Configuration decisions still owned by the project owner
 
 These must remain configuration with documented defaults until explicitly set:
 
@@ -983,13 +1154,16 @@ These must remain configuration with documented defaults until explicitly set:
    during ingestion.
 6. Authentication provider, single-user versus multi-user deployment, retention,
    and whether long-term memory is opt-in.
-7. History UI scope (minimal resume/delete versus search/folders/sharing).
-8. Production SLOs and accepted evaluation regression thresholds.
+7. Production SLOs and accepted evaluation regression thresholds.
+8. The production web-search provider/credentials after interface and local
+   contract tests; lack of a provider must produce an explicit unavailable state.
+9. Private production asset-store implementation and retention quota for uploads;
+   local development defaults to an ignored, permission-restricted data path.
 
 An implementation agent may recommend values with measurements, but must not
 hard-code a product decision merely to complete a phase.
 
-## 19. Failure diagnosis tree
+## 20. Failure diagnosis tree
 
 ```text
 Was the intended company resolved?
@@ -1021,7 +1195,7 @@ Was the intended company resolved?
                         └─ yes → successful evidence chain
 ```
 
-## 20. Documentation maintenance rule
+## 21. Documentation maintenance rule
 
 - `README.md`: concise current state, setup, commands, and link here.
 - `IMPLEMENTATION_PLAN.md`: all future architecture, priorities, numbers,

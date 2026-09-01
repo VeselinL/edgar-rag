@@ -731,3 +731,40 @@ and was not included in AVA commits.
 - Routed local browser API calls through the Vite same-origin proxy, matching the
   production Nginx contract and eliminating hostname-dependent CORS startup
   failures between `localhost` and `127.0.0.1`.
+
+## 2026-09-01
+
+### Closed Phase 8 production hardening
+
+- Fixed the local same-origin API route and added the one-command launcher for
+  PostgreSQL, Qdrant, the audited filing index, the real API, and the frontend.
+- Exempted only liveness/readiness probes from the Nginx request bucket so startup
+  polling cannot consume chat capacity; chat and stateful routes remain limited.
+- Reworked the SSE load probe to use only the Python standard library so the
+  production-container CI job does not depend on a separately provisioned Python
+  environment or project import path.
+- Constrained SARIF output to the configured HIGH/CRITICAL gate and replaced the
+  API runtime image with a pinned multi-stage Debian runtime. Build-only pip and
+  its vulnerable vendored packages are absent from the deployed image; runtime
+  dependencies and Python 3.12 are copied from the pinned builder.
+- Verified the final image runs as UID/GID `10001`, imports the production API,
+  model, retrieval, PostgreSQL, Qdrant, and tokenizer dependencies, and passes a
+  local production-proxy SSE smoke plus 10/10 concurrent requests with no errors.
+  The current local Trivy database reports zero fixed HIGH/CRITICAL findings.
+- [CI run 33488909029](https://github.com/VeselinL/edgar-rag/actions/runs/33488909029)
+  passed backend, frontend, live PostgreSQL/Qdrant, migrations, production image
+  builds, proxied SSE smoke/load, and API/frontend container security gates.
+  Phase 6 remains explicitly skipped and is not included in this acceptance.
+
+### Reframed the next implementation phase
+
+- Replaced the former lower-priority Phase 9 with the owner-approved bounded
+  route-and-tool phase: route/prompt hardening, mandatory deterministic
+  calculation, bounded cited web search, conversation-scoped PDF/text sources,
+  hidden raw citation IDs, and a left history/memory conversation workspace.
+- Defined explicit evidence authority, prompt-injection boundaries, finite tool
+  limits, upload ownership/storage/deletion rules, sidebar behavior, route/tool
+  evaluation labels, kill switches, and filing-only rollback requirements.
+- Moved measured retrieval/generation experiments to Phase 10 and deferred polish
+  to Phase 11. Updated the repository instructions, roadmap index, and Codex
+  handoff so they no longer reapply obsolete stateless/no-tool restrictions.

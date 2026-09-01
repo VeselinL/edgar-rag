@@ -14,11 +14,10 @@ Before changing anything:
    and tests. Preserve all unrelated user work. The existing deletion of
    `CHUNKING_REPORT.md` is unrelated and must not be restored or included.
 
-Start with the next incomplete P0 phase in `IMPLEMENTATION_PLAN.md`. Work in the
-documented order and complete one bounded phase at a time. Do not begin Qdrant,
-image retrieval, or conversation memory until the preceding correctness,
-retrieval, evaluation, and observability gates pass. Do not combine a storage
-migration with ranking changes.
+Start with the next incomplete phase in `IMPLEMENTATION_PLAN.md`. Work in the
+documented order and complete one bounded subphase at a time. Phase 6 is skipped
+by owner decision; do not resume image work implicitly. Do not combine storage,
+ranking, tool, or interface changes in a way that prevents measured attribution.
 
 For each phase:
 
@@ -37,11 +36,12 @@ For each phase:
   to `src/frontend/PROGRESS_REPORT.md`;
 - review the final diff and include only task-related paths in any commit.
 
-The immediate P0 objectives are cited-only source display, the verified CEO/COO
-and canonical AVA asset fixes, robust exact/fuzzy/validated-LLM company
-resolution, independently retrieved company pools, at least five available final
-chunks per explicitly requested company, token-aware supplemental evidence, and
-the evaluation/observability needed to prove those changes.
+The immediate objective is Phase 9: bounded routing before retrieval, robust
+no-ticker company/product resolution, route-aware prompts, deterministic
+mandatory calculation, cited bounded web search, conversation-scoped PDF/text
+sources with injection/isolation controls, hidden raw citation IDs, and the left
+history/memory conversation workspace. Implement and evaluate the subphases in
+the canonical order; do not start the only-if-time phase early.
 
 Never show retrieved candidates merely because the answer has no citations.
 Never let an LLM invent an out-of-corpus company, silently resolve an ambiguous

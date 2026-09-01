@@ -15,7 +15,8 @@ The system must:
 - provide the AVA browser interface through React + TypeScript and FastAPI;
 - retrieve relevant filing content and use it to answer questions;
 - provide references or citations to retrieved filing content whenever possible;
-- show a current-session transcript without persisting or sending prior turns as context in the current frontend phase;
+- show owner-scoped conversation history, bounded short-term context, and explicit
+  opt-in long-term memory as implemented in Phase 7;
 - evaluate retrieval quality separately from generation quality;
 - include a small test set built from the extracted documents.
 
@@ -273,9 +274,10 @@ For questions that cannot be answered from the indexed filings, the assistant sh
 
 ## Conversation History
 
-The current AVA phase is stateless. The browser may show several messages during
-one tab session, but it must not persist them and each backend request receives
-only the current query. Persistent history and conversational memory are deferred.
+Phase 7 added PostgreSQL-backed owner-scoped history, bounded short-term context,
+and explicit opt-in long-term memory. Phase 9 may extend the conversation
+workspace only as specified by `IMPLEMENTATION_PLAN.md`; transcript ordering and
+ownership remain server-side and browser storage is not a trust boundary.
 
 ## Observability
 
@@ -333,11 +335,11 @@ Do not report only an overall chatbot score.
 - Preserve reproducibility through frozen filing snapshots and saved configuration.
 - Make one improvement at a time in response to an observed failure.
 - Do not discard tables or document hierarchy for implementation convenience.
-- Do not add Graph RAG or agentic RAG. Hybrid BGE/BM25 retrieval with RRF is
-  now the evaluated baseline. AVA's active generation path follows the current
-  main notebook's planned multi-subquery RRF selector without cross-encoder
-  reranking. Preserve the separate reranking experiment and saved non-reranked
-  baseline for later measured comparison.
+- Do not add Graph RAG or an open-ended autonomous agent. Phase 9 explicitly
+  authorizes the bounded typed route-and-tool orchestrator in
+  `IMPLEMENTATION_PLAN.md`. Hybrid BGE/BM25 retrieval with RRF remains the
+  evaluated filing baseline; preserve the separate reranking experiment and
+  saved non-reranked baseline for later measured comparison.
 
 ## AVA Web Application Rules
 
@@ -371,11 +373,14 @@ Do not report only an overall chatbot score.
 ### API and source adaptation
 
 - FastAPI is a thin adapter. Core retrieval and generation modules remain independently usable outside the web application.
-- The first API is stateless: accept only the current query and do not accept or infer conversation history.
+- Conversation, memory, upload, and tool state must use the server-owned Phase 7
+  identity/ownership boundary. The frontend still sends the original query
+  unchanged and cannot assert trusted history, scope, or tool results.
 - Use a streaming `POST` with actual provider streaming. Fake typing, splitting a completed answer, and artificial per-token delays are prohibited.
 - Emit structured SSE events named `delta`, `sources`, `done`, and `error` over streamed `fetch`.
 - Map pipeline chunks into explicit frontend-safe narrative and structured-table schemas. Keep internal IDs for backend correlation and citation resolution, but never use a raw chunk ID as the primary user-visible source label.
-- Prefer explicitly cited final-evidence chunks. If no citation can be resolved, return only the final evidence given to generation and describe it as retrieved evidence.
+- Return only exact validated cited/used evidence. If no citation resolves, return
+  an empty source list; never fall back to all retrieved or final evidence.
 - Tables remain structured end to end. Use existing logical headers and rows; never make the frontend reconstruct a Markdown table, and never fabricate missing headers, units, values, or labels.
 - Never expose API keys, gateway headers, system prompts, retrieval scores, stack traces, or raw provider errors to the browser.
 
@@ -385,7 +390,11 @@ Do not report only an overall chatbot score.
 - The layout must be responsive and accessible at desktop and mobile widths, with semantic controls, keyboard navigation, visible focus, sufficient contrast, reduced-motion support, and appropriate non-token-spamming live regions.
 - Render model Markdown safely without unsanitized HTML.
 - Display the AVA avatar beside assistant messages, not user messages. Remove the retrieval/waiting bubble on the first non-empty streamed fragment.
-- Current-session messages may remain visible in memory only. Do not add persistence, a history sidebar, authentication, accounts, profiles, uploads, corpus management, admin controls, analytics, model/tool selectors, or agentic behaviour in this phase.
+- Phase 9 explicitly authorizes the bounded router, calculator/web tools,
+  conversation-scoped PDF/text uploads, Sources view, and left history/memory
+  sidebar defined in `IMPLEMENTATION_PLAN.md`. It does not authorize corpus
+  management, admin controls, model selectors, autonomous actions, or unrelated
+  product expansion.
 
 ### Implementation discipline
 
@@ -393,4 +402,5 @@ Do not report only an overall chatbot score.
 - Preserve existing user changes and unrelated work. Inspect the worktree before edits and stage only task-related paths.
 - Keep mock mode explicitly separate from real pipeline mode; do not hide a broken real integration behind mock output.
 - Run repository-relevant backend tests plus frontend type checking, linting, component tests, and production build before declaring completion.
-- Record AVA work chronologically in `src/frontend/PROGRESS_REPORT.md` and make incremental commits on `deploy_front` with messages formatted `feat: implemented/added/ [feature]`.
+- Record AVA work chronologically in `src/frontend/PROGRESS_REPORT.md` and make
+  incremental, concise Conventional Commits on the owner-selected active branch.
