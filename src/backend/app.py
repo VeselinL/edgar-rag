@@ -402,6 +402,22 @@ def create_app(
             "media_types": ["application/pdf", "text/plain"],
             "maximum_bytes": operational_settings.maximum_upload_bytes,
         }
+        response["request_routing"] = {
+            "enabled": bool(getattr(active_pipeline, "request_routing_enabled", False)),
+            "filing_only_rollback": not bool(
+                getattr(active_pipeline, "request_routing_enabled", False)
+            ),
+        }
+        response["tools"] = {
+            "calculator_enabled": bool(
+                getattr(active_pipeline, "calculator_enabled", False)
+            ),
+            "web_search_enabled": bool(
+                getattr(active_pipeline, "web_search_enabled", False)
+            ),
+            "maximum_executions": getattr(active_pipeline, "max_tool_executions", 0),
+            "maximum_web_searches": getattr(active_pipeline, "max_web_searches", 0),
+        }
         return response
 
     async def conversation_service_for(

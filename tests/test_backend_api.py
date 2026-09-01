@@ -73,6 +73,16 @@ class BackendApiTests(unittest.TestCase):
                     "media_types": ["application/pdf", "text/plain"],
                     "maximum_bytes": 20 * 1024 * 1024,
                 },
+                "request_routing": {
+                    "enabled": False,
+                    "filing_only_rollback": True,
+                },
+                "tools": {
+                    "calculator_enabled": False,
+                    "web_search_enabled": False,
+                    "maximum_executions": 0,
+                    "maximum_web_searches": 0,
+                },
             },
         )
 

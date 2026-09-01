@@ -139,9 +139,12 @@ For the local AVA API, also configure backend-only generation values:
 AVA_PIPELINE_MODE=real
 AVA_LLM_MODEL=AZURE_GPT_51_2025_1113
 AVA_LLM_STREAMING=false
+AVA_REQUEST_ROUTING_ENABLED=true
 AVA_CALCULATOR_ENABLED=true
 AVA_WEB_SEARCH_ENABLED=false
 AVA_WEB_SEARCH_PROVIDER=disabled
+AVA_MAX_TOOL_EXECUTIONS=4
+AVA_MAX_WEB_SEARCHES=2
 # BRAVE_SEARCH_API_KEY=<backend secret when provider=brave>
 AVA_QDRANT_MODE=shadow
 QDRANT_URL=http://127.0.0.1:6333
@@ -169,6 +172,11 @@ Web search is off by default. To enable the bounded external adapter, set
 contract and never exposes the subscription token to the browser. If those values
 are absent, external questions return an explicit unavailable response rather
 than falling back to filing chunks or unstated model knowledge.
+
+`AVA_REQUEST_ROUTING_ENABLED=false` is the filing-only rollback switch: it
+skips route selection and all optional tool/upload paths while retaining the
+existing SEC retrieval and generation pipeline. Tool plans are also capped by
+`AVA_MAX_TOOL_EXECUTIONS` and `AVA_MAX_WEB_SEARCHES` before anything executes.
 
 Explicit company requests use one fixed evidence policy: at most 50 chunks
 across the request and at most 10 chunks per company. Requests for one through

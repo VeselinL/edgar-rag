@@ -967,3 +967,17 @@ and was not included in AVA commits.
 - Frontend lint, 31 tests, TypeScript checking, and production build pass. Tests
   cover the shared right-click/button menu, focus restoration, and persisted pin
   request/reordering path.
+
+### Added Phase 9 rollback and finite execution gates
+
+- Added `AVA_REQUEST_ROUTING_ENABLED=false` as a tested filing-only rollback:
+  route-model selection, upload metadata lookup, and every optional tool path are
+  skipped while the existing SEC planner/retrieval/generation path remains live.
+- Added typed positive limits for total tool executions and web searches. A route
+  that exceeds either limit fails closed before any tool runs; health output now
+  reports the active routing/tool switches and limits without exposing secrets.
+- The focused routing/pipeline/API suite passes 59 tests. A repository-wide run
+  passes 289 tests and 213 subtests with three intentional skips; two unchanged
+  pre-Phase-9 failures remain in a legacy table-value assertion and a stale
+  Mobileye review-artifact hash, so neither was modified under the owner rule to
+  leave prior implementation defects outside this phase untouched.

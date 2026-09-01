@@ -449,6 +449,29 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             settings = PipelineSettings.from_environment()
         self.assertFalse(settings.calculator_enabled)
 
+    def test_settings_expose_routing_kill_switch_and_finite_tool_limits(self):
+        with patch.dict(
+            "os.environ",
+            {
+                "AVA_REQUEST_ROUTING_ENABLED": "false",
+                "AVA_MAX_TOOL_EXECUTIONS": "3",
+                "AVA_MAX_WEB_SEARCHES": "1",
+            },
+            clear=False,
+        ):
+            settings = PipelineSettings.from_environment()
+        self.assertFalse(settings.request_routing_enabled)
+        self.assertEqual(settings.max_tool_executions, 3)
+        self.assertEqual(settings.max_web_searches, 1)
+
+        with patch.dict(
+            "os.environ",
+            {"AVA_MAX_TOOL_EXECUTIONS": "1", "AVA_MAX_WEB_SEARCHES": "2"},
+            clear=False,
+        ):
+            with self.assertRaisesRegex(ValueError, "cannot exceed"):
+                PipelineSettings.from_environment()
+
     def test_settings_reject_ambiguous_calculator_toggle(self):
         with patch.dict(
             "os.environ", {"AVA_CALCULATOR_ENABLED": "off"}, clear=False
@@ -615,6 +638,28 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(records[0]["route"]["route"], "conversation_only")
         self.assertNotIn("retrieval_selection", records[0]["stage_latency_ms"])
 
+    async def test_routing_kill_switch_restores_filing_only_path(self):
+        class KillSwitchGenerator(FakeGenerator):
+            def route_request(self, *args, **kwargs):
+                raise AssertionError("The route model must not run when disabled.")
+
+        retriever = FakeRetriever()
+        records = []
+        pipeline = RealPipeline(
+            retriever,
+            KillSwitchGenerator(),
+            request_routing_enabled=False,
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        events = [event async for event in pipeline.stream("Hello", connected)]
+        self.assertIsNotNone(retriever.arguments)
+        self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
+        self.assertEqual(records[0]["route"]["decided_by"], "filing_only_kill_switch")
+
     async def test_web_route_does_not_receive_arbitrary_filing_chunks(self):
         retriever = FakeRetriever()
         generator = RoutedGenerator(
@@ -694,6 +739,32 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             [record["tool"] for record in records[0]["tool_executions"]],
             ["web_search", "calculator"],
         )
+
+    async def test_tool_budget_fails_closed_before_any_execution(self):
+        route = RequestRoute(
+            RouteKind.WEB_AND_CALCULATOR,
+            RouteReason.EVIDENCE_ARITHMETIC,
+            arithmetic_required=True,
+        )
+        web_search = FakeWebSearch()
+        records = []
+        pipeline = RealPipeline(
+            FakeRetriever(),
+            WebGenerator(route),
+            web_search=web_search,
+            web_search_enabled=True,
+            max_tool_executions=1,
+            max_web_searches=1,
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        events = [event async for event in pipeline.stream("Calculate current prices", connected)]
+        self.assertIn("bounded tool-execution limit", events[0].data["text"])
+        self.assertIsNone(web_search.query)
+        self.assertEqual(records[0]["tool_executions"], [])
 
     async def test_uploaded_document_route_is_chat_scoped_grounded_and_id_hidden(self):
         retriever = FakeRetriever()

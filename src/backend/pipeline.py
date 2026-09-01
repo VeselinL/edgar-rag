@@ -107,12 +107,15 @@ class PipelineSettings:
     qdrant_collection_alias: str = DEFAULT_ALIAS
     qdrant_local_path: str | None = None
     qdrant_timeout_seconds: int = 30
+    request_routing_enabled: bool = True
     calculator_enabled: bool = True
     web_search_enabled: bool = False
     web_search_provider: str = "disabled"
     web_search_api_key: str | None = field(default=None, repr=False)
     web_search_timeout_seconds: float = 8.0
     web_search_max_results: int = 5
+    max_tool_executions: int = 4
+    max_web_searches: int = 2
 
     @classmethod
     def from_environment(cls) -> "PipelineSettings":
@@ -125,6 +128,11 @@ class PipelineSettings:
         raw_streaming = os.getenv("AVA_LLM_STREAMING", "true").strip().casefold()
         if raw_streaming not in {"true", "false"}:
             raise ValueError("AVA_LLM_STREAMING must be 'true' or 'false'.")
+        raw_routing_enabled = os.getenv(
+            "AVA_REQUEST_ROUTING_ENABLED", "true"
+        ).strip().casefold()
+        if raw_routing_enabled not in {"true", "false"}:
+            raise ValueError("AVA_REQUEST_ROUTING_ENABLED must be 'true' or 'false'.")
         raw_calculator_enabled = os.getenv(
             "AVA_CALCULATOR_ENABLED", "true"
         ).strip().casefold()
@@ -145,10 +153,16 @@ class PipelineSettings:
             os.getenv("AVA_WEB_SEARCH_TIMEOUT_SECONDS", "8")
         )
         web_search_max_results = int(os.getenv("AVA_WEB_SEARCH_MAX_RESULTS", "5"))
+        max_tool_executions = int(os.getenv("AVA_MAX_TOOL_EXECUTIONS", "4"))
+        max_web_searches = int(os.getenv("AVA_MAX_WEB_SEARCHES", "2"))
         if not 0 < web_search_timeout_seconds <= 30:
             raise ValueError("AVA_WEB_SEARCH_TIMEOUT_SECONDS must be between 0 and 30.")
         if not 1 <= web_search_max_results <= 10:
             raise ValueError("AVA_WEB_SEARCH_MAX_RESULTS must be between 1 and 10.")
+        if max_tool_executions <= 0 or max_web_searches <= 0:
+            raise ValueError("AVA tool execution limits must be positive.")
+        if max_web_searches > max_tool_executions:
+            raise ValueError("AVA_MAX_WEB_SEARCHES cannot exceed AVA_MAX_TOOL_EXECUTIONS.")
         if raw_web_search_enabled == "true" and (
             web_search_provider != "brave" or not web_search_api_key
         ):
@@ -190,12 +204,15 @@ class PipelineSettings:
             ).strip(),
             qdrant_local_path=qdrant_local_path,
             qdrant_timeout_seconds=qdrant_timeout_seconds,
+            request_routing_enabled=raw_routing_enabled == "true",
             calculator_enabled=raw_calculator_enabled == "true",
             web_search_enabled=raw_web_search_enabled == "true",
             web_search_provider=web_search_provider,
             web_search_api_key=web_search_api_key,
             web_search_timeout_seconds=web_search_timeout_seconds,
             web_search_max_results=web_search_max_results,
+            max_tool_executions=max_tool_executions,
+            max_web_searches=max_web_searches,
         )
 
 
@@ -254,11 +271,14 @@ class RealPipeline:
         startup_metrics: dict[str, Any] | None = None,
         ready: bool = True,
         qdrant_health: dict[str, Any] | None = None,
+        request_routing_enabled: bool = True,
         calculator: CalculatorTool | None = None,
         calculator_enabled: bool = True,
         web_search: WebSearchTool | None = None,
         web_search_enabled: bool = False,
         web_search_max_results: int = 5,
+        max_tool_executions: int = 4,
+        max_web_searches: int = 2,
     ) -> None:
         self.retriever = retriever
         self.generator = generator
@@ -275,11 +295,18 @@ class RealPipeline:
             "mode": "disabled",
             "status": "disabled",
         }
+        self.request_routing_enabled = request_routing_enabled
         self.calculator = calculator or CalculatorTool()
         self.calculator_enabled = calculator_enabled
         self.web_search = web_search or UnavailableWebSearchTool()
         self.web_search_enabled = web_search_enabled
         self.web_search_max_results = web_search_max_results
+        if max_tool_executions <= 0 or max_web_searches <= 0:
+            raise ValueError("AVA tool execution limits must be positive.")
+        if max_web_searches > max_tool_executions:
+            raise ValueError("Maximum web searches cannot exceed total tool executions.")
+        self.max_tool_executions = max_tool_executions
+        self.max_web_searches = max_web_searches
 
     @staticmethod
     def _log_trace(record: dict[str, Any]) -> None:
@@ -898,10 +925,13 @@ class RealPipeline:
             startup_metrics=startup_metrics,
             ready=ready,
             qdrant_health=qdrant_health,
+            request_routing_enabled=settings.request_routing_enabled,
             calculator_enabled=settings.calculator_enabled,
             web_search=web_search,
             web_search_enabled=settings.web_search_enabled,
             web_search_max_results=settings.web_search_max_results,
+            max_tool_executions=settings.max_tool_executions,
+            max_web_searches=settings.max_web_searches,
         )
 
     async def stream(
@@ -963,7 +993,11 @@ class RealPipeline:
             trace.short_term_memory_ids = list(conversation_context.short_term_ids)
             trace.long_term_memory_ids = list(conversation_context.long_term_ids)
         uploaded_documents = []
-        if document_service is not None and trace.conversation_id is not None:
+        if (
+            self.request_routing_enabled
+            and document_service is not None
+            and trace.conversation_id is not None
+        ):
             with trace.stage("uploaded_document_listing"):
                 uploaded_documents = await asyncio.to_thread(
                     document_service.list, trace.conversation_id
@@ -972,7 +1006,13 @@ class RealPipeline:
         with trace.stage("deterministic_resolution"):
             deterministic_resolution = self.company_resolver.resolve(query)
         with trace.stage("routing"):
-            if hasattr(self.generator, "route_request"):
+            if not self.request_routing_enabled:
+                route = RequestRoute(
+                    RouteKind.FILING_RAG,
+                    RouteReason.FILING_EVIDENCE,
+                    decided_by="filing_only_kill_switch",
+                )
+            elif hasattr(self.generator, "route_request"):
                 if prompt_context or uploaded_source_names:
                     route = await asyncio.to_thread(
                         self.generator.route_request,
@@ -997,6 +1037,33 @@ class RealPipeline:
                 )
         trace.route = route.as_dict()
         LOGGER.info("AVA request route", extra={"ava_request_route": trace.route})
+
+        required_web_searches = 1 if route.uses_web_search else 0
+        required_tool_executions = required_web_searches + (
+            1 if route.uses_calculator else 0
+        )
+        if (
+            required_tool_executions > self.max_tool_executions
+            or required_web_searches > self.max_web_searches
+        ):
+            response_text = (
+                "That request exceeds this deployment's bounded tool-execution "
+                "limit, so no tools were run."
+            )
+            trace.generated_answer = response_text
+            trace.source_status = "none_cited"
+            trace.mark_first_token()
+            yield PipelineEvent("delta", {"text": response_text})
+            yield PipelineEvent(
+                "sources",
+                {
+                    "sources": [],
+                    "source_status": "none_cited",
+                    "malformed_source_count": 0,
+                },
+            )
+            yield PipelineEvent("done", {})
+            return
 
         if route.route is RouteKind.CALCULATOR:
             if not self.calculator_enabled:
