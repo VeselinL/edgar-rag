@@ -939,6 +939,34 @@ AVA is “finished” only when:
 
 ## 15. Phase 9 — Bounded routing, tools, uploads, and conversation workspace (P1)
 
+### Closure status — 1 September 2026
+
+The bounded Phase 9 application scope is implementation-complete on
+`ava-p0-completion`. The typed pre-retrieval router, strengthened route/planner/
+generation prompts, mandatory Decimal calculator, provider-neutral bounded web
+adapter, exact-citation ID filtering, passive PDF/text extraction, private
+owner/chat-scoped PostgreSQL/Qdrant/file lifecycle, uploaded-document RAG,
+composer upload and per-chat Sources controls, persisted pin ordering, responsive
+left sidebar, finite execution limits, observability, and filing-only rollback
+are implemented.
+
+The saved acceptance record is
+`data/evaluation/ava_p0/v1/runs/phase-9-acceptance.json`. The live route-model
+gate passed 24/24 labels; the consolidated Phase 9 backend matrix passed 159
+tests and 43 subtests, the live PostgreSQL contract passed, and frontend lint,
+31 tests, TypeScript checking, and production build passed. All four arithmetic
+paths execute the deterministic calculator. Greeting routes perform no filing
+retrieval, validated internal IDs are not rendered, and upload ownership and
+prompt-injection boundaries pass their controlled gates.
+
+Live Brave Search remains disabled because no backend provider key is configured.
+The adapter/provenance/timeout/failure contracts pass with controlled responses,
+but production web enablement requires operator secret configuration and a live
+provider check. The repository-wide test run also retains two documented legacy
+failures outside Phase 9 (an August table-embedding expectation and stale
+Mobileye review hash); they are not changed under the owner's instruction to
+leave prior defects untouched.
+
 This phase implements the owner's 1 September decision. “Agentic” here means a
 bounded, typed route-and-tool orchestrator, not an autonomous agent. It chooses
 the minimum evidence path needed for the current request, executes only
