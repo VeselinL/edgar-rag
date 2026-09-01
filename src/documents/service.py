@@ -10,6 +10,7 @@ from .extraction import extract_document
 from .models import StoredDocumentChunk, UploadedDocument
 from .repository import DocumentRepository
 from .storage import FilesystemAssetStore
+from .retrieval import DocumentIndex, NullDocumentIndex
 
 
 MAX_DOCUMENTS_PER_CHAT = 20
@@ -29,12 +30,14 @@ class DocumentService:
         tenant_id: str,
         user_id: str,
         authorize_conversation: Callable[[str], object],
+        index: DocumentIndex | None = None,
     ) -> None:
         self.repository = repository
         self.asset_store = asset_store
         self.tenant_id = tenant_id
         self.user_id = user_id
         self.authorize_conversation = authorize_conversation
+        self.index = index or NullDocumentIndex()
 
     def upload(
         self, conversation_id: str, filename: str, media_type: str, content: bytes
@@ -78,8 +81,16 @@ class DocumentService:
             for chunk in extracted.chunks
         ]
         try:
-            return self.repository.create(document, chunks)
+            created = self.repository.create(document, chunks)
+            self.index.upsert(created, chunks)
+            return created
         except BaseException:
+            try:
+                self.repository.delete(
+                    self.tenant_id, self.user_id, conversation_id, document_id
+                )
+            except BaseException:
+                pass
             self.asset_store.delete(asset_key)
             raise
 
@@ -98,7 +109,20 @@ class DocumentService:
         document = self.repository.get(
             self.tenant_id, self.user_id, conversation_id, document_id
         )
+        self.index.delete_document(
+            self.tenant_id, self.user_id, conversation_id, document_id
+        )
         self.asset_store.delete(document.asset_key)
         self.repository.delete(
             self.tenant_id, self.user_id, conversation_id, document_id
+        )
+
+    def search(self, conversation_id: str, query: str, *, limit: int = 10):
+        self.authorize_conversation(conversation_id)
+        return self.index.search(
+            query,
+            self.tenant_id,
+            self.user_id,
+            conversation_id,
+            limit=limit,
         )

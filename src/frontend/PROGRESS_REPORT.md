@@ -888,3 +888,17 @@ and was not included in AVA commits.
   isolation, migrations, and live document lifecycle against the running local
   PostgreSQL service. The focused document/conversation suites pass 26 tests,
   one intentional no-DSN skip, four subtests, and one local-Qdrant warning.
+
+### Added an isolated uploaded-document vector index
+
+- Added a dedicated `ava_uploaded_documents_v1` Qdrant collection that never
+  mixes upload points with filings or long-term memory. Every point carries and
+  every search/deletion requires tenant, user, and conversation filters; point
+  IDs are deterministic per document chunk.
+- Reused the production BGE vector schema and query prefix while preserving
+  filename, media type, page number, immutable upload source ID, chunk order, and
+  text for source rendering. Index failures roll back PostgreSQL metadata and
+  private bytes instead of leaving a partially usable upload.
+- Local Qdrant tests prove cross-owner/cross-chat isolation and scoped deletion,
+  while document service tests cover index rollback. Ten document tests, one
+  no-DSN skip, four subtests, and the expected local-Qdrant index warning pass.

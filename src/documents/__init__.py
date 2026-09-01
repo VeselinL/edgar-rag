@@ -15,6 +15,11 @@ from .repository import (
     PostgresDocumentRepository,
 )
 from .service import DocumentQuotaError, DocumentService
+from .retrieval import (
+    DocumentEvidence,
+    NullDocumentIndex,
+    QdrantDocumentIndex,
+)
 
 __all__ = [
     "DocumentExtractionError",
@@ -31,4 +36,7 @@ __all__ = [
     "PostgresDocumentRepository",
     "StoredDocumentChunk",
     "UploadedDocument",
+    "DocumentEvidence",
+    "NullDocumentIndex",
+    "QdrantDocumentIndex",
 ]

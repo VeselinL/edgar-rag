@@ -76,6 +76,28 @@ class DocumentServiceTests(unittest.TestCase):
         with self.assertRaises(LookupError):
             self.service.list("chat-2")
 
+    def test_index_failure_rolls_back_metadata_and_private_bytes(self):
+        class FailingIndex:
+            def upsert(self, document, chunks):
+                raise RuntimeError("index unavailable")
+
+        service = DocumentService(
+            self.repository,
+            self.service.asset_store,
+            tenant_id="tenant-1",
+            user_id="user-1",
+            authorize_conversation=self._authorize,
+            index=FailingIndex(),
+        )
+        with self.assertRaisesRegex(RuntimeError, "index unavailable"):
+            service.upload(
+                "chat-1", "rollback.txt", "text/plain", b"Rollback source."
+            )
+        self.assertEqual(service.list("chat-1"), [])
+        self.assertEqual(
+            list((Path(self.temporary.name) / "assets").rglob("*.blob")), []
+        )
+
 
 @unittest.skipUnless(
     os.getenv("AVA_TEST_POSTGRES_DSN"), "AVA_TEST_POSTGRES_DSN is not configured"
