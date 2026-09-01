@@ -719,3 +719,12 @@ and was not included in AVA commits.
 - Added privacy and security documentation, operator incident/rotation guidance,
   and production verification commands. Phase 6 image work remains explicitly
   skipped at the owner's direction.
+
+### Added one-command local AVA startup
+
+- Added `start_app.sh` to start and health-check PostgreSQL, Qdrant, the audited
+  filing index, the real FastAPI pipeline, and the Vite frontend.
+- The launcher enables server-owned single-user history and optional Qdrant
+  conversation memory, accepts both local browser origins, preserves existing
+  services and persistent volumes on shutdown, and fails clearly when a required
+  dependency, port, provider configuration, or readiness gate is unavailable.

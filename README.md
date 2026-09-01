@@ -169,6 +169,25 @@ Optional gateway headers retain the notebook names `OPENAI_APP_ID`,
 `OPENAI_USER_ID`, `OPENAI_COMPANY_ID`, and `OPENAI_API_VERSION`. Never expose
 these values through a `VITE_*` variable.
 
+### One-command local startup
+
+After installing the Python and frontend dependencies and configuring the LLM
+provider in `.env`, start the complete local application with:
+
+```bash
+./start_app.sh
+```
+
+The script starts loopback PostgreSQL and Qdrant, initializes and audits the
+filing vector index when it is absent, enables single-user PostgreSQL history and
+Qdrant conversation memory, waits for the real API, and starts the Vite frontend.
+Open `http://localhost:5173`. New conversations retain bounded short-term history;
+long-term memory remains off until enabled with the conversation's Memory toggle.
+Press Ctrl+C in the startup terminal to stop processes started by the script;
+persistent database volumes are preserved. Override `AVA_POSTGRES_PASSWORD`,
+`AVA_POSTGRES_DSN`, `AVA_TENANT_ID`, or `AVA_USER_ID` in the command environment
+when the local defaults are unsuitable.
+
 Start the pinned local Qdrant server with Docker:
 
 ```bash
