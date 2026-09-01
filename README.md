@@ -252,8 +252,10 @@ npm install
 npm run dev
 ```
 
-The frontend defaults to `http://localhost:8000`; set the public
-`VITE_API_BASE_URL` at build time when using another API origin.
+The frontend uses same-origin `/api` requests by default. Vite proxies them to
+`http://127.0.0.1:8000` during local development and production Nginx proxies
+them to the API container. Set `VITE_API_BASE_URL` only for an intentional
+cross-origin deployment.
 
 ## Usage
 

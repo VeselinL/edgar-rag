@@ -728,3 +728,6 @@ and was not included in AVA commits.
   conversation memory, accepts both local browser origins, preserves existing
   services and persistent volumes on shutdown, and fails clearly when a required
   dependency, port, provider configuration, or readiness gate is unavailable.
+- Routed local browser API calls through the Vite same-origin proxy, matching the
+  production Nginx contract and eliminating hostname-dependent CORS startup
+  failures between `localhost` and `127.0.0.1`.

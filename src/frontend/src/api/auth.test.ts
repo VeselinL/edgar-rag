@@ -13,7 +13,7 @@ describe('auth API', () => {
 
     await expect(getAuthSession()).resolves.toEqual({ mode: 'oidc', authenticated: true })
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:8000/api/auth/session',
+      '/api/auth/session',
       expect.objectContaining({ credentials: 'include' }),
     )
   })
@@ -26,7 +26,7 @@ describe('auth API', () => {
     expect(csrfHeaders()).toEqual({ 'X-CSRF-Token': 'logout-csrf' })
     await signOut()
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:8000/api/auth/logout',
+      '/api/auth/logout',
       expect.objectContaining({
         method: 'POST',
         credentials: 'include',

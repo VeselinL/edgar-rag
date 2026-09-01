@@ -67,7 +67,9 @@ narrative source is truncated. The cross-encoder experiment remains disabled.
 - Vite serves the React development build, normally at `http://localhost:5173`.
 - Uvicorn serves FastAPI, normally at `http://localhost:8000`.
 - Local CORS allows only the configured development origin, defaulting to `http://localhost:5173`.
-- The frontend reads its API origin from `VITE_API_BASE_URL`; the default local value is `http://localhost:8000`.
+- The frontend uses same-origin `/api` requests by default. Vite proxies them to
+  `http://127.0.0.1:8000`; `VITE_API_BASE_URL` is needed only for an intentional
+  cross-origin deployment.
 
 The frontend and backend run as separate processes so hot reload and streaming behaviour match the eventual deployment boundary.
 

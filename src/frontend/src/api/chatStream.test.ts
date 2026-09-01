@@ -31,7 +31,7 @@ describe('streamChat', () => {
     expect(fragments.join('')).toBe('First  part')
     expect(eventOrder).toEqual(['open', 'delta', 'delta', 'sources', 'done'])
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:8000/api/chat/stream',
+      '/api/chat/stream',
       expect.objectContaining({
         body: JSON.stringify({ query: 'Original query' }),
         credentials: 'include',
@@ -54,7 +54,7 @@ describe('streamChat', () => {
     })
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:8000/api/chat/stream',
+      '/api/chat/stream',
       expect.objectContaining({
         credentials: 'include',
         headers: expect.objectContaining({ 'X-CSRF-Token': 'csrf-test-value' }),
@@ -94,7 +94,7 @@ describe('streamChat', () => {
     })
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:8000/api/chat/stream',
+      '/api/chat/stream',
       expect.objectContaining({
         body: JSON.stringify({
           query: 'What about its risks?',

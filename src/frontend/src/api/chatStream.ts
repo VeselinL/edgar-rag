@@ -1,7 +1,7 @@
 import type { Source, SourceStatus } from '../types'
 import { csrfHeaders } from './auth'
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000').replace(/\/$/, '')
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
 
 interface StreamHandlers {
   signal: AbortSignal
