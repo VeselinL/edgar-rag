@@ -22,6 +22,8 @@ export AVA_SINGLE_USER_BOUNDARY_ACKNOWLEDGED="true"
 export AVA_TENANT_ID="${AVA_TENANT_ID:-local-test}"
 export AVA_USER_ID="${AVA_USER_ID:-local-test}"
 export AVA_LONG_TERM_MEMORY_STORE="qdrant"
+export AVA_UPLOADS_ENABLED="true"
+export AVA_UPLOAD_STORE_PATH="${AVA_UPLOAD_STORE_PATH:-$PROJECT_ROOT/data/private/uploads}"
 
 API_PID=""
 FRONTEND_PID=""

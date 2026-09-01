@@ -153,6 +153,8 @@ AVA_POSTGRES_DSN=postgresql://ava:<password>@127.0.0.1:5432/ava
 AVA_TENANT_ID=local-tenant
 AVA_USER_ID=local-user
 AVA_LONG_TERM_MEMORY_STORE=qdrant
+AVA_UPLOADS_ENABLED=true
+AVA_UPLOAD_STORE_PATH=data/private/uploads
 OPENAI_API_KEY=<backend secret>
 OPENAI_API_URL=<OpenAI-compatible gateway base URL>
 ```

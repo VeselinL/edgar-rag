@@ -902,3 +902,17 @@ and was not included in AVA commits.
 - Local Qdrant tests prove cross-owner/cross-chat isolation and scoped deletion,
   while document service tests cover index rollback. Ten document tests, one
   no-DSN skip, four subtests, and the expected local-Qdrant index warning pass.
+
+### Exposed owner-scoped upload lifecycle APIs
+
+- Added raw-body `POST`, owner-filtered `GET`, and scoped `DELETE` document routes
+  beneath each conversation. Media type comes from the request header and filename
+  from a bounded query field, avoiding multipart parser ambiguity and keeping file
+  bytes out of JSON, logs, browser persistence, and response payloads.
+- Added an upload-specific body limit while retaining the smaller ordinary API
+  limit, upload capability reporting in health, readiness checks for PostgreSQL
+  and the document index, and document cleanup hooks before conversation deletion.
+- Enabled uploads in `start_app.sh`; production Compose now has explicit upload
+  limits, a private asset path, and a dedicated persistent `ava_upload_data` volume.
+  The focused API/document/conversation suite passes 39 tests with one no-DSN skip
+  and only the existing test-environment deprecation/local-Qdrant warnings.

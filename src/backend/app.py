@@ -42,6 +42,18 @@ from src.conversations.service import (
 )
 from src.embeddings.embed_chunks import MODEL_CONFIGS
 from src.indexing.qdrant_index import make_client
+from src.documents import (
+    DocumentExtractionError,
+    DocumentNotFoundError,
+    DocumentQuotaError,
+    DocumentService,
+    DocumentServiceFactory,
+    DocumentSettings,
+    DuplicateDocumentError,
+    FilesystemAssetStore,
+    PostgresDocumentRepository,
+    QdrantDocumentIndex,
+)
 
 
 LOGGER = logging.getLogger("ava.api")
@@ -116,10 +128,27 @@ def _message_payload(value: Any) -> dict[str, Any]:
     return payload
 
 
+def _document_payload(value: Any) -> dict[str, Any]:
+    return {
+        "id": value.id,
+        "conversation_id": value.conversation_id,
+        "filename": value.filename,
+        "media_type": value.media_type,
+        "size_bytes": value.size_bytes,
+        "status": value.status,
+        "page_count": value.page_count,
+        "token_count": value.token_count,
+        "chunk_count": value.chunk_count,
+        "created_at": value.created_at.isoformat(),
+        "updated_at": value.updated_at.isoformat(),
+    }
+
+
 def _build_conversation_factory(
     settings: ConversationSettings,
     pipeline_settings: PipelineSettings,
     active_pipeline: Any,
+    document_settings: DocumentSettings,
 ) -> ConversationServiceFactory | None:
     if settings.mode == "disabled":
         return None
@@ -130,6 +159,7 @@ def _build_conversation_factory(
         summary_token_budget=settings.summary_token_budget,
     )
     memory_store: Any = NullMemoryStore()
+    document_factory: DocumentServiceFactory | None = None
     if settings.long_term_store == "qdrant":
         model = getattr(getattr(active_pipeline, "retriever", None), "model", None)
         if model is None:
@@ -150,6 +180,30 @@ def _build_conversation_factory(
             model,
             query_prefix=MODEL_CONFIGS["bgebase"]["query_prefix"],
         )
+    if document_settings.enabled:
+        model = getattr(getattr(active_pipeline, "retriever", None), "model", None)
+        if model is None:
+            raise RuntimeError("Uploaded-document retrieval requires the real BGE model.")
+        local_path = (
+            Path(pipeline_settings.qdrant_local_path).expanduser().resolve()
+            if pipeline_settings.qdrant_local_path
+            else None
+        )
+        document_client = make_client(
+            url=None if local_path else pipeline_settings.qdrant_url,
+            api_key=pipeline_settings.qdrant_api_key,
+            local_path=local_path,
+            timeout=pipeline_settings.qdrant_timeout_seconds,
+        )
+        document_factory = DocumentServiceFactory(
+            PostgresDocumentRepository(settings.postgres_dsn or ""),
+            FilesystemAssetStore(document_settings.asset_root),
+            QdrantDocumentIndex(
+                document_client,
+                model,
+                query_prefix=MODEL_CONFIGS["bgebase"]["query_prefix"],
+            ),
+        )
     return ConversationServiceFactory(
         repository,
         context_builder=context_builder,
@@ -157,6 +211,7 @@ def _build_conversation_factory(
         long_term_candidate_k=settings.long_term_candidate_k,
         long_term_score_threshold=settings.long_term_score_threshold,
         long_term_token_budget=settings.long_term_token_budget,
+        document_factory=document_factory,
     )
 
 
@@ -179,11 +234,13 @@ def create_app(
     pipeline: Any | None = None,
     conversation_service: ConversationService | None = None,
     conversation_factory: ConversationServiceFactory | None = None,
+    document_factory: DocumentServiceFactory | None = None,
     auth_service: OIDCSessionService | None = None,
 ) -> FastAPI:
     load_dotenv()
     settings = PipelineSettings.from_environment()
     conversation_settings = ConversationSettings.from_environment()
+    document_settings = DocumentSettings.from_environment()
     query_max_length = int(os.getenv("AVA_QUERY_MAX_LENGTH", "4000"))
     operational_settings = OperationalSettings.from_environment()
     if query_max_length < 1:
@@ -200,10 +257,25 @@ def create_app(
                 None
                 if conversation_service is not None
                 else _build_conversation_factory(
-                    conversation_settings, settings, application.state.pipeline
+                    conversation_settings,
+                    settings,
+                    application.state.pipeline,
+                    document_settings,
                 )
             )
         )
+        application.state.document_factory = (
+            document_factory
+            or getattr(application.state.conversation_factory, "document_factory", None)
+        )
+        if (
+            conversation_service is not None
+            and application.state.document_factory is not None
+            and conversation_service.document_lifecycle is None
+        ):
+            conversation_service.document_lifecycle = (
+                application.state.document_factory.for_owner(conversation_service)
+            )
         application.state.auth = auth_service or _build_auth_service(
             conversation_settings
         )
@@ -215,6 +287,12 @@ def create_app(
             close_memory = getattr(memory_store, "close", None)
             if callable(close_memory):
                 close_memory()
+            active_document_factory = getattr(
+                application.state, "document_factory", None
+            )
+            close_documents = getattr(active_document_factory, "close", None)
+            if callable(close_documents):
+                close_documents()
             close_pipeline = getattr(application.state.pipeline, "close", None)
             if callable(close_pipeline):
                 close_pipeline()
@@ -240,7 +318,9 @@ def create_app(
         expose_headers=["X-Request-ID"],
     )
     application.add_middleware(
-        BodyLimitMiddleware, maximum_bytes=operational_settings.maximum_body_bytes
+        BodyLimitMiddleware,
+        maximum_bytes=operational_settings.maximum_body_bytes,
+        maximum_upload_bytes=operational_settings.maximum_upload_bytes,
     )
     application.add_middleware(
         OperationalMiddleware,
@@ -259,6 +339,9 @@ def create_app(
         factory = getattr(request.app.state, "conversation_factory", None)
         if factory is not None:
             dependencies.extend([factory.repository, factory.memory_store])
+        document_factory_value = getattr(request.app.state, "document_factory", None)
+        if document_factory_value is not None:
+            dependencies.append(document_factory_value)
         auth = getattr(request.app.state, "auth", None)
         if auth is not None:
             dependencies.append(auth.repository)
@@ -308,6 +391,14 @@ def create_app(
             "mode": "oidc" if conversation_settings.mode == "oidc" else "none",
             "required": conversation_settings.mode == "oidc",
         }
+        response["uploads"] = {
+            "enabled": bool(
+                document_settings.enabled
+                and getattr(request.app.state, "document_factory", None) is not None
+            ),
+            "media_types": ["application/pdf", "text/plain"],
+            "maximum_bytes": operational_settings.maximum_upload_bytes,
+        }
         return response
 
     async def conversation_service_for(
@@ -344,6 +435,18 @@ def create_app(
             session.principal.tenant_id,
             session.principal.user_id,
         )
+
+    async def document_service_for(
+        request: Request, *, require_csrf: bool = False
+    ) -> DocumentService:
+        conversation_service_value = await conversation_service_for(
+            request, require_csrf=require_csrf
+        )
+        factory = getattr(request.app.state, "document_factory", None)
+        if not document_settings.enabled or factory is None:
+            raise HTTPException(status_code=503, detail="Document uploads are not enabled.")
+        lifecycle = getattr(conversation_service_value, "document_lifecycle", None)
+        return lifecycle or factory.for_owner(conversation_service_value)
 
     @application.get("/api/auth/session")
     async def auth_session(request: Request) -> dict[str, Any]:
@@ -498,6 +601,65 @@ def create_app(
             "messages": [_message_payload(item) for item in values],
             "next_before": values[0].ordinal if values and values[0].ordinal > 1 else None,
         }
+
+    @application.post("/api/conversations/{conversation_id}/documents", status_code=201)
+    async def upload_document(
+        conversation_id: UUID,
+        request: Request,
+        filename: str = Query(min_length=1, max_length=255),
+    ) -> dict[str, Any]:
+        media_type = request.headers.get("content-type", "").split(";", 1)[0].strip().casefold()
+        if media_type not in {"application/pdf", "text/plain"}:
+            raise HTTPException(
+                status_code=415,
+                detail="Only application/pdf and text/plain uploads are supported.",
+            )
+        content = await request.body()
+        try:
+            value = await asyncio.to_thread(
+                (await document_service_for(request, require_csrf=True)).upload,
+                str(conversation_id),
+                filename,
+                media_type,
+                content,
+            )
+        except ConversationNotFoundError as error:
+            raise HTTPException(status_code=404, detail="Conversation was not found.") from error
+        except DuplicateDocumentError as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
+        except (DocumentExtractionError, DocumentQuotaError, ValueError) as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        return _document_payload(value)
+
+    @application.get("/api/conversations/{conversation_id}/documents")
+    async def list_documents(
+        conversation_id: UUID, request: Request
+    ) -> dict[str, Any]:
+        try:
+            values = await asyncio.to_thread(
+                (await document_service_for(request)).list,
+                str(conversation_id),
+            )
+        except ConversationNotFoundError as error:
+            raise HTTPException(status_code=404, detail="Conversation was not found.") from error
+        return {"documents": [_document_payload(value) for value in values]}
+
+    @application.delete(
+        "/api/conversations/{conversation_id}/documents/{document_id}",
+        status_code=204,
+    )
+    async def delete_document(
+        conversation_id: UUID, document_id: UUID, request: Request
+    ) -> Response:
+        try:
+            await asyncio.to_thread(
+                (await document_service_for(request, require_csrf=True)).delete,
+                str(conversation_id),
+                str(document_id),
+            )
+        except (ConversationNotFoundError, DocumentNotFoundError) as error:
+            raise HTTPException(status_code=404, detail="Uploaded document was not found.") from error
+        return Response(status_code=204)
 
     @application.patch("/api/conversations/{conversation_id}")
     async def update_conversation(

@@ -14,7 +14,12 @@ from .repository import (
     InMemoryDocumentRepository,
     PostgresDocumentRepository,
 )
-from .service import DocumentQuotaError, DocumentService
+from .service import (
+    DocumentQuotaError,
+    DocumentService,
+    DocumentServiceFactory,
+    DocumentSettings,
+)
 from .retrieval import (
     DocumentEvidence,
     NullDocumentIndex,
@@ -31,6 +36,8 @@ __all__ = [
     "DocumentNotFoundError",
     "DocumentQuotaError",
     "DocumentService",
+    "DocumentServiceFactory",
+    "DocumentSettings",
     "DuplicateDocumentError",
     "InMemoryDocumentRepository",
     "PostgresDocumentRepository",

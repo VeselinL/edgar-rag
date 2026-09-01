@@ -4,11 +4,17 @@ import os
 import unittest
 from uuid import uuid4
 
-from src.conversations.repository import PostgresConversationRepository
+from src.conversations.context import ConversationContextBuilder
+from src.conversations.repository import (
+    InMemoryConversationRepository,
+    PostgresConversationRepository,
+)
+from src.conversations.service import ConversationServiceFactory
 
 from src.documents import (
     DocumentNotFoundError,
     DocumentService,
+    DocumentServiceFactory,
     DuplicateDocumentError,
     FilesystemAssetStore,
     InMemoryDocumentRepository,
@@ -97,6 +103,34 @@ class DocumentServiceTests(unittest.TestCase):
         self.assertEqual(
             list((Path(self.temporary.name) / "assets").rglob("*.blob")), []
         )
+
+    def test_conversation_deletion_removes_document_bytes_and_metadata(self):
+        conversations = InMemoryConversationRepository()
+        document_factory = DocumentServiceFactory(
+            self.repository,
+            self.service.asset_store,
+            self.service.index,
+        )
+        services = ConversationServiceFactory(
+            conversations,
+            context_builder=ConversationContextBuilder(conversations),
+            document_factory=document_factory,
+        )
+        conversation_service = services.for_owner("tenant-1", "user-1")
+        conversation = conversation_service.create()
+        uploaded = conversation_service.document_lifecycle.upload(
+            conversation.id,
+            "cascade.txt",
+            "text/plain",
+            b"Cascade this source.",
+        )
+        conversation_service.delete(conversation.id)
+        with self.assertRaises(FileNotFoundError):
+            self.service.asset_store.read(uploaded.asset_key)
+        with self.assertRaises(DocumentNotFoundError):
+            self.repository.get(
+                "tenant-1", "user-1", conversation.id, uploaded.id
+            )
 
 
 @unittest.skipUnless(

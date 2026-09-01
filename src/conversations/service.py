@@ -95,6 +95,7 @@ class ConversationServiceFactory:
         long_term_candidate_k: int = 5,
         long_term_score_threshold: float = 0.55,
         long_term_token_budget: int = 512,
+        document_factory: Any | None = None,
     ) -> None:
         self.repository = repository
         self.context_builder = context_builder
@@ -102,11 +103,12 @@ class ConversationServiceFactory:
         self.long_term_candidate_k = long_term_candidate_k
         self.long_term_score_threshold = long_term_score_threshold
         self.long_term_token_budget = long_term_token_budget
+        self.document_factory = document_factory
 
     def for_owner(self, tenant_id: str, user_id: str) -> "ConversationService":
         if not tenant_id or not user_id:
             raise ValueError("Conversation ownership requires tenant and user IDs.")
-        return ConversationService(
+        service = ConversationService(
             self.repository,
             tenant_id=tenant_id,
             user_id=user_id,
@@ -116,6 +118,9 @@ class ConversationServiceFactory:
             long_term_score_threshold=self.long_term_score_threshold,
             long_term_token_budget=self.long_term_token_budget,
         )
+        if self.document_factory is not None:
+            service.document_lifecycle = self.document_factory.for_owner(service)
+        return service
 
 
 class ConversationService:
@@ -132,6 +137,7 @@ class ConversationService:
         long_term_candidate_k: int = 5,
         long_term_score_threshold: float = 0.55,
         long_term_token_budget: int = 512,
+        document_lifecycle: Any | None = None,
     ) -> None:
         self.repository = repository
         self.tenant_id = tenant_id
@@ -141,6 +147,7 @@ class ConversationService:
         self.long_term_candidate_k = long_term_candidate_k
         self.long_term_score_threshold = long_term_score_threshold
         self.long_term_token_budget = long_term_token_budget
+        self.document_lifecycle = document_lifecycle
 
     def create(self, *, title: str = "New conversation", memory_enabled: bool = False) -> Conversation:
         clean_title = title.strip()[:120] or "New conversation"
@@ -175,6 +182,8 @@ class ConversationService:
         # authoritative rows so a transient PostgreSQL failure remains
         # recoverable by rebuilding memory from the canonical transcript.
         self.get(conversation_id)
+        if self.document_lifecycle is not None:
+            self.document_lifecycle.delete_conversation(conversation_id)
         self.memory_store.delete_conversation(self.tenant_id, self.user_id, conversation_id)
         self.repository.delete_conversation(self.tenant_id, self.user_id, conversation_id)
 
@@ -201,6 +210,10 @@ class ConversationService:
 
     def delete_all(self) -> int:
         existing = self.list()
+        if self.document_lifecycle is not None:
+            for item in existing:
+                self.delete(item.id)
+            return len(existing)
         self.memory_store.delete_all(self.tenant_id, self.user_id)
         deleted = self.repository.delete_all_conversations(self.tenant_id, self.user_id)
         if len(deleted) != len(existing):

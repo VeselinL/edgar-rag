@@ -19,6 +19,7 @@ from starlette.responses import JSONResponse
 @dataclass(frozen=True)
 class OperationalSettings:
     maximum_body_bytes: int = 16_384
+    maximum_upload_bytes: int = 20 * 1024 * 1024
     requests_per_minute: int = 60
     stream_timeout_seconds: int = 180
 
@@ -26,11 +27,15 @@ class OperationalSettings:
     def from_environment(cls) -> "OperationalSettings":
         settings = cls(
             maximum_body_bytes=int(os.getenv("AVA_MAX_BODY_BYTES", "16384")),
+            maximum_upload_bytes=int(
+                os.getenv("AVA_UPLOAD_MAX_BODY_BYTES", str(20 * 1024 * 1024))
+            ),
             requests_per_minute=int(os.getenv("AVA_REQUESTS_PER_MINUTE", "60")),
             stream_timeout_seconds=int(os.getenv("AVA_STREAM_TIMEOUT_SECONDS", "180")),
         )
         if min(
             settings.maximum_body_bytes,
+            settings.maximum_upload_bytes,
             settings.requests_per_minute,
             settings.stream_timeout_seconds,
         ) <= 0:
@@ -39,19 +44,26 @@ class OperationalSettings:
 
 
 class BodyLimitMiddleware:
-    def __init__(self, app: Any, maximum_bytes: int) -> None:
+    def __init__(self, app: Any, maximum_bytes: int, maximum_upload_bytes: int | None = None) -> None:
         self.app = app
         self.maximum_bytes = maximum_bytes
+        self.maximum_upload_bytes = maximum_upload_bytes or maximum_bytes
 
     async def __call__(self, scope: dict, receive: Callable, send: Callable) -> None:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
         header_map = dict(scope.get("headers", []))
+        path = scope.get("path", "")
+        limit = (
+            self.maximum_upload_bytes
+            if path.startswith("/api/conversations/") and path.endswith("/documents")
+            else self.maximum_bytes
+        )
         content_length = header_map.get(b"content-length")
         if content_length is not None:
             try:
-                if int(content_length) > self.maximum_bytes:
+                if int(content_length) > limit:
                     await JSONResponse(
                         {"detail": "Request body is too large."}, status_code=413
                     )(scope, receive, send)
@@ -67,7 +79,7 @@ class BodyLimitMiddleware:
             if message["type"] == "http.disconnect":
                 return
             body.extend(message.get("body", b""))
-            if len(body) > self.maximum_bytes:
+            if len(body) > limit:
                 await JSONResponse(
                     {"detail": "Request body is too large."}, status_code=413
                 )(scope, receive, send)

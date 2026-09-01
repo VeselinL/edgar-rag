@@ -16,6 +16,7 @@ __pycache__/
 data/embeddings/**/*.npz
 data/indexes/qdrant_server/
 data/indexes/qdrant_local/
+data/private/
 
 
 # Internal documents, architectures..

@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timezone
+import os
+from pathlib import Path
 from typing import Callable
 from uuid import uuid4
 
@@ -19,6 +22,54 @@ MAX_BYTES_PER_CHAT = 100 * 1024 * 1024
 
 class DocumentQuotaError(ValueError):
     pass
+
+
+@dataclass(frozen=True)
+class DocumentSettings:
+    enabled: bool = False
+    asset_root: Path = Path("data/private/uploads")
+
+    @classmethod
+    def from_environment(cls) -> "DocumentSettings":
+        raw_enabled = os.getenv("AVA_UPLOADS_ENABLED", "false").strip().casefold()
+        if raw_enabled not in {"true", "false"}:
+            raise ValueError("AVA_UPLOADS_ENABLED must be 'true' or 'false'.")
+        return cls(
+            enabled=raw_enabled == "true",
+            asset_root=Path(
+                os.getenv("AVA_UPLOAD_STORE_PATH", "data/private/uploads")
+            ).expanduser().resolve(),
+        )
+
+
+class DocumentServiceFactory:
+    def __init__(
+        self,
+        repository: DocumentRepository,
+        asset_store: FilesystemAssetStore,
+        index: DocumentIndex,
+    ) -> None:
+        self.repository = repository
+        self.asset_store = asset_store
+        self.index = index
+
+    def for_owner(self, conversation_service: object) -> "DocumentService":
+        return DocumentService(
+            self.repository,
+            self.asset_store,
+            tenant_id=getattr(conversation_service, "tenant_id"),
+            user_id=getattr(conversation_service, "user_id"),
+            authorize_conversation=getattr(conversation_service, "get"),
+            index=self.index,
+        )
+
+    def health_check(self) -> bool:
+        return bool(self.repository.health_check() and self.index.health_check())
+
+    def close(self) -> None:
+        close = getattr(getattr(self.index, "client", None), "close", None)
+        if callable(close):
+            close()
 
 
 class DocumentService:
@@ -116,6 +167,23 @@ class DocumentService:
         self.repository.delete(
             self.tenant_id, self.user_id, conversation_id, document_id
         )
+
+    def delete_conversation(self, conversation_id: str) -> None:
+        self.authorize_conversation(conversation_id)
+        documents = self.repository.list(
+            self.tenant_id, self.user_id, conversation_id
+        )
+        self.index.delete_conversation(
+            self.tenant_id, self.user_id, conversation_id
+        )
+        for document in documents:
+            self.asset_store.delete(document.asset_key)
+            self.repository.delete(
+                self.tenant_id,
+                self.user_id,
+                conversation_id,
+                document.id,
+            )
 
     def search(self, conversation_id: str, query: str, *, limit: int = 10):
         self.authorize_conversation(conversation_id)
