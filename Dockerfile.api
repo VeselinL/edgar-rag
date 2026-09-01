@@ -1,22 +1,28 @@
-FROM python:3.12.12-slim-bookworm@sha256:593bd06efe90efa80dc4eee3948be7c0fde4134606dd40d8dd8dbcade98e669c
+FROM python:3.12.12-slim-bookworm@sha256:593bd06efe90efa80dc4eee3948be7c0fde4134606dd40d8dd8dbcade98e669c AS builder
+
+WORKDIR /build
+COPY requirements.txt ./
+RUN python -m pip install --no-cache-dir pip==26.2.1 \
+    && python -m pip install --no-cache-dir --requirement requirements.txt \
+    && python -m pip uninstall --yes pip
+
+FROM debian:bookworm-slim@sha256:88200866dfff7ea7f5cbcb6ec7c8a701889efe6fe859fe64d6990e4b07ea4171
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
     HF_HOME=/home/ava/.cache/huggingface
 
 RUN apt-get update \
     && apt-get upgrade --yes \
-    && apt-get install --yes --no-install-recommends libgomp1 postgresql-client \
+    && apt-get install --yes --no-install-recommends \
+        ca-certificates libgomp1 libsqlite3-0 postgresql-client \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd --gid 10001 ava \
     && useradd --uid 10001 --gid ava --create-home --shell /usr/sbin/nologin ava
 
-WORKDIR /app
-COPY requirements.txt ./
-RUN python -m pip install --no-cache-dir pip==26.2.1 \
-    && python -m pip install --no-cache-dir --requirement requirements.txt
+COPY --from=builder /usr/local /usr/local
 
+WORKDIR /app
 COPY --chown=ava:ava src ./src
 RUN mkdir -p /home/ava/.cache/huggingface \
     && chown -R ava:ava /home/ava/.cache
