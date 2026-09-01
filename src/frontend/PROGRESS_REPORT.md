@@ -861,3 +861,16 @@ and was not included in AVA commits.
   proves the browser sees no `CHUNK` marker while the backend resolves the source.
 - The focused backend suite passes 101 tests and 11 subtests; frontend lint, all
   26 tests, and the production build remain green.
+
+### Added the passive upload extraction boundary
+
+- Added pinned `pypdf` 6.16.2 and strict PDF/UTF-8 text validation. Uploads are
+  capped at 20 MiB, PDFs at 200 pages, extracted text at 200,000 tokens, and
+  derived chunks at the existing recursive 500-token/32-token-overlap policy.
+- Rejects MIME/extension/signature mismatches, invalid UTF-8, NUL-bearing text,
+  encrypted or malformed PDFs, and PDFs containing JavaScript, open actions,
+  launch actions, embedded files, rich media, or XFA markers. Extracted document
+  text remains inert quoted evidence even when it resembles a prompt instruction.
+- Added immutable filesystem byte storage with UUID-only asset keys, private
+  `0700` directories, `0600` files, exclusive creation, SHA-256 integrity, and
+  explicit deletion. Five extraction/storage tests plus four subtests pass.

@@ -14,4 +14,5 @@ uvicorn==0.41.0
 qdrant-client==1.19.0
 psycopg[binary]==3.3.4
 httpx==0.28.1
+pypdf==6.16.2
 PyJWT[crypto]==2.13.0
