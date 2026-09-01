@@ -263,6 +263,20 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertFalse(settings.llm_streaming)
 
+    def test_settings_can_disable_calculator(self):
+        with patch.dict(
+            "os.environ", {"AVA_CALCULATOR_ENABLED": "false"}, clear=False
+        ):
+            settings = PipelineSettings.from_environment()
+        self.assertFalse(settings.calculator_enabled)
+
+    def test_settings_reject_ambiguous_calculator_toggle(self):
+        with patch.dict(
+            "os.environ", {"AVA_CALCULATOR_ENABLED": "off"}, clear=False
+        ):
+            with self.assertRaisesRegex(ValueError, "AVA_CALCULATOR_ENABLED"):
+                PipelineSettings.from_environment()
+
     def test_settings_load_project_dotenv_before_reading_values(self):
         with patch("src.backend.pipeline.dotenv.load_dotenv") as load_dotenv:
             PipelineSettings.from_environment()
@@ -414,7 +428,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("outside the available SEC filings", events[0].data["text"])
         self.assertEqual(events[1].data["sources"], [])
 
-    async def test_calculation_route_refuses_language_model_arithmetic(self):
+    async def test_calculation_route_executes_calculator_without_retrieval_or_model(self):
         retriever = FakeRetriever()
         generator = RoutedGenerator(
             RequestRoute(
@@ -432,8 +446,33 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertIsNone(retriever.arguments)
         self.assertFalse(generator.answer_called)
-        self.assertIn("won't guess", events[0].data["text"])
+        self.assertEqual(events[0].data["text"], "12 * 4 = 48")
         self.assertEqual(events[1].data["sources"], [])
+
+    async def test_disabled_calculator_fails_closed_without_model_arithmetic(self):
+        retriever = FakeRetriever()
+        generator = RoutedGenerator(
+            RequestRoute(
+                RouteKind.CALCULATOR,
+                RouteReason.PURE_ARITHMETIC,
+                arithmetic_required=True,
+            )
+        )
+        records = []
+        pipeline = RealPipeline(
+            retriever,
+            generator,
+            calculator_enabled=False,
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        events = [event async for event in pipeline.stream("12 * 4", connected)]
+        self.assertIn("disabled", events[0].data["text"])
+        self.assertIn("won't guess", events[0].data["text"])
+        self.assertEqual(records[0]["tool_executions"], [])
 
     async def test_fuzzy_company_uses_canonical_internal_retrieval_query(self):
         retriever = FakeRetriever()

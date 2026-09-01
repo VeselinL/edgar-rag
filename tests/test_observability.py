@@ -13,6 +13,7 @@ class RequestTraceTests(unittest.TestCase):
         self.assertEqual(record["turn_id"], "request")
         self.assertEqual(record["image_candidates"], [])
         self.assertEqual(record["short_term_memory_ids"], [])
+        self.assertEqual(record["tool_executions"], [])
         self.assertGreaterEqual(record["stage_latency_ms"]["retrieval"], 0)
         self.assertNotIn("prompt", record)
 

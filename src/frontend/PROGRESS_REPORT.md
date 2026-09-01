@@ -798,3 +798,14 @@ and was not included in AVA commits.
   24/24 routes passed, all labeled calculations required a calculator, no
   non-filing case selected filing retrieval, and the evaluator reported no errors.
   The focused routing/generation/pipeline suite passes 78 tests and 31 subtests.
+
+### Added the deterministic calculator boundary
+
+- Added an allow-listed arithmetic grammar over decimal values with bounded
+  expression length, operation count, and nesting. It supports direct arithmetic
+  plus common percentage, ratio, difference, sum, and rounding requests without
+  `eval`, code execution, or model arithmetic.
+- Pure calculator routes now execute without filing retrieval or answer generation,
+  return an exact auditable result, and record operands, operators, units, rounding,
+  and status in request telemetry. Unsafe, malformed, unsupported, and divide-by-zero
+  inputs fail closed, and `AVA_CALCULATOR_ENABLED=false` is a tested rollback.

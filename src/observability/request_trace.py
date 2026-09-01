@@ -38,6 +38,7 @@ class RequestTrace:
     )
     stage_latency_ms: dict[str, float] = field(default_factory=dict)
     route: dict[str, Any] = field(default_factory=dict)
+    tool_executions: list[dict[str, Any]] = field(default_factory=list)
     retrieval_subqueries: list[str] = field(default_factory=list)
     resolver: dict[str, Any] = field(default_factory=dict)
     candidates: list[dict[str, Any]] = field(default_factory=list)
@@ -103,6 +104,7 @@ class RequestTrace:
             "answer_delivery": self.answer_delivery,
             "original_query": self.original_query,
             "route": self.route,
+            "tool_executions": self.tool_executions,
             "retrieval_subqueries": self.retrieval_subqueries,
             "resolver": self.resolver,
             "candidate_counts_by_company": self.candidate_counts_by_company,

@@ -54,6 +54,7 @@ from src.retrieval.evidence_policy import (
     EvidencePackingError,
     EvidencePolicyError,
 )
+from src.tools import CalculationError, CalculatorTool
 
 from .sources import normalize_sources
 
@@ -96,6 +97,7 @@ class PipelineSettings:
     qdrant_collection_alias: str = DEFAULT_ALIAS
     qdrant_local_path: str | None = None
     qdrant_timeout_seconds: int = 30
+    calculator_enabled: bool = True
 
     @classmethod
     def from_environment(cls) -> "PipelineSettings":
@@ -108,6 +110,11 @@ class PipelineSettings:
         raw_streaming = os.getenv("AVA_LLM_STREAMING", "true").strip().casefold()
         if raw_streaming not in {"true", "false"}:
             raise ValueError("AVA_LLM_STREAMING must be 'true' or 'false'.")
+        raw_calculator_enabled = os.getenv(
+            "AVA_CALCULATOR_ENABLED", "true"
+        ).strip().casefold()
+        if raw_calculator_enabled not in {"true", "false"}:
+            raise ValueError("AVA_CALCULATOR_ENABLED must be 'true' or 'false'.")
         qdrant_mode = os.getenv("AVA_QDRANT_MODE", "disabled").strip().casefold()
         if qdrant_mode not in {"disabled", "shadow", "primary"}:
             raise ValueError(
@@ -142,6 +149,7 @@ class PipelineSettings:
             ).strip(),
             qdrant_local_path=qdrant_local_path,
             qdrant_timeout_seconds=qdrant_timeout_seconds,
+            calculator_enabled=raw_calculator_enabled == "true",
         )
 
 
@@ -200,6 +208,8 @@ class RealPipeline:
         startup_metrics: dict[str, Any] | None = None,
         ready: bool = True,
         qdrant_health: dict[str, Any] | None = None,
+        calculator: CalculatorTool | None = None,
+        calculator_enabled: bool = True,
     ) -> None:
         self.retriever = retriever
         self.generator = generator
@@ -216,6 +226,8 @@ class RealPipeline:
             "mode": "disabled",
             "status": "disabled",
         }
+        self.calculator = calculator or CalculatorTool()
+        self.calculator_enabled = calculator_enabled
 
     @staticmethod
     def _log_trace(record: dict[str, Any]) -> None:
@@ -369,6 +381,7 @@ class RealPipeline:
             startup_metrics=startup_metrics,
             ready=ready,
             qdrant_health=qdrant_health,
+            calculator_enabled=settings.calculator_enabled,
         )
 
     async def stream(
@@ -455,6 +468,47 @@ class RealPipeline:
         trace.route = route.as_dict()
         LOGGER.info("AVA request route", extra={"ava_request_route": trace.route})
 
+        if route.route is RouteKind.CALCULATOR:
+            if not self.calculator_enabled:
+                response_text = (
+                    "That request requires the calculator, but it is disabled in this "
+                    "deployment. I won't guess or calculate it in the language model."
+                )
+            else:
+                try:
+                    with trace.stage("calculator"):
+                        calculation = self.calculator.calculate_query(query)
+                    trace.tool_executions.append(
+                        {"tool": "calculator", "status": "succeeded", **calculation.as_dict()}
+                    )
+                    response_text = calculation.render()
+                except CalculationError:
+                    trace.tool_executions.append(
+                        {
+                            "tool": "calculator",
+                            "status": "rejected",
+                            "safe_error_class": "invalid_calculation",
+                        }
+                    )
+                    response_text = (
+                        "I couldn't safely parse that calculation. Please provide the "
+                        "numeric operands and operation explicitly."
+                    )
+            trace.generated_answer = response_text
+            trace.source_status = "none_cited"
+            trace.mark_first_token()
+            yield PipelineEvent("delta", {"text": response_text})
+            yield PipelineEvent(
+                "sources",
+                {
+                    "sources": [],
+                    "source_status": "none_cited",
+                    "malformed_source_count": 0,
+                },
+            )
+            yield PipelineEvent("done", {})
+            return
+
         if not route.uses_filing_retrieval or route.uses_calculator:
             if route.reason_code is RouteReason.GREETING:
                 response_text = (
@@ -471,11 +525,6 @@ class RealPipeline:
                     "I need a little more context to choose the right evidence. "
                     "Please name the company, source, or document you mean."
                 )
-            elif route.uses_calculator:
-                response_text = (
-                    "That request requires the calculator. It is not enabled in this "
-                    "deployment yet, so I won't guess or calculate it in the language model."
-                )
             elif route.uses_web_search:
                 response_text = (
                     "That question needs information outside the available SEC filings. "
@@ -485,6 +534,11 @@ class RealPipeline:
                 response_text = (
                     "That question needs a document attached to this chat, but no usable "
                     "chat document source is available yet."
+                )
+            elif route.uses_calculator:
+                response_text = (
+                    "That calculation requires source evidence before the calculator can "
+                    "run. This combined path is not enabled yet, so I won't guess."
                 )
             else:
                 response_text = (

@@ -139,6 +139,7 @@ For the local AVA API, also configure backend-only generation values:
 AVA_PIPELINE_MODE=real
 AVA_LLM_MODEL=AZURE_GPT_51_2025_1113
 AVA_LLM_STREAMING=false
+AVA_CALCULATOR_ENABLED=true
 AVA_QDRANT_MODE=shadow
 QDRANT_URL=http://127.0.0.1:6333
 QDRANT_COLLECTION_ALIAS=ava_filing_chunks_current
