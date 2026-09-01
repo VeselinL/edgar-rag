@@ -149,11 +149,23 @@ _FILING_CUES = re.compile(
     r"management(?:'s|s)? discussion|financial statements?|filing)\b",
     re.IGNORECASE,
 )
+_ARITHMETIC_REQUEST_CUES = re.compile(
+    r"\b(?:calculate|compute|total(?:\s+of)?|difference|ratio|percentage|"
+    r"growth\s+rate|add|subtract|multiply|divide)\b",
+    re.IGNORECASE,
+)
+_VAGUE_DOCUMENT_PATTERN = re.compile(
+    r"^(?:please\s+)?(?:summarize|review|analyze|explain)\s+"
+    r"(?:(?:the|my|this)\s+)?(?:document|file|attachment)[!.?\s]*$",
+    re.IGNORECASE,
+)
 
 
 def deterministic_route(
     query: str,
     resolution: CompanyResolution,
+    *,
+    uploads_available: bool = False,
 ) -> RequestRoute | None:
     """Return only high-confidence routes; defer everything else to the model."""
     normalized = " ".join(query.split())
@@ -176,7 +188,26 @@ def deterministic_route(
             arithmetic_required=True,
             decided_by="deterministic",
         )
+    if _VAGUE_DOCUMENT_PATTERN.fullmatch(normalized):
+        if uploads_available:
+            return RequestRoute(
+                RouteKind.UPLOADED_DOCUMENT_RAG,
+                RouteReason.UPLOADED_EVIDENCE,
+                decided_by="deterministic",
+            )
+        return RequestRoute(
+            RouteKind.CLARIFY,
+            RouteReason.AMBIGUOUS_INTENT,
+            decided_by="deterministic",
+        )
     if _FILING_CUES.search(normalized):
+        if _ARITHMETIC_REQUEST_CUES.search(normalized):
+            return RequestRoute(
+                RouteKind.FILING_AND_CALCULATOR,
+                RouteReason.EVIDENCE_ARITHMETIC,
+                arithmetic_required=True,
+                decided_by="deterministic",
+            )
         return RequestRoute(
             RouteKind.FILING_RAG,
             RouteReason.FILING_EVIDENCE,

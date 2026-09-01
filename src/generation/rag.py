@@ -19,6 +19,12 @@ from openai import OpenAI
 import tiktoken
 
 from src.filings.corpus import ACTIVE_FILINGS
+from src.orchestration.routing import (
+    RequestRoute,
+    deterministic_route,
+    parse_route_decision,
+    router_messages,
+)
 from src.resolution.companies import CompanyResolution, default_company_resolver
 
 DEFAULT_LLM_MODEL = "AZURE_GPT_51_2025_1113"
@@ -69,8 +75,12 @@ COMPANY RULES
 6. You own company resolution and final in-corpus scope. The supplied detected
    tickers and unresolved candidates are advisory hints, not required output.
    Resolve the user's intended targets against the allowed corpus ticker list.
-   Never emit an out-of-corpus ticker. `all companies`, `every company`, or
-   `each company` means every allowed corpus ticker.
+   A ticker is never required in the user's text: a unique configured company
+   name, alias, product, or technology may identify its company. When you make
+   that identification, use the same allowed ticker in company_mentions,
+   resolved_tickers, and every relevant subquery. Never emit an out-of-corpus
+   ticker. `all companies`, `every company`, or `each company` means every
+   allowed corpus ticker.
 7. Classify supplied unresolved mentions when they affect scope. Copy raw_text
    exactly and choose an allowed ticker, `none`, or `ambiguous`. Do not silently
    map an explicitly out-of-corpus company to an unrelated corpus company.
@@ -103,7 +113,9 @@ EXAMPLES
   requested arithmetic operation (otherwise null).
 - `Who is Tesla's CEO?` requires the one subquery
   `Tesla Chief Executive Officer name` targeting TSLA,
-  needs_multiple_retrievals false, comparison false, and operation null."""
+  needs_multiple_retrievals false, comparison false, and operation null.
+- `How does Aurora Driver work?` identifies the configured Aurora product alias;
+  target AUR consistently even though the user did not provide a ticker."""
 
 PLANNER_JSON_FORMAT = (
     "Return only a valid JSON object with exactly these keys: "
@@ -418,6 +430,41 @@ class GenerationService:
             query, evidence, conversation_context=conversation_context
         )
 
+    def route_request(
+        self,
+        original_query: str,
+        deterministic_resolution: CompanyResolution | None = None,
+        conversation_context: str = "",
+        uploaded_source_names: Sequence[str] = (),
+    ) -> RequestRoute:
+        """Choose a validated evidence/tool route before retrieval."""
+        resolution = deterministic_resolution or default_company_resolver.resolve(
+            original_query
+        )
+        deterministic = deterministic_route(
+            original_query,
+            resolution,
+            uploads_available=bool(uploaded_source_names),
+        )
+        if deterministic is not None:
+            return deterministic
+        response = self._create(
+            model=self.model,
+            messages=router_messages(
+                original_query,
+                resolution,
+                conversation_context=conversation_context,
+                uploaded_source_names=uploaded_source_names,
+            ),
+            temperature=0.0,
+            max_tokens=256,
+        )
+        raw_route = response.choices[0].message.content or ""
+        return parse_route_decision(
+            raw_route,
+            uploads_available=bool(uploaded_source_names),
+        )
+
     def plan_retrieval(
         self,
         original_query: str,
@@ -574,6 +621,60 @@ class GenerationService:
                 for item in plan["company_mentions"]
             )
         )
+        if (
+            valid_subqueries
+            and valid_ticker_list(plan.get("resolved_tickers"))
+            and valid_company_mentions
+        ):
+            resolved_scope = set(plan["resolved_tickers"])
+            targeted_scope = {
+                ticker
+                for item in plan["subqueries"]
+                for ticker in item["tickers"]
+            }
+            mentioned_scope = {
+                item["ticker"]
+                for item in plan["company_mentions"]
+                if item["ticker"] in valid_tickers
+            }
+            missing_mentions = mentioned_scope - resolved_scope
+            if (
+                not resolved_scope
+                and not targeted_scope
+                and len(missing_mentions) == 1
+            ):
+                inferred_ticker = next(iter(missing_mentions))
+                plan["resolved_tickers"] = [inferred_ticker]
+                for item in plan["subqueries"]:
+                    item["tickers"] = [inferred_ticker]
+                normalizations.append("single_company_mention_scope")
+                LOGGER.warning(
+                    "AVA normalized one planner company mention into retrieval scope"
+                )
+            elif missing_mentions:
+                plan["company_mentions"] = [
+                    item
+                    for item in plan["company_mentions"]
+                    if item["ticker"] not in missing_mentions
+                ]
+                normalizations.append("out_of_scope_company_mentions_removed")
+                LOGGER.warning("AVA removed planner mentions outside final scope")
+
+            if (
+                not plan["resolved_tickers"]
+                and all(not item["tickers"] for item in plan["subqueries"])
+                and resolution.scope == "single_company"
+                and len(resolution.resolved_tickers) == 1
+                and not resolution.needs_clarification
+            ):
+                fallback_ticker = resolution.resolved_tickers[0]
+                plan["resolved_tickers"] = [fallback_ticker]
+                for item in plan["subqueries"]:
+                    item["tickers"] = [fallback_ticker]
+                normalizations.append("deterministic_single_company_scope")
+                LOGGER.warning(
+                    "AVA restored one high-confidence deterministic company scope"
+                )
         if (
             set(plan) == required_keys
             and isinstance(plan.get("needs_multiple_retrievals"), bool)

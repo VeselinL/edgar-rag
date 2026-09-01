@@ -73,3 +73,12 @@ separates greetings/help, filing questions with names/tickers/products,
 current/external web questions, pure and evidence-derived arithmetic,
 conversation-scoped uploads, follow-ups, and genuine ambiguity. Route accuracy,
 unnecessary filing retrieval, and mandatory calculator use are scored separately.
+Run its provider gate with:
+
+```bash
+PYTHONPATH=. .venv/bin/python -m src.evaluation.request_routing
+```
+
+The behavioral gate requires exact route selection, exact arithmetic requirement,
+zero filing routes on the labeled non-filing set, and calculator routes for every
+labeled calculation. Reason codes are retained as non-executing diagnostics.

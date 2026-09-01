@@ -51,6 +51,13 @@ class RequestRoutingTests(unittest.TestCase):
         self.assertEqual(arithmetic.route, RouteKind.CALCULATOR)
         self.assertTrue(arithmetic.arithmetic_required)
 
+    def test_explicit_filing_calculation_keeps_both_required_paths(self):
+        query = "Calculate the ratio disclosed in Tesla's 10-K."
+        route = deterministic_route(query, self.resolution(query))
+        self.assertEqual(route.route, RouteKind.FILING_AND_CALCULATOR)
+        self.assertTrue(route.uses_filing_retrieval)
+        self.assertTrue(route.uses_calculator)
+
     def test_route_parser_rejects_inconsistent_calculation_and_missing_upload(self):
         with self.assertRaisesRegex(ValueError, "calculation route"):
             parse_route_decision(
@@ -80,6 +87,17 @@ class RequestRoutingTests(unittest.TestCase):
         self.assertTrue(route.uses_filing_retrieval)
         self.assertTrue(route.uses_calculator)
         self.assertFalse(route.uses_web_search)
+
+    def test_vague_document_request_requires_a_real_chat_upload(self):
+        query = "Summarize the document."
+        without_upload = deterministic_route(query, self.resolution(query))
+        with_upload = deterministic_route(
+            query,
+            self.resolution(query),
+            uploads_available=True,
+        )
+        self.assertEqual(without_upload.route, RouteKind.CLARIFY)
+        self.assertEqual(with_upload.route, RouteKind.UPLOADED_DOCUMENT_RAG)
 
     def test_router_prompt_lists_product_aliases_and_separates_context(self):
         messages = router_messages(

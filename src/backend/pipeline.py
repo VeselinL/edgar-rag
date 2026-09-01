@@ -37,6 +37,7 @@ from src.indexing.qdrant_index import (
     make_client,
 )
 from src.observability import RequestTrace, safe_error_class
+from src.orchestration.routing import RequestRoute, RouteKind, RouteReason
 from src.resolution.companies import (
     CompanyResolver,
     confidence_band,
@@ -428,6 +429,82 @@ class RealPipeline:
             trace.long_term_memory_ids = list(conversation_context.long_term_ids)
         with trace.stage("deterministic_resolution"):
             deterministic_resolution = self.company_resolver.resolve(query)
+        with trace.stage("routing"):
+            if hasattr(self.generator, "route_request"):
+                if prompt_context:
+                    route = await asyncio.to_thread(
+                        self.generator.route_request,
+                        query,
+                        deterministic_resolution,
+                        prompt_context,
+                    )
+                else:
+                    route = await asyncio.to_thread(
+                        self.generator.route_request,
+                        query,
+                        deterministic_resolution,
+                    )
+            else:
+                # Compatibility for narrow evaluator/test generators. Production
+                # GenerationService always owns the typed router.
+                route = RequestRoute(
+                    RouteKind.FILING_RAG,
+                    RouteReason.FILING_EVIDENCE,
+                    decided_by="compatibility_fallback",
+                )
+        trace.route = route.as_dict()
+        LOGGER.info("AVA request route", extra={"ava_request_route": trace.route})
+
+        if not route.uses_filing_retrieval or route.uses_calculator:
+            if route.reason_code is RouteReason.GREETING:
+                response_text = (
+                    "Hello! I'm AVA, the Autonomous Vehicle Analyst. "
+                    "Ask me about the available SEC filings."
+                )
+            elif route.reason_code is RouteReason.AVA_HELP:
+                response_text = (
+                    "I analyze the available companies' SEC filings with cited "
+                    "evidence. I can also use conversation memory when you enable it."
+                )
+            elif route.route is RouteKind.CLARIFY:
+                response_text = (
+                    "I need a little more context to choose the right evidence. "
+                    "Please name the company, source, or document you mean."
+                )
+            elif route.uses_calculator:
+                response_text = (
+                    "That request requires the calculator. It is not enabled in this "
+                    "deployment yet, so I won't guess or calculate it in the language model."
+                )
+            elif route.uses_web_search:
+                response_text = (
+                    "That question needs information outside the available SEC filings. "
+                    "Web search is not enabled in this deployment yet."
+                )
+            elif route.uses_uploads:
+                response_text = (
+                    "That question needs a document attached to this chat, but no usable "
+                    "chat document source is available yet."
+                )
+            else:
+                response_text = (
+                    "I can help with the available SEC filings. Ask about a company, "
+                    "filing topic, or AVA's supported capabilities."
+                )
+            trace.generated_answer = response_text
+            trace.source_status = "none_cited"
+            trace.mark_first_token()
+            yield PipelineEvent("delta", {"text": response_text})
+            yield PipelineEvent(
+                "sources",
+                {
+                    "sources": [],
+                    "source_status": "none_cited",
+                    "malformed_source_count": 0,
+                },
+            )
+            yield PipelineEvent("done", {})
+            return
         with trace.stage("planning"):
             if prompt_context:
                 plan = await asyncio.to_thread(

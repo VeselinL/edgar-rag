@@ -37,6 +37,7 @@ class RequestTrace:
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
     stage_latency_ms: dict[str, float] = field(default_factory=dict)
+    route: dict[str, Any] = field(default_factory=dict)
     retrieval_subqueries: list[str] = field(default_factory=list)
     resolver: dict[str, Any] = field(default_factory=dict)
     candidates: list[dict[str, Any]] = field(default_factory=list)
@@ -101,6 +102,7 @@ class RequestTrace:
             "index_version": self.index_version,
             "answer_delivery": self.answer_delivery,
             "original_query": self.original_query,
+            "route": self.route,
             "retrieval_subqueries": self.retrieval_subqueries,
             "resolver": self.resolver,
             "candidate_counts_by_company": self.candidate_counts_by_company,

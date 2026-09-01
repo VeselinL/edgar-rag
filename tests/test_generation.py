@@ -172,6 +172,39 @@ class GenerationTests(unittest.TestCase):
         self.assertIn("concluding comparison or synthesis", SYSTEM_PROMPT)
         self.assertIn("never add `$`", SYSTEM_PROMPT)
 
+    def test_router_handles_greeting_without_provider_or_retrieval_plan(self):
+        completions = FakeCompletions(SimpleNamespace())
+        service = GenerationService(
+            SimpleNamespace(chat=SimpleNamespace(completions=completions)),
+            model="test",
+        )
+
+        route = service.route_request("Hello")
+
+        self.assertEqual(route.route.value, "conversation_only")
+        self.assertEqual(route.reason_code.value, "greeting")
+        self.assertIsNone(completions.arguments)
+
+    def test_router_uses_strict_model_contract_for_product_question(self):
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content=(
+                '{"route":"filing_rag","reason_code":"filing_evidence",'
+                '"arithmetic_required":false}'
+            )))]
+        )
+        completions = FakeCompletions(response)
+        service = GenerationService(
+            SimpleNamespace(chat=SimpleNamespace(completions=completions)),
+            model="test",
+        )
+
+        route = service.route_request("How does Aurora Driver technology work?")
+
+        self.assertEqual(route.route.value, "filing_rag")
+        self.assertEqual(completions.arguments["max_tokens"], 256)
+        self.assertEqual(completions.arguments["temperature"], 0.0)
+        self.assertIn("aurora driver", completions.arguments["messages"][2]["content"])
+
     def test_citation_ids_accept_grouped_ids_without_matching_prose(self):
         answer = (
             "Supported [TSLA-2025-CHUNK-000001; TSLA-2025-CHUNK-000002] "
@@ -321,7 +354,7 @@ class GenerationTests(unittest.TestCase):
             plan["_normalizations"], ["single_query_empty_subqueries"]
         )
 
-    def test_planner_can_choose_empty_scope_despite_deterministic_hint(self):
+    def test_planner_restores_high_confidence_single_company_scope(self):
         response = SimpleNamespace(
             choices=[SimpleNamespace(message=SimpleNamespace(content=(
                 '{"needs_multiple_retrievals": false, "subqueries": [], '
@@ -336,10 +369,32 @@ class GenerationTests(unittest.TestCase):
         plan = GenerationService(client, model="test").plan_retrieval(
             "What are Tesla's risks?", resolution
         )
-        self.assertEqual(plan["resolved_tickers"], [])
+        self.assertEqual(plan["resolved_tickers"], ["TSLA"])
         self.assertEqual(
-            plan["subqueries"], [{"query": "What are Tesla's risks?", "tickers": []}]
+            plan["subqueries"],
+            [{"query": "What are Tesla's risks?", "tickers": ["TSLA"]}],
         )
+        self.assertIn("deterministic_single_company_scope", plan["_normalizations"])
+
+    def test_planner_normalizes_unique_product_mention_into_scope(self):
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content=(
+                '{"needs_multiple_retrievals": false, '
+                '"subqueries": [{"query": "autonomous trucking technology", "tickers": []}], '
+                '"operation": null, "resolved_tickers": [], '
+                '"company_mentions": [{"raw_text": "the trucking technology company", '
+                '"ticker": "AUR"}], "comparison": false, "ambiguity": false}'
+            )))]
+        )
+        client = SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(response)))
+
+        plan = GenerationService(client, model="test").plan_retrieval(
+            "How does the trucking technology company's system work?"
+        )
+
+        self.assertEqual(plan["resolved_tickers"], ["AUR"])
+        self.assertEqual(plan["subqueries"][0]["tickers"], ["AUR"])
+        self.assertIn("single_company_mention_scope", plan["_normalizations"])
 
     def test_planner_rejects_out_of_corpus_ticker(self):
         response = SimpleNamespace(

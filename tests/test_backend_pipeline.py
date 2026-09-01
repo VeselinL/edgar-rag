@@ -5,6 +5,7 @@ from unittest.mock import patch
 import numpy as np
 
 from src.backend.pipeline import FILINGS, PipelineSettings, RealPipeline
+from src.orchestration.routing import RequestRoute, RouteKind, RouteReason
 from src.retrieval.evidence_policy import EvidencePolicyError
 
 
@@ -232,6 +233,21 @@ class ContextAwareRetriever(FakeRetriever):
         return super().retrieve(query, subqueries, company_resolution, subquery_targets)
 
 
+class RoutedGenerator(FakeGenerator):
+    def __init__(self, route):
+        super().__init__()
+        self.route = route
+        self.route_context = None
+
+    def route_request(self, query, deterministic_resolution=None, conversation_context=""):
+        self.deterministic_resolution = deterministic_resolution
+        self.route_context = conversation_context
+        return self.route
+
+    def plan_retrieval(self, query, deterministic_resolution=None):
+        raise AssertionError("Non-filing routes must not invoke the filing planner.")
+
+
 class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
     def test_deployment_corpus_includes_rivian(self):
         self.assertEqual(FILINGS["RIVN"], "2025-10-K")
@@ -351,6 +367,73 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(
             [event.event for event in events], ["delta", "sources", "done"]
         )
+
+    async def test_greeting_route_returns_no_sources_without_retrieval(self):
+        retriever = FakeRetriever()
+        generator = RoutedGenerator(
+            RequestRoute(
+                RouteKind.CONVERSATION_ONLY,
+                RouteReason.GREETING,
+                decided_by="deterministic",
+            )
+        )
+        records = []
+        pipeline = RealPipeline(retriever, generator, telemetry_sink=records.append)
+
+        async def connected():
+            return False
+
+        events = [event async for event in pipeline.stream("Hello", connected)]
+
+        self.assertIsNone(retriever.arguments)
+        self.assertFalse(generator.answer_called)
+        self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
+        self.assertIn("Hello", events[0].data["text"])
+        self.assertEqual(events[1].data["sources"], [])
+        self.assertEqual(records[0]["route"]["route"], "conversation_only")
+        self.assertNotIn("retrieval_selection", records[0]["stage_latency_ms"])
+
+    async def test_web_route_does_not_receive_arbitrary_filing_chunks(self):
+        retriever = FakeRetriever()
+        generator = RoutedGenerator(
+            RequestRoute(RouteKind.WEB_SEARCH, RouteReason.CURRENT_OR_EXTERNAL)
+        )
+        pipeline = RealPipeline(retriever, generator)
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "What is Tesla's stock price today?", connected
+            )
+        ]
+
+        self.assertIsNone(retriever.arguments)
+        self.assertIn("outside the available SEC filings", events[0].data["text"])
+        self.assertEqual(events[1].data["sources"], [])
+
+    async def test_calculation_route_refuses_language_model_arithmetic(self):
+        retriever = FakeRetriever()
+        generator = RoutedGenerator(
+            RequestRoute(
+                RouteKind.CALCULATOR,
+                RouteReason.PURE_ARITHMETIC,
+                arithmetic_required=True,
+            )
+        )
+        pipeline = RealPipeline(retriever, generator)
+
+        async def connected():
+            return False
+
+        events = [event async for event in pipeline.stream("12 * 4", connected)]
+
+        self.assertIsNone(retriever.arguments)
+        self.assertFalse(generator.answer_called)
+        self.assertIn("won't guess", events[0].data["text"])
+        self.assertEqual(events[1].data["sources"], [])
 
     async def test_fuzzy_company_uses_canonical_internal_retrieval_query(self):
         retriever = FakeRetriever()

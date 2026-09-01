@@ -783,3 +783,18 @@ and was not included in AVA commits.
   greeting failure, ticker/name/product filing questions, no-ticker follow-ups,
   unrelated/current web questions, mandatory arithmetic, chat uploads, and
   genuine ambiguity. Seven focused tests plus 28 subtests pass.
+
+### Routed requests before filing retrieval
+
+- Integrated the shared route contract ahead of planning and dense/BM25 retrieval.
+  Greetings and AVA help now return without sources or filing retrieval; current
+  and unrelated questions no longer receive arbitrary SEC chunks. Calculator,
+  web, and upload routes fail closed until their bounded executors are enabled.
+- Hardened the filing planner so a ticker is optional when a configured company,
+  product, or technology identifies one company. Benign empty or inconsistent
+  single-company planner scope is normalized to validated deterministic scope,
+  while out-of-scope planner mentions are removed with diagnostics.
+- Added the reusable Phase 9 route evaluator and saved a live-provider run:
+  24/24 routes passed, all labeled calculations required a calculator, no
+  non-filing case selected filing retrieval, and the evaluator reported no errors.
+  The focused routing/generation/pipeline suite passes 78 tests and 31 subtests.
