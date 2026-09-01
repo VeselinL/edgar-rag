@@ -124,7 +124,24 @@ class ConversationServiceTests(unittest.TestCase):
             self.service.get(conversation.id)
 
     def test_new_conversation_has_long_term_memory_disabled_by_default(self):
-        self.assertFalse(self.service.create().memory_enabled)
+        created = self.service.create()
+        self.assertFalse(created.memory_enabled)
+        self.assertFalse(created.pinned)
+        self.assertIsNone(created.pinned_at)
+
+    def test_pinned_conversations_are_owner_scoped_and_ordered_by_latest_pin(self):
+        first = self.service.create(title="First")
+        second = self.service.create(title="Second")
+
+        pinned_first = self.service.update(first.id, pinned=True)
+        pinned_second = self.service.update(second.id, pinned=True)
+
+        self.assertTrue(pinned_first.pinned)
+        self.assertIsNotNone(pinned_first.pinned_at)
+        self.assertTrue(pinned_second.pinned)
+        self.assertEqual([item.id for item in self.service.list()], [second.id, first.id])
+        self.assertFalse(self.service.update(second.id, pinned=False).pinned)
+        self.assertEqual(self.service.list()[0].id, first.id)
 
     def test_disabling_memory_removes_existing_derived_summary(self):
         conversation = self.service.create(memory_enabled=True)

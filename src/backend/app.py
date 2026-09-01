@@ -87,6 +87,7 @@ class CreateConversationRequest(BaseModel):
 class UpdateConversationRequest(BaseModel):
     title: str | None = None
     memory_enabled: bool | None = None
+    pinned: bool | None = None
 
 
 class FeedbackRequest(BaseModel):
@@ -104,6 +105,8 @@ def _conversation_payload(value: Any) -> dict[str, Any]:
         "id": value.id,
         "title": value.title,
         "memory_enabled": value.memory_enabled,
+        "pinned": value.pinned,
+        "pinned_at": value.pinned_at.isoformat() if value.pinned_at else None,
         "created_at": value.created_at.isoformat(),
         "updated_at": value.updated_at.isoformat(),
     }
@@ -665,7 +668,7 @@ def create_app(
     async def update_conversation(
         conversation_id: UUID, body: UpdateConversationRequest, request: Request
     ) -> dict[str, Any]:
-        if body.title is None and body.memory_enabled is None:
+        if body.title is None and body.memory_enabled is None and body.pinned is None:
             raise HTTPException(status_code=422, detail="No conversation change was supplied.")
         try:
             value = await asyncio.to_thread(
@@ -673,6 +676,7 @@ def create_app(
                 str(conversation_id),
                 title=body.title,
                 memory_enabled=body.memory_enabled,
+                pinned=body.pinned,
             )
         except ConversationNotFoundError as error:
             raise HTTPException(status_code=404, detail="Conversation was not found.") from error

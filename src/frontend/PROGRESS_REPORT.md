@@ -943,3 +943,14 @@ and was not included in AVA commits.
   the drawer.
 - Frontend lint, 30 tests (including the upload API and UI path), TypeScript
   checking, and the production build pass.
+
+### Persisted conversation pin state and ordering
+
+- Added idempotent PostgreSQL pin columns, a consistent pin-state constraint,
+  and an owner/pin/order index. Newly pinned chats sort first by latest pin,
+  followed by ordinary chats in recent-activity order; unpinning clears its
+  ordering timestamp.
+- Extended the owner-scoped conversation update contract and browser-safe
+  response/export metadata with `pinned` and `pinned_at`. In-memory, API, and
+  live PostgreSQL tests verify defaults, ordering, migration idempotency, and
+  the existing ownership boundary.

@@ -18,6 +18,8 @@ class Conversation:
     user_id: str
     title: str
     memory_enabled: bool
+    pinned: bool
+    pinned_at: datetime | None
     created_at: datetime
     updated_at: datetime
 

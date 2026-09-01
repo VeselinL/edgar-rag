@@ -266,6 +266,25 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(messages[1]["role"], "assistant")
         self.assertEqual(len(parse_sse(replay.text)[1][1]["sources"]), 2)
 
+    def test_conversation_pin_update_is_persisted_and_ordered(self):
+        repository = InMemoryConversationRepository()
+        service = ConversationService(repository, tenant_id="tenant", user_id="user")
+        first = service.create(title="First")
+        second = service.create(title="Second")
+
+        with TestClient(
+            create_app(pipeline=MockPipeline(delay_seconds=0), conversation_service=service)
+        ) as client:
+            response = client.patch(
+                f"/api/conversations/{first.id}", json={"pinned": True}
+            )
+            conversations = client.get("/api/conversations").json()["conversations"]
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["pinned"])
+        self.assertIsNotNone(response.json()["pinned_at"])
+        self.assertEqual([item["id"] for item in conversations], [first.id, second.id])
+
     def test_feedback_is_owner_scoped_to_completed_answer(self):
         repository = InMemoryConversationRepository()
         service = ConversationService(repository, tenant_id="tenant", user_id="user")

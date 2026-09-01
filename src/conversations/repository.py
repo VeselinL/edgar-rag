@@ -26,7 +26,7 @@ class ConversationRepository(Protocol):
     def create_conversation(self, tenant_id: str, user_id: str, title: str, memory_enabled: bool) -> Conversation: ...
     def list_conversations(self, tenant_id: str, user_id: str) -> list[Conversation]: ...
     def get_conversation(self, tenant_id: str, user_id: str, conversation_id: str) -> Conversation: ...
-    def update_conversation(self, tenant_id: str, user_id: str, conversation_id: str, *, title: str | None = None, memory_enabled: bool | None = None) -> Conversation: ...
+    def update_conversation(self, tenant_id: str, user_id: str, conversation_id: str, *, title: str | None = None, memory_enabled: bool | None = None, pinned: bool | None = None) -> Conversation: ...
     def delete_conversation(self, tenant_id: str, user_id: str, conversation_id: str) -> bool: ...
     def delete_all_conversations(self, tenant_id: str, user_id: str) -> list[str]: ...
     def begin_turn(self, tenant_id: str, user_id: str, conversation_id: str, client_turn_id: str, query: str, request_id: str) -> StoredTurn: ...
@@ -58,7 +58,11 @@ class InMemoryConversationRepository:
     def create_conversation(self, tenant_id: str, user_id: str, title: str, memory_enabled: bool) -> Conversation:
         with self._lock:
             now = utc_now()
-            item = Conversation(str(uuid4()), tenant_id, user_id, title, memory_enabled, now, now)
+            item = Conversation(
+                id=str(uuid4()), tenant_id=tenant_id, user_id=user_id,
+                title=title, memory_enabled=memory_enabled, pinned=False,
+                pinned_at=None, created_at=now, updated_at=now,
+            )
             self._conversations[item.id] = item
             self._messages[item.id] = []
             return item
@@ -73,7 +77,12 @@ class InMemoryConversationRepository:
         with self._lock:
             return sorted(
                 [item for item in self._conversations.values() if item.tenant_id == tenant_id and item.user_id == user_id],
-                key=lambda item: (item.updated_at, item.id),
+                key=lambda item: (
+                    item.pinned,
+                    item.pinned_at or item.updated_at,
+                    item.updated_at,
+                    item.id,
+                ),
                 reverse=True,
             )
 
@@ -81,17 +90,20 @@ class InMemoryConversationRepository:
         with self._lock:
             return self._owned(tenant_id, user_id, conversation_id)
 
-    def update_conversation(self, tenant_id: str, user_id: str, conversation_id: str, *, title: str | None = None, memory_enabled: bool | None = None) -> Conversation:
+    def update_conversation(self, tenant_id: str, user_id: str, conversation_id: str, *, title: str | None = None, memory_enabled: bool | None = None, pinned: bool | None = None) -> Conversation:
         with self._lock:
             current = self._owned(tenant_id, user_id, conversation_id)
+            now = utc_now()
             item = Conversation(
-                current.id,
-                current.tenant_id,
-                current.user_id,
-                title if title is not None else current.title,
-                memory_enabled if memory_enabled is not None else current.memory_enabled,
-                current.created_at,
-                utc_now(),
+                id=current.id,
+                tenant_id=current.tenant_id,
+                user_id=current.user_id,
+                title=title if title is not None else current.title,
+                memory_enabled=memory_enabled if memory_enabled is not None else current.memory_enabled,
+                pinned=pinned if pinned is not None else current.pinned,
+                pinned_at=(now if pinned else None) if pinned is not None else current.pinned_at,
+                created_at=current.created_at,
+                updated_at=now,
             )
             self._conversations[conversation_id] = item
             return item
@@ -193,9 +205,15 @@ class InMemoryConversationRepository:
             assistant = Message(str(uuid4()), conversation_id, client_turn_id, "assistant", "", "in_progress", ordinal + 1, now, request_id)
             self._messages[conversation_id].extend([user_message, assistant])
             self._conversations[conversation_id] = Conversation(
-                conversation.id, conversation.tenant_id, conversation.user_id,
-                conversation.title if conversation.title != "New conversation" else query.strip()[:80],
-                conversation.memory_enabled, conversation.created_at, now,
+                id=conversation.id,
+                tenant_id=conversation.tenant_id,
+                user_id=conversation.user_id,
+                title=conversation.title if conversation.title != "New conversation" else query.strip()[:80],
+                memory_enabled=conversation.memory_enabled,
+                pinned=conversation.pinned,
+                pinned_at=conversation.pinned_at,
+                created_at=conversation.created_at,
+                updated_at=now,
             )
             return StoredTurn(user_message, assistant)
 
@@ -312,7 +330,17 @@ class PostgresConversationRepository:
 
     @staticmethod
     def _conversation(row: dict[str, Any]) -> Conversation:
-        return Conversation(str(row["conversation_id"]), row["tenant_id"], row["user_id"], row["title"], row["memory_enabled"], row["created_at"], row["updated_at"])
+        return Conversation(
+            id=str(row["conversation_id"]),
+            tenant_id=row["tenant_id"],
+            user_id=row["user_id"],
+            title=row["title"],
+            memory_enabled=row["memory_enabled"],
+            pinned=row["pinned"],
+            pinned_at=row["pinned_at"],
+            created_at=row["created_at"],
+            updated_at=row["updated_at"],
+        )
 
     @staticmethod
     def _message(row: dict[str, Any]) -> Message:
@@ -332,7 +360,7 @@ class PostgresConversationRepository:
         with self._connect() as connection:
             rows = connection.execute(
                 """SELECT * FROM ava_conversations WHERE tenant_id=%s AND user_id=%s AND deleted_at IS NULL
-                   ORDER BY updated_at DESC, conversation_id DESC""", (tenant_id, user_id)
+                   ORDER BY pinned DESC, pinned_at DESC NULLS LAST, updated_at DESC, conversation_id DESC""", (tenant_id, user_id)
             ).fetchall()
         return [self._conversation(row) for row in rows]
 
@@ -346,13 +374,28 @@ class PostgresConversationRepository:
             raise ConversationNotFoundError("Conversation was not found.")
         return self._conversation(row)
 
-    def update_conversation(self, tenant_id: str, user_id: str, conversation_id: str, *, title: str | None = None, memory_enabled: bool | None = None) -> Conversation:
+    def update_conversation(self, tenant_id: str, user_id: str, conversation_id: str, *, title: str | None = None, memory_enabled: bool | None = None, pinned: bool | None = None) -> Conversation:
         current = self.get_conversation(tenant_id, user_id, conversation_id)
+        next_pinned = pinned if pinned is not None else current.pinned
+        next_pinned_at = (
+            utc_now() if pinned is True
+            else None if pinned is False
+            else current.pinned_at
+        )
         with self._connect() as connection:
             row = connection.execute(
-                """UPDATE ava_conversations SET title=%s, memory_enabled=%s, updated_at=NOW()
+                """UPDATE ava_conversations
+                   SET title=%s, memory_enabled=%s, pinned=%s, pinned_at=%s, updated_at=NOW()
                    WHERE conversation_id=%s AND tenant_id=%s AND user_id=%s AND deleted_at IS NULL RETURNING *""",
-                (title if title is not None else current.title, memory_enabled if memory_enabled is not None else current.memory_enabled, conversation_id, tenant_id, user_id),
+                (
+                    title if title is not None else current.title,
+                    memory_enabled if memory_enabled is not None else current.memory_enabled,
+                    next_pinned,
+                    next_pinned_at,
+                    conversation_id,
+                    tenant_id,
+                    user_id,
+                ),
             ).fetchone()
         if row is None:
             raise ConversationNotFoundError("Conversation was not found.")

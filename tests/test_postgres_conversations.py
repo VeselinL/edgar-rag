@@ -20,6 +20,9 @@ class PostgresConversationIntegrationTests(unittest.TestCase):
         user_id = f"test-user-{uuid4()}"
         service = ConversationService(repository, tenant_id=tenant_id, user_id=user_id)
         conversation = service.create(memory_enabled=False)
+        pinned = service.update(conversation.id, pinned=True)
+        self.assertTrue(pinned.pinned)
+        self.assertIsNotNone(pinned.pinned_at)
         turn_id = str(uuid4())
         request_id = str(uuid4())
 

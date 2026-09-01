@@ -159,7 +159,14 @@ class ConversationService:
     def get(self, conversation_id: str) -> Conversation:
         return self.repository.get_conversation(self.tenant_id, self.user_id, conversation_id)
 
-    def update(self, conversation_id: str, *, title: str | None = None, memory_enabled: bool | None = None) -> Conversation:
+    def update(
+        self,
+        conversation_id: str,
+        *,
+        title: str | None = None,
+        memory_enabled: bool | None = None,
+        pinned: bool | None = None,
+    ) -> Conversation:
         if title is not None:
             title = title.strip()[:120]
             if not title:
@@ -171,7 +178,7 @@ class ConversationService:
             )
         updated = self.repository.update_conversation(
             self.tenant_id, self.user_id, conversation_id,
-            title=title, memory_enabled=memory_enabled,
+            title=title, memory_enabled=memory_enabled, pinned=pinned,
         )
         if memory_enabled is True:
             self._sync_conversation_memory(conversation_id)
