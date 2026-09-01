@@ -3,30 +3,37 @@
 from __future__ import annotations
 
 import argparse
-import asyncio
+from concurrent.futures import ThreadPoolExecutor
 import json
+import math
 import os
-from pathlib import Path
 import statistics
-import sys
 import time
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 from uuid import uuid4
 
-import httpx
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+def percentile(values: list[float], probability: float) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    position = (len(ordered) - 1) * probability
+    lower, upper = math.floor(position), math.ceil(position)
+    if lower == upper:
+        return float(ordered[lower])
+    return float(
+        ordered[lower] * (upper - position)
+        + ordered[upper] * (position - lower)
+    )
 
-from src.observability.metrics import percentile
 
-
-async def one_request(
-    client: httpx.AsyncClient,
+def one_request(
     url: str,
-    semaphore: asyncio.Semaphore,
     conversation_id: str | None,
     csrf_token: str | None,
+    session_cookie: str | None,
+    timeout: float,
 ) -> tuple[float | None, float, bool]:
     payload = {"query": "What does Tesla do?"}
     if conversation_id:
@@ -35,49 +42,58 @@ async def one_request(
         )
     headers = {
         "Accept": "text/event-stream",
+        "Content-Type": "application/json",
         **({"X-CSRF-Token": csrf_token} if csrf_token else {}),
+        **(
+            {"Cookie": f"ava_session={session_cookie}; ava_csrf={csrf_token}"}
+            if session_cookie and csrf_token
+            else {}
+        ),
     }
-    async with semaphore:
-        started = time.perf_counter()
-        first_token: float | None = None
+    request = Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers=headers,
+        method="POST",
+    )
+    started = time.perf_counter()
+    first_token: float | None = None
+    terminal = False
+    try:
+        with urlopen(request, timeout=timeout) as response:
+            event = ""
+            for raw_line in response:
+                line = raw_line.decode("utf-8").rstrip("\r\n")
+                if line.startswith("event:"):
+                    event = line.removeprefix("event:").strip()
+                elif not line:
+                    if event == "delta" and first_token is None:
+                        first_token = (time.perf_counter() - started) * 1000
+                    if event == "done":
+                        terminal = True
+                    if event == "error":
+                        break
+                    event = ""
+    except (HTTPError, URLError, TimeoutError, UnicodeDecodeError):
         terminal = False
-        try:
-            async with client.stream("POST", url, json=payload, headers=headers) as response:
-                response.raise_for_status()
-                event = ""
-                async for line in response.aiter_lines():
-                    if line.startswith("event:"):
-                        event = line.removeprefix("event:").strip()
-                    elif not line:
-                        if event == "delta" and first_token is None:
-                            first_token = (time.perf_counter() - started) * 1000
-                        if event == "done":
-                            terminal = True
-                        if event == "error":
-                            break
-                        event = ""
-        except (httpx.HTTPError, httpx.StreamError):
-            terminal = False
-        complete = (time.perf_counter() - started) * 1000
-        return first_token, complete, terminal
+    complete = (time.perf_counter() - started) * 1000
+    return first_token, complete, terminal
 
 
-async def run(args: argparse.Namespace) -> dict:
-    cookie = os.getenv("AVA_LOAD_SESSION_COOKIE")
+def run(args: argparse.Namespace) -> dict:
+    session_cookie = os.getenv("AVA_LOAD_SESSION_COOKIE")
     csrf = os.getenv("AVA_LOAD_CSRF_TOKEN")
-    cookies = {"ava_session": cookie, "ava_csrf": csrf} if cookie and csrf else None
-    semaphore = asyncio.Semaphore(args.concurrency)
-    async with httpx.AsyncClient(cookies=cookies, timeout=args.timeout) as client:
-        results = await asyncio.gather(
-            *(
-                one_request(
-                    client,
+    with ThreadPoolExecutor(max_workers=args.concurrency) as executor:
+        results = list(
+            executor.map(
+                lambda _: one_request(
                     f"{args.origin.rstrip('/')}/api/chat/stream",
-                    semaphore,
                     args.conversation_id,
                     csrf,
-                )
-                for _ in range(args.requests)
+                    session_cookie,
+                    args.timeout,
+                ),
+                range(args.requests),
             )
         )
     first_tokens = [value for value, _, _ in results if value is not None]
@@ -113,7 +129,7 @@ def main() -> None:
     args = parser.parse_args()
     if args.requests <= 0 or args.concurrency <= 0:
         raise ValueError("Requests and concurrency must be positive.")
-    result = asyncio.run(run(args))
+    result = run(args)
     print(json.dumps(result, indent=2))
     if result["errors"]:
         raise SystemExit(1)
