@@ -981,3 +981,16 @@ and was not included in AVA commits.
   pre-Phase-9 failures remain in a legacy table-value assertion and a stale
   Mobileye review-artifact hash, so neither was modified under the owner rule to
   leave prior implementation defects outside this phase untouched.
+
+### Recorded Phase 9 acceptance
+
+- Saved the versioned Phase 9 acceptance record with hashes for the frozen route
+  labels and live 24/24 route-model run. The consolidated backend matrix passes
+  159 tests and 43 subtests; the separately enabled live PostgreSQL contract,
+  frontend 31-test/lint/type/build matrix, all four mandatory calculator paths,
+  source isolation, injection boundaries, ID filtering, and filing-only rollback
+  pass.
+- Live Brave Search enablement remains explicitly off because no backend search
+  key is configured. The adapter and controlled-response provenance/failure gates
+  pass, but production web enablement is not claimed until an operator supplies
+  and validates that secret.

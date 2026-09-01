@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "evaluation": "phase_9_bounded_routes_tools_uploads_workspace",
+  "evaluated_at": "2026-09-01T23:45:46+02:00",
+  "parent_commit": "f7026dca891a6e898fcf8582cb18dbbcaae4a7d6",
+  "inputs": {
+    "routing_manifest": {
+      "path": "data/evaluation/ava_p0/v1/request_routing_v1.json",
+      "sha256": "sha256:33f707810b57606743bb6416834484ba25955712bbdd3012ebd0cd759f730050"
+    },
+    "live_routing_run": {
+      "path": "data/evaluation/ava_p0/v1/runs/phase-9-request-routing.json",
+      "sha256": "sha256:c295d03a8880914e780edb9357b1057774a5e620e52979e35d580472888cb735",
+      "model": "AZURE_GPT_51_2025_1113"
+    }
+  },
+  "metrics": {
+    "route_case_count": 24,
+    "route_accuracy": 1.0,
+    "route_reason_accuracy": 1.0,
+    "unnecessary_filing_route_rate": 0.0,
+    "calculator_required_route_accuracy": 1.0,
+    "calculator_execution_path_coverage": {
+      "passed": 4,
+      "total": 4,
+      "paths": ["direct", "filing_evidence", "web_evidence", "uploaded_evidence"]
+    },
+    "raw_internal_id_exposure_cases": 0,
+    "source_owner_scope_violations": 0,
+    "prompt_boundary_policy_violations": 0,
+    "tool_plan_limit_violations": 0
+  },
+  "verification": {
+    "phase_9_backend_matrix": {
+      "status": "passed",
+      "passed_tests": 159,
+      "skipped_tests": 1,
+      "passed_subtests": 43,
+      "notes": "The skip is the opt-in live PostgreSQL test in the combined command; it passed separately against the running local PostgreSQL service."
+    },
+    "live_postgresql_contract": {
+      "status": "passed",
+      "passed_tests": 1,
+      "covers": ["migration_idempotency", "pin_persistence", "turn_replay", "cascade_delete"]
+    },
+    "frontend_matrix": {
+      "status": "passed",
+      "lint": "passed",
+      "component_and_api_tests": 31,
+      "typescript": "passed",
+      "production_build": "passed"
+    },
+    "live_route_model": {
+      "status": "passed",
+      "cases": 24,
+      "passed": 24
+    },
+    "live_web_provider": {
+      "status": "not_run",
+      "reason": "BRAVE_SEARCH_API_KEY is not configured; the provider-neutral adapter, timeout, URL, provenance, failure, and kill-switch paths passed with controlled responses."
+    },
+    "filing_only_rollback": {
+      "status": "passed",
+      "switch": "AVA_REQUEST_ROUTING_ENABLED=false",
+      "behavior": "Skips route-model selection, uploaded-source lookup, and optional tools while preserving filing planning, retrieval, generation, and citations."
+    }
+  },
+  "security_controls": {
+    "uploaded_content_is_untrusted_evidence": "passed",
+    "web_content_is_untrusted_evidence": "passed",
+    "active_or_encrypted_pdf_rejection": "passed",
+    "cross_owner_and_cross_chat_upload_isolation": "passed",
+    "csrf_on_document_and_conversation_mutations": "passed",
+    "exact_citation_source_mapping": "passed",
+    "visible_internal_id_filtering": "passed"
+  },
+  "repository_regression": {
+    "status": "failed_with_preexisting_exceptions",
+    "passed_tests": 289,
+    "failed_tests": 2,
+    "skipped_tests": 3,
+    "passed_subtests": 213,
+    "exceptions": [
+      {
+        "test": "tests/test_embed_chunks.py::EmbeddingPipelineTests::test_table_embedding_text_keeps_searchable_structure",
+        "reason": "An August assertion still expects table values to be omitted, while the later natural-language table embedder intentionally includes those values."
+      },
+      {
+        "test": "tests/test_evaluation.py::EvaluationCompatibilityTests::test_baseline_review_covers_every_incomplete_retrieval",
+        "reason": "The saved Mobileye review records an older SHA-256 for its baseline artifact."
+      }
+    ],
+    "scope_decision": "Neither legacy failure was changed because Phase 9 did not modify its implementation or artifacts and the owner directed prior defects to remain untouched."
+  },
+  "summary": {
+    "phase_9_gate_pass": true,
+    "repository_full_gate_pass": false,
+    "production_web_enablement_ready": false,
+    "production_web_enablement_blocker": "Configure and validate a backend-only Brave Search API key before enabling live web search."
+  }
+}

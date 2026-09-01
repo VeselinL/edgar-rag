@@ -798,6 +798,37 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(events[1].data["sources"][0]["content_type"], "upload")
         self.assertEqual(records[0]["selected_asset_ids"], ["document-1"])
 
+    async def test_uploaded_document_calculation_must_execute_cited_calculator(self):
+        route = RequestRoute(
+            RouteKind.UPLOAD_AND_CALCULATOR,
+            RouteReason.EVIDENCE_ARITHMETIC,
+            arithmetic_required=True,
+        )
+        records = []
+        pipeline = RealPipeline(
+            FakeRetriever(),
+            UploadGenerator(route),
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Calculate the difference between the attached values.",
+                connected,
+                conversation_id="chat-1",
+                document_service=FakeDocumentService(),
+            )
+        ]
+        self.assertIn("difference is 8", events[0].data["text"])
+        self.assertNotIn("upload:", events[0].data["text"])
+        self.assertEqual(events[1].data["sources"][0]["content_type"], "upload")
+        self.assertEqual(records[0]["tool_executions"][0]["tool"], "calculator")
+        self.assertEqual(records[0]["tool_executions"][0]["status"], "succeeded")
+
     async def test_calculation_route_executes_calculator_without_retrieval_or_model(self):
         retriever = FakeRetriever()
         generator = RoutedGenerator(
