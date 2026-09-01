@@ -37,7 +37,7 @@ class CalculationRecord:
         return payload
 
     def render(self) -> str:
-        suffix = self.unit or ""
+        suffix = "%" if self.unit == "%" else f" {self.unit}" if self.unit else ""
         return f"{self.normalized_expression} = {self.result}{suffix}"
 
 
@@ -72,6 +72,20 @@ def _parse_decimal(value: str) -> Decimal:
     if not parsed.is_finite():
         raise CalculationError("Calculator operands must be finite decimal numbers.")
     return parsed
+
+
+def parse_evidence_number(value: str) -> Decimal:
+    """Parse one quoted filing value without accepting surrounding prose."""
+    normalized = value.strip()
+    negative = normalized.startswith("(") and normalized.endswith(")")
+    if negative:
+        normalized = normalized[1:-1].strip()
+    normalized = re.sub(r"^(?:US)?[$€£]\s*", "", normalized, flags=re.I)
+    normalized = normalized.rstrip("%").strip()
+    if not re.fullmatch(rf"[-+]?(?:{_NUMBER})", normalized):
+        raise CalculationError("An evidence operand is not a plain decimal value.")
+    parsed = _parse_decimal(normalized)
+    return -parsed if negative else parsed
 
 
 class _ExpressionParser:

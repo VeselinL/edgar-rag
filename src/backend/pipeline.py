@@ -509,7 +509,27 @@ class RealPipeline:
             yield PipelineEvent("done", {})
             return
 
-        if not route.uses_filing_retrieval or route.uses_calculator:
+        if route.uses_calculator and not self.calculator_enabled:
+            response_text = (
+                "That request requires the calculator, but it is disabled in this "
+                "deployment. I won't guess or calculate it in the language model."
+            )
+            trace.generated_answer = response_text
+            trace.source_status = "none_cited"
+            trace.mark_first_token()
+            yield PipelineEvent("delta", {"text": response_text})
+            yield PipelineEvent(
+                "sources",
+                {
+                    "sources": [],
+                    "source_status": "none_cited",
+                    "malformed_source_count": 0,
+                },
+            )
+            yield PipelineEvent("done", {})
+            return
+
+        if not route.uses_filing_retrieval:
             if route.reason_code is RouteReason.GREETING:
                 response_text = (
                     "Hello! I'm AVA, the Autonomous Vehicle Analyst. "
@@ -534,11 +554,6 @@ class RealPipeline:
                 response_text = (
                     "That question needs a document attached to this chat, but no usable "
                     "chat document source is available yet."
-                )
-            elif route.uses_calculator:
-                response_text = (
-                    "That calculation requires source evidence before the calculator can "
-                    "run. This combined path is not enabled yet, so I won't guess."
                 )
             else:
                 response_text = (
@@ -581,6 +596,25 @@ class RealPipeline:
         # guards the allowed company set and ambiguity boundary; requesting
         # several companies does not automatically make a query comparative.
         resolution = replace(resolution, comparison=plan["comparison"])
+        if route.uses_calculator and plan["operation"] is None:
+            response_text = (
+                "I couldn't identify a supported calculation operation from that request. "
+                "Please specify a difference, ratio, percentage, growth rate, or sum."
+            )
+            trace.generated_answer = response_text
+            trace.source_status = "none_cited"
+            trace.mark_first_token()
+            yield PipelineEvent("delta", {"text": response_text})
+            yield PipelineEvent(
+                "sources",
+                {
+                    "sources": [],
+                    "source_status": "none_cited",
+                    "malformed_source_count": 0,
+                },
+            )
+            yield PipelineEvent("done", {})
+            return
         if plan["ambiguity"] != resolution.needs_clarification:
             # The validated resolver is authoritative for the clarification
             # boundary.  LLM planners can conservatively mark a global or
@@ -825,7 +859,83 @@ class RealPipeline:
         evidence = list(outcome.evidence)
         answer_fragments: list[str] = []
 
-        if self.llm_streaming:
+        if route.uses_calculator:
+            if not hasattr(self.generator, "plan_evidence_calculation"):
+                raise RuntimeError("The generator does not support evidence calculations.")
+            with trace.stage("calculation_operand_extraction"):
+                calculation_plan = await asyncio.to_thread(
+                    self.generator.plan_evidence_calculation,
+                    query,
+                    evidence,
+                    plan["operation"],
+                )
+            if calculation_plan.ready:
+                try:
+                    with trace.stage("calculator"):
+                        calculation = self.calculator.calculate_operation(
+                            calculation_plan.operation,
+                            [operand.value for operand in calculation_plan.operands],
+                            unit=calculation_plan.result_unit,
+                            decimal_places=calculation_plan.decimal_places,
+                            input_text=query,
+                        )
+                except CalculationError:
+                    trace.tool_executions.append(
+                        {
+                            "tool": "calculator",
+                            "status": "rejected",
+                            "safe_error_class": "invalid_evidence_calculation",
+                        }
+                    )
+                    answer = (
+                        "The filing operands could not be combined safely, so I did not "
+                        "calculate a result."
+                    )
+                else:
+                    trace.tool_executions.append(
+                        {
+                            "tool": "calculator",
+                            "status": "succeeded",
+                            "evidence_derived": True,
+                            **calculation.as_dict(),
+                        }
+                    )
+                    cited_operands = []
+                    for operand in calculation_plan.operands:
+                        citations = ", ".join(operand.source_ids)
+                        unit = f" {operand.unit}" if operand.unit else ""
+                        cited_operands.append(
+                            f"{operand.value}{unit} [{citations}]"
+                        )
+                    result_unit = (
+                        "%"
+                        if calculation.unit == "%"
+                        else f" {calculation.unit}"
+                        if calculation.unit
+                        else ""
+                    )
+                    answer = (
+                        "Using "
+                        + " and ".join(cited_operands)
+                        + f", the {calculation.operation.replace('_', ' ')} is "
+                        + f"{calculation.result}{result_unit}."
+                    )
+            else:
+                trace.tool_executions.append(
+                    {
+                        "tool": "calculator",
+                        "status": "not_executed",
+                        "safe_error_class": calculation_plan.message_code,
+                    }
+                )
+                answer = (
+                    "The retrieved filing evidence does not provide unambiguous, "
+                    "unit-compatible operands for that calculation."
+                )
+            trace.mark_first_token()
+            answer_fragments.append(answer)
+            yield PipelineEvent("delta", {"text": answer})
+        elif self.llm_streaming:
             streaming_generation_started = time.perf_counter()
             with trace.stage("generation_start"):
                 if hasattr(self.generator, "stream_answer_with_metadata"):

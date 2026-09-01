@@ -1,6 +1,10 @@
 import unittest
 
-from src.tools.calculator import CalculationError, CalculatorTool
+from src.tools.calculator import (
+    CalculationError,
+    CalculatorTool,
+    parse_evidence_number,
+)
 
 
 class CalculatorToolTests(unittest.TestCase):
@@ -51,6 +55,12 @@ class CalculatorToolTests(unittest.TestCase):
     def test_rejects_unsupported_evidence_operation(self):
         with self.assertRaisesRegex(CalculationError, "unsupported"):
             self.calculator.calculate_operation("median", ["1", "2"])
+
+    def test_parses_only_plain_quoted_evidence_numbers(self):
+        self.assertEqual(str(parse_evidence_number("$1,250.50")), "1250.50")
+        self.assertEqual(str(parse_evidence_number("(42)")), "-42")
+        with self.assertRaises(CalculationError):
+            parse_evidence_number("about 42 million")
 
 
 if __name__ == "__main__":

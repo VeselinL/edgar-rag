@@ -5,6 +5,7 @@ from unittest.mock import patch
 import numpy as np
 
 from src.backend.pipeline import FILINGS, PipelineSettings, RealPipeline
+from src.orchestration.models import EvidenceCalculationPlan, EvidenceOperand
 from src.orchestration.routing import RequestRoute, RouteKind, RouteReason
 from src.retrieval.evidence_policy import EvidencePolicyError
 
@@ -248,6 +249,54 @@ class RoutedGenerator(FakeGenerator):
         raise AssertionError("Non-filing routes must not invoke the filing planner.")
 
 
+class FilingCalculationGenerator(FakeGenerator):
+    def __init__(self, *, ready=True):
+        super().__init__()
+        self.ready = ready
+
+    def route_request(self, query, deterministic_resolution=None, conversation_context=""):
+        return RequestRoute(
+            RouteKind.FILING_AND_CALCULATOR,
+            RouteReason.EVIDENCE_ARITHMETIC,
+            arithmetic_required=True,
+        )
+
+    def plan_retrieval(self, query, deterministic_resolution=None):
+        return {
+            "needs_multiple_retrievals": False,
+            "subqueries": [{"query": "Tesla values", "tickers": ["TSLA"]}],
+            "operation": "difference",
+            "resolved_tickers": ["TSLA"],
+            "company_mentions": [],
+            "comparison": True,
+            "ambiguity": False,
+        }
+
+    def plan_evidence_calculation(self, query, evidence, operation):
+        if not self.ready:
+            return EvidenceCalculationPlan(
+                "missing", operation, (), None, None, "missing_operand"
+            )
+        source_id = "TSLA-2025-CHUNK-000001"
+        return EvidenceCalculationPlan(
+            "ready",
+            operation,
+            (
+                EvidenceOperand("first", "100", "100", "USD millions", (source_id,)),
+                EvidenceOperand("second", "80", "80", "USD millions", (source_id,)),
+            ),
+            "USD millions",
+            None,
+            None,
+        )
+
+    def answer(self, query, evidence):
+        raise AssertionError("Evidence calculations must not use answer generation.")
+
+    def stream_answer(self, query, evidence):
+        raise AssertionError("Evidence calculations must not use answer generation.")
+
+
 class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
     def test_deployment_corpus_includes_rivian(self):
         self.assertEqual(FILINGS["RIVN"], "2025-10-K")
@@ -473,6 +522,52 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("disabled", events[0].data["text"])
         self.assertIn("won't guess", events[0].data["text"])
         self.assertEqual(records[0]["tool_executions"], [])
+
+    async def test_filing_calculation_retrieves_then_executes_cited_calculator(self):
+        records = []
+        pipeline = RealPipeline(
+            FakeRetriever(),
+            FilingCalculationGenerator(),
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Calculate the difference between Tesla's two values.", connected
+            )
+        ]
+        self.assertIn("difference is 20 USD millions", events[0].data["text"])
+        self.assertEqual(len(events[1].data["sources"]), 1)
+        self.assertEqual(records[0]["tool_executions"][0]["status"], "succeeded")
+        self.assertTrue(records[0]["tool_executions"][0]["evidence_derived"])
+        self.assertNotIn("generation", records[0]["stage_latency_ms"])
+
+    async def test_filing_calculation_abstains_when_operand_is_missing(self):
+        records = []
+        pipeline = RealPipeline(
+            FakeRetriever(),
+            FilingCalculationGenerator(ready=False),
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Calculate the difference between Tesla's two values.", connected
+            )
+        ]
+        self.assertIn("does not provide unambiguous", events[0].data["text"])
+        self.assertEqual(events[1].data["sources"], [])
+        self.assertEqual(
+            records[0]["tool_executions"][0]["status"], "not_executed"
+        )
 
     async def test_fuzzy_company_uses_canonical_internal_retrieval_query(self):
         retriever = FakeRetriever()

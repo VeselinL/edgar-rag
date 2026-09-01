@@ -809,3 +809,12 @@ and was not included in AVA commits.
   return an exact auditable result, and record operands, operators, units, rounding,
   and status in request telemetry. Unsafe, malformed, unsupported, and divide-by-zero
   inputs fail closed, and `AVA_CALCULATOR_ENABLED=false` is a tested rollback.
+- Added filing-derived arithmetic as a bounded evidence-first path. AVA retrieves
+  filing chunks, asks the model only to extract ordered operands, validates each
+  verbatim numeric value against every cited chunk, enforces compatible units,
+  then executes the requested difference, ratio, percentage, growth rate, or sum
+  locally. Missing or ambiguous operands abstain without a model-generated result.
+- Verified the structured extraction contract against the configured live provider
+  using controlled filing-style table evidence; both values, their shared unit,
+  source ID, operation, and rounding were accepted before local execution. The
+  focused calculator/generation/pipeline suite passes 69 tests and 8 subtests.

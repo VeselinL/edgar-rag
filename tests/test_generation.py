@@ -14,6 +14,7 @@ from src.generation.rag import (
     count_generation_input_tokens,
     format_context,
     generation_messages,
+    parse_evidence_calculation_plan,
     provider_usage,
 )
 
@@ -132,6 +133,131 @@ class GenerationTests(unittest.TestCase):
         context = format_context(self.evidence())
         self.assertIn('<source id="TSLA-2025-CHUNK-000001"', context)
         self.assertIn("Evidence text.", context)
+
+    def test_calculation_plan_requires_verbatim_source_linked_operands(self):
+        evidence = self.evidence()
+        evidence[0]["chunk"]["text"] = "Revenue was $100.5 million in 2025 and $80.25 million in 2024."
+        payload = {
+            "status": "ready",
+            "operation": "difference",
+            "operands": [
+                {
+                    "label": "2025 revenue",
+                    "value": "100.5",
+                    "verbatim_value": "$100.5",
+                    "unit": "USD millions",
+                    "source_ids": ["TSLA-2025-CHUNK-000001"],
+                },
+                {
+                    "label": "2024 revenue",
+                    "value": "80.25",
+                    "verbatim_value": "$80.25",
+                    "unit": "USD millions",
+                    "source_ids": ["TSLA-2025-CHUNK-000001"],
+                },
+            ],
+            "result_unit": "USD millions",
+            "decimal_places": None,
+            "message_code": None,
+        }
+        plan = parse_evidence_calculation_plan(payload, evidence, "difference")
+        self.assertTrue(plan.ready)
+        self.assertEqual([operand.value for operand in plan.operands], ["100.5", "80.25"])
+
+        payload["operands"][0]["verbatim_value"] = "$999"
+        payload["operands"][0]["value"] = "999"
+        with self.assertRaisesRegex(ValueError, "not present"):
+            parse_evidence_calculation_plan(payload, evidence, "difference")
+
+    def test_calculation_plan_accepts_explicit_missing_evidence(self):
+        plan = parse_evidence_calculation_plan(
+            {
+                "status": "missing",
+                "operation": "ratio",
+                "operands": [],
+                "result_unit": None,
+                "decimal_places": None,
+                "message_code": "missing_operand",
+            },
+            self.evidence(),
+            "ratio",
+        )
+        self.assertFalse(plan.ready)
+        self.assertEqual(plan.message_code, "missing_operand")
+
+    def test_calculation_plan_normalizes_native_json_numeric_values(self):
+        evidence = self.evidence()
+        evidence[0]["chunk"]["text"] = "Revenue was 125.5 USD millions."
+        plan = parse_evidence_calculation_plan(
+            {
+                "status": "ready",
+                "operation": "ratio",
+                "operands": [
+                    {
+                        "label": "first",
+                        "value": 125.5,
+                        "verbatim_value": "125.5",
+                        "unit": "USD millions",
+                        "source_ids": ["TSLA-2025-CHUNK-000001"],
+                    },
+                    {
+                        "label": "second",
+                        "value": 125.5,
+                        "verbatim_value": "125.5",
+                        "unit": "USD millions",
+                        "source_ids": ["TSLA-2025-CHUNK-000001"],
+                    },
+                ],
+                "result_unit": None,
+                "decimal_places": None,
+                "message_code": None,
+            },
+            evidence,
+            "ratio",
+        )
+        self.assertEqual(plan.operands[0].value, "125.5")
+
+    def test_generation_service_extracts_but_does_not_calculate_operands(self):
+        evidence = self.evidence()
+        evidence[0]["chunk"]["text"] = "Values were 100 and 80 USD millions."
+        payload = json.dumps(
+            {
+                "status": "ready",
+                "operation": "difference",
+                "operands": [
+                    {
+                        "label": "first",
+                        "value": "100",
+                        "verbatim_value": "100",
+                        "unit": "USD millions",
+                        "source_ids": ["TSLA-2025-CHUNK-000001"],
+                    },
+                    {
+                        "label": "second",
+                        "value": "80",
+                        "verbatim_value": "80",
+                        "unit": "USD millions",
+                        "source_ids": ["TSLA-2025-CHUNK-000001"],
+                    },
+                ],
+                "result_unit": "USD millions",
+                "decimal_places": None,
+                "message_code": None,
+            }
+        )
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content=payload))]
+        )
+        completions = FakeCompletions(response)
+        service = GenerationService(
+            SimpleNamespace(chat=SimpleNamespace(completions=completions)),
+            model="test",
+        )
+        plan = service.plan_evidence_calculation(
+            "Calculate the difference.", evidence, "difference"
+        )
+        self.assertEqual([operand.value for operand in plan.operands], ["100", "80"])
+        self.assertIn("never perform arithmetic", completions.arguments["messages"][0]["content"])
 
     def test_generation_token_count_covers_complete_formatted_messages(self):
         without_evidence = count_generation_input_tokens("Question", [])
