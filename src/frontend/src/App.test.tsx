@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import App from './App'
 import { getAuthSession, signOut } from './api/auth'
 import { streamChat } from './api/chatStream'
+import { deleteDocument, listDocuments, uploadDocument } from './api/documents'
 import {
   conversationHistoryEnabled,
   createConversation,
@@ -25,6 +26,12 @@ vi.mock('./api/auth', () => ({
   signOut: vi.fn(async () => undefined),
 }))
 
+vi.mock('./api/documents', () => ({
+  deleteDocument: vi.fn(),
+  listDocuments: vi.fn(),
+  uploadDocument: vi.fn(),
+}))
+
 vi.mock('./api/conversations', () => ({
   conversationHistoryEnabled: vi.fn(async () => false),
   createConversation: vi.fn(),
@@ -38,6 +45,9 @@ vi.mock('./api/conversations', () => ({
 }))
 
 const mockedStream = vi.mocked(streamChat)
+const mockedDeleteDocument = vi.mocked(deleteDocument)
+const mockedListDocuments = vi.mocked(listDocuments)
+const mockedUploadDocument = vi.mocked(uploadDocument)
 const mockedAuthSession = vi.mocked(getAuthSession)
 const mockedSignOut = vi.mocked(signOut)
 const mockedHistoryEnabled = vi.mocked(conversationHistoryEnabled)
@@ -52,6 +62,11 @@ type Handlers = Parameters<typeof streamChat>[1]
 describe('App', () => {
   beforeEach(() => {
     mockedStream.mockReset()
+    mockedDeleteDocument.mockReset()
+    mockedDeleteDocument.mockResolvedValue(undefined)
+    mockedListDocuments.mockReset()
+    mockedListDocuments.mockResolvedValue([])
+    mockedUploadDocument.mockReset()
     mockedAuthSession.mockReset()
     mockedAuthSession.mockResolvedValue({ mode: 'none', authenticated: true })
     mockedSignOut.mockReset()
@@ -304,5 +319,35 @@ describe('App', () => {
     expect(createObjectURL).toHaveBeenCalledOnce()
     expect(click).toHaveBeenCalledOnce()
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:ava-export')
+  })
+
+  it('uploads a source into the active chat and lists it in chat Sources', async () => {
+    const conversation = {
+      id: 'conversation-1', title: 'Architecture', memory_enabled: false,
+      created_at: '2026-09-01T00:00:00Z', updated_at: '2026-09-01T00:00:00Z',
+    }
+    const uploaded = {
+      id: 'document-1', conversation_id: conversation.id, filename: 'architecture.txt',
+      media_type: 'text/plain' as const, size_bytes: 18, status: 'ready' as const,
+      page_count: null, token_count: 3, chunk_count: 1,
+      created_at: '2026-09-01T00:00:00Z', updated_at: '2026-09-01T00:00:00Z',
+    }
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValue([conversation])
+    mockedListMessages.mockResolvedValue([])
+    mockedUploadDocument.mockResolvedValue(uploaded)
+    mockedListDocuments.mockResolvedValue([uploaded])
+    render(<App />)
+
+    const fileInput = await screen.findByLabelText('Choose a PDF or text source')
+    const file = new File(['architecture notes'], 'architecture.txt', { type: 'text/plain' })
+    await userEvent.upload(fileInput, file)
+
+    await waitFor(() => expect(mockedUploadDocument).toHaveBeenCalledWith('conversation-1', file))
+    expect(await screen.findByText('architecture.txt is ready in this chat.')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Sources (1)' }))
+    expect(await screen.findByRole('dialog', { name: 'Sources' })).toBeInTheDocument()
+    expect(screen.getByText('architecture.txt')).toBeInTheDocument()
+    expect(mockedListDocuments).toHaveBeenCalledWith('conversation-1')
   })
 })

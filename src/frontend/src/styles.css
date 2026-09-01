@@ -159,7 +159,7 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
   padding: 5px;
 }
 
-.icon-button, .send-button {
+.icon-button, .send-button, .upload-button {
   display: inline-grid;
   flex: none;
   place-items: center;
@@ -171,7 +171,7 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
 }
 .icon-button { color: var(--text); background: transparent; }
 .icon-button:hover { background: var(--surface-subtle); }
-.icon-button svg, .send-button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+.icon-button svg, .send-button svg, .upload-button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
 
 .main {
   display: flex;
@@ -190,6 +190,32 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
   border-right: 1px solid var(--border);
   background: var(--surface);
 }
+.chat-sources-panel {
+  position: fixed;
+  z-index: 30;
+  top: 58px;
+  right: 0;
+  bottom: 0;
+  width: min(390px, 92vw);
+  padding: 20px;
+  overflow-y: auto;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: -8px 0 24px rgb(0 0 0 / 14%);
+}
+.chat-sources-panel__heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.chat-sources-panel__heading h2 { margin: 0; font-size: 1.15rem; }
+.chat-sources-panel__heading p { margin: 4px 0 0; color: var(--text-secondary); font-size: 0.82rem; }
+.chat-document-list { display: grid; gap: 10px; margin: 20px 0 0; padding: 0; list-style: none; }
+.chat-document-list li { padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-subtle); }
+.chat-document__heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.chat-document__heading strong { min-width: 0; overflow: hidden; font-size: 0.9rem; text-overflow: ellipsis; white-space: nowrap; }
+.document-status { flex: none; color: var(--text-secondary); font-size: 0.72rem; text-transform: capitalize; }
+.document-status--ready { color: #08783e; }
+:root[data-theme="dark"] .document-status--ready { color: #6ce9a6; }
+.document-status--failed { color: var(--error); }
+.chat-document-list p { margin: 7px 0; color: var(--text-secondary); font-size: 0.78rem; line-height: 1.45; }
+.chat-document-list button { padding: 2px 0; border: 0; color: var(--error); background: transparent; cursor: pointer; font-size: 0.78rem; text-decoration: underline; text-underline-offset: 2px; }
 .history-panel__heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .history-panel__heading h2 { margin: 0; font-size: 1.05rem; }
 .history-empty { color: var(--text-secondary); }
@@ -351,8 +377,13 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
 .send-button { width: 40px; height: 40px; color: #07111f; background: var(--primary); }
 .send-button:hover:not(:disabled) { background: var(--primary-strong); }
 .send-button:disabled { cursor: not-allowed; opacity: 0.42; }
+.upload-button { width: 40px; height: 40px; color: var(--text); background: var(--surface-subtle); }
+.upload-button:hover:not(:disabled) { background: color-mix(in srgb, var(--primary) 14%, var(--surface)); }
+.upload-button:disabled { cursor: not-allowed; opacity: 0.4; }
 .composer-meta { display: flex; min-height: 18px; justify-content: space-between; gap: 12px; padding: 5px 5px 0; color: var(--text-secondary); font-size: 0.72rem; }
 .composer-meta [role="status"] { color: var(--error); text-align: right; }
+.composer-meta__right { display: flex; min-width: 0; align-items: baseline; justify-content: flex-end; gap: 10px; }
+.chat-sources-button { padding: 0; border: 0; color: var(--primary-strong); background: transparent; cursor: pointer; font-size: inherit; text-decoration: underline; text-underline-offset: 2px; }
 
 @media (max-width: 600px) {
   .header { height: 56px; }
@@ -373,6 +404,7 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
   .source-card { padding: 13px; }
   .table-scroll th, .table-scroll td { padding: 8px 9px; }
   .history-panel { position: fixed; top: 56px; bottom: 0; left: 0; box-shadow: 8px 0 24px rgb(0 0 0 / 18%); }
+  .chat-sources-panel { top: 56px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

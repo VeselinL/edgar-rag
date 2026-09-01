@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChatStreamError, streamChat } from './api/chatStream'
 import { getAuthSession, signInUrl, signOut } from './api/auth'
+import { deleteDocument, listDocuments, uploadDocument } from './api/documents'
 import {
   conversationHistoryEnabled,
   createConversation,
@@ -13,12 +14,13 @@ import {
   updateConversation,
 } from './api/conversations'
 import { Composer } from './components/Composer'
+import { ChatSourcesPanel } from './components/ChatSourcesPanel'
 import { Conversation } from './components/Conversation'
 import { EmptyState } from './components/EmptyState'
 import { Header } from './components/Header'
 import { HistoryPanel } from './components/HistoryPanel'
 import { useTheme } from './hooks/useTheme'
-import type { AssistantMessage, ChatMessage, ConversationSummary, PersistedMessage } from './types'
+import type { AssistantMessage, ChatDocument, ChatMessage, ConversationSummary, PersistedMessage } from './types'
 
 const PRE_TOKEN_ERROR = 'The filing-analysis service is temporarily unavailable. Please retry shortly.'
 const MID_STREAM_ERROR = 'The response was interrupted. Please try again.'
@@ -37,6 +39,12 @@ export default function App() {
   const [authenticated, setAuthenticated] = useState(true)
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
   const [currentConversation, setCurrentConversation] = useState<ConversationSummary | null>(null)
+  const [documents, setDocuments] = useState<ChatDocument[]>([])
+  const [sourcesOpen, setSourcesOpen] = useState(false)
+  const [sourcesLoading, setSourcesLoading] = useState(false)
+  const [sourcesError, setSourcesError] = useState('')
+  const [uploadStatus, setUploadStatus] = useState('')
+  const [deletingDocumentId, setDeletingDocumentId] = useState<string | null>(null)
   const controller = useRef<AbortController | null>(null)
   const idSequence = useRef(0)
 
@@ -101,6 +109,9 @@ export default function App() {
     if (active) return
     setCurrentConversation(conversation)
     setMessages(storedMessages(await listMessages(conversation.id)))
+    setDocuments([])
+    setSourcesOpen(false)
+    setUploadStatus('')
     setHistoryOpen(false)
   }
 
@@ -110,7 +121,53 @@ export default function App() {
     setCurrentConversation(created)
     setConversations((current) => [created, ...current])
     setMessages([])
+    setDocuments([])
+    setSourcesOpen(false)
+    setUploadStatus('')
     setHistoryOpen(false)
+  }
+
+  const openSources = async () => {
+    if (!currentConversation) return
+    setSourcesOpen(true)
+    setSourcesLoading(true)
+    setSourcesError('')
+    try {
+      setDocuments(await listDocuments(currentConversation.id))
+    } catch (error) {
+      setSourcesError(error instanceof Error ? error.message : 'Sources could not be loaded.')
+    } finally {
+      setSourcesLoading(false)
+    }
+  }
+
+  const addDocument = async (file: File) => {
+    if (!currentConversation || active) return
+    setUploadStatus(`Adding ${file.name}…`)
+    setSourcesError('')
+    try {
+      const uploaded = await uploadDocument(currentConversation.id, file)
+      setDocuments((items) => [uploaded, ...items.filter((item) => item.id !== uploaded.id)])
+      setUploadStatus(`${file.name} is ready in this chat.`)
+    } catch (error) {
+      setUploadStatus(error instanceof Error ? error.message : 'The source could not be uploaded.')
+    }
+  }
+
+  const removeDocument = async (document: ChatDocument) => {
+    if (!currentConversation || deletingDocumentId) return
+    if (!window.confirm(`Delete ${document.filename} from this chat?`)) return
+    setDeletingDocumentId(document.id)
+    setSourcesError('')
+    try {
+      await deleteDocument(currentConversation.id, document.id)
+      setDocuments((items) => items.filter((item) => item.id !== document.id))
+      setUploadStatus(`${document.filename} was removed.`)
+    } catch (error) {
+      setSourcesError(error instanceof Error ? error.message : 'The source could not be deleted.')
+    } finally {
+      setDeletingDocumentId(null)
+    }
   }
 
   const updateAssistant = (id: string, update: (message: AssistantMessage) => AssistantMessage) => {
@@ -291,6 +348,16 @@ export default function App() {
             onClose={() => setHistoryOpen(false)}
           />
         )}
+        {historyEnabled && sourcesOpen && (
+          <ChatSourcesPanel
+            documents={documents}
+            loading={sourcesLoading}
+            error={sourcesError}
+            deletingId={deletingDocumentId}
+            onDelete={(document) => void removeDocument(document)}
+            onClose={() => setSourcesOpen(false)}
+          />
+        )}
         <main className={`main ${isEmpty ? 'main--empty' : ''}`}>
           {needsSignIn ? (
             <section className="auth-prompt" aria-labelledby="auth-heading">
@@ -332,6 +399,11 @@ export default function App() {
                   if (validation) setValidation('')
                 }}
                 onSubmit={() => void submit()}
+                uploadsEnabled={historyEnabled && Boolean(currentConversation)}
+                uploadStatus={uploadStatus}
+                sourceCount={documents.length}
+                onUpload={(file) => void addDocument(file)}
+                onOpenSources={() => void openSources()}
               />
             </>
           )}

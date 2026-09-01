@@ -78,6 +78,20 @@ export interface ConversationSummary {
   updated_at: string
 }
 
+export interface ChatDocument {
+  id: string
+  conversation_id: string
+  filename: string
+  media_type: 'application/pdf' | 'text/plain'
+  size_bytes: number
+  status: 'processing' | 'ready' | 'failed'
+  page_count: number | null
+  token_count: number
+  chunk_count: number
+  created_at: string
+  updated_at: string
+}
+
 export interface PersistedMessage {
   id: string
   client_turn_id: string

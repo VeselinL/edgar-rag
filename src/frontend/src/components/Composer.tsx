@@ -6,6 +6,11 @@ interface Props {
   validationMessage: string
   onChange: (value: string) => void
   onSubmit: () => void
+  uploadsEnabled?: boolean
+  uploadStatus?: string
+  sourceCount?: number
+  onUpload?: (file: File) => void
+  onOpenSources?: () => void
 }
 
 function SendIcon() {
@@ -16,8 +21,28 @@ function SendIcon() {
   )
 }
 
-export function Composer({ value, active, validationMessage, onChange, onSubmit }: Props) {
+function PlusIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  )
+}
+
+export function Composer({
+  value,
+  active,
+  validationMessage,
+  onChange,
+  onSubmit,
+  uploadsEnabled = false,
+  uploadStatus = '',
+  sourceCount = 0,
+  onUpload,
+  onOpenSources,
+}: Props) {
   const textarea = useRef<HTMLTextAreaElement>(null)
+  const fileInput = useRef<HTMLInputElement>(null)
   useEffect(() => {
     const element = textarea.current
     if (!element) return
@@ -34,6 +59,29 @@ export function Composer({ value, active, validationMessage, onChange, onSubmit 
           onSubmit()
         }}
       >
+        <input
+          ref={fileInput}
+          className="sr-only"
+          type="file"
+          accept=".pdf,.txt,application/pdf,text/plain"
+          disabled={active || !uploadsEnabled}
+          aria-label="Choose a PDF or text source"
+          onChange={(event) => {
+            const file = event.target.files?.[0]
+            event.target.value = ''
+            if (file) onUpload?.(file)
+          }}
+        />
+        <button
+          className="upload-button"
+          type="button"
+          disabled={active || !uploadsEnabled}
+          aria-label="Upload a source"
+          title={uploadsEnabled ? 'Upload a PDF or text source' : 'Uploads require a saved chat'}
+          onClick={() => fileInput.current?.click()}
+        >
+          <PlusIcon />
+        </button>
         <label className="sr-only" htmlFor="ava-query">Ask AVA about the SEC filings</label>
         <textarea
           ref={textarea}
@@ -57,7 +105,14 @@ export function Composer({ value, active, validationMessage, onChange, onSubmit 
       </form>
       <div className="composer-meta">
         <span id="composer-help">Enter to send · Shift+Enter for a new line · <a href="/privacy.html">Privacy</a></span>
-        <span id="composer-status" role="status">{validationMessage}</span>
+        <span className="composer-meta__right">
+          {uploadsEnabled && onOpenSources && (
+            <button type="button" className="chat-sources-button" onClick={onOpenSources}>
+              Sources{sourceCount > 0 ? ` (${sourceCount})` : ''}
+            </button>
+          )}
+          <span id="composer-status" role="status" aria-live="polite">{uploadStatus || validationMessage}</span>
+        </span>
       </div>
     </div>
   )

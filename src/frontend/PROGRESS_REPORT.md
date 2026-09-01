@@ -930,3 +930,16 @@ and was not included in AVA commits.
   excerpt, plus backend trace correlation through document IDs. Focused backend
   tests pass 101 tests with one no-DSN skip, two expected environment warnings,
   and three subtests; frontend lint, 26 tests, and production build pass.
+
+### Added chat upload and Sources controls
+
+- Added the composer `+` control opposite Send for PDF and UTF-8 text sources,
+  with browser-side type/20 MiB validation, CSRF-protected raw-byte upload, and
+  an accessible live completion/error status. The browser never stores file
+  bytes or extracted text.
+- Added a per-chat Sources drawer that reloads server-owned upload metadata and
+  shows filename, type, size, processing state, pages, and excerpt count. Files
+  can be deleted through the exact owner/chat-scoped endpoint and Escape closes
+  the drawer.
+- Frontend lint, 30 tests (including the upload API and UI path), TypeScript
+  checking, and the production build pass.
