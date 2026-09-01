@@ -235,6 +235,14 @@ class ContextAwareRetriever(FakeRetriever):
         return super().retrieve(query, subqueries, company_resolution, subquery_targets)
 
 
+class SplitCitationGenerator(FakeGenerator):
+    def stream_answer(self, query, evidence):
+        self.stream_answer_called = True
+        yield "Streamed answer "
+        yield "[TSLA-2025-CHUNK-"
+        yield "000001]."
+
+
 class RoutedGenerator(FakeGenerator):
     def __init__(self, route):
         super().__init__()
@@ -889,7 +897,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             [
                 (
                     "delta",
-                    {"text": "Buffered answer [TSLA-2025-CHUNK-000001]"},
+                    {"text": "Buffered answer"},
                 ),
                 (
                     "sources",
@@ -910,6 +918,31 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
                 ),
                 ("done", {}),
             ],
+        )
+
+    async def test_streaming_hides_split_internal_id_but_trace_resolves_it(self):
+        records = []
+        pipeline = RealPipeline(
+            FakeRetriever(),
+            SplitCitationGenerator(),
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        events = [event async for event in pipeline.stream("Original query", connected)]
+        visible = "".join(
+            event.data["text"] for event in events if event.event == "delta"
+        )
+        self.assertEqual(visible, "Streamed answer.")
+        self.assertNotIn("CHUNK", visible)
+        self.assertEqual(
+            records[0]["generated_answer"],
+            "Streamed answer [TSLA-2025-CHUNK-000001].",
+        )
+        self.assertEqual(
+            records[0]["resolved_used_ids"], ["TSLA-2025-CHUNK-000001"]
         )
 
     async def test_no_citation_emits_no_sources_without_fallback(self):

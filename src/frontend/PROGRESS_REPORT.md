@@ -847,3 +847,17 @@ and was not included in AVA commits.
   internal IDs remain backend-only source correlation data. Backend tests pass
   81 tests and 11 subtests; frontend lint, 26 component tests, and production
   build pass.
+
+### Hid internal citation IDs without losing provenance
+
+- Added an incremental citation-visibility filter that suppresses only exact
+  citation groups resolved against the evidence supplied to generation. It
+  preserves arbitrary bracketed user/model text and unrecognized IDs, and handles
+  citation groups split across real provider fragments without buffering or fake
+  streaming.
+- Filing, web, and evidence-derived calculator answers now send and persist clean
+  visible text while retaining the raw generated answer, parsed IDs, resolved IDs,
+  rejected IDs, and source cards in backend diagnostics. A split-fragment regression
+  proves the browser sees no `CHUNK` marker while the backend resolves the source.
+- The focused backend suite passes 101 tests and 11 subtests; frontend lint, all
+  26 tests, and the production build remain green.

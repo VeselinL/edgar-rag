@@ -23,12 +23,14 @@ from sentence_transformers import SentenceTransformer
 from src.embeddings.embed_chunks import MODEL_CONFIGS
 from src.filings.corpus import ACTIVE_FILINGS
 from src.generation.rag import (
+    CitationVisibilityFilter,
     GenerationResult,
     GenerationService,
     ProviderCircuitBreaker,
     count_generation_input_tokens,
     make_llm_client,
     resolve_cited_evidence,
+    visible_answer_text,
 )
 from src.indexing.qdrant_index import (
     DEFAULT_ALIAS,
@@ -371,6 +373,8 @@ class RealPipeline:
             result.source_id for result in response.results
         ]
         answer_fragments: list[str] = []
+        visible_fragments: list[str] = []
+        allowed_ids = trace.final_generation_evidence_ids
         if route.uses_calculator:
             operation = infer_calculation_operation(query)
             if operation is None:
@@ -447,7 +451,10 @@ class RealPipeline:
                         )
             trace.mark_first_token()
             answer_fragments.append(answer)
-            yield PipelineEvent("delta", {"text": answer})
+            visible_answer = visible_answer_text(answer, allowed_ids)
+            if visible_answer:
+                visible_fragments.append(visible_answer)
+                yield PipelineEvent("delta", {"text": visible_answer})
         elif self.llm_streaming:
             generation_started = time.perf_counter()
             with trace.stage("generation_start"):
@@ -455,6 +462,7 @@ class RealPipeline:
                     query, evidence
                 )
             sentinel = object()
+            citation_filter = CitationVisibilityFilter(allowed_ids)
 
             def next_fragment() -> object:
                 return next(provider_stream, sentinel)
@@ -467,9 +475,17 @@ class RealPipeline:
                     if await disconnected():
                         return
                     if isinstance(fragment, str) and fragment:
-                        trace.mark_first_token()
                         answer_fragments.append(fragment)
-                        yield PipelineEvent("delta", {"text": fragment})
+                        visible_fragment = citation_filter.feed(fragment)
+                        if visible_fragment:
+                            trace.mark_first_token()
+                            visible_fragments.append(visible_fragment)
+                            yield PipelineEvent("delta", {"text": visible_fragment})
+                tail = citation_filter.finish()
+                if tail:
+                    trace.mark_first_token()
+                    visible_fragments.append(tail)
+                    yield PipelineEvent("delta", {"text": tail})
             finally:
                 close = getattr(provider_stream, "close", None)
                 if callable(close):
@@ -487,9 +503,14 @@ class RealPipeline:
             if result.text:
                 trace.mark_first_token()
                 answer_fragments.append(result.text)
-                yield PipelineEvent("delta", {"text": result.text})
+                visible_answer = visible_answer_text(result.text, allowed_ids)
+                if visible_answer:
+                    visible_fragments.append(visible_answer)
+                    yield PipelineEvent("delta", {"text": visible_answer})
         if not answer_fragments:
             raise RuntimeError("The LLM returned no generated web answer.")
+        if not visible_fragments:
+            raise RuntimeError("The generated web answer contained no visible text.")
         trace.generated_answer = "".join(answer_fragments)
         citation_resolution = resolve_cited_evidence(trace.generated_answer, evidence)
         sources, malformed_count = normalize_sources(list(citation_resolution.evidence))
@@ -1157,6 +1178,8 @@ class RealPipeline:
             return
         evidence = list(outcome.evidence)
         answer_fragments: list[str] = []
+        visible_fragments: list[str] = []
+        allowed_ids = list(outcome.chunk_ids)
 
         if route.uses_calculator:
             if not hasattr(self.generator, "plan_evidence_calculation"):
@@ -1231,9 +1254,12 @@ class RealPipeline:
                     "The retrieved filing evidence does not provide unambiguous, "
                     "unit-compatible operands for that calculation."
                 )
-            trace.mark_first_token()
             answer_fragments.append(answer)
-            yield PipelineEvent("delta", {"text": answer})
+            visible_answer = visible_answer_text(answer, allowed_ids)
+            if visible_answer:
+                trace.mark_first_token()
+                visible_fragments.append(visible_answer)
+                yield PipelineEvent("delta", {"text": visible_answer})
         elif self.llm_streaming:
             streaming_generation_started = time.perf_counter()
             with trace.stage("generation_start"):
@@ -1254,6 +1280,7 @@ class RealPipeline:
                     else:
                         provider_stream = self.generator.stream_answer(query, evidence)
             sentinel = object()
+            citation_filter = CitationVisibilityFilter(allowed_ids)
 
             def next_fragment() -> object:
                 return next(provider_stream, sentinel)
@@ -1266,9 +1293,17 @@ class RealPipeline:
                     if await disconnected():
                         return
                     if isinstance(fragment, str) and fragment:
-                        trace.mark_first_token()
                         answer_fragments.append(fragment)
-                        yield PipelineEvent("delta", {"text": fragment})
+                        visible_fragment = citation_filter.feed(fragment)
+                        if visible_fragment:
+                            trace.mark_first_token()
+                            visible_fragments.append(visible_fragment)
+                            yield PipelineEvent("delta", {"text": visible_fragment})
+                tail = citation_filter.finish()
+                if tail:
+                    trace.mark_first_token()
+                    visible_fragments.append(tail)
+                    yield PipelineEvent("delta", {"text": tail})
             finally:
                 close = getattr(provider_stream, "close", None)
                 if callable(close):
@@ -1309,12 +1344,17 @@ class RealPipeline:
             if await disconnected():
                 return
             if answer:
-                trace.mark_first_token()
                 answer_fragments.append(answer)
-                yield PipelineEvent("delta", {"text": answer})
+                visible_answer = visible_answer_text(answer, allowed_ids)
+                if visible_answer:
+                    trace.mark_first_token()
+                    visible_fragments.append(visible_answer)
+                    yield PipelineEvent("delta", {"text": visible_answer})
 
         if not answer_fragments:
             raise RuntimeError("The LLM returned no generated text.")
+        if not visible_fragments:
+            raise RuntimeError("The generated answer contained no visible text.")
 
         trace.generated_answer = "".join(answer_fragments)
         with trace.stage("citation_resolution"):

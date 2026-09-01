@@ -5,6 +5,7 @@ from types import SimpleNamespace
 from src.filings.corpus import ACTIVE_FILINGS
 from src.resolution.companies import default_company_resolver
 from src.generation.rag import (
+    CitationVisibilityFilter,
     PLANNER_INSTRUCTION,
     ProviderCircuitBreaker,
     ProviderCircuitOpenError,
@@ -17,6 +18,7 @@ from src.generation.rag import (
     parse_evidence_calculation_plan,
     provider_usage,
     web_generation_messages,
+    visible_answer_text,
 )
 
 
@@ -356,7 +358,6 @@ class GenerationTests(unittest.TestCase):
             "and [TSLA-2025-CHUNK-000002, TSLA-2025-CHUNK-000003], "
             "but ignore [not a citation]."
         )
-
         self.assertEqual(
             citation_ids(answer),
             [
@@ -365,6 +366,29 @@ class GenerationTests(unittest.TestCase):
                 "TSLA-2025-CHUNK-000003",
             ],
         )
+
+    def test_visible_answer_hides_only_resolved_internal_citations(self):
+        answer = (
+            "Supported [TSLA-2025-CHUNK-000001]. Preserve [user supplied note] "
+            "and [FABRICATED-ID]."
+        )
+        visible = visible_answer_text(answer, ["TSLA-2025-CHUNK-000001"])
+        self.assertEqual(
+            visible,
+            "Supported. Preserve [user supplied note] and [FABRICATED-ID].",
+        )
+
+    def test_streaming_citation_filter_handles_split_group_without_buffering_answer(self):
+        citation_filter = CitationVisibilityFilter(
+            ["TSLA-2025-CHUNK-000001", "TSLA-2025-CHUNK-000002"]
+        )
+        fragments = [
+            citation_filter.feed("Supported claim "),
+            citation_filter.feed("[TSLA-2025-CHUNK-000001; TSLA-2025-"),
+            citation_filter.feed("CHUNK-000002]. More text"),
+            citation_filter.finish(),
+        ]
+        self.assertEqual("".join(fragments), "Supported claim. More text")
 
     def test_planner_uses_notebook_contract_and_preserves_subqueries(self):
         response = SimpleNamespace(
