@@ -14,7 +14,8 @@ RUN apt-get update \
 
 WORKDIR /app
 COPY requirements.txt ./
-RUN python -m pip install --no-cache-dir --requirement requirements.txt
+RUN python -m pip install --no-cache-dir pip==26.2.1 \
+    && python -m pip install --no-cache-dir --requirement requirements.txt
 
 COPY --chown=ava:ava src ./src
 RUN mkdir -p /home/ava/.cache/huggingface \

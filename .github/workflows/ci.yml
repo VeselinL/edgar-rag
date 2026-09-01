@@ -123,6 +123,7 @@ jobs:
           severity: CRITICAL,HIGH
           ignore-unfixed: true
           format: sarif
+          limit-severities-for-sarif: true
           output: trivy-api.sarif
           exit-code: "0"
       - name: Enforce API image findings
@@ -134,6 +135,7 @@ jobs:
           severity: CRITICAL,HIGH
           ignore-unfixed: true
           format: sarif
+          limit-severities-for-sarif: true
           output: trivy-frontend.sarif
           exit-code: "0"
       - name: Enforce frontend image findings
