@@ -74,6 +74,8 @@ export interface ConversationSummary {
   id: string
   title: string
   memory_enabled: boolean
+  pinned: boolean
+  pinned_at: string | null
   created_at: string
   updated_at: string
 }

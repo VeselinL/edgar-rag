@@ -241,6 +241,8 @@ describe('App', () => {
       id: 'conversation-1',
       title: 'Tesla risks',
       memory_enabled: false,
+      pinned: false,
+      pinned_at: null,
       created_at: '2026-08-31T00:00:00Z',
       updated_at: '2026-08-31T00:00:00Z',
     }
@@ -276,12 +278,13 @@ describe('App', () => {
       expect.any(Object),
       expect.objectContaining({ conversationId: 'conversation-1', clientTurnId: expect.any(String) }),
     )
-    expect(screen.getByRole('button', { name: 'History' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Open conversation sidebar' })).toBeInTheDocument()
   })
 
   it('keeps long-term memory opt-in and exposes an explicit toggle', async () => {
     const conversation = {
       id: 'conversation-1', title: 'New conversation', memory_enabled: false,
+      pinned: false, pinned_at: null,
       created_at: '2026-08-31T00:00:00Z', updated_at: '2026-08-31T00:00:00Z',
     }
     mockedHistoryEnabled.mockResolvedValue(true)
@@ -290,16 +293,18 @@ describe('App', () => {
     mockedUpdateConversation.mockResolvedValue({ ...conversation, memory_enabled: true })
     render(<App />)
 
-    const toggle = await screen.findByRole('button', { name: 'Memory off' })
+    await userEvent.click(await screen.findByRole('button', { name: 'Open conversation sidebar' }))
+    const toggle = await screen.findByRole('button', { name: 'Long-term memory Off' })
     await userEvent.click(toggle)
 
     expect(mockedUpdateConversation).toHaveBeenCalledWith('conversation-1', { memory_enabled: true })
-    expect(await screen.findByRole('button', { name: 'Memory on' })).toHaveAttribute('aria-pressed', 'true')
+    expect(await screen.findByRole('button', { name: 'Long-term memory On' })).toHaveAttribute('aria-pressed', 'true')
   })
 
   it('downloads the authenticated conversation export from history', async () => {
     const conversation = {
       id: 'conversation-1', title: 'Saved research', memory_enabled: false,
+      pinned: false, pinned_at: null,
       created_at: '2026-08-31T00:00:00Z', updated_at: '2026-08-31T00:00:00Z',
     }
     mockedHistoryEnabled.mockResolvedValue(true)
@@ -312,7 +317,7 @@ describe('App', () => {
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined)
     render(<App />)
 
-    await userEvent.click(await screen.findByRole('button', { name: 'History' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Open conversation sidebar' }))
     await userEvent.click(screen.getByRole('button', { name: 'Export my data' }))
 
     await waitFor(() => expect(mockedExportConversations).toHaveBeenCalledOnce())
@@ -324,6 +329,7 @@ describe('App', () => {
   it('uploads a source into the active chat and lists it in chat Sources', async () => {
     const conversation = {
       id: 'conversation-1', title: 'Architecture', memory_enabled: false,
+      pinned: false, pinned_at: null,
       created_at: '2026-09-01T00:00:00Z', updated_at: '2026-09-01T00:00:00Z',
     }
     const uploaded = {
@@ -349,5 +355,32 @@ describe('App', () => {
     expect(await screen.findByRole('dialog', { name: 'Sources' })).toBeInTheDocument()
     expect(screen.getByText('architecture.txt')).toBeInTheDocument()
     expect(mockedListDocuments).toHaveBeenCalledWith('conversation-1')
+  })
+
+  it('opens the same chat action menu by button or right-click and persists pinning', async () => {
+    const conversation = {
+      id: 'conversation-1', title: 'Tesla research', memory_enabled: false,
+      pinned: false, pinned_at: null,
+      created_at: '2026-09-01T00:00:00Z', updated_at: '2026-09-01T00:00:00Z',
+    }
+    const pinned = { ...conversation, pinned: true, pinned_at: '2026-09-01T00:01:00Z' }
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValueOnce([conversation]).mockResolvedValueOnce([pinned])
+    mockedListMessages.mockResolvedValue([])
+    mockedUpdateConversation.mockResolvedValue(pinned)
+    render(<App />)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Open conversation sidebar' }))
+    const row = screen.getByRole('button', { name: 'Tesla research' })
+    fireEvent.contextMenu(row.closest('li') as HTMLElement)
+    expect(screen.getByRole('menu', { name: 'Actions for Tesla research' })).toBeInTheDocument()
+    fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' })
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    await waitFor(() => expect(row).toHaveFocus())
+
+    await userEvent.click(screen.getByRole('button', { name: 'Actions for Tesla research' }))
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Pin' }))
+    expect(mockedUpdateConversation).toHaveBeenCalledWith('conversation-1', { pinned: true })
+    expect(await screen.findByRole('heading', { name: 'Pinned' })).toBeInTheDocument()
   })
 })

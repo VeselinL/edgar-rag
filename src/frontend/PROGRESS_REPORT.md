@@ -954,3 +954,16 @@ and was not included in AVA commits.
   response/export metadata with `pinned` and `pinned_at`. In-memory, API, and
   live PostgreSQL tests verify defaults, ordering, migration idempotency, and
   the existing ownership boundary.
+
+### Moved chat history and memory into the left sidebar
+
+- Replaced the header history controls with an accessible temporary sidebar
+  icon and responsive left sidebar/drawer containing New chat, the explicit
+  long-term Memory toggle, separately labeled pinned and recent chats, and the
+  existing owner-scoped export/deletion controls.
+- Each chat now exposes one three-dot menu on hover, focus, touch, or while open.
+  The same menu opens on right-click and provides Pin/Unpin, Rename, and Delete;
+  Escape closes it and restores focus to the invoking chat row.
+- Frontend lint, 31 tests, TypeScript checking, and production build pass. Tests
+  cover the shared right-click/button menu, focus restoration, and persisted pin
+  request/reordering path.

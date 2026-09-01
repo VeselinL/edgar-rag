@@ -15,10 +15,10 @@ import {
 } from './api/conversations'
 import { Composer } from './components/Composer'
 import { ChatSourcesPanel } from './components/ChatSourcesPanel'
+import { ConversationSidebar } from './components/ConversationSidebar'
 import { Conversation } from './components/Conversation'
 import { EmptyState } from './components/EmptyState'
 import { Header } from './components/Header'
-import { HistoryPanel } from './components/HistoryPanel'
 import { useTheme } from './hooks/useTheme'
 import type { AssistantMessage, ChatDocument, ChatMessage, ConversationSummary, PersistedMessage } from './types'
 
@@ -34,7 +34,7 @@ export default function App() {
   const [historyEnabled, setHistoryEnabled] = useState(false)
   const [historyInitializing, setHistoryInitializing] = useState(true)
   const [startupError, setStartupError] = useState('')
-  const [historyOpen, setHistoryOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [authenticationRequired, setAuthenticationRequired] = useState(false)
   const [authenticated, setAuthenticated] = useState(true)
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
@@ -112,7 +112,7 @@ export default function App() {
     setDocuments([])
     setSourcesOpen(false)
     setUploadStatus('')
-    setHistoryOpen(false)
+    setSidebarOpen(false)
   }
 
   const newConversation = async () => {
@@ -124,7 +124,7 @@ export default function App() {
     setDocuments([])
     setSourcesOpen(false)
     setUploadStatus('')
-    setHistoryOpen(false)
+    setSidebarOpen(false)
   }
 
   const openSources = async () => {
@@ -275,17 +275,8 @@ export default function App() {
         theme={theme}
         onToggleTheme={toggleTheme}
         historyEnabled={historyEnabled}
-        memoryEnabled={currentConversation?.memory_enabled}
-        onToggleHistory={() => setHistoryOpen((value) => !value)}
-        onNewConversation={() => void newConversation()}
-        onToggleMemory={() => {
-          if (!currentConversation) return
-          void updateConversation(currentConversation.id, { memory_enabled: !currentConversation.memory_enabled })
-            .then((updated) => {
-              setCurrentConversation(updated)
-              setConversations((items) => items.map((item) => item.id === updated.id ? updated : item))
-            })
-        }}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen((value) => !value)}
         authenticationRequired={authenticationRequired}
         authenticated={authenticated}
         onSignIn={() => window.location.assign(signInUrl())}
@@ -300,11 +291,27 @@ export default function App() {
         }}
       />
       <div className="workspace">
-        {historyEnabled && historyOpen && (
-          <HistoryPanel
+        {historyEnabled && sidebarOpen && (
+          <ConversationSidebar
             conversations={conversations}
             activeId={currentConversation?.id}
+            memoryEnabled={currentConversation?.memory_enabled ?? false}
+            onNew={() => void newConversation()}
+            onToggleMemory={() => {
+              if (!currentConversation) return
+              void updateConversation(currentConversation.id, { memory_enabled: !currentConversation.memory_enabled })
+                .then((updated) => {
+                  setCurrentConversation(updated)
+                  setConversations((items) => items.map((item) => item.id === updated.id ? updated : item))
+                })
+            }}
             onSelect={(conversation) => void selectConversation(conversation)}
+            onPin={(conversation) => {
+              void updateConversation(conversation.id, { pinned: !conversation.pinned }).then(async (updated) => {
+                if (currentConversation?.id === updated.id) setCurrentConversation(updated)
+                setConversations(await listConversations())
+              })
+            }}
             onRename={(conversation) => {
               const title = window.prompt('Conversation name', conversation.title)
               if (!title?.trim()) return
@@ -330,7 +337,7 @@ export default function App() {
                 setConversations([created])
                 setCurrentConversation(created)
                 setMessages([])
-                setHistoryOpen(false)
+                setSidebarOpen(false)
               })
             }}
             onExport={() => {
@@ -345,7 +352,7 @@ export default function App() {
                 })
                 .catch(() => window.alert('Your data could not be exported. Please try again.'))
             }}
-            onClose={() => setHistoryOpen(false)}
+            onClose={() => setSidebarOpen(false)}
           />
         )}
         {historyEnabled && sourcesOpen && (
