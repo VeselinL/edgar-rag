@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "description": "Safe natural-language calculations observed to reach the calculator but fail parsing.",
+  "cases": [
+    {"id": "percent-word", "query": "What is 25 percent of 80?", "result": "20", "unit": null},
+    {"id": "add-two", "query": "Add 10 and 20.", "result": "30", "unit": null},
+    {"id": "add-three", "query": "Calculate the sum of 10, 20, and 30.", "result": "60", "unit": null},
+    {"id": "minus-word", "query": "What is 100 minus 40?", "result": "60", "unit": null},
+    {"id": "plus-word", "query": "What is 100 plus 40?", "result": "140", "unit": null},
+    {"id": "times-word", "query": "What is 20 times 5?", "result": "100", "unit": null},
+    {"id": "divide-words", "query": "What is 100 divided by 4?", "result": "25", "unit": null},
+    {"id": "growth-rate", "query": "Calculate the growth rate from 80 to 100.", "result": "25", "unit": "%"},
+    {"id": "percentage-decrease", "query": "Calculate the percentage decrease from 100 to 80.", "result": "20", "unit": "%"},
+    {"id": "rounding", "query": "Calculate 2 / 3, rounded to 2 decimal places.", "result": "0.67", "unit": null}
+  ]
+}

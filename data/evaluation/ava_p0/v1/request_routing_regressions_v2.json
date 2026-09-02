@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "description": "Observed Phase 10 regressions for filing-first in-corpus routing and natural-language arithmetic.",
+  "cases": [
+    {
+      "id": "filing-tesla-ceo-unqualified",
+      "query": "Who is Tesla CEO?",
+      "context": "",
+      "uploads": [],
+      "route": "filing_rag",
+      "reason_code": "filing_evidence",
+      "arithmetic_required": false
+    },
+    {
+      "id": "filing-ford-ceo-unqualified",
+      "query": "Who is Ford's CEO?",
+      "context": "",
+      "uploads": [],
+      "route": "filing_rag",
+      "reason_code": "filing_evidence",
+      "arithmetic_required": false
+    },
+    {
+      "id": "filing-tesla-technology-unqualified",
+      "query": "What technology does Tesla use?",
+      "context": "",
+      "uploads": [],
+      "route": "filing_rag",
+      "reason_code": "filing_evidence",
+      "arithmetic_required": false
+    },
+    {
+      "id": "filing-aurora-product-unqualified",
+      "query": "How does Aurora Driver work?",
+      "context": "",
+      "uploads": [],
+      "route": "filing_rag",
+      "reason_code": "filing_evidence",
+      "arithmetic_required": false
+    },
+    {
+      "id": "web-current-ceo-explicit",
+      "query": "Who is Tesla's current CEO today?",
+      "context": "",
+      "uploads": [],
+      "route": "web_search",
+      "reason_code": "current_or_external",
+      "arithmetic_required": false
+    },
+    {
+      "id": "web-current-stock-price",
+      "query": "What is Tesla's stock price right now?",
+      "context": "",
+      "uploads": [],
+      "route": "web_search",
+      "reason_code": "current_or_external",
+      "arithmetic_required": false
+    },
+    {
+      "id": "web-latest-news",
+      "query": "What is the latest Tesla news?",
+      "context": "",
+      "uploads": [],
+      "route": "web_search",
+      "reason_code": "current_or_external",
+      "arithmetic_required": false
+    },
+    {
+      "id": "web-explicit-source",
+      "query": "Search the web for recent Tesla announcements.",
+      "context": "",
+      "uploads": [],
+      "route": "web_search",
+      "reason_code": "current_or_external",
+      "arithmetic_required": false
+    },
+    {
+      "id": "calculator-percent-word",
+      "query": "What is 25 percent of 80?",
+      "context": "",
+      "uploads": [],
+      "route": "calculator",
+      "reason_code": "pure_arithmetic",
+      "arithmetic_required": true
+    },
+    {
+      "id": "calculator-add-words",
+      "query": "Add 10 and 20.",
+      "context": "",
+      "uploads": [],
+      "route": "calculator",
+      "reason_code": "pure_arithmetic",
+      "arithmetic_required": true
+    },
+    {
+      "id": "calculator-minus-word",
+      "query": "What is 100 minus 40?",
+      "context": "",
+      "uploads": [],
+      "route": "calculator",
+      "reason_code": "pure_arithmetic",
+      "arithmetic_required": true
+    },
+    {
+      "id": "calculator-growth-words",
+      "query": "Calculate the growth rate from 80 to 100.",
+      "context": "",
+      "uploads": [],
+      "route": "calculator",
+      "reason_code": "pure_arithmetic",
+      "arithmetic_required": true
+    },
+    {
+      "id": "filing-calculator-company-values",
+      "query": "Calculate the difference between GM's 2025 and 2024 revenue.",
+      "context": "",
+      "uploads": [],
+      "route": "filing_and_calculator",
+      "reason_code": "evidence_arithmetic",
+      "arithmetic_required": true
+    }
+  ]
+}
