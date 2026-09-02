@@ -48,6 +48,7 @@ class _Token:
 
 
 _NUMBER = r"(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?|\.\d+"
+_SIGNED_NUMBER = rf"[-+]?(?:{_NUMBER})"
 _NUMBER_PATTERN = re.compile(rf"(?<![\w.])[-+]?(?:{_NUMBER})(?![\w.])")
 _ROUNDING_PATTERN = re.compile(
     r"(?:,?\s*)?(?:rounded?|round)\s+to\s+(\d+)\s+decimal\s+places?",
@@ -227,32 +228,99 @@ def _expression_from_query(query: str) -> tuple[str, str, str | None]:
     lowered = normalized.casefold()
     patterns: tuple[tuple[str, re.Pattern[str]], ...] = (
         (
+            "growth_rate",
+            re.compile(
+                rf"^\D*?growth\s+rate\s+from\s+({_SIGNED_NUMBER})\s+to\s+({_SIGNED_NUMBER})$",
+                re.I,
+            ),
+        ),
+        (
+            "percentage_increase",
+            re.compile(
+                rf"^\D*?percentage\s+increase\s+from\s+({_SIGNED_NUMBER})\s+to\s+({_SIGNED_NUMBER})$",
+                re.I,
+            ),
+        ),
+        (
+            "percentage_decrease",
+            re.compile(
+                rf"^\D*?percentage\s+decrease\s+from\s+({_SIGNED_NUMBER})\s+to\s+({_SIGNED_NUMBER})$",
+                re.I,
+            ),
+        ),
+        (
             "percentage",
-            re.compile(rf"^\D*?({_NUMBER})\s+as\s+a\s+percentage\s+of\s+({_NUMBER})$", re.I),
+            re.compile(
+                rf"^\D*?({_SIGNED_NUMBER})\s+as\s+a\s+percentage\s+of\s+({_SIGNED_NUMBER})$",
+                re.I,
+            ),
         ),
         (
             "percentage_of",
-            re.compile(rf"^\D*?({_NUMBER})\s*%\s+of\s+({_NUMBER})$", re.I),
+            re.compile(
+                rf"^\D*?({_SIGNED_NUMBER})\s*(?:%|percent(?:age)?)\s+of\s+({_SIGNED_NUMBER})$",
+                re.I,
+            ),
         ),
         (
             "difference",
-            re.compile(rf"^\D*?difference\s+between\s+({_NUMBER})\s+and\s+({_NUMBER})$", re.I),
+            re.compile(
+                rf"^\D*?difference\s+between\s+({_SIGNED_NUMBER})\s+and\s+({_SIGNED_NUMBER})$",
+                re.I,
+            ),
         ),
         (
             "ratio",
-            re.compile(rf"^\D*?ratio\s+of\s+({_NUMBER})\s+to\s+({_NUMBER})$", re.I),
+            re.compile(
+                rf"^\D*?ratio\s+of\s+({_SIGNED_NUMBER})\s+to\s+({_SIGNED_NUMBER})$",
+                re.I,
+            ),
         ),
         (
             "subtract",
-            re.compile(rf"^\D*?subtract\s+({_NUMBER})\s+from\s+({_NUMBER})$", re.I),
+            re.compile(
+                rf"^\D*?subtract\s+({_SIGNED_NUMBER})\s+from\s+({_SIGNED_NUMBER})$",
+                re.I,
+            ),
         ),
         (
             "multiply",
-            re.compile(rf"^\D*?multiply\s+({_NUMBER})\s+by\s+({_NUMBER})$", re.I),
+            re.compile(
+                rf"^\D*?multiply\s+({_SIGNED_NUMBER})\s+by\s+({_SIGNED_NUMBER})$",
+                re.I,
+            ),
         ),
         (
             "divide",
-            re.compile(rf"^\D*?divide\s+({_NUMBER})\s+by\s+({_NUMBER})$", re.I),
+            re.compile(
+                rf"^\D*?divide\s+({_SIGNED_NUMBER})\s+by\s+({_SIGNED_NUMBER})$",
+                re.I,
+            ),
+        ),
+        (
+            "plus",
+            re.compile(
+                rf"^\D*?({_SIGNED_NUMBER})\s+plus\s+({_SIGNED_NUMBER})$", re.I
+            ),
+        ),
+        (
+            "minus",
+            re.compile(
+                rf"^\D*?({_SIGNED_NUMBER})\s+minus\s+({_SIGNED_NUMBER})$", re.I
+            ),
+        ),
+        (
+            "times",
+            re.compile(
+                rf"^\D*?({_SIGNED_NUMBER})\s+times\s+({_SIGNED_NUMBER})$", re.I
+            ),
+        ),
+        (
+            "divided_by",
+            re.compile(
+                rf"^\D*?({_SIGNED_NUMBER})\s+divided\s+by\s+({_SIGNED_NUMBER})$",
+                re.I,
+            ),
         ),
     )
     for operation, pattern in patterns:
@@ -264,16 +332,24 @@ def _expression_from_query(query: str) -> tuple[str, str, str | None]:
             return f"({first} / {second}) * 100", operation, "%"
         if operation == "percentage_of":
             return f"({first} / 100) * {second}", operation, None
+        if operation in {"growth_rate", "percentage_increase"}:
+            return f"(({second} - {first}) / {first}) * 100", operation, "%"
+        if operation == "percentage_decrease":
+            return f"(({first} - {second}) / {first}) * 100", operation, "%"
         if operation in {"difference", "subtract"}:
             left, right = (second, first) if operation == "subtract" else (first, second)
             return f"{left} - {right}", operation, None
         if operation == "ratio":
             return f"{first} / {second}", operation, None
-        operator = "*" if operation == "multiply" else "/"
+        if operation == "plus":
+            return f"{first} + {second}", operation, None
+        if operation == "minus":
+            return f"{first} - {second}", operation, None
+        operator = "*" if operation in {"multiply", "times"} else "/"
         return f"{first} {operator} {second}", operation, None
 
-    if re.search(r"\b(?:sum|total)\s+of\b", lowered):
-        values = _numbers(normalized.split("of", 1)[1])
+    if re.search(r"\b(?:add|sum|total)(?:\s+of)?\b", lowered):
+        values = _numbers(normalized)
         if len(values) < 2:
             raise CalculationError("A sum needs at least two numeric operands.")
         return " + ".join(values), "sum", None

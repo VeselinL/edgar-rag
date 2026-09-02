@@ -376,10 +376,10 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(route.reason_code.value, "greeting")
         self.assertIsNone(completions.arguments)
 
-    def test_router_uses_strict_model_contract_for_product_question(self):
+    def test_router_uses_strict_model_contract_for_unresolved_external_question(self):
         response = SimpleNamespace(
             choices=[SimpleNamespace(message=SimpleNamespace(content=(
-                '{"route":"filing_rag","reason_code":"filing_evidence",'
+                '{"route":"web_search","reason_code":"current_or_external",'
                 '"arithmetic_required":false}'
             )))]
         )
@@ -389,9 +389,9 @@ class GenerationTests(unittest.TestCase):
             model="test",
         )
 
-        route = service.route_request("How does Aurora Driver technology work?")
+        route = service.route_request("What is the capital of France?")
 
-        self.assertEqual(route.route.value, "filing_rag")
+        self.assertEqual(route.route.value, "web_search")
         self.assertEqual(completions.arguments["max_tokens"], 256)
         self.assertEqual(completions.arguments["temperature"], 0.0)
         self.assertIn("aurora driver", completions.arguments["messages"][2]["content"])

@@ -33,6 +33,22 @@ class CalculatorToolTests(unittest.TestCase):
         self.assertEqual(rounded.result, "0.67")
         self.assertEqual(rounded.rounding_rule, "round-half-even to 2 decimal places")
 
+    def test_common_natural_language_arithmetic(self):
+        cases = {
+            "What is 25 percent of 80?": ("20", None),
+            "Add 10 and 20.": ("30", None),
+            "What is 100 minus 40?": ("60", None),
+            "What is 100 plus 40?": ("140", None),
+            "What is 20 times 5?": ("100", None),
+            "What is 100 divided by 4?": ("25", None),
+            "Calculate the growth rate from 80 to 100.": ("25", "%"),
+            "Calculate the percentage decrease from 100 to 80.": ("20", "%"),
+        }
+        for query, expected in cases.items():
+            with self.subTest(query=query):
+                record = self.calculator.calculate_query(query)
+                self.assertEqual((record.result, record.unit), expected)
+
     def test_evidence_operations_are_constructed_by_allow_list(self):
         difference = self.calculator.calculate_operation(
             "difference", ["100.5", "40.25"], unit="USD millions"

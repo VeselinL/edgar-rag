@@ -31,15 +31,14 @@ class RequestRoutingTests(unittest.TestCase):
                 )
                 self.assertFalse(route.uses_filing_retrieval)
 
-    def test_help_bypasses_retrieval_but_factual_query_does_not(self):
+    def test_help_bypasses_retrieval_and_in_corpus_fact_defaults_to_filing(self):
         route = deterministic_route("What can you do?", self.resolution("What can you do?"))
         self.assertEqual(route.reason_code, RouteReason.AVA_HELP)
-        self.assertIsNone(
-            deterministic_route(
-                "What technology does Aurora use?",
-                self.resolution("What technology does Aurora use?"),
-            )
+        factual = deterministic_route(
+            "What technology does Aurora use?",
+            self.resolution("What technology does Aurora use?"),
         )
+        self.assertEqual(factual.route, RouteKind.FILING_RAG)
 
     def test_explicit_filing_and_pure_arithmetic_routes_are_deterministic(self):
         filing = deterministic_route(
@@ -50,6 +49,43 @@ class RequestRoutingTests(unittest.TestCase):
         self.assertEqual(filing.route, RouteKind.FILING_RAG)
         self.assertEqual(arithmetic.route, RouteKind.CALCULATOR)
         self.assertTrue(arithmetic.arithmetic_required)
+
+    def test_unqualified_in_corpus_fact_defaults_to_filing_not_web(self):
+        query = "Who is Tesla CEO?"
+        route = deterministic_route(query, self.resolution(query))
+        self.assertEqual(route.route, RouteKind.FILING_RAG)
+        self.assertEqual(route.reason_code, RouteReason.FILING_EVIDENCE)
+        self.assertFalse(route.uses_web_search)
+
+    def test_explicit_current_or_web_cue_overrides_company_filing_default(self):
+        for query in (
+            "Who is Tesla's current CEO today?",
+            "What is Tesla's stock price right now?",
+            "Search the web for recent Tesla announcements.",
+        ):
+            with self.subTest(query=query):
+                route = deterministic_route(query, self.resolution(query))
+                self.assertEqual(route.route, RouteKind.WEB_SEARCH)
+                self.assertTrue(route.uses_web_search)
+
+    def test_natural_language_arithmetic_is_deterministic(self):
+        for query in (
+            "What is 25 percent of 80?",
+            "Add 10 and 20.",
+            "What is 100 minus 40?",
+            "Calculate the growth rate from 80 to 100.",
+        ):
+            with self.subTest(query=query):
+                route = deterministic_route(query, self.resolution(query))
+                self.assertEqual(route.route, RouteKind.CALCULATOR)
+                self.assertTrue(route.arithmetic_required)
+
+    def test_company_calculation_uses_filing_before_calculator(self):
+        query = "Calculate the difference between GM's 2025 and 2024 revenue."
+        route = deterministic_route(query, self.resolution(query))
+        self.assertEqual(route.route, RouteKind.FILING_AND_CALCULATOR)
+        self.assertTrue(route.uses_filing_retrieval)
+        self.assertTrue(route.uses_calculator)
 
     def test_explicit_filing_calculation_keeps_both_required_paths(self):
         query = "Calculate the ratio disclosed in Tesla's 10-K."
@@ -109,6 +145,8 @@ class RequestRoutingTests(unittest.TestCase):
         self.assertIn("snapdragon digital chassis", messages[2]["content"])
         self.assertIn("Untrusted conversation context", messages[-2]["content"])
         self.assertEqual(messages[-1]["content"], "How does its technology work?")
+        self.assertIn("ordinary question", messages[0]["content"])
+        self.assertIn("Who is Tesla's CEO?", messages[0]["content"])
 
     def test_frozen_route_manifest_has_unique_valid_cases(self):
         path = (

@@ -91,6 +91,13 @@ filings for the allowed companies supplied below. A filing question can name a
 company, ticker, product, or technology; a ticker is never required. Use
 conversation context only to resolve a genuine follow-up or pronoun.
 
+The frozen filing corpus is the default evidence source for an ordinary question
+about an allowed company, including its executives, products, technology,
+operations, strategy, risks, or disclosed financial values. Do not treat a role
+question such as "Who is Tesla's CEO?" as inherently current. Use web search for
+an allowed company only when the user explicitly asks for current/latest/live
+information, news, market data, an online/web search, or facts beyond the filing.
+
 ROUTES
 - conversation_only: greetings, thanks, brief social turns, or questions about
   AVA's supported capabilities. Do not use this route for external factual claims.
@@ -107,8 +114,9 @@ ROUTES
 RULES
 1. Never route a greeting or unrelated question to filing_rag merely because a
    filing index exists.
-2. Parametric model knowledge is not evidence. Current facts require web_search;
-   filing claims require filing_rag; attached-file claims require an upload route.
+2. Parametric model knowledge is not evidence. Explicitly current or external
+   facts require web_search; ordinary allowed-company facts default to filing_rag;
+   attached-file claims require an upload route.
 3. Set arithmetic_required true exactly when the user asks AVA to calculate,
    total, subtract, multiply, divide, find a difference/ratio/percentage/growth
    rate, or otherwise derive a numeric result. Use a calculator route whenever it
@@ -151,8 +159,23 @@ _FILING_CUES = re.compile(
 )
 _ARITHMETIC_REQUEST_CUES = re.compile(
     r"\b(?:calculate|compute|total(?:\s+of)?|difference|ratio|percentage|"
-    r"growth\s+rate|add|subtract|multiply|divide)\b",
+    r"percent|growth\s+rate|add|subtract|multiply|divide|plus|minus|times|"
+    r"divided\s+by)\b",
     re.IGNORECASE,
+)
+_EXPLICIT_EXTERNAL_CUES = re.compile(
+    r"\b(?:today|right\s+now|current(?:ly)?|latest|recent(?:ly)?|this\s+week|"
+    r"this\s+month|news|stock\s+price|share\s+price|market\s+cap(?:italization)?|"
+    r"search\s+(?:the\s+)?web|web\s+search|online|internet|breaking|live)\b",
+    re.IGNORECASE,
+)
+_UPLOAD_SOURCE_CUES = re.compile(
+    r"\b(?:attached|attachment|uploaded?|my\s+(?:file|document|pdf|text)|"
+    r"this\s+(?:file|document|pdf)|source\s+file)\b",
+    re.IGNORECASE,
+)
+_TWO_NUMBERS = re.compile(
+    r"(?<![\w.])[-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?![\w.])"
 )
 _VAGUE_DOCUMENT_PATTERN = re.compile(
     r"^(?:please\s+)?(?:summarize|review|analyze|explain)\s+"
@@ -211,6 +234,55 @@ def deterministic_route(
         return RequestRoute(
             RouteKind.FILING_RAG,
             RouteReason.FILING_EVIDENCE,
+            decided_by="deterministic",
+        )
+    if _EXPLICIT_EXTERNAL_CUES.search(normalized):
+        if _ARITHMETIC_REQUEST_CUES.search(normalized):
+            return RequestRoute(
+                RouteKind.WEB_AND_CALCULATOR,
+                RouteReason.EVIDENCE_ARITHMETIC,
+                arithmetic_required=True,
+                decided_by="deterministic",
+            )
+        return RequestRoute(
+            RouteKind.WEB_SEARCH,
+            RouteReason.CURRENT_OR_EXTERNAL,
+            decided_by="deterministic",
+        )
+    if uploads_available and _UPLOAD_SOURCE_CUES.search(normalized):
+        if _ARITHMETIC_REQUEST_CUES.search(normalized):
+            return RequestRoute(
+                RouteKind.UPLOAD_AND_CALCULATOR,
+                RouteReason.EVIDENCE_ARITHMETIC,
+                arithmetic_required=True,
+                decided_by="deterministic",
+            )
+        return RequestRoute(
+            RouteKind.UPLOADED_DOCUMENT_RAG,
+            RouteReason.UPLOADED_EVIDENCE,
+            decided_by="deterministic",
+        )
+    if resolution.resolved_tickers:
+        if _ARITHMETIC_REQUEST_CUES.search(normalized):
+            return RequestRoute(
+                RouteKind.FILING_AND_CALCULATOR,
+                RouteReason.EVIDENCE_ARITHMETIC,
+                arithmetic_required=True,
+                decided_by="deterministic",
+            )
+        return RequestRoute(
+            RouteKind.FILING_RAG,
+            RouteReason.FILING_EVIDENCE,
+            decided_by="deterministic",
+        )
+    if (
+        _ARITHMETIC_REQUEST_CUES.search(normalized)
+        and len(_TWO_NUMBERS.findall(normalized.rstrip("?.!"))) >= 2
+    ):
+        return RequestRoute(
+            RouteKind.CALCULATOR,
+            RouteReason.PURE_ARITHMETIC,
+            arithmetic_required=True,
             decided_by="deterministic",
         )
     return None

@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "evaluation": "calculator_quality",
+  "evaluated_at": "2026-09-02T12:45:33.114967+00:00",
+  "summary": {
+    "case_count": 10,
+    "passed_count": 10,
+    "exact_accuracy": 1.0,
+    "error_count": 0,
+    "gate_pass": true
+  },
+  "records": [
+    {
+      "case_id": "percent-word",
+      "expected_result": "20",
+      "actual_result": "20",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "(25 / 100) * 80",
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "add-two",
+      "expected_result": "30",
+      "actual_result": "30",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "10 + 20",
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "add-three",
+      "expected_result": "60",
+      "actual_result": "60",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "10 + 20 + 30",
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "minus-word",
+      "expected_result": "60",
+      "actual_result": "60",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "100 - 40",
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "plus-word",
+      "expected_result": "140",
+      "actual_result": "140",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "100 + 40",
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "times-word",
+      "expected_result": "100",
+      "actual_result": "100",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "20 * 5",
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "divide-words",
+      "expected_result": "25",
+      "actual_result": "25",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "100 / 4",
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "growth-rate",
+      "expected_result": "25",
+      "actual_result": "25",
+      "expected_unit": "%",
+      "actual_unit": "%",
+      "normalized_expression": "((100 - 80) / 80) * 100",
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "percentage-decrease",
+      "expected_result": "20",
+      "actual_result": "20",
+      "expected_unit": "%",
+      "actual_unit": "%",
+      "normalized_expression": "((100 - 80) / 100) * 100",
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "rounding",
+      "expected_result": "0.67",
+      "actual_result": "0.67",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "2 / 3",
+      "pass": true,
+      "error": null
+    }
+  ]
+}
