@@ -108,7 +108,7 @@ class PipelineSettings:
     qdrant_local_path: str | None = None
     qdrant_timeout_seconds: int = 30
     request_routing_enabled: bool = True
-    strict_abstention_prompt: bool = True
+    strict_abstention_prompt: bool = False
     calculator_enabled: bool = True
     web_search_enabled: bool = False
     web_search_provider: str = "disabled"
@@ -135,7 +135,7 @@ class PipelineSettings:
         if raw_routing_enabled not in {"true", "false"}:
             raise ValueError("AVA_REQUEST_ROUTING_ENABLED must be 'true' or 'false'.")
         raw_strict_abstention = os.getenv(
-            "AVA_STRICT_ABSTENTION_PROMPT", "true"
+            "AVA_STRICT_ABSTENTION_PROMPT", "false"
         ).strip().casefold()
         if raw_strict_abstention not in {"true", "false"}:
             raise ValueError("AVA_STRICT_ABSTENTION_PROMPT must be 'true' or 'false'.")

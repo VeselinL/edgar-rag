@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-09-02T09:03:35+00:00",
+  "experiment": "strict_absence_grounding_prompt",
+  "decision": "rejected",
+  "active_by_default": false,
+  "rollback": {
+    "environment_variable": "AVA_STRICT_ABSTENTION_PROMPT",
+    "default": false,
+    "active_prompt_version": "filing-grounding-v1",
+    "rejected_prompt_version": "filing-grounding-v2-strict-absence"
+  },
+  "baseline": {
+    "path": "data/evaluation/ava_p0/v1/runs/phase-10-current-generation.json",
+    "sha256": "6b0e593d642b4f701fa2fc5dcd1d71d6690293e8c5e6d60d744db84986fc12ab"
+  },
+  "candidate": {
+    "path": "data/evaluation/ava_p0/v1/runs/phase-10-strict-absence-generation.json",
+    "sha256": "3c569eb82d91793ed90640f30d559c6b56a18451fb675e1205aef1c166414504"
+  },
+  "retrieval_gate": {
+    "path": "data/evaluation/ava_p0/v1/runs/phase-10-current-baseline/baseline_summary.json",
+    "sha256": "ba7e2ecc2f6f8a61bbd535b59c6900943b60aea0cd489ec998ac87fbb4c5259f",
+    "resolution_accuracy": 1.0,
+    "candidate_recall": 1.0,
+    "final_recall": 1.0,
+    "source_display_exactness": 1.0
+  },
+  "metric_comparison": {
+    "completeness": {"baseline": 1.0, "candidate": 0.875, "delta": -0.125},
+    "labeled_claim_support": {"baseline": 1.0, "candidate": 0.875, "delta": -0.125},
+    "numerical_correctness": {"baseline": 1.0, "candidate": 0.5, "delta": -0.5},
+    "abstention_accuracy": {"baseline": 0.8571428571428571, "candidate": 1.0, "delta": 0.1428571428571429},
+    "comparison_coverage": {"baseline": 1.0, "candidate": 1.0, "delta": 0.0},
+    "contradiction_rate": {"baseline": 0.0, "candidate": 0.125, "delta": 0.125},
+    "citation_precision": {"baseline": 1.0, "candidate": 1.0, "delta": 0.0},
+    "citation_recall": {"baseline": 1.0, "candidate": 0.8571428571428571, "delta": -0.1428571428571429},
+    "source_display_exactness": {"baseline": 1.0, "candidate": 1.0, "delta": 0.0},
+    "judge_claim_support": {"baseline": 0.9428571428571428, "candidate": 1.0, "delta": 0.0571428571428572},
+    "judge_unsupported_claim_rate": {"baseline": 0.05714285714285714, "candidate": 0.0, "delta": -0.05714285714285714},
+    "judge_uncited_factual_claim_rate": {"baseline": 0.0, "candidate": 0.09375, "delta": 0.09375},
+    "latency_mean_ms": {"baseline": 3282.215799284001, "candidate": 4216.091262421936, "delta_percent": 28.45258823842888},
+    "latency_max_ms": {"baseline": 5940.08455099538, "candidate": 12099.757465999573, "delta_percent": 103.69671911477593}
+  },
+  "decision_reasons": [
+    "The candidate fixed the labeled abstention case and removed judge-identified unsupported claims.",
+    "The candidate regressed completeness, labeled support, numerical correctness, citation recall, and judge-measured uncited factual claims.",
+    "Mean latency increased by 28.45 percent and maximum latency more than doubled.",
+    "The regressions outweigh the narrow grounding gain, so the legacy prompt remains active."
+  ],
+  "usage_and_cost": {
+    "available": false,
+    "reason": "The configured gateway did not return provider token-usage or cost fields; latency was measured directly."
+  }
+}

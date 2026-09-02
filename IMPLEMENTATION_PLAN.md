@@ -1086,6 +1086,27 @@ steps. No model may execute arbitrary code or invent a tool result.
 
 ## 16. Phase 10 — Lower-priority measured improvements (P2)
 
+### Current measured status — 2 September 2026
+
+The frozen current-path retrieval gate remains perfect on its labeled set:
+resolution accuracy, candidate recall, final recall, and source-display exactness
+are all `1.0`. This does not justify reranking, an LLM evidence selector, query
+expansion, retrieval weighting, or table-view changes.
+
+The first bounded generation experiment targeted the saved baseline's `0.8571`
+abstention accuracy and `0.0571` judge-identified unsupported-claim rate. Its
+strict-absence prompt raised those metrics to `1.0` and `0.0`, respectively, but
+regressed completeness to `0.875`, numerical correctness to `0.5`, citation
+recall to `0.8571`, judge uncited-claim rate to `0.09375`, and mean latency by
+`28.45%`. It is therefore rejected and disabled by default. The prior prompt is
+the active production path; `AVA_STRICT_ABSTENTION_PROMPT=true` exists only to
+reproduce the negative experiment. The baseline, candidate, and removal decision
+are saved under `data/evaluation/ava_p0/v1/runs/phase-10-*`.
+
+No Phase 10 improvement is promoted from this measurement. Do not begin another
+item below until a new saved current-path failure identifies its need and the
+candidate can be compared without changing the frozen baseline.
+
 Implement only after a saved failure demonstrates the need:
 
 - Cross-encoder reranking, first behind an experiment flag and evaluated per

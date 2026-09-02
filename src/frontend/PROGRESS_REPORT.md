@@ -994,3 +994,18 @@ and was not included in AVA commits.
   key is configured. The adapter and controlled-response provenance/failure gates
   pass, but production web enablement is not claimed until an operator supplies
   and validates that secret.
+
+### Measured and rejected the first Phase 10 prompt experiment
+
+- Saved a fresh current-path retrieval gate with `1.0` resolution accuracy,
+  candidate recall, final recall, and source-display exactness, so no retrieval
+  enhancement is currently justified by the labeled set.
+- Saved a provider-and-judge generation baseline and tested one independently
+  switchable strict-absence grounding prompt. It fixed the targeted abstention
+  and unsupported-claim measurements, but regressed completeness, numerical
+  correctness, citation recall, uncited factual claims, and latency.
+- Rejected the candidate, restored the prior prompt as the production default,
+  and retained `AVA_STRICT_ABSTENTION_PROMPT=true` only for reproducibility. The
+  baseline, candidate output, hashes, metric deltas, and removal decision are
+  versioned under `data/evaluation/ava_p0/v1/runs/phase-10-*`; the focused
+  rollback suite passes 98 tests and three subtests.

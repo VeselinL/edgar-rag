@@ -61,7 +61,8 @@ of absence. In comparisons, contrast only positively supported disclosures;
 never infer that another company lacks a product, strategy, or fact unless an
 excerpt explicitly establishes that absence."""
 
-SYSTEM_PROMPT = LEGACY_SYSTEM_PROMPT + STRICT_ABSENCE_GROUNDING_ADDENDUM
+STRICT_SYSTEM_PROMPT = LEGACY_SYSTEM_PROMPT + STRICT_ABSENCE_GROUNDING_ADDENDUM
+SYSTEM_PROMPT = LEGACY_SYSTEM_PROMPT
 FILING_PROMPT_VERSION = "filing-grounding-v2-strict-absence"
 LEGACY_FILING_PROMPT_VERSION = "filing-grounding-v1"
 
@@ -749,7 +750,7 @@ class GenerationService:
         temperature: float = 0.0,
         max_output_tokens: int = DEFAULT_MAX_OUTPUT_TOKENS,
         circuit_breaker: ProviderCircuitBreaker | None = None,
-        strict_absence_grounding: bool = True,
+        strict_absence_grounding: bool = False,
     ) -> None:
         if max_output_tokens <= 0:
             raise ValueError("max_output_tokens must be positive.")
@@ -760,7 +761,9 @@ class GenerationService:
         self.circuit_breaker = circuit_breaker or ProviderCircuitBreaker()
         self.strict_absence_grounding = strict_absence_grounding
         self.system_prompt = (
-            SYSTEM_PROMPT if strict_absence_grounding else LEGACY_SYSTEM_PROMPT
+            STRICT_SYSTEM_PROMPT
+            if strict_absence_grounding
+            else LEGACY_SYSTEM_PROMPT
         )
         self.prompt_version = (
             FILING_PROMPT_VERSION

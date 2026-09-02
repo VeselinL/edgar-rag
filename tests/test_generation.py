@@ -8,6 +8,7 @@ from src.generation.rag import (
     CitationVisibilityFilter,
     PLANNER_INSTRUCTION,
     LEGACY_SYSTEM_PROMPT,
+    STRICT_SYSTEM_PROMPT,
     ProviderCircuitBreaker,
     ProviderCircuitOpenError,
     SYSTEM_PROMPT,
@@ -339,8 +340,9 @@ class GenerationTests(unittest.TestCase):
         self.assertIn("never add `$`", SYSTEM_PROMPT)
 
     def test_strict_prompt_prevents_negative_inference_and_has_legacy_rollback(self):
-        self.assertIn("bounded evidence selection", SYSTEM_PROMPT)
-        self.assertIn("Do not cite an unrelated excerpt as proof", SYSTEM_PROMPT)
+        self.assertIn("bounded evidence selection", STRICT_SYSTEM_PROMPT)
+        self.assertIn("Do not cite an unrelated excerpt as proof", STRICT_SYSTEM_PROMPT)
+        self.assertEqual(SYSTEM_PROMPT, LEGACY_SYSTEM_PROMPT)
         self.assertNotIn("bounded evidence selection", LEGACY_SYSTEM_PROMPT)
         client = SimpleNamespace(
             chat=SimpleNamespace(

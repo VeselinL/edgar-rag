@@ -140,7 +140,7 @@ AVA_PIPELINE_MODE=real
 AVA_LLM_MODEL=AZURE_GPT_51_2025_1113
 AVA_LLM_STREAMING=false
 AVA_REQUEST_ROUTING_ENABLED=true
-AVA_STRICT_ABSTENTION_PROMPT=true
+AVA_STRICT_ABSTENTION_PROMPT=false
 AVA_CALCULATOR_ENABLED=true
 AVA_WEB_SEARCH_ENABLED=false
 AVA_WEB_SEARCH_PROVIDER=disabled
@@ -178,8 +178,9 @@ than falling back to filing chunks or unstated model knowledge.
 skips route selection and all optional tool/upload paths while retaining the
 existing SEC retrieval and generation pipeline. Tool plans are also capped by
 `AVA_MAX_TOOL_EXECUTIONS` and `AVA_MAX_WEB_SEARCHES` before anything executes.
-`AVA_STRICT_ABSTENTION_PROMPT=false` independently restores the prior filing
-generation prompt for measured rollback without changing retrieval.
+`AVA_STRICT_ABSTENTION_PROMPT=true` enables the rejected strict-absence prompt
+experiment for reproducibility. It remains off because its saved Phase 10 run
+regressed completeness, numerical correctness, uncited claims, and latency.
 
 Explicit company requests use one fixed evidence policy: at most 50 chunks
 across the request and at most 10 chunks per company. Requests for one through
