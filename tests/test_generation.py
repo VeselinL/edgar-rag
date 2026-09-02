@@ -7,6 +7,7 @@ from src.resolution.companies import default_company_resolver
 from src.generation.rag import (
     CitationVisibilityFilter,
     PLANNER_INSTRUCTION,
+    LEGACY_SYSTEM_PROMPT,
     ProviderCircuitBreaker,
     ProviderCircuitOpenError,
     SYSTEM_PROMPT,
@@ -336,6 +337,29 @@ class GenerationTests(unittest.TestCase):
     def test_prompt_requires_exact_citations_on_concluding_synthesis(self):
         self.assertIn("concluding comparison or synthesis", SYSTEM_PROMPT)
         self.assertIn("never add `$`", SYSTEM_PROMPT)
+
+    def test_strict_prompt_prevents_negative_inference_and_has_legacy_rollback(self):
+        self.assertIn("bounded evidence selection", SYSTEM_PROMPT)
+        self.assertIn("Do not cite an unrelated excerpt as proof", SYSTEM_PROMPT)
+        self.assertNotIn("bounded evidence selection", LEGACY_SYSTEM_PROMPT)
+        client = SimpleNamespace(
+            chat=SimpleNamespace(
+                completions=FakeCompletions(
+                    SimpleNamespace(
+                        choices=[SimpleNamespace(message=SimpleNamespace(content="answer"))]
+                    )
+                )
+            )
+        )
+        service = GenerationService(
+            client, model="test", strict_absence_grounding=False
+        )
+        service.answer("Question", self.evidence())
+        self.assertEqual(service.prompt_version, "filing-grounding-v1")
+        self.assertEqual(
+            client.chat.completions.arguments["messages"][0]["content"],
+            LEGACY_SYSTEM_PROMPT,
+        )
 
     def test_router_handles_greeting_without_provider_or_retrieval_plan(self):
         completions = FakeCompletions(SimpleNamespace())

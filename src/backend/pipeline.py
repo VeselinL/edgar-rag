@@ -108,6 +108,7 @@ class PipelineSettings:
     qdrant_local_path: str | None = None
     qdrant_timeout_seconds: int = 30
     request_routing_enabled: bool = True
+    strict_abstention_prompt: bool = True
     calculator_enabled: bool = True
     web_search_enabled: bool = False
     web_search_provider: str = "disabled"
@@ -133,6 +134,11 @@ class PipelineSettings:
         ).strip().casefold()
         if raw_routing_enabled not in {"true", "false"}:
             raise ValueError("AVA_REQUEST_ROUTING_ENABLED must be 'true' or 'false'.")
+        raw_strict_abstention = os.getenv(
+            "AVA_STRICT_ABSTENTION_PROMPT", "true"
+        ).strip().casefold()
+        if raw_strict_abstention not in {"true", "false"}:
+            raise ValueError("AVA_STRICT_ABSTENTION_PROMPT must be 'true' or 'false'.")
         raw_calculator_enabled = os.getenv(
             "AVA_CALCULATOR_ENABLED", "true"
         ).strip().casefold()
@@ -205,6 +211,7 @@ class PipelineSettings:
             qdrant_local_path=qdrant_local_path,
             qdrant_timeout_seconds=qdrant_timeout_seconds,
             request_routing_enabled=raw_routing_enabled == "true",
+            strict_abstention_prompt=raw_strict_abstention == "true",
             calculator_enabled=raw_calculator_enabled == "true",
             web_search_enabled=raw_web_search_enabled == "true",
             web_search_provider=web_search_provider,
@@ -889,6 +896,7 @@ class RealPipeline:
                 failure_threshold=int(os.getenv("AVA_PROVIDER_CIRCUIT_FAILURES", "5")),
                 recovery_seconds=float(os.getenv("AVA_PROVIDER_CIRCUIT_RECOVERY_SECONDS", "30")),
             ),
+            strict_absence_grounding=settings.strict_abstention_prompt,
         )
         web_search: WebSearchTool = UnavailableWebSearchTool()
         if settings.web_search_enabled and settings.web_search_provider == "brave":
@@ -913,6 +921,7 @@ class RealPipeline:
             "dense_backend": dense_retriever.identity,
             "qdrant": qdrant_health,
             "observability_retention_days": settings.observability_retention_days,
+            "filing_prompt_version": generator.prompt_version,
         }
         LOGGER.info("AVA pipeline ready", extra={"ava_startup": startup_metrics})
         return cls(

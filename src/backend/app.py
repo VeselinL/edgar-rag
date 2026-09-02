@@ -735,6 +735,7 @@ def create_app(
             "corpus_version": getattr(active_pipeline, "corpus_version", "unknown"),
             "index_version": getattr(active_pipeline, "index_version", "unknown"),
             "model": getattr(generator, "model", "unknown"),
+            "prompt_version": getattr(generator, "prompt_version", "unknown"),
         }
         try:
             await asyncio.to_thread(
@@ -852,6 +853,7 @@ def create_app(
                                     "corpus_version": getattr(active_pipeline, "corpus_version", "unknown"),
                                     "index_version": getattr(active_pipeline, "index_version", "unknown"),
                                     "model": getattr(getattr(active_pipeline, "generator", None), "model", "unknown"),
+                                    "prompt_version": getattr(getattr(active_pipeline, "generator", None), "prompt_version", "unknown"),
                                 },
                             }
                             await asyncio.to_thread(

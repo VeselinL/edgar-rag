@@ -465,6 +465,12 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(settings.max_web_searches, 1)
 
         with patch.dict(
+            "os.environ", {"AVA_STRICT_ABSTENTION_PROMPT": "false"}, clear=False
+        ):
+            rollback = PipelineSettings.from_environment()
+        self.assertFalse(rollback.strict_abstention_prompt)
+
+        with patch.dict(
             "os.environ",
             {"AVA_MAX_TOOL_EXECUTIONS": "1", "AVA_MAX_WEB_SEARCHES": "2"},
             clear=False,

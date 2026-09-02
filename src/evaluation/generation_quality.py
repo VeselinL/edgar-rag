@@ -242,10 +242,19 @@ def main() -> None:
     parser.add_argument("--answers", choices=("reference", "provider"), default="reference")
     parser.add_argument("--judge-provider", action="store_true")
     parser.add_argument("--model", default=DEFAULT_LLM_MODEL)
+    parser.add_argument("--legacy-grounding-prompt", action="store_true")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     client = make_llm_client() if args.answers == "provider" or args.judge_provider else None
-    service = GenerationService(client, model=args.model) if args.answers == "provider" else None
+    service = (
+        GenerationService(
+            client,
+            model=args.model,
+            strict_absence_grounding=not args.legacy_grounding_prompt,
+        )
+        if args.answers == "provider"
+        else None
+    )
 
     def answer_provider(case: dict[str, Any], evidence: Sequence[dict[str, Any]]) -> tuple[str, dict[str, int]]:
         assert service is not None
@@ -259,6 +268,7 @@ def main() -> None:
         answer_mode=args.answers,
         model=args.model if client else None,
     )
+    result["prompt_version"] = service.prompt_version if service else None
     rendered = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
