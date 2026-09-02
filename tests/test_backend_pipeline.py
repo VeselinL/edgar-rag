@@ -687,6 +687,37 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("web search is disabled", events[0].data["text"])
         self.assertEqual(events[1].data["sources"], [])
 
+    async def test_out_of_scope_programming_route_runs_no_retrieval_or_tools(self):
+        retriever = FakeRetriever()
+        generator = RoutedGenerator(
+            RequestRoute(RouteKind.CONVERSATION_ONLY, RouteReason.OUT_OF_SCOPE)
+        )
+        web_search = FakeWebSearch()
+        records = []
+        pipeline = RealPipeline(
+            retriever,
+            generator,
+            web_search=web_search,
+            web_search_enabled=True,
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Write a sliding-window algorithm for these CEO names.", connected
+            )
+        ]
+        self.assertIsNone(retriever.arguments)
+        self.assertIsNone(web_search.query)
+        self.assertFalse(generator.answer_called)
+        self.assertIn("outside AVA's SEC-filing analysis scope", events[0].data["text"])
+        self.assertEqual(events[1].data["sources"], [])
+        self.assertEqual(records[0]["tool_executions"], [])
+
     async def test_enabled_web_route_generates_only_from_cited_search_results(self):
         retriever = FakeRetriever()
         web_search = FakeWebSearch()

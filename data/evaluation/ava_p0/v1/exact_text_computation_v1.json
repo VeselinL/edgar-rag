@@ -1,38 +1,24 @@
 {
   "schema_version": 1,
-  "description": "Exact source-derived text computations that must not be delegated to language-model counting.",
+  "description": "Out-of-scope programming and arbitrary name-transformation cases that must not run retrieval or tools.",
   "cases": [
     {
       "id": "tesla-gm-ceo-letter-frequency",
       "query": "What about GM? Compare the names of these two CEOs, combine all letters in a frequency map and return it",
       "conversation_context": "User: Who is Tesla CEO?\nAssistant: Tesla's CEO is Elon Musk.",
-      "operation": "letter_frequency",
-      "operands": ["Elon Musk", "Mary T. Barra"],
-      "expected": {
-        "a": 3,
-        "b": 1,
-        "e": 1,
-        "k": 1,
-        "l": 1,
-        "m": 2,
-        "n": 1,
-        "o": 1,
-        "r": 3,
-        "s": 1,
-        "t": 1,
-        "u": 1,
-        "y": 1
-      }
+      "expected_action": "decline_out_of_scope",
+      "expected_route": "conversation_only",
+      "retrieval_allowed": false,
+      "tools_allowed": []
     },
     {
       "id": "ceo-vowel-window-missing-size",
       "query": "Could you write the optimal algorithm for finding a window with most vowels in these CEO names?",
       "conversation_context": "User: Who are the Tesla and GM CEOs?\nAssistant: Elon Musk and Mary T. Barra.",
-      "operation": "max_vowels_window",
-      "operands": ["Elon Musk", "Mary T. Barra"],
-      "window_size": null,
-      "expected_action": "clarify",
-      "required_clarifications": ["window_size", "separate_or_concatenated"]
+      "expected_action": "decline_out_of_scope",
+      "expected_route": "conversation_only",
+      "retrieval_allowed": false,
+      "tools_allowed": []
     }
   ]
 }

@@ -811,6 +811,7 @@ class GenerationService:
             original_query,
             resolution,
             uploads_available=bool(uploaded_source_names),
+            conversation_context=conversation_context,
         )
         if deterministic is not None:
             return deterministic

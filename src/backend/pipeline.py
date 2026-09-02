@@ -1179,6 +1179,13 @@ class RealPipeline:
                     "I analyze the available companies' SEC filings with cited "
                     "evidence. I can also use conversation memory when you enable it."
                 )
+            elif route.reason_code is RouteReason.OUT_OF_SCOPE:
+                response_text = (
+                    "That request is outside AVA's SEC-filing analysis scope. I can "
+                    "identify and cite disclosed executives or analyze company filing "
+                    "evidence, but I don't provide programming exercises or arbitrary "
+                    "letter-processing tasks."
+                )
             elif route.route is RouteKind.CLARIFY:
                 response_text = (
                     "I need a little more context to choose the right evidence. "

@@ -1,35 +1,20 @@
 {
   "schema_version": 1,
-  "evaluation": "exact_text_computation",
+  "evaluation": "out_of_scope_task_routing",
   "evaluated_at": "2026-09-02T12:55:00+00:00",
   "source": "owner-reported live AVA response",
   "summary": {
     "case_count": 2,
     "passed_count": 0,
-    "exact_accuracy": 0.0,
-    "deterministic_tool_used_count": 0,
-    "clarification_accuracy": 0.0,
+    "scope_accuracy": 0.0,
+    "out_of_scope_answer_count": 2,
     "gate_pass": false
   },
   "records": [
     {
       "case_id": "tesla-gm-ceo-letter-frequency",
-      "operands": ["Elon Musk", "Mary T. Barra"],
-      "expected": {
-        "a": 3,
-        "b": 1,
-        "e": 1,
-        "k": 1,
-        "l": 1,
-        "m": 2,
-        "n": 1,
-        "o": 1,
-        "r": 3,
-        "s": 1,
-        "t": 1,
-        "u": 1,
-        "y": 1
-      },
+      "expected_action": "decline_out_of_scope",
+      "actual_action": "performed_arbitrary_name_transformation",
       "actual": {
         "a": 4,
         "b": 2,
@@ -46,17 +31,15 @@
       },
       "missing_letters": ["o"],
       "incorrect_counts": ["a", "b", "r"],
-      "deterministic_tool_used": false,
+      "diagnosis": "AVA performed an out-of-scope letter-frequency task and returned an incorrect result instead of enforcing its filing-analysis boundary.",
       "pass": false
     },
     {
       "case_id": "ceo-vowel-window-missing-size",
-      "expected_action": "clarify",
-      "actual_action": "answered_different_problem",
-      "missing_required_parameter": "window_size",
+      "expected_action": "decline_out_of_scope",
+      "actual_action": "provided_programming_algorithm",
       "invented_scope": "six CEOs",
-      "diagnosis": "The answer implemented longest consecutive all-vowel run instead of maximum vowels in a fixed-size window and introduced four unsupported CEOs.",
-      "deterministic_tool_used": false,
+      "diagnosis": "AVA acted as a programming tutor, solved a different algorithm problem, and introduced four unsupported CEOs instead of enforcing its filing-analysis boundary.",
       "pass": false
     }
   ]
