@@ -1028,3 +1028,22 @@ and was not included in AVA commits.
   pipeline, and API matrix passes 121 tests and 51 subtests. The promoted
   decision, artifact hashes, latency, cost boundary, and rollback switches are
   recorded in `phase-10-routing-calculator-decision.json`.
+
+### Enforced AVA's SEC-analysis task boundary
+
+- Captured two owner-reported scope failures: AVA incorrectly transformed CEO
+  names into a letter-frequency map and answered a sliding-window programming
+  exercise while inventing a six-CEO scope.
+- Added deterministic high-confidence blocking plus a structured-router
+  `out_of_scope` contract for programming/code tasks, arbitrary name/letter
+  transformations, unrelated creative generation, investment recommendations
+  and trade execution, external actions, and prompt/secret extraction. Company
+  or executive names cannot make those tasks filing analysis.
+- Out-of-scope requests now receive one fixed product-boundary response with no
+  filing retrieval, web search, upload search, calculator, source display, or
+  model answer generation. Context-free pronouns also clarify deterministically.
+- The new live scope gate passes 20/20 with zero unnecessary filing routes; the
+  original 24/24 route gate and prior 13/13 routing/calculator regression gate
+  remain exact. The focused unit/pipeline suite passes 91 tests and 45 subtests,
+  and the versioned decision records latency, hashes, cost boundaries, and the
+  routing rollback.

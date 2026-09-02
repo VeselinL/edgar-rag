@@ -182,6 +182,15 @@ phrasing such as `25 percent of 80`, `100 minus 40`, and `growth rate from 80 to
 100`; it is still executed by the deterministic Decimal calculator, never by the
 language model.
 
+AVA enforces a task boundary before evidence selection. Programming exercises,
+code generation, arbitrary manipulation of executive names or letters, unrelated
+creative generation, investment recommendations/trade execution, external
+actions, and requests for prompts or secrets return a fixed out-of-scope response
+without retrieval, web search, uploads, calculator execution, sources, or answer
+generation. Mentioning a corpus company does not turn one of those tasks into SEC
+analysis. Factual questions about filing disclosures remain supported, including
+questions about algorithms a company actually describes.
+
 `AVA_REQUEST_ROUTING_ENABLED=false` is the filing-only rollback switch: it
 skips route selection and all optional tool/upload paths while retaining the
 existing SEC retrieval and generation pipeline. Tool plans are also capped by

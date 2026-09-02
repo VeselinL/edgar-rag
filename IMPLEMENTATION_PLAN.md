@@ -1118,6 +1118,20 @@ into the existing Decimal-only grammar. Candidate gates pass 13/13 routing and
 decision and hashes are saved in
 `phase-10-routing-calculator-decision.json`.
 
+The owner then demonstrated a separate task-scope failure: AVA performed an
+arbitrary letter-frequency transformation and answered a sliding-window coding
+exercise involving CEO names, including an invented six-company scope. These are
+not calculator or RAG capabilities. The promoted task guard now classifies
+programming/code exercises, arbitrary name/letter transformations, unrelated
+creative generation, investment advice/trade execution, external actions, and
+prompt/secret extraction as `conversation_only/out_of_scope` before retrieval.
+The pipeline returns a fixed boundary response and executes no retriever, web,
+upload, calculator, source display, or answer-generation path. The structured
+router prompt applies the same boundary to paraphrases while preserving ordinary
+external factual web lookup and legitimate filing analysis. The scope gate passes
+20/20 cases; the original and prior regression route gates remain 24/24 and
+13/13. The decision is saved in `phase-10-scope-guard-decision.json`.
+
 Do not begin another item below until a new saved current-path failure identifies
 its need and the candidate can be compared without changing the frozen baseline.
 

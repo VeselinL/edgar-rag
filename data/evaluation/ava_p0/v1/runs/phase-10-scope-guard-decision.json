@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-09-02T19:55:50+00:00",
+  "change": "assistant_task_scope_guard",
+  "decision": "promoted",
+  "owner_boundary": "AVA is an SEC-filing assistant, not a programming tutor or arbitrary text-manipulation agent.",
+  "observed_failures": {
+    "path": "data/evaluation/ava_p0/v1/runs/phase-10-text-computation-baseline.json",
+    "sha256": "4e032c05df64e8dccd1623284850414e83113115279c01ffa56c7728d1a04124",
+    "case_count": 2,
+    "scope_accuracy": 0.0,
+    "failures": [
+      "AVA performed an unrelated and incorrect letter-frequency transformation on CEO names.",
+      "AVA provided a sliding-window programming answer, solved a different problem, and invented a six-CEO scope."
+    ]
+  },
+  "candidate": {
+    "path": "data/evaluation/ava_p0/v1/runs/phase-10-scope-guard-candidate.json",
+    "sha256": "c2387596d95bc0221fd0d336515c462b82c89966042af6299d1f0c5236f33d65",
+    "passed": 20,
+    "cases": 20,
+    "route_accuracy": 1.0,
+    "unnecessary_filing_route_rate": 0.0,
+    "error_count": 0,
+    "mean_latency_ms": 89.66145,
+    "max_latency_ms": 1194.529,
+    "deterministic_case_count": 19,
+    "model_case_count": 1
+  },
+  "non_regression_gates": [
+    {
+      "path": "data/evaluation/ava_p0/v1/runs/phase-10-scope-guard-original-route-gate.json",
+      "sha256": "740dcde363c7329dbc5a9820aee17fd9bb0cf0c40b685d5737b84127d178e586",
+      "passed": 24,
+      "cases": 24,
+      "accuracy": 1.0
+    },
+    {
+      "path": "data/evaluation/ava_p0/v1/runs/phase-10-scope-guard-routing-regression-gate.json",
+      "sha256": "75d6b8b53636d888445536535135a3c0b199b7e4914f71f7b75a5a45daca2c7b",
+      "passed": 13,
+      "cases": 13,
+      "accuracy": 1.0
+    }
+  ],
+  "enforcement": [
+    "High-confidence unsupported task categories are rejected before company resolution can trigger filing retrieval.",
+    "The structured model router has an explicit supported-task boundary and out_of_scope reason code.",
+    "The pipeline returns a fixed scope response with no retrieval, web search, upload search, calculator, sources, or answer-generation call."
+  ],
+  "blocked_task_categories": [
+    "programming exercises and code generation",
+    "arbitrary name, letter, vowel, anagram, or encoding transformations",
+    "unrelated creative generation",
+    "investment recommendations and trade execution",
+    "external actions",
+    "prompt, hidden-instruction, secret, or API-key extraction"
+  ],
+  "preserved_capabilities": [
+    "SEC-filing factual analysis, including disclosed algorithms",
+    "current and external factual web lookup",
+    "conversation-scoped uploaded-document analysis",
+    "bounded deterministic numeric calculations"
+  ],
+  "rollback": {
+    "switch": "AVA_REQUEST_ROUTING_ENABLED=false",
+    "effect": "Restores the documented filing-only compatibility path; it is not recommended for public deployment because task-scope routing is bypassed."
+  },
+  "usage_and_cost": {
+    "tool_calls_for_blocked_cases": 0,
+    "generation_calls_for_blocked_cases": 0,
+    "provider_cost_available": false,
+    "note": "The configured gateway does not return price data. Nineteen of twenty scope-gate cases were deterministic; the one model call was the preserved external-factual lookup boundary."
+  }
+}
