@@ -1,0 +1,514 @@
+{
+  "schema_version": 1,
+  "policy": "scope-aware-npz-bm25-rrf-v1",
+  "corpus": {
+    "tickers": [
+      "AUR",
+      "TSLA",
+      "MBLY",
+      "GOOGL",
+      "GM",
+      "F",
+      "NVDA",
+      "QCOM",
+      "APTV",
+      "OUST",
+      "RIVN"
+    ],
+    "chunk_count": 4526,
+    "fingerprint": "sha256:8e2181e42846070bdc3e6cef2fd483a194971909b147e41151fa12777fbb5ef7",
+    "embedding_model": "BAAI/bge-base-en-v1.5"
+  },
+  "cases": [
+    {
+      "id": "compare-2-tsla-f",
+      "detected_tickers": [
+        "TSLA",
+        "F"
+      ],
+      "scope": "explicit_subset",
+      "comparison": true,
+      "retrieval_scopes": [
+        "company_pool"
+      ],
+      "subqueries": [
+        "Tesla autonomous vehicle strategy products technology business model",
+        "Ford autonomous vehicle strategy products technology business model"
+      ],
+      "candidate_ids_by_company": {
+        "TSLA": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000015",
+          "TSLA-2025-CHUNK-000008",
+          "TSLA-2025-CHUNK-000040",
+          "TSLA-2025-CHUNK-000107",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000016",
+          "TSLA-2025-CHUNK-000064",
+          "TSLA-2025-CHUNK-000034"
+        ],
+        "F": [
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000562",
+          "F-2025-CHUNK-000041",
+          "F-2025-CHUNK-000553",
+          "F-2025-CHUNK-000021",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000551",
+          "F-2025-CHUNK-000135"
+        ]
+      },
+      "selected_ids": [
+        "TSLA-2025-CHUNK-000003",
+        "F-2025-CHUNK-000005",
+        "TSLA-2025-CHUNK-000006",
+        "F-2025-CHUNK-000055",
+        "TSLA-2025-CHUNK-000107",
+        "F-2025-CHUNK-000562",
+        "TSLA-2025-CHUNK-000015",
+        "F-2025-CHUNK-000103",
+        "TSLA-2025-CHUNK-000008",
+        "F-2025-CHUNK-000041",
+        "TSLA-2025-CHUNK-000040",
+        "F-2025-CHUNK-000553",
+        "TSLA-2025-CHUNK-000064",
+        "F-2025-CHUNK-000135",
+        "TSLA-2025-CHUNK-000001",
+        "F-2025-CHUNK-000021",
+        "TSLA-2025-CHUNK-000016",
+        "F-2025-CHUNK-000004",
+        "TSLA-2025-CHUNK-000034",
+        "F-2025-CHUNK-000551"
+      ],
+      "selected_company_counts": {
+        "F": 10,
+        "TSLA": 10
+      },
+      "coverage_by_subquery": [
+        10,
+        10
+      ]
+    },
+    {
+      "id": "compare-3-tsla-f-mbly",
+      "detected_tickers": [
+        "TSLA",
+        "MBLY",
+        "F"
+      ],
+      "scope": "explicit_subset",
+      "comparison": true,
+      "retrieval_scopes": [
+        "company_pool"
+      ],
+      "subqueries": [
+        "Tesla autonomous vehicle strategy products technology business model",
+        "Ford autonomous vehicle strategy products technology business model",
+        "Mobileye autonomous vehicle strategy products technology business model"
+      ],
+      "candidate_ids_by_company": {
+        "TSLA": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000015",
+          "TSLA-2025-CHUNK-000008",
+          "TSLA-2025-CHUNK-000040",
+          "TSLA-2025-CHUNK-000107",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000016",
+          "TSLA-2025-CHUNK-000064",
+          "TSLA-2025-CHUNK-000034"
+        ],
+        "F": [
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000562",
+          "F-2025-CHUNK-000041",
+          "F-2025-CHUNK-000553",
+          "F-2025-CHUNK-000021",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000551",
+          "F-2025-CHUNK-000135"
+        ],
+        "MBLY": [
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000201",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000104",
+          "MBLY-2025-CHUNK-000005",
+          "MBLY-2025-CHUNK-000041",
+          "MBLY-2025-CHUNK-000009",
+          "MBLY-2025-CHUNK-000016"
+        ]
+      },
+      "selected_ids": [
+        "TSLA-2025-CHUNK-000003",
+        "F-2025-CHUNK-000005",
+        "MBLY-2025-CHUNK-000002",
+        "TSLA-2025-CHUNK-000006",
+        "F-2025-CHUNK-000055",
+        "MBLY-2025-CHUNK-000201",
+        "TSLA-2025-CHUNK-000107",
+        "MBLY-2025-CHUNK-000104",
+        "F-2025-CHUNK-000562",
+        "TSLA-2025-CHUNK-000015",
+        "MBLY-2025-CHUNK-000020",
+        "F-2025-CHUNK-000103",
+        "TSLA-2025-CHUNK-000008",
+        "MBLY-2025-CHUNK-000019",
+        "F-2025-CHUNK-000041",
+        "TSLA-2025-CHUNK-000040",
+        "MBLY-2025-CHUNK-000021",
+        "F-2025-CHUNK-000553",
+        "TSLA-2025-CHUNK-000064",
+        "MBLY-2025-CHUNK-000005",
+        "F-2025-CHUNK-000135",
+        "TSLA-2025-CHUNK-000001",
+        "MBLY-2025-CHUNK-000041",
+        "F-2025-CHUNK-000021",
+        "TSLA-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000009",
+        "F-2025-CHUNK-000004",
+        "TSLA-2025-CHUNK-000034",
+        "MBLY-2025-CHUNK-000016",
+        "F-2025-CHUNK-000551"
+      ],
+      "selected_company_counts": {
+        "F": 10,
+        "MBLY": 10,
+        "TSLA": 10
+      },
+      "coverage_by_subquery": [
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "id": "compare-4-tsla-f-mbly-gm",
+      "detected_tickers": [
+        "TSLA",
+        "MBLY",
+        "GM",
+        "F"
+      ],
+      "scope": "explicit_subset",
+      "comparison": true,
+      "retrieval_scopes": [
+        "company_pool"
+      ],
+      "subqueries": [
+        "Tesla autonomous vehicle strategy products technology business model",
+        "Ford autonomous vehicle strategy products technology business model",
+        "Mobileye autonomous vehicle strategy products technology business model",
+        "General Motors autonomous vehicle strategy products technology business model"
+      ],
+      "candidate_ids_by_company": {
+        "TSLA": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000015",
+          "TSLA-2025-CHUNK-000008",
+          "TSLA-2025-CHUNK-000040",
+          "TSLA-2025-CHUNK-000107",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000016",
+          "TSLA-2025-CHUNK-000064",
+          "TSLA-2025-CHUNK-000034"
+        ],
+        "F": [
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000562",
+          "F-2025-CHUNK-000041",
+          "F-2025-CHUNK-000553",
+          "F-2025-CHUNK-000021",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000551",
+          "F-2025-CHUNK-000135"
+        ],
+        "MBLY": [
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000201",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000104",
+          "MBLY-2025-CHUNK-000005",
+          "MBLY-2025-CHUNK-000041",
+          "MBLY-2025-CHUNK-000009",
+          "MBLY-2025-CHUNK-000016"
+        ],
+        "GM": [
+          "GM-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000041",
+          "GM-2025-CHUNK-000034",
+          "GM-2025-CHUNK-000001",
+          "GM-2025-CHUNK-000037",
+          "GM-2025-CHUNK-000199",
+          "GM-2025-CHUNK-000014",
+          "GM-2025-CHUNK-000011",
+          "GM-2025-CHUNK-000012",
+          "GM-2025-CHUNK-000039"
+        ]
+      },
+      "selected_ids": [
+        "TSLA-2025-CHUNK-000003",
+        "F-2025-CHUNK-000005",
+        "MBLY-2025-CHUNK-000002",
+        "GM-2025-CHUNK-000005",
+        "TSLA-2025-CHUNK-000006",
+        "F-2025-CHUNK-000055",
+        "MBLY-2025-CHUNK-000201",
+        "GM-2025-CHUNK-000041",
+        "TSLA-2025-CHUNK-000107",
+        "MBLY-2025-CHUNK-000104",
+        "GM-2025-CHUNK-000034",
+        "F-2025-CHUNK-000562",
+        "TSLA-2025-CHUNK-000015",
+        "MBLY-2025-CHUNK-000020",
+        "GM-2025-CHUNK-000199",
+        "F-2025-CHUNK-000103",
+        "TSLA-2025-CHUNK-000008",
+        "MBLY-2025-CHUNK-000019",
+        "GM-2025-CHUNK-000001",
+        "F-2025-CHUNK-000041",
+        "TSLA-2025-CHUNK-000040",
+        "MBLY-2025-CHUNK-000021",
+        "GM-2025-CHUNK-000037",
+        "F-2025-CHUNK-000553",
+        "TSLA-2025-CHUNK-000064",
+        "MBLY-2025-CHUNK-000005",
+        "GM-2025-CHUNK-000014",
+        "F-2025-CHUNK-000135",
+        "TSLA-2025-CHUNK-000001",
+        "MBLY-2025-CHUNK-000041",
+        "GM-2025-CHUNK-000011",
+        "F-2025-CHUNK-000021",
+        "TSLA-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000009",
+        "GM-2025-CHUNK-000012",
+        "F-2025-CHUNK-000004",
+        "TSLA-2025-CHUNK-000034",
+        "MBLY-2025-CHUNK-000016",
+        "GM-2025-CHUNK-000039",
+        "F-2025-CHUNK-000551"
+      ],
+      "selected_company_counts": {
+        "F": 10,
+        "GM": 10,
+        "MBLY": 10,
+        "TSLA": 10
+      },
+      "coverage_by_subquery": [
+        10,
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "id": "compare-5-tsla-f-mbly-gm-rivn",
+      "detected_tickers": [
+        "TSLA",
+        "MBLY",
+        "GM",
+        "F",
+        "RIVN"
+      ],
+      "scope": "explicit_subset",
+      "comparison": true,
+      "retrieval_scopes": [
+        "company_pool"
+      ],
+      "subqueries": [
+        "Tesla autonomous vehicle strategy products technology business model",
+        "Ford autonomous vehicle strategy products technology business model",
+        "Mobileye autonomous vehicle strategy products technology business model",
+        "General Motors autonomous vehicle strategy products technology business model",
+        "Rivian autonomous vehicle strategy products technology business model"
+      ],
+      "candidate_ids_by_company": {
+        "TSLA": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000015",
+          "TSLA-2025-CHUNK-000008",
+          "TSLA-2025-CHUNK-000040",
+          "TSLA-2025-CHUNK-000107",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000016",
+          "TSLA-2025-CHUNK-000064",
+          "TSLA-2025-CHUNK-000034"
+        ],
+        "F": [
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000562",
+          "F-2025-CHUNK-000041",
+          "F-2025-CHUNK-000553",
+          "F-2025-CHUNK-000021",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000551",
+          "F-2025-CHUNK-000135"
+        ],
+        "MBLY": [
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000201",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000104",
+          "MBLY-2025-CHUNK-000005",
+          "MBLY-2025-CHUNK-000041",
+          "MBLY-2025-CHUNK-000009",
+          "MBLY-2025-CHUNK-000016"
+        ],
+        "GM": [
+          "GM-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000041",
+          "GM-2025-CHUNK-000034",
+          "GM-2025-CHUNK-000001",
+          "GM-2025-CHUNK-000037",
+          "GM-2025-CHUNK-000199",
+          "GM-2025-CHUNK-000014",
+          "GM-2025-CHUNK-000011",
+          "GM-2025-CHUNK-000012",
+          "GM-2025-CHUNK-000039"
+        ],
+        "RIVN": [
+          "RIVN-2025-CHUNK-000001",
+          "RIVN-2025-CHUNK-000152",
+          "RIVN-2025-CHUNK-000033",
+          "RIVN-2025-CHUNK-000005",
+          "RIVN-2025-CHUNK-000155",
+          "RIVN-2025-CHUNK-000009",
+          "RIVN-2025-CHUNK-000004",
+          "RIVN-2025-CHUNK-000002",
+          "RIVN-2025-CHUNK-000018",
+          "RIVN-2025-CHUNK-000153"
+        ]
+      },
+      "selected_ids": [
+        "TSLA-2025-CHUNK-000003",
+        "F-2025-CHUNK-000005",
+        "MBLY-2025-CHUNK-000002",
+        "GM-2025-CHUNK-000005",
+        "RIVN-2025-CHUNK-000001",
+        "TSLA-2025-CHUNK-000006",
+        "F-2025-CHUNK-000055",
+        "MBLY-2025-CHUNK-000201",
+        "GM-2025-CHUNK-000041",
+        "RIVN-2025-CHUNK-000152",
+        "TSLA-2025-CHUNK-000107",
+        "MBLY-2025-CHUNK-000104",
+        "GM-2025-CHUNK-000034",
+        "F-2025-CHUNK-000562",
+        "RIVN-2025-CHUNK-000033",
+        "TSLA-2025-CHUNK-000015",
+        "MBLY-2025-CHUNK-000020",
+        "GM-2025-CHUNK-000199",
+        "F-2025-CHUNK-000103",
+        "RIVN-2025-CHUNK-000005",
+        "TSLA-2025-CHUNK-000008",
+        "MBLY-2025-CHUNK-000019",
+        "GM-2025-CHUNK-000001",
+        "F-2025-CHUNK-000041",
+        "RIVN-2025-CHUNK-000155",
+        "TSLA-2025-CHUNK-000040",
+        "MBLY-2025-CHUNK-000021",
+        "GM-2025-CHUNK-000037",
+        "F-2025-CHUNK-000553",
+        "RIVN-2025-CHUNK-000009",
+        "TSLA-2025-CHUNK-000064",
+        "MBLY-2025-CHUNK-000005",
+        "GM-2025-CHUNK-000014",
+        "F-2025-CHUNK-000135",
+        "RIVN-2025-CHUNK-000004",
+        "TSLA-2025-CHUNK-000001",
+        "MBLY-2025-CHUNK-000041",
+        "GM-2025-CHUNK-000011",
+        "F-2025-CHUNK-000021",
+        "RIVN-2025-CHUNK-000002",
+        "TSLA-2025-CHUNK-000016",
+        "MBLY-2025-CHUNK-000009",
+        "GM-2025-CHUNK-000012",
+        "F-2025-CHUNK-000004",
+        "RIVN-2025-CHUNK-000018",
+        "TSLA-2025-CHUNK-000034",
+        "MBLY-2025-CHUNK-000016",
+        "GM-2025-CHUNK-000039",
+        "F-2025-CHUNK-000551",
+        "RIVN-2025-CHUNK-000153"
+      ],
+      "selected_company_counts": {
+        "F": 10,
+        "GM": 10,
+        "MBLY": 10,
+        "RIVN": 10,
+        "TSLA": 10
+      },
+      "coverage_by_subquery": [
+        10,
+        10,
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "id": "company-depth-aptv-global-11-30",
+      "detected_tickers": [
+        "APTV"
+      ],
+      "scope": "single_company",
+      "comparison": false,
+      "retrieval_scopes": [
+        "company_pool"
+      ],
+      "subqueries": [
+        "Aptiv automated driving software products strategy"
+      ],
+      "candidate_ids_by_company": {
+        "APTV": [
+          "APTV-2025-CHUNK-000108",
+          "APTV-2025-CHUNK-000010",
+          "APTV-2025-CHUNK-000109",
+          "APTV-2025-CHUNK-000103",
+          "APTV-2025-CHUNK-000044",
+          "APTV-2025-CHUNK-000249",
+          "APTV-2025-CHUNK-000484",
+          "APTV-2025-CHUNK-000009",
+          "APTV-2025-CHUNK-000042",
+          "APTV-2025-CHUNK-000011"
+        ]
+      },
+      "selected_ids": [
+        "APTV-2025-CHUNK-000108",
+        "APTV-2025-CHUNK-000010",
+        "APTV-2025-CHUNK-000044",
+        "APTV-2025-CHUNK-000249",
+        "APTV-2025-CHUNK-000109",
+        "APTV-2025-CHUNK-000103",
+        "APTV-2025-CHUNK-000484",
+        "APTV-2025-CHUNK-000009",
+        "APTV-2025-CHUNK-000042",
+        "APTV-2025-CHUNK-000011"
+      ],
+      "selected_company_counts": {
+        "APTV": 10
+      },
+      "coverage_by_subquery": [
+        10
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3139 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-09-02T08:31:44.568843+00:00",
+  "policy": "scope-aware-npz-bm25-rrf-v1",
+  "corpus": {
+    "tickers": [
+      "AUR",
+      "TSLA",
+      "MBLY",
+      "GOOGL",
+      "GM",
+      "F",
+      "NVDA",
+      "QCOM",
+      "APTV",
+      "OUST",
+      "RIVN"
+    ],
+    "chunk_count": 4526,
+    "fingerprint": "sha256:8e2181e42846070bdc3e6cef2fd483a194971909b147e41151fa12777fbb5ef7",
+    "embedding_model": "BAAI/bge-base-en-v1.5"
+  },
+  "resolution": {
+    "summary": {
+      "case_count": 46,
+      "pass_count": 46,
+      "accuracy": 1.0,
+      "exact_accuracy": 1.0,
+      "typo_accuracy": 1.0,
+      "ambiguity_precision": 1.0,
+      "false_company_rate": 0.0,
+      "latency_ms": {
+        "mean": 14.640065347877048,
+        "p50": 13.400141499005258,
+        "p95": 26.848789260839112,
+        "max": 29.45394499693066
+      }
+    },
+    "records": [
+      {
+        "id": "exact-aurora-innovation",
+        "category": "exact_alias",
+        "query": "Summarize Aurora Innovation's strategy.",
+        "expected_tickers": [
+          "AUR"
+        ],
+        "detected_tickers": [
+          "AUR"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "aurora innovation",
+            "ticker": "AUR",
+            "canonical_name": "Aurora Innovation, Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 13.622530997963622
+      },
+      {
+        "id": "exact-aurora",
+        "category": "exact_alias",
+        "query": "What does AURORA disclose?",
+        "expected_tickers": [
+          "AUR"
+        ],
+        "detected_tickers": [
+          "AUR"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "aurora",
+            "ticker": "AUR",
+            "canonical_name": "Aurora Innovation, Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 8.387791982386261
+      },
+      {
+        "id": "exact-aurora-driver",
+        "category": "exact_alias",
+        "query": "How is Aurora Driver commercialized?",
+        "expected_tickers": [
+          "AUR"
+        ],
+        "detected_tickers": [
+          "AUR"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "aurora driver",
+            "ticker": "AUR",
+            "canonical_name": "Aurora Innovation, Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 13.569472997915
+      },
+      {
+        "id": "exact-tesla",
+        "category": "exact_alias",
+        "query": "What are Tesla's principal risks?",
+        "expected_tickers": [
+          "TSLA"
+        ],
+        "detected_tickers": [
+          "TSLA"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "tesla",
+            "ticker": "TSLA",
+            "canonical_name": "Tesla, Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 14.873051986796781
+      },
+      {
+        "id": "exact-mobileye",
+        "category": "exact_alias",
+        "query": "Summarize Mobileye.",
+        "expected_tickers": [
+          "MBLY"
+        ],
+        "detected_tickers": [
+          "MBLY"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "mobileye",
+            "ticker": "MBLY",
+            "canonical_name": "Mobileye Global Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 2.2876930015627295
+      },
+      {
+        "id": "exact-eyeq",
+        "category": "exact_alias",
+        "query": "How does EyeQ generate revenue?",
+        "expected_tickers": [
+          "MBLY"
+        ],
+        "detected_tickers": [
+          "MBLY"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "eyeq",
+            "ticker": "MBLY",
+            "canonical_name": "Mobileye Global Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 11.457774991868064
+      },
+      {
+        "id": "exact-mobileye-drive",
+        "category": "exact_alias",
+        "query": "Describe Mobileye Drive.",
+        "expected_tickers": [
+          "MBLY"
+        ],
+        "detected_tickers": [
+          "MBLY"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "mobileye drive",
+            "ticker": "MBLY",
+            "canonical_name": "Mobileye Global Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 4.722582991234958
+      },
+      {
+        "id": "exact-alphabet",
+        "category": "exact_alias",
+        "query": "What does Alphabet disclose about Waymo?",
+        "expected_tickers": [
+          "GOOGL"
+        ],
+        "detected_tickers": [
+          "GOOGL"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "alphabet",
+            "ticker": "GOOGL",
+            "canonical_name": "Alphabet Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 20.592525019310415
+      },
+      {
+        "id": "exact-google",
+        "category": "exact_alias",
+        "query": "Summarize Google's business risks.",
+        "expected_tickers": [
+          "GOOGL"
+        ],
+        "detected_tickers": [
+          "GOOGL"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "google",
+            "ticker": "GOOGL",
+            "canonical_name": "Alphabet Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 11.975147994235158
+      },
+      {
+        "id": "exact-waymo",
+        "category": "exact_alias",
+        "query": "How does Waymo fit the filing?",
+        "expected_tickers": [
+          "GOOGL"
+        ],
+        "detected_tickers": [
+          "GOOGL"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "waymo",
+            "ticker": "GOOGL",
+            "canonical_name": "Alphabet Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 13.095106987748295
+      },
+      {
+        "id": "exact-general-motors",
+        "category": "exact_alias",
+        "query": "What is General Motors' AV strategy?",
+        "expected_tickers": [
+          "GM"
+        ],
+        "detected_tickers": [
+          "GM"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "general motors",
+            "ticker": "GM",
+            "canonical_name": "General Motors Company",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 15.831285010790452
+      },
+      {
+        "id": "exact-gm",
+        "category": "exact_alias",
+        "query": "Summarize GM revenue.",
+        "expected_tickers": [
+          "GM"
+        ],
+        "detected_tickers": [
+          "GM"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "gm",
+            "ticker": "GM",
+            "canonical_name": "General Motors Company",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 5.023239995352924
+      },
+      {
+        "id": "exact-ford-motor-company",
+        "category": "exact_alias",
+        "query": "What segments does Ford Motor Company report?",
+        "expected_tickers": [
+          "F"
+        ],
+        "detected_tickers": [
+          "F"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "ford motor",
+            "ticker": "F",
+            "canonical_name": "Ford Motor Company",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 19.64652701281011
+      },
+      {
+        "id": "exact-ford",
+        "category": "exact_alias",
+        "query": "Summarize FORD's strategy.",
+        "expected_tickers": [
+          "F"
+        ],
+        "detected_tickers": [
+          "F"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "ford",
+            "ticker": "F",
+            "canonical_name": "Ford Motor Company",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 5.768392002210021
+      },
+      {
+        "id": "exact-nvidia",
+        "category": "exact_alias",
+        "query": "What automotive products does NVIDIA discuss?",
+        "expected_tickers": [
+          "NVDA"
+        ],
+        "detected_tickers": [
+          "NVDA"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "nvidia",
+            "ticker": "NVDA",
+            "canonical_name": "NVIDIA Corporation",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 23.739992000628263
+      },
+      {
+        "id": "exact-qualcomm",
+        "category": "exact_alias",
+        "query": "Summarize Qualcomm's automotive business.",
+        "expected_tickers": [
+          "QCOM"
+        ],
+        "detected_tickers": [
+          "QCOM"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "qualcomm",
+            "ticker": "QCOM",
+            "canonical_name": "QUALCOMM Incorporated",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 13.281774008646607
+      },
+      {
+        "id": "exact-snapdragon-digital-chassis",
+        "category": "exact_alias",
+        "query": "Describe Snapdragon Digital Chassis.",
+        "expected_tickers": [
+          "QCOM"
+        ],
+        "detected_tickers": [
+          "QCOM"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "snapdragon digital chassis",
+            "ticker": "QCOM",
+            "canonical_name": "QUALCOMM Incorporated",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 10.61913400189951
+      },
+      {
+        "id": "exact-snapdragon",
+        "category": "exact_alias",
+        "query": "What is Snapdragon revenue exposure?",
+        "expected_tickers": [
+          "QCOM"
+        ],
+        "detected_tickers": [
+          "QCOM"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "snapdragon",
+            "ticker": "QCOM",
+            "canonical_name": "QUALCOMM Incorporated",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 14.805725979385898
+      },
+      {
+        "id": "exact-aptiv",
+        "category": "exact_alias",
+        "query": "How is Aptiv organized?",
+        "expected_tickers": [
+          "APTV"
+        ],
+        "detected_tickers": [
+          "APTV"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "aptiv",
+            "ticker": "APTV",
+            "canonical_name": "Aptiv PLC",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 8.375900011742488
+      },
+      {
+        "id": "exact-ouster",
+        "category": "exact_alias",
+        "query": "Describe Ouster's lidar portfolio.",
+        "expected_tickers": [
+          "OUST"
+        ],
+        "detected_tickers": [
+          "OUST"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "ouster",
+            "ticker": "OUST",
+            "canonical_name": "Ouster, Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 11.553648015251383
+      },
+      {
+        "id": "exact-rivian-automotive",
+        "category": "exact_alias",
+        "query": "Summarize Rivian Automotive's products.",
+        "expected_tickers": [
+          "RIVN"
+        ],
+        "detected_tickers": [
+          "RIVN"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "rivian automotive",
+            "ticker": "RIVN",
+            "canonical_name": "Rivian Automotive, Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 12.80832799966447
+      },
+      {
+        "id": "exact-rivian",
+        "category": "exact_alias",
+        "query": "What are Rivian's risks?",
+        "expected_tickers": [
+          "RIVN"
+        ],
+        "detected_tickers": [
+          "RIVN"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "rivian",
+            "ticker": "RIVN",
+            "canonical_name": "Rivian Automotive, Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 7.452438003383577
+      },
+      {
+        "id": "exact-tickers",
+        "category": "exact_ticker",
+        "query": "Compare TSLA, MBLY, NVDA, QCOM, APTV, OUST, and RIVN.",
+        "expected_tickers": [
+          "TSLA",
+          "MBLY",
+          "NVDA",
+          "QCOM",
+          "APTV",
+          "OUST",
+          "RIVN"
+        ],
+        "detected_tickers": [
+          "TSLA",
+          "MBLY",
+          "NVDA",
+          "QCOM",
+          "APTV",
+          "OUST",
+          "RIVN"
+        ],
+        "expected_scope": "explicit_subset",
+        "detected_scope": "explicit_subset",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_ticker",
+          "exact_ticker",
+          "exact_ticker",
+          "exact_ticker",
+          "exact_ticker",
+          "exact_ticker",
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high",
+          "high",
+          "high",
+          "high",
+          "high",
+          "high",
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "TSLA",
+            "ticker": "TSLA",
+            "canonical_name": "Tesla, Inc.",
+            "method": "exact_ticker",
+            "confidence": 1.0
+          },
+          {
+            "raw_text": "MBLY",
+            "ticker": "MBLY",
+            "canonical_name": "Mobileye Global Inc.",
+            "method": "exact_ticker",
+            "confidence": 1.0
+          },
+          {
+            "raw_text": "NVDA",
+            "ticker": "NVDA",
+            "canonical_name": "NVIDIA Corporation",
+            "method": "exact_ticker",
+            "confidence": 1.0
+          },
+          {
+            "raw_text": "QCOM",
+            "ticker": "QCOM",
+            "canonical_name": "QUALCOMM Incorporated",
+            "method": "exact_ticker",
+            "confidence": 1.0
+          },
+          {
+            "raw_text": "APTV",
+            "ticker": "APTV",
+            "canonical_name": "Aptiv PLC",
+            "method": "exact_ticker",
+            "confidence": 1.0
+          },
+          {
+            "raw_text": "OUST",
+            "ticker": "OUST",
+            "canonical_name": "Ouster, Inc.",
+            "method": "exact_ticker",
+            "confidence": 1.0
+          },
+          {
+            "raw_text": "rivn",
+            "ticker": "RIVN",
+            "canonical_name": "Rivian Automotive, Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 11.842831008834764
+      },
+      {
+        "id": "exact-punctuation",
+        "category": "exact_punctuation",
+        "query": "Tesla—Ford; Mobileye/GM: compare strategy.",
+        "expected_tickers": [
+          "TSLA",
+          "MBLY",
+          "GM",
+          "F"
+        ],
+        "detected_tickers": [
+          "TSLA",
+          "MBLY",
+          "GM",
+          "F"
+        ],
+        "expected_scope": "explicit_subset",
+        "detected_scope": "explicit_subset",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias",
+          "exact_alias",
+          "exact_alias",
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high",
+          "high",
+          "high",
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "tesla",
+            "ticker": "TSLA",
+            "canonical_name": "Tesla, Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          },
+          {
+            "raw_text": "mobileye",
+            "ticker": "MBLY",
+            "canonical_name": "Mobileye Global Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          },
+          {
+            "raw_text": "gm",
+            "ticker": "GM",
+            "canonical_name": "General Motors Company",
+            "method": "exact_alias",
+            "confidence": 1.0
+          },
+          {
+            "raw_text": "ford",
+            "ticker": "F",
+            "canonical_name": "Ford Motor Company",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 13.28933797776699
+      },
+      {
+        "id": "exact-lowercase-tickers",
+        "category": "exact_ticker",
+        "query": "Compare nvda with qcom and rivn.",
+        "expected_tickers": [
+          "NVDA",
+          "QCOM",
+          "RIVN"
+        ],
+        "detected_tickers": [
+          "NVDA",
+          "QCOM",
+          "RIVN"
+        ],
+        "expected_scope": "explicit_subset",
+        "detected_scope": "explicit_subset",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_ticker",
+          "exact_ticker",
+          "exact_alias"
+        ],
+        "confidence_bands": [
+          "high",
+          "high",
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "NVDA",
+            "ticker": "NVDA",
+            "canonical_name": "NVIDIA Corporation",
+            "method": "exact_ticker",
+            "confidence": 1.0
+          },
+          {
+            "raw_text": "QCOM",
+            "ticker": "QCOM",
+            "canonical_name": "QUALCOMM Incorporated",
+            "method": "exact_ticker",
+            "confidence": 1.0
+          },
+          {
+            "raw_text": "rivn",
+            "ticker": "RIVN",
+            "canonical_name": "Rivian Automotive, Inc.",
+            "method": "exact_alias",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 9.890804998576641
+      },
+      {
+        "id": "exact-single-letter-f",
+        "category": "exact_ticker",
+        "query": "Compare ticker F with GM.",
+        "expected_tickers": [
+          "GM",
+          "F"
+        ],
+        "detected_tickers": [
+          "GM",
+          "F"
+        ],
+        "expected_scope": "explicit_subset",
+        "detected_scope": "explicit_subset",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "exact_alias",
+          "exact_ticker"
+        ],
+        "confidence_bands": [
+          "high",
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "gm",
+            "ticker": "GM",
+            "canonical_name": "General Motors Company",
+            "method": "exact_alias",
+            "confidence": 1.0
+          },
+          {
+            "raw_text": "F",
+            "ticker": "F",
+            "canonical_name": "Ford Motor Company",
+            "method": "exact_ticker",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 9.268160007195547
+      },
+      {
+        "id": "typo-auroar",
+        "category": "typo_transposition",
+        "query": "What is Auroar's commercialization plan?",
+        "expected_tickers": [
+          "AUR"
+        ],
+        "detected_tickers": [
+          "AUR"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "fuzzy"
+        ],
+        "confidence_bands": [
+          "medium"
+        ],
+        "mentions": [
+          {
+            "raw_text": "auroar",
+            "ticker": "AUR",
+            "canonical_name": "Aurora Innovation, Inc.",
+            "method": "fuzzy",
+            "confidence": 0.8333333333333334
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 20.544397993944585
+      },
+      {
+        "id": "typo-tesal",
+        "category": "typo_transposition",
+        "query": "Summarize Tesal vehicle revenue.",
+        "expected_tickers": [
+          "TSLA"
+        ],
+        "detected_tickers": [
+          "TSLA"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "fuzzy"
+        ],
+        "confidence_bands": [
+          "medium"
+        ],
+        "mentions": [
+          {
+            "raw_text": "tesal",
+            "ticker": "TSLA",
+            "canonical_name": "Tesla, Inc.",
+            "method": "fuzzy",
+            "confidence": 0.8
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 13.441244984278455
+      },
+      {
+        "id": "typo-mobiley",
+        "category": "typo_deletion",
+        "query": "Describe Mobiley's ADAS strategy.",
+        "expected_tickers": [
+          "MBLY"
+        ],
+        "detected_tickers": [
+          "MBLY"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "fuzzy"
+        ],
+        "confidence_bands": [
+          "medium"
+        ],
+        "mentions": [
+          {
+            "raw_text": "mobiley",
+            "ticker": "MBLY",
+            "canonical_name": "Mobileye Global Inc.",
+            "method": "fuzzy",
+            "confidence": 0.875
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 12.748036999255419
+      },
+      {
+        "id": "typo-eye-q",
+        "category": "typo_punctuation",
+        "query": "How many Eye-Q systems shipped?",
+        "expected_tickers": [
+          "MBLY"
+        ],
+        "detected_tickers": [
+          "MBLY"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "fuzzy"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "eye q",
+            "ticker": "MBLY",
+            "canonical_name": "Mobileye Global Inc.",
+            "method": "fuzzy",
+            "confidence": 1.0
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 14.893383020535111
+      },
+      {
+        "id": "typo-aplhabet",
+        "category": "typo_transposition",
+        "query": "What does Aplhabet say about autonomous driving?",
+        "expected_tickers": [
+          "GOOGL"
+        ],
+        "detected_tickers": [
+          "GOOGL"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "fuzzy"
+        ],
+        "confidence_bands": [
+          "medium"
+        ],
+        "mentions": [
+          {
+            "raw_text": "aplhabet",
+            "ticker": "GOOGL",
+            "canonical_name": "Alphabet Inc.",
+            "method": "fuzzy",
+            "confidence": 0.875
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 27.408821013523266
+      },
+      {
+        "id": "typo-generla-motors",
+        "category": "typo_transposition",
+        "query": "Summarize Generla Motors' strategy.",
+        "expected_tickers": [
+          "GM"
+        ],
+        "detected_tickers": [
+          "GM"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "fuzzy"
+        ],
+        "confidence_bands": [
+          "high"
+        ],
+        "mentions": [
+          {
+            "raw_text": "generla motors",
+            "ticker": "GM",
+            "canonical_name": "General Motors Company",
+            "method": "fuzzy",
+            "confidence": 0.9230769230769231
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 13.35903801373206
+      },
+      {
+        "id": "typo-frod",
+        "category": "typo_transposition",
+        "query": "What are frod's principal segments?",
+        "expected_tickers": [
+          "F"
+        ],
+        "detected_tickers": [
+          "F"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "fuzzy"
+        ],
+        "confidence_bands": [
+          "medium"
+        ],
+        "mentions": [
+          {
+            "raw_text": "frod",
+            "ticker": "F",
+            "canonical_name": "Ford Motor Company",
+            "method": "fuzzy",
+            "confidence": 0.75
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 15.662483987398446
+      },
+      {
+        "id": "typo-nvida",
+        "category": "typo_transposition",
+        "query": "Describe Nvida automotive products.",
+        "expected_tickers": [
+          "NVDA"
+        ],
+        "detected_tickers": [
+          "NVDA"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "fuzzy"
+        ],
+        "confidence_bands": [
+          "medium"
+        ],
+        "mentions": [
+          {
+            "raw_text": "nvida",
+            "ticker": "NVDA",
+            "canonical_name": "NVIDIA Corporation",
+            "method": "fuzzy",
+            "confidence": 0.8333333333333334
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 14.416652004001662
+      },
+      {
+        "id": "typo-qualcom",
+        "category": "typo_deletion",
+        "query": "What does Qualcom disclose about automotive?",
+        "expected_tickers": [
+          "QCOM"
+        ],
+        "detected_tickers": [
+          "QCOM"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "fuzzy"
+        ],
+        "confidence_bands": [
+          "medium"
+        ],
+        "mentions": [
+          {
+            "raw_text": "qualcom",
+            "ticker": "QCOM",
+            "canonical_name": "QUALCOMM Incorporated",
+            "method": "fuzzy",
+            "confidence": 0.875
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 25.071397016290575
+      },
+      {
+        "id": "typo-apitv",
+        "category": "typo_transposition",
+        "query": "Summarize Apitv's automated-driving strategy.",
+        "expected_tickers": [
+          "APTV"
+        ],
+        "detected_tickers": [
+          "APTV"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "fuzzy"
+        ],
+        "confidence_bands": [
+          "medium"
+        ],
+        "mentions": [
+          {
+            "raw_text": "apitv",
+            "ticker": "APTV",
+            "canonical_name": "Aptiv PLC",
+            "method": "fuzzy",
+            "confidence": 0.8
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 21.27610400202684
+      },
+      {
+        "id": "typo-oustre",
+        "category": "typo_transposition",
+        "query": "Describe Oustre's lidar products.",
+        "expected_tickers": [
+          "OUST"
+        ],
+        "detected_tickers": [
+          "OUST"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "fuzzy"
+        ],
+        "confidence_bands": [
+          "medium"
+        ],
+        "mentions": [
+          {
+            "raw_text": "oustre",
+            "ticker": "OUST",
+            "canonical_name": "Ouster, Inc.",
+            "method": "fuzzy",
+            "confidence": 0.8333333333333334
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 11.860036000143737
+      },
+      {
+        "id": "typo-rivain",
+        "category": "typo_transposition",
+        "query": "What vehicles does Rivain make?",
+        "expected_tickers": [
+          "RIVN"
+        ],
+        "detected_tickers": [
+          "RIVN"
+        ],
+        "expected_scope": "single_company",
+        "detected_scope": "single_company",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "fuzzy"
+        ],
+        "confidence_bands": [
+          "medium"
+        ],
+        "mentions": [
+          {
+            "raw_text": "rivain",
+            "ticker": "RIVN",
+            "canonical_name": "Rivian Automotive, Inc.",
+            "method": "fuzzy",
+            "confidence": 0.8333333333333334
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 15.498121996643022
+      },
+      {
+        "id": "typo-multiple",
+        "category": "typo_multiple",
+        "query": "Compare frod, Tesal, and Mobiley autonomous strategies.",
+        "expected_tickers": [
+          "TSLA",
+          "MBLY",
+          "F"
+        ],
+        "detected_tickers": [
+          "TSLA",
+          "MBLY",
+          "F"
+        ],
+        "expected_scope": "explicit_subset",
+        "detected_scope": "explicit_subset",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [
+          "fuzzy",
+          "fuzzy",
+          "fuzzy"
+        ],
+        "confidence_bands": [
+          "medium",
+          "medium",
+          "medium"
+        ],
+        "mentions": [
+          {
+            "raw_text": "tesal",
+            "ticker": "TSLA",
+            "canonical_name": "Tesla, Inc.",
+            "method": "fuzzy",
+            "confidence": 0.8
+          },
+          {
+            "raw_text": "mobiley",
+            "ticker": "MBLY",
+            "canonical_name": "Mobileye Global Inc.",
+            "method": "fuzzy",
+            "confidence": 0.875
+          },
+          {
+            "raw_text": "frod",
+            "ticker": "F",
+            "canonical_name": "Ford Motor Company",
+            "method": "fuzzy",
+            "confidence": 0.75
+          }
+        ],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 29.408553993562236
+      },
+      {
+        "id": "none-global",
+        "category": "none_global",
+        "query": "What risks recur across these filings?",
+        "expected_tickers": [],
+        "detected_tickers": [],
+        "expected_scope": "global",
+        "detected_scope": "global",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [],
+        "confidence_bands": [],
+        "mentions": [],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 19.618190999608487
+      },
+      {
+        "id": "none-unlisted-company",
+        "category": "none_out_of_corpus",
+        "query": "What is Toyota's autonomous vehicle strategy?",
+        "expected_tickers": [],
+        "detected_tickers": [],
+        "expected_scope": "global",
+        "detected_scope": "global",
+        "expected_needs_clarification": true,
+        "detected_needs_clarification": true,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [],
+        "confidence_bands": [],
+        "mentions": [],
+        "unresolved_mentions": [
+          {
+            "raw_text": "Toyota",
+            "reason": "unrecognized_company_like_mention",
+            "candidate_tickers": []
+          }
+        ],
+        "first_failure_stage": null,
+        "latency_ms": 25.16869400278665
+      },
+      {
+        "id": "ambiguous-aurora-borealis",
+        "category": "ambiguous_collision",
+        "query": "Does the aurora borealis affect vehicle sensors?",
+        "expected_tickers": [],
+        "detected_tickers": [],
+        "expected_scope": "global",
+        "detected_scope": "global",
+        "expected_needs_clarification": true,
+        "detected_needs_clarification": true,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [],
+        "confidence_bands": [],
+        "mentions": [],
+        "unresolved_mentions": [
+          {
+            "raw_text": "aurora borealis",
+            "reason": "ambiguous_alias_context",
+            "candidate_tickers": []
+          }
+        ],
+        "first_failure_stage": null,
+        "latency_ms": 13.875420001568273
+      },
+      {
+        "id": "ambiguous-alphabet-soup",
+        "category": "ambiguous_collision",
+        "query": "Does alphabet soup appear in any filing?",
+        "expected_tickers": [],
+        "detected_tickers": [],
+        "expected_scope": "global",
+        "detected_scope": "global",
+        "expected_needs_clarification": true,
+        "detected_needs_clarification": true,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [],
+        "confidence_bands": [],
+        "mentions": [],
+        "unresolved_mentions": [
+          {
+            "raw_text": "alphabet soup",
+            "reason": "ambiguous_alias_context",
+            "candidate_tickers": []
+          }
+        ],
+        "first_failure_stage": null,
+        "latency_ms": 11.948855011723936
+      },
+      {
+        "id": "ambiguous-snapdragon-flower",
+        "category": "ambiguous_collision",
+        "query": "Does a snapdragon flower appear in the filing?",
+        "expected_tickers": [],
+        "detected_tickers": [],
+        "expected_scope": "global",
+        "detected_scope": "global",
+        "expected_needs_clarification": true,
+        "detected_needs_clarification": true,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [],
+        "confidence_bands": [],
+        "mentions": [],
+        "unresolved_mentions": [
+          {
+            "raw_text": "snapdragon flower",
+            "reason": "ambiguous_alias_context",
+            "candidate_tickers": []
+          }
+        ],
+        "first_failure_stage": null,
+        "latency_ms": 13.050045992713422
+      },
+      {
+        "id": "none-single-letter-article",
+        "category": "none_ticker_collision",
+        "query": "Give me a summary of the filings.",
+        "expected_tickers": [],
+        "detected_tickers": [],
+        "expected_scope": "global",
+        "detected_scope": "global",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [],
+        "confidence_bands": [],
+        "mentions": [],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 16.958386986516416
+      },
+      {
+        "id": "enumeration-global",
+        "category": "none_enumeration",
+        "query": "Which companies develop autonomous driving systems?",
+        "expected_tickers": [],
+        "detected_tickers": [],
+        "expected_scope": "enumeration",
+        "detected_scope": "enumeration",
+        "expected_needs_clarification": false,
+        "detected_needs_clarification": false,
+        "detection_pass": true,
+        "scope_pass": true,
+        "clarification_pass": true,
+        "methods": [],
+        "confidence_bands": [],
+        "mentions": [],
+        "unresolved_mentions": [],
+        "first_failure_stage": null,
+        "latency_ms": 29.45394499693066
+      }
+    ]
+  },
+  "retrieval": {
+    "summary": {
+      "case_count": 5,
+      "evaluated_case_count": 5,
+      "policy_error_count": 0,
+      "mean_candidate_gold_recall": 1.0,
+      "mean_final_gold_recall": 1.0,
+      "mean_candidate_mrr": 0.8400000000000001,
+      "mean_final_mrr": 0.8666666666666666,
+      "quota_satisfaction_rate": 1.0,
+      "gold_evidence_survival_rate": 1.0,
+      "selected_source_group_redundancy_rate": 0.151,
+      "table_candidate_recall": 1.0,
+      "table_final_recall": 1.0,
+      "failure_stage_counts": {
+        "pass": 5
+      },
+      "policy_name": "company-balanced-token-aware-v2",
+      "final_evidence_budget_chunks_by_case": {
+        "compare-2-tsla-f": 20,
+        "compare-3-tsla-f-mbly": 30,
+        "compare-4-tsla-f-mbly-gm": 40,
+        "compare-5-tsla-f-mbly-gm-rivn": 50,
+        "company-depth-aptv-global-11-30": 10
+      },
+      "context_bge_token_proxy": {
+        "mean": 11534.2,
+        "max": 19910
+      },
+      "context_generation_tokens": {
+        "mean": 11817.2,
+        "max": 20025
+      },
+      "latency_ms": {
+        "mean": 1322.3334051959682,
+        "p50": 1345.2215490106028,
+        "p95": 1952.7309313882142,
+        "max": 1985.9625579847489
+      },
+      "all_request_latency_ms": {
+        "mean": 1322.3334051959682,
+        "p50": 1345.2215490106028,
+        "p95": 1952.7309313882142,
+        "max": 1985.9625579847489
+      }
+    },
+    "records": [
+      {
+        "id": "compare-2-tsla-f",
+        "query": "Compare Tesla and Ford's autonomous-vehicle products, technology, and business strategies.",
+        "subqueries": [
+          "Tesla autonomous vehicle strategy products technology business model",
+          "Ford autonomous vehicle strategy products technology business model"
+        ],
+        "expected_tickers": [
+          "TSLA",
+          "F"
+        ],
+        "detected_tickers": [
+          "TSLA",
+          "F"
+        ],
+        "scope": "explicit_subset",
+        "comparison": true,
+        "retrieval_scopes": [
+          "company_pool"
+        ],
+        "gold_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000034",
+          "TSLA-2025-CHUNK-000040",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000021"
+        ],
+        "candidate_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000015",
+          "TSLA-2025-CHUNK-000008",
+          "TSLA-2025-CHUNK-000040",
+          "TSLA-2025-CHUNK-000107",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000016",
+          "TSLA-2025-CHUNK-000064",
+          "TSLA-2025-CHUNK-000034",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000562",
+          "F-2025-CHUNK-000041",
+          "F-2025-CHUNK-000553",
+          "F-2025-CHUNK-000021",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000551",
+          "F-2025-CHUNK-000135"
+        ],
+        "candidate_ids_by_company": {
+          "TSLA": [
+            "TSLA-2025-CHUNK-000003",
+            "TSLA-2025-CHUNK-000006",
+            "TSLA-2025-CHUNK-000015",
+            "TSLA-2025-CHUNK-000008",
+            "TSLA-2025-CHUNK-000040",
+            "TSLA-2025-CHUNK-000107",
+            "TSLA-2025-CHUNK-000001",
+            "TSLA-2025-CHUNK-000016",
+            "TSLA-2025-CHUNK-000064",
+            "TSLA-2025-CHUNK-000034"
+          ],
+          "F": [
+            "F-2025-CHUNK-000005",
+            "F-2025-CHUNK-000055",
+            "F-2025-CHUNK-000103",
+            "F-2025-CHUNK-000562",
+            "F-2025-CHUNK-000041",
+            "F-2025-CHUNK-000553",
+            "F-2025-CHUNK-000021",
+            "F-2025-CHUNK-000004",
+            "F-2025-CHUNK-000551",
+            "F-2025-CHUNK-000135"
+          ]
+        },
+        "selected_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "F-2025-CHUNK-000005",
+          "TSLA-2025-CHUNK-000006",
+          "F-2025-CHUNK-000055",
+          "TSLA-2025-CHUNK-000107",
+          "F-2025-CHUNK-000562",
+          "TSLA-2025-CHUNK-000015",
+          "F-2025-CHUNK-000103",
+          "TSLA-2025-CHUNK-000008",
+          "F-2025-CHUNK-000041",
+          "TSLA-2025-CHUNK-000040",
+          "F-2025-CHUNK-000553",
+          "TSLA-2025-CHUNK-000064",
+          "F-2025-CHUNK-000135",
+          "TSLA-2025-CHUNK-000001",
+          "F-2025-CHUNK-000021",
+          "TSLA-2025-CHUNK-000016",
+          "F-2025-CHUNK-000004",
+          "TSLA-2025-CHUNK-000034",
+          "F-2025-CHUNK-000551"
+        ],
+        "selected_company_counts": {
+          "F": 10,
+          "TSLA": 10
+        },
+        "final_evidence_budget_chunks": 20,
+        "final_context_character_count": 34498,
+        "final_context_bge_token_proxy": 6838,
+        "selected_source_group_redundancy_rate": 0.0,
+        "coverage_by_subquery": [
+          10,
+          10
+        ],
+        "candidate_gold_recall": 1.0,
+        "final_gold_recall": 1.0,
+        "candidate_mrr": 1.0,
+        "final_mrr": 1.0,
+        "candidate_gold_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000034",
+          "TSLA-2025-CHUNK-000040",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000021"
+        ],
+        "selected_gold_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000034",
+          "TSLA-2025-CHUNK-000040",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000021"
+        ],
+        "per_company_candidate_recall": {
+          "TSLA": 1.0,
+          "F": 1.0
+        },
+        "per_company_final_recall": {
+          "TSLA": 1.0,
+          "F": 1.0
+        },
+        "policy_name": "company-balanced-token-aware-v2",
+        "candidate_counts_by_company": {
+          "TSLA": 10,
+          "F": 10
+        },
+        "candidate_counts_by_company_subquery": {
+          "TSLA:0": 10,
+          "F:1": 10
+        },
+        "target_counts_by_company": {
+          "TSLA": 10,
+          "F": 10
+        },
+        "quota_satisfied": true,
+        "context_input_tokens": 7202,
+        "context_input_limit": 28672,
+        "policy_error": null,
+        "rank_probe": null,
+        "first_failure_stage": null,
+        "latency_ms": 1345.2215490106028
+      },
+      {
+        "id": "compare-3-tsla-f-mbly",
+        "query": "Compare Tesla, Ford, and Mobileye's autonomous-vehicle products, technology, and business strategies.",
+        "subqueries": [
+          "Tesla autonomous vehicle strategy products technology business model",
+          "Ford autonomous vehicle strategy products technology business model",
+          "Mobileye autonomous vehicle strategy products technology business model"
+        ],
+        "expected_tickers": [
+          "TSLA",
+          "MBLY",
+          "F"
+        ],
+        "detected_tickers": [
+          "TSLA",
+          "MBLY",
+          "F"
+        ],
+        "scope": "explicit_subset",
+        "comparison": true,
+        "retrieval_scopes": [
+          "company_pool"
+        ],
+        "gold_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000034",
+          "TSLA-2025-CHUNK-000040",
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000005",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000021"
+        ],
+        "candidate_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000015",
+          "TSLA-2025-CHUNK-000008",
+          "TSLA-2025-CHUNK-000040",
+          "TSLA-2025-CHUNK-000107",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000016",
+          "TSLA-2025-CHUNK-000064",
+          "TSLA-2025-CHUNK-000034",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000562",
+          "F-2025-CHUNK-000041",
+          "F-2025-CHUNK-000553",
+          "F-2025-CHUNK-000021",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000551",
+          "F-2025-CHUNK-000135",
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000201",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000104",
+          "MBLY-2025-CHUNK-000005",
+          "MBLY-2025-CHUNK-000041",
+          "MBLY-2025-CHUNK-000009",
+          "MBLY-2025-CHUNK-000016"
+        ],
+        "candidate_ids_by_company": {
+          "TSLA": [
+            "TSLA-2025-CHUNK-000003",
+            "TSLA-2025-CHUNK-000006",
+            "TSLA-2025-CHUNK-000015",
+            "TSLA-2025-CHUNK-000008",
+            "TSLA-2025-CHUNK-000040",
+            "TSLA-2025-CHUNK-000107",
+            "TSLA-2025-CHUNK-000001",
+            "TSLA-2025-CHUNK-000016",
+            "TSLA-2025-CHUNK-000064",
+            "TSLA-2025-CHUNK-000034"
+          ],
+          "F": [
+            "F-2025-CHUNK-000005",
+            "F-2025-CHUNK-000055",
+            "F-2025-CHUNK-000103",
+            "F-2025-CHUNK-000562",
+            "F-2025-CHUNK-000041",
+            "F-2025-CHUNK-000553",
+            "F-2025-CHUNK-000021",
+            "F-2025-CHUNK-000004",
+            "F-2025-CHUNK-000551",
+            "F-2025-CHUNK-000135"
+          ],
+          "MBLY": [
+            "MBLY-2025-CHUNK-000002",
+            "MBLY-2025-CHUNK-000020",
+            "MBLY-2025-CHUNK-000019",
+            "MBLY-2025-CHUNK-000201",
+            "MBLY-2025-CHUNK-000021",
+            "MBLY-2025-CHUNK-000104",
+            "MBLY-2025-CHUNK-000005",
+            "MBLY-2025-CHUNK-000041",
+            "MBLY-2025-CHUNK-000009",
+            "MBLY-2025-CHUNK-000016"
+          ]
+        },
+        "selected_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "F-2025-CHUNK-000005",
+          "MBLY-2025-CHUNK-000002",
+          "TSLA-2025-CHUNK-000006",
+          "F-2025-CHUNK-000055",
+          "MBLY-2025-CHUNK-000201",
+          "TSLA-2025-CHUNK-000107",
+          "MBLY-2025-CHUNK-000104",
+          "F-2025-CHUNK-000562",
+          "TSLA-2025-CHUNK-000015",
+          "MBLY-2025-CHUNK-000020",
+          "F-2025-CHUNK-000103",
+          "TSLA-2025-CHUNK-000008",
+          "MBLY-2025-CHUNK-000019",
+          "F-2025-CHUNK-000041",
+          "TSLA-2025-CHUNK-000040",
+          "MBLY-2025-CHUNK-000021",
+          "F-2025-CHUNK-000553",
+          "TSLA-2025-CHUNK-000064",
+          "MBLY-2025-CHUNK-000005",
+          "F-2025-CHUNK-000135",
+          "TSLA-2025-CHUNK-000001",
+          "MBLY-2025-CHUNK-000041",
+          "F-2025-CHUNK-000021",
+          "TSLA-2025-CHUNK-000016",
+          "MBLY-2025-CHUNK-000009",
+          "F-2025-CHUNK-000004",
+          "TSLA-2025-CHUNK-000034",
+          "MBLY-2025-CHUNK-000016",
+          "F-2025-CHUNK-000551"
+        ],
+        "selected_company_counts": {
+          "F": 10,
+          "MBLY": 10,
+          "TSLA": 10
+        },
+        "final_evidence_budget_chunks": 30,
+        "final_context_character_count": 54578,
+        "final_context_bge_token_proxy": 10910,
+        "selected_source_group_redundancy_rate": 0.1,
+        "coverage_by_subquery": [
+          10,
+          10,
+          10
+        ],
+        "candidate_gold_recall": 1.0,
+        "final_gold_recall": 1.0,
+        "candidate_mrr": 1.0,
+        "final_mrr": 1.0,
+        "candidate_gold_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000034",
+          "TSLA-2025-CHUNK-000040",
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000005",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000021"
+        ],
+        "selected_gold_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000034",
+          "TSLA-2025-CHUNK-000040",
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000005",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000021"
+        ],
+        "per_company_candidate_recall": {
+          "TSLA": 1.0,
+          "MBLY": 1.0,
+          "F": 1.0
+        },
+        "per_company_final_recall": {
+          "TSLA": 1.0,
+          "MBLY": 1.0,
+          "F": 1.0
+        },
+        "policy_name": "company-balanced-token-aware-v2",
+        "candidate_counts_by_company": {
+          "TSLA": 10,
+          "F": 10,
+          "MBLY": 10
+        },
+        "candidate_counts_by_company_subquery": {
+          "TSLA:0": 10,
+          "F:1": 10,
+          "MBLY:2": 10
+        },
+        "target_counts_by_company": {
+          "TSLA": 10,
+          "MBLY": 10,
+          "F": 10
+        },
+        "quota_satisfied": true,
+        "context_input_tokens": 11157,
+        "context_input_limit": 28672,
+        "policy_error": null,
+        "rank_probe": null,
+        "first_failure_stage": null,
+        "latency_ms": 1239.821244002087
+      },
+      {
+        "id": "compare-4-tsla-f-mbly-gm",
+        "query": "Compare Tesla, Ford, Mobileye, and General Motors' autonomous-vehicle products, technology, and business strategies.",
+        "subqueries": [
+          "Tesla autonomous vehicle strategy products technology business model",
+          "Ford autonomous vehicle strategy products technology business model",
+          "Mobileye autonomous vehicle strategy products technology business model",
+          "General Motors autonomous vehicle strategy products technology business model"
+        ],
+        "expected_tickers": [
+          "TSLA",
+          "MBLY",
+          "GM",
+          "F"
+        ],
+        "detected_tickers": [
+          "TSLA",
+          "MBLY",
+          "GM",
+          "F"
+        ],
+        "scope": "explicit_subset",
+        "comparison": true,
+        "retrieval_scopes": [
+          "company_pool"
+        ],
+        "gold_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000034",
+          "TSLA-2025-CHUNK-000040",
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000041",
+          "GM-2025-CHUNK-000034",
+          "GM-2025-CHUNK-000001",
+          "GM-2025-CHUNK-000012",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000021"
+        ],
+        "candidate_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000015",
+          "TSLA-2025-CHUNK-000008",
+          "TSLA-2025-CHUNK-000040",
+          "TSLA-2025-CHUNK-000107",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000016",
+          "TSLA-2025-CHUNK-000064",
+          "TSLA-2025-CHUNK-000034",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000562",
+          "F-2025-CHUNK-000041",
+          "F-2025-CHUNK-000553",
+          "F-2025-CHUNK-000021",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000551",
+          "F-2025-CHUNK-000135",
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000201",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000104",
+          "MBLY-2025-CHUNK-000005",
+          "MBLY-2025-CHUNK-000041",
+          "MBLY-2025-CHUNK-000009",
+          "MBLY-2025-CHUNK-000016",
+          "GM-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000041",
+          "GM-2025-CHUNK-000034",
+          "GM-2025-CHUNK-000001",
+          "GM-2025-CHUNK-000037",
+          "GM-2025-CHUNK-000199",
+          "GM-2025-CHUNK-000014",
+          "GM-2025-CHUNK-000011",
+          "GM-2025-CHUNK-000012",
+          "GM-2025-CHUNK-000039"
+        ],
+        "candidate_ids_by_company": {
+          "TSLA": [
+            "TSLA-2025-CHUNK-000003",
+            "TSLA-2025-CHUNK-000006",
+            "TSLA-2025-CHUNK-000015",
+            "TSLA-2025-CHUNK-000008",
+            "TSLA-2025-CHUNK-000040",
+            "TSLA-2025-CHUNK-000107",
+            "TSLA-2025-CHUNK-000001",
+            "TSLA-2025-CHUNK-000016",
+            "TSLA-2025-CHUNK-000064",
+            "TSLA-2025-CHUNK-000034"
+          ],
+          "F": [
+            "F-2025-CHUNK-000005",
+            "F-2025-CHUNK-000055",
+            "F-2025-CHUNK-000103",
+            "F-2025-CHUNK-000562",
+            "F-2025-CHUNK-000041",
+            "F-2025-CHUNK-000553",
+            "F-2025-CHUNK-000021",
+            "F-2025-CHUNK-000004",
+            "F-2025-CHUNK-000551",
+            "F-2025-CHUNK-000135"
+          ],
+          "MBLY": [
+            "MBLY-2025-CHUNK-000002",
+            "MBLY-2025-CHUNK-000020",
+            "MBLY-2025-CHUNK-000019",
+            "MBLY-2025-CHUNK-000201",
+            "MBLY-2025-CHUNK-000021",
+            "MBLY-2025-CHUNK-000104",
+            "MBLY-2025-CHUNK-000005",
+            "MBLY-2025-CHUNK-000041",
+            "MBLY-2025-CHUNK-000009",
+            "MBLY-2025-CHUNK-000016"
+          ],
+          "GM": [
+            "GM-2025-CHUNK-000005",
+            "GM-2025-CHUNK-000041",
+            "GM-2025-CHUNK-000034",
+            "GM-2025-CHUNK-000001",
+            "GM-2025-CHUNK-000037",
+            "GM-2025-CHUNK-000199",
+            "GM-2025-CHUNK-000014",
+            "GM-2025-CHUNK-000011",
+            "GM-2025-CHUNK-000012",
+            "GM-2025-CHUNK-000039"
+          ]
+        },
+        "selected_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "F-2025-CHUNK-000005",
+          "MBLY-2025-CHUNK-000002",
+          "GM-2025-CHUNK-000005",
+          "TSLA-2025-CHUNK-000006",
+          "F-2025-CHUNK-000055",
+          "MBLY-2025-CHUNK-000201",
+          "GM-2025-CHUNK-000041",
+          "TSLA-2025-CHUNK-000107",
+          "MBLY-2025-CHUNK-000104",
+          "GM-2025-CHUNK-000034",
+          "F-2025-CHUNK-000562",
+          "TSLA-2025-CHUNK-000015",
+          "MBLY-2025-CHUNK-000020",
+          "GM-2025-CHUNK-000199",
+          "F-2025-CHUNK-000103",
+          "TSLA-2025-CHUNK-000008",
+          "MBLY-2025-CHUNK-000019",
+          "GM-2025-CHUNK-000001",
+          "F-2025-CHUNK-000041",
+          "TSLA-2025-CHUNK-000040",
+          "MBLY-2025-CHUNK-000021",
+          "GM-2025-CHUNK-000037",
+          "F-2025-CHUNK-000553",
+          "TSLA-2025-CHUNK-000064",
+          "MBLY-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000014",
+          "F-2025-CHUNK-000135",
+          "TSLA-2025-CHUNK-000001",
+          "MBLY-2025-CHUNK-000041",
+          "GM-2025-CHUNK-000011",
+          "F-2025-CHUNK-000021",
+          "TSLA-2025-CHUNK-000016",
+          "MBLY-2025-CHUNK-000009",
+          "GM-2025-CHUNK-000012",
+          "F-2025-CHUNK-000004",
+          "TSLA-2025-CHUNK-000034",
+          "MBLY-2025-CHUNK-000016",
+          "GM-2025-CHUNK-000039",
+          "F-2025-CHUNK-000551"
+        ],
+        "selected_company_counts": {
+          "F": 10,
+          "GM": 10,
+          "MBLY": 10,
+          "TSLA": 10
+        },
+        "final_evidence_budget_chunks": 40,
+        "final_context_character_count": 77101,
+        "final_context_bge_token_proxy": 15269,
+        "selected_source_group_redundancy_rate": 0.175,
+        "coverage_by_subquery": [
+          10,
+          10,
+          10,
+          10
+        ],
+        "candidate_gold_recall": 1.0,
+        "final_gold_recall": 1.0,
+        "candidate_mrr": 1.0,
+        "final_mrr": 1.0,
+        "candidate_gold_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000034",
+          "TSLA-2025-CHUNK-000040",
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000041",
+          "GM-2025-CHUNK-000034",
+          "GM-2025-CHUNK-000001",
+          "GM-2025-CHUNK-000012",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000021"
+        ],
+        "selected_gold_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000034",
+          "TSLA-2025-CHUNK-000040",
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000041",
+          "GM-2025-CHUNK-000034",
+          "GM-2025-CHUNK-000001",
+          "GM-2025-CHUNK-000012",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000021"
+        ],
+        "per_company_candidate_recall": {
+          "TSLA": 1.0,
+          "MBLY": 1.0,
+          "GM": 1.0,
+          "F": 1.0
+        },
+        "per_company_final_recall": {
+          "TSLA": 1.0,
+          "MBLY": 1.0,
+          "GM": 1.0,
+          "F": 1.0
+        },
+        "policy_name": "company-balanced-token-aware-v2",
+        "candidate_counts_by_company": {
+          "TSLA": 10,
+          "F": 10,
+          "MBLY": 10,
+          "GM": 10
+        },
+        "candidate_counts_by_company_subquery": {
+          "TSLA:0": 10,
+          "F:1": 10,
+          "MBLY:2": 10,
+          "GM:3": 10
+        },
+        "target_counts_by_company": {
+          "TSLA": 10,
+          "MBLY": 10,
+          "GM": 10,
+          "F": 10
+        },
+        "quota_satisfied": true,
+        "context_input_tokens": 15460,
+        "context_input_limit": 28672,
+        "policy_error": null,
+        "rank_probe": null,
+        "first_failure_stage": null,
+        "latency_ms": 1819.8044250020757
+      },
+      {
+        "id": "compare-5-tsla-f-mbly-gm-rivn",
+        "query": "Compare Tesla, Ford, Mobileye, General Motors, and Rivian's autonomous-vehicle products, technology, and business strategies.",
+        "subqueries": [
+          "Tesla autonomous vehicle strategy products technology business model",
+          "Ford autonomous vehicle strategy products technology business model",
+          "Mobileye autonomous vehicle strategy products technology business model",
+          "General Motors autonomous vehicle strategy products technology business model",
+          "Rivian autonomous vehicle strategy products technology business model"
+        ],
+        "expected_tickers": [
+          "TSLA",
+          "MBLY",
+          "GM",
+          "F",
+          "RIVN"
+        ],
+        "detected_tickers": [
+          "TSLA",
+          "MBLY",
+          "GM",
+          "F",
+          "RIVN"
+        ],
+        "scope": "explicit_subset",
+        "comparison": true,
+        "retrieval_scopes": [
+          "company_pool"
+        ],
+        "gold_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000034",
+          "TSLA-2025-CHUNK-000040",
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000041",
+          "GM-2025-CHUNK-000034",
+          "GM-2025-CHUNK-000001",
+          "GM-2025-CHUNK-000012",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000021",
+          "RIVN-2025-CHUNK-000001",
+          "RIVN-2025-CHUNK-000005",
+          "RIVN-2025-CHUNK-000009",
+          "RIVN-2025-CHUNK-000004",
+          "RIVN-2025-CHUNK-000002"
+        ],
+        "candidate_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000015",
+          "TSLA-2025-CHUNK-000008",
+          "TSLA-2025-CHUNK-000040",
+          "TSLA-2025-CHUNK-000107",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000016",
+          "TSLA-2025-CHUNK-000064",
+          "TSLA-2025-CHUNK-000034",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000562",
+          "F-2025-CHUNK-000041",
+          "F-2025-CHUNK-000553",
+          "F-2025-CHUNK-000021",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000551",
+          "F-2025-CHUNK-000135",
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000201",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000104",
+          "MBLY-2025-CHUNK-000005",
+          "MBLY-2025-CHUNK-000041",
+          "MBLY-2025-CHUNK-000009",
+          "MBLY-2025-CHUNK-000016",
+          "GM-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000041",
+          "GM-2025-CHUNK-000034",
+          "GM-2025-CHUNK-000001",
+          "GM-2025-CHUNK-000037",
+          "GM-2025-CHUNK-000199",
+          "GM-2025-CHUNK-000014",
+          "GM-2025-CHUNK-000011",
+          "GM-2025-CHUNK-000012",
+          "GM-2025-CHUNK-000039",
+          "RIVN-2025-CHUNK-000001",
+          "RIVN-2025-CHUNK-000152",
+          "RIVN-2025-CHUNK-000033",
+          "RIVN-2025-CHUNK-000005",
+          "RIVN-2025-CHUNK-000155",
+          "RIVN-2025-CHUNK-000009",
+          "RIVN-2025-CHUNK-000004",
+          "RIVN-2025-CHUNK-000002",
+          "RIVN-2025-CHUNK-000018",
+          "RIVN-2025-CHUNK-000153"
+        ],
+        "candidate_ids_by_company": {
+          "TSLA": [
+            "TSLA-2025-CHUNK-000003",
+            "TSLA-2025-CHUNK-000006",
+            "TSLA-2025-CHUNK-000015",
+            "TSLA-2025-CHUNK-000008",
+            "TSLA-2025-CHUNK-000040",
+            "TSLA-2025-CHUNK-000107",
+            "TSLA-2025-CHUNK-000001",
+            "TSLA-2025-CHUNK-000016",
+            "TSLA-2025-CHUNK-000064",
+            "TSLA-2025-CHUNK-000034"
+          ],
+          "F": [
+            "F-2025-CHUNK-000005",
+            "F-2025-CHUNK-000055",
+            "F-2025-CHUNK-000103",
+            "F-2025-CHUNK-000562",
+            "F-2025-CHUNK-000041",
+            "F-2025-CHUNK-000553",
+            "F-2025-CHUNK-000021",
+            "F-2025-CHUNK-000004",
+            "F-2025-CHUNK-000551",
+            "F-2025-CHUNK-000135"
+          ],
+          "MBLY": [
+            "MBLY-2025-CHUNK-000002",
+            "MBLY-2025-CHUNK-000020",
+            "MBLY-2025-CHUNK-000019",
+            "MBLY-2025-CHUNK-000201",
+            "MBLY-2025-CHUNK-000021",
+            "MBLY-2025-CHUNK-000104",
+            "MBLY-2025-CHUNK-000005",
+            "MBLY-2025-CHUNK-000041",
+            "MBLY-2025-CHUNK-000009",
+            "MBLY-2025-CHUNK-000016"
+          ],
+          "GM": [
+            "GM-2025-CHUNK-000005",
+            "GM-2025-CHUNK-000041",
+            "GM-2025-CHUNK-000034",
+            "GM-2025-CHUNK-000001",
+            "GM-2025-CHUNK-000037",
+            "GM-2025-CHUNK-000199",
+            "GM-2025-CHUNK-000014",
+            "GM-2025-CHUNK-000011",
+            "GM-2025-CHUNK-000012",
+            "GM-2025-CHUNK-000039"
+          ],
+          "RIVN": [
+            "RIVN-2025-CHUNK-000001",
+            "RIVN-2025-CHUNK-000152",
+            "RIVN-2025-CHUNK-000033",
+            "RIVN-2025-CHUNK-000005",
+            "RIVN-2025-CHUNK-000155",
+            "RIVN-2025-CHUNK-000009",
+            "RIVN-2025-CHUNK-000004",
+            "RIVN-2025-CHUNK-000002",
+            "RIVN-2025-CHUNK-000018",
+            "RIVN-2025-CHUNK-000153"
+          ]
+        },
+        "selected_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "F-2025-CHUNK-000005",
+          "MBLY-2025-CHUNK-000002",
+          "GM-2025-CHUNK-000005",
+          "RIVN-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000006",
+          "F-2025-CHUNK-000055",
+          "MBLY-2025-CHUNK-000201",
+          "GM-2025-CHUNK-000041",
+          "RIVN-2025-CHUNK-000152",
+          "TSLA-2025-CHUNK-000107",
+          "MBLY-2025-CHUNK-000104",
+          "GM-2025-CHUNK-000034",
+          "F-2025-CHUNK-000562",
+          "RIVN-2025-CHUNK-000033",
+          "TSLA-2025-CHUNK-000015",
+          "MBLY-2025-CHUNK-000020",
+          "GM-2025-CHUNK-000199",
+          "F-2025-CHUNK-000103",
+          "RIVN-2025-CHUNK-000005",
+          "TSLA-2025-CHUNK-000008",
+          "MBLY-2025-CHUNK-000019",
+          "GM-2025-CHUNK-000001",
+          "F-2025-CHUNK-000041",
+          "RIVN-2025-CHUNK-000155",
+          "TSLA-2025-CHUNK-000040",
+          "MBLY-2025-CHUNK-000021",
+          "GM-2025-CHUNK-000037",
+          "F-2025-CHUNK-000553",
+          "RIVN-2025-CHUNK-000009",
+          "TSLA-2025-CHUNK-000064",
+          "MBLY-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000014",
+          "F-2025-CHUNK-000135",
+          "RIVN-2025-CHUNK-000004",
+          "TSLA-2025-CHUNK-000001",
+          "MBLY-2025-CHUNK-000041",
+          "GM-2025-CHUNK-000011",
+          "F-2025-CHUNK-000021",
+          "RIVN-2025-CHUNK-000002",
+          "TSLA-2025-CHUNK-000016",
+          "MBLY-2025-CHUNK-000009",
+          "GM-2025-CHUNK-000012",
+          "F-2025-CHUNK-000004",
+          "RIVN-2025-CHUNK-000018",
+          "TSLA-2025-CHUNK-000034",
+          "MBLY-2025-CHUNK-000016",
+          "GM-2025-CHUNK-000039",
+          "F-2025-CHUNK-000551",
+          "RIVN-2025-CHUNK-000153"
+        ],
+        "selected_company_counts": {
+          "F": 10,
+          "GM": 10,
+          "MBLY": 10,
+          "RIVN": 10,
+          "TSLA": 10
+        },
+        "final_evidence_budget_chunks": 50,
+        "final_context_character_count": 100976,
+        "final_context_bge_token_proxy": 19910,
+        "selected_source_group_redundancy_rate": 0.18,
+        "coverage_by_subquery": [
+          10,
+          10,
+          10,
+          10,
+          10
+        ],
+        "candidate_gold_recall": 1.0,
+        "final_gold_recall": 1.0,
+        "candidate_mrr": 1.0,
+        "final_mrr": 1.0,
+        "candidate_gold_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000034",
+          "TSLA-2025-CHUNK-000040",
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000041",
+          "GM-2025-CHUNK-000034",
+          "GM-2025-CHUNK-000001",
+          "GM-2025-CHUNK-000012",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000021",
+          "RIVN-2025-CHUNK-000001",
+          "RIVN-2025-CHUNK-000005",
+          "RIVN-2025-CHUNK-000009",
+          "RIVN-2025-CHUNK-000004",
+          "RIVN-2025-CHUNK-000002"
+        ],
+        "selected_gold_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "TSLA-2025-CHUNK-000006",
+          "TSLA-2025-CHUNK-000001",
+          "TSLA-2025-CHUNK-000034",
+          "TSLA-2025-CHUNK-000040",
+          "MBLY-2025-CHUNK-000002",
+          "MBLY-2025-CHUNK-000020",
+          "MBLY-2025-CHUNK-000019",
+          "MBLY-2025-CHUNK-000021",
+          "MBLY-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000005",
+          "GM-2025-CHUNK-000041",
+          "GM-2025-CHUNK-000034",
+          "GM-2025-CHUNK-000001",
+          "GM-2025-CHUNK-000012",
+          "F-2025-CHUNK-000005",
+          "F-2025-CHUNK-000055",
+          "F-2025-CHUNK-000103",
+          "F-2025-CHUNK-000004",
+          "F-2025-CHUNK-000021",
+          "RIVN-2025-CHUNK-000001",
+          "RIVN-2025-CHUNK-000005",
+          "RIVN-2025-CHUNK-000009",
+          "RIVN-2025-CHUNK-000004",
+          "RIVN-2025-CHUNK-000002"
+        ],
+        "per_company_candidate_recall": {
+          "TSLA": 1.0,
+          "MBLY": 1.0,
+          "GM": 1.0,
+          "F": 1.0,
+          "RIVN": 1.0
+        },
+        "per_company_final_recall": {
+          "TSLA": 1.0,
+          "MBLY": 1.0,
+          "GM": 1.0,
+          "F": 1.0,
+          "RIVN": 1.0
+        },
+        "policy_name": "company-balanced-token-aware-v2",
+        "candidate_counts_by_company": {
+          "TSLA": 10,
+          "F": 10,
+          "MBLY": 10,
+          "GM": 10,
+          "RIVN": 10
+        },
+        "candidate_counts_by_company_subquery": {
+          "TSLA:0": 10,
+          "F:1": 10,
+          "MBLY:2": 10,
+          "GM:3": 10,
+          "RIVN:4": 10
+        },
+        "target_counts_by_company": {
+          "TSLA": 10,
+          "MBLY": 10,
+          "GM": 10,
+          "F": 10,
+          "RIVN": 10
+        },
+        "quota_satisfied": true,
+        "context_input_tokens": 20025,
+        "context_input_limit": 28672,
+        "policy_error": null,
+        "rank_probe": null,
+        "first_failure_stage": null,
+        "latency_ms": 1985.9625579847489
+      },
+      {
+        "id": "company-depth-aptv-global-11-30",
+        "query": "Explain Aptiv's automated-driving software products and strategy.",
+        "subqueries": [
+          "Aptiv automated driving software products strategy"
+        ],
+        "expected_tickers": [
+          "APTV"
+        ],
+        "detected_tickers": [
+          "APTV"
+        ],
+        "scope": "single_company",
+        "comparison": false,
+        "retrieval_scopes": [
+          "company_pool"
+        ],
+        "gold_ids": [
+          "APTV-2025-CHUNK-000044",
+          "APTV-2025-CHUNK-000249",
+          "APTV-2025-CHUNK-000484",
+          "APTV-2025-CHUNK-000042"
+        ],
+        "candidate_ids": [
+          "APTV-2025-CHUNK-000108",
+          "APTV-2025-CHUNK-000010",
+          "APTV-2025-CHUNK-000109",
+          "APTV-2025-CHUNK-000103",
+          "APTV-2025-CHUNK-000044",
+          "APTV-2025-CHUNK-000249",
+          "APTV-2025-CHUNK-000484",
+          "APTV-2025-CHUNK-000009",
+          "APTV-2025-CHUNK-000042",
+          "APTV-2025-CHUNK-000011"
+        ],
+        "candidate_ids_by_company": {
+          "APTV": [
+            "APTV-2025-CHUNK-000108",
+            "APTV-2025-CHUNK-000010",
+            "APTV-2025-CHUNK-000109",
+            "APTV-2025-CHUNK-000103",
+            "APTV-2025-CHUNK-000044",
+            "APTV-2025-CHUNK-000249",
+            "APTV-2025-CHUNK-000484",
+            "APTV-2025-CHUNK-000009",
+            "APTV-2025-CHUNK-000042",
+            "APTV-2025-CHUNK-000011"
+          ]
+        },
+        "selected_ids": [
+          "APTV-2025-CHUNK-000108",
+          "APTV-2025-CHUNK-000010",
+          "APTV-2025-CHUNK-000044",
+          "APTV-2025-CHUNK-000249",
+          "APTV-2025-CHUNK-000109",
+          "APTV-2025-CHUNK-000103",
+          "APTV-2025-CHUNK-000484",
+          "APTV-2025-CHUNK-000009",
+          "APTV-2025-CHUNK-000042",
+          "APTV-2025-CHUNK-000011"
+        ],
+        "selected_company_counts": {
+          "APTV": 10
+        },
+        "final_evidence_budget_chunks": 10,
+        "final_context_character_count": 25961,
+        "final_context_bge_token_proxy": 4744,
+        "selected_source_group_redundancy_rate": 0.3,
+        "coverage_by_subquery": [
+          10
+        ],
+        "candidate_gold_recall": 1.0,
+        "final_gold_recall": 1.0,
+        "candidate_mrr": 0.2,
+        "final_mrr": 0.3333333333333333,
+        "candidate_gold_ids": [
+          "APTV-2025-CHUNK-000044",
+          "APTV-2025-CHUNK-000249",
+          "APTV-2025-CHUNK-000484",
+          "APTV-2025-CHUNK-000042"
+        ],
+        "selected_gold_ids": [
+          "APTV-2025-CHUNK-000044",
+          "APTV-2025-CHUNK-000249",
+          "APTV-2025-CHUNK-000484",
+          "APTV-2025-CHUNK-000042"
+        ],
+        "per_company_candidate_recall": {
+          "APTV": 1.0
+        },
+        "per_company_final_recall": {
+          "APTV": 1.0
+        },
+        "policy_name": "company-balanced-token-aware-v2",
+        "candidate_counts_by_company": {
+          "APTV": 10
+        },
+        "candidate_counts_by_company_subquery": {
+          "APTV:0": 10
+        },
+        "target_counts_by_company": {
+          "APTV": 10
+        },
+        "quota_satisfied": true,
+        "context_input_tokens": 5242,
+        "context_input_limit": 28672,
+        "policy_error": null,
+        "rank_probe": {
+          "ticker": "APTV",
+          "ids": {
+            "APTV-2025-CHUNK-000044": {
+              "global_rank": 27,
+              "company_rank": 5
+            },
+            "APTV-2025-CHUNK-000249": {
+              "global_rank": 15,
+              "company_rank": 6
+            },
+            "APTV-2025-CHUNK-000484": {
+              "global_rank": 21,
+              "company_rank": 7
+            },
+            "APTV-2025-CHUNK-000042": {
+              "global_rank": 23,
+              "company_rank": 9
+            }
+          },
+          "rank_expectation_pass": true
+        },
+        "first_failure_stage": null,
+        "latency_ms": 220.85724998032674
+      }
+    ]
+  },
+  "citations": {
+    "summary": {
+      "case_count": 7,
+      "source_display_exact_count": 7,
+      "source_display_exactness": 1.0,
+      "fallback_case_count": 0,
+      "citation_precision": 0.7857142857142857,
+      "citation_recall": 1.0,
+      "invalid_citation_count": 2,
+      "latency_ms": {
+        "mean": 0.05972900128524218,
+        "p50": 0.026875000912696123,
+        "p95": 0.20082541159354134,
+        "max": 0.26458801585249603
+      }
+    },
+    "records": [
+      {
+        "id": "two-valid-among-twenty",
+        "category": "valid_ordered",
+        "parsed_ids": [
+          "TSLA-2025-CHUNK-000001",
+          "MBLY-2025-CHUNK-000005"
+        ],
+        "resolved_visible_ids": [
+          "TSLA-2025-CHUNK-000001",
+          "MBLY-2025-CHUNK-000005"
+        ],
+        "expected_visible_ids": [
+          "TSLA-2025-CHUNK-000001",
+          "MBLY-2025-CHUNK-000005"
+        ],
+        "used_fallback": false,
+        "diagnostic_reason": "resolved_citations",
+        "source_display_exact": true,
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "invalid_citation_count": 0,
+        "first_failure_stage": null,
+        "latency_ms": 0.26458801585249603
+      },
+      {
+        "id": "grouped-citations-deduplicated",
+        "category": "valid_grouped",
+        "parsed_ids": [
+          "F-2025-CHUNK-000005",
+          "TSLA-2025-CHUNK-000003",
+          "MBLY-2025-CHUNK-000002"
+        ],
+        "resolved_visible_ids": [
+          "F-2025-CHUNK-000005",
+          "TSLA-2025-CHUNK-000003",
+          "MBLY-2025-CHUNK-000002"
+        ],
+        "expected_visible_ids": [
+          "F-2025-CHUNK-000005",
+          "TSLA-2025-CHUNK-000003",
+          "MBLY-2025-CHUNK-000002"
+        ],
+        "used_fallback": false,
+        "diagnostic_reason": "resolved_citations",
+        "source_display_exact": true,
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "invalid_citation_count": 0,
+        "first_failure_stage": null,
+        "latency_ms": 0.052046001655980945
+      },
+      {
+        "id": "valid-and-invented",
+        "category": "invented_id",
+        "parsed_ids": [
+          "TSLA-2025-CHUNK-000006",
+          "TOYOTA-2025-CHUNK-999999"
+        ],
+        "resolved_visible_ids": [
+          "TSLA-2025-CHUNK-000006"
+        ],
+        "expected_visible_ids": [
+          "TSLA-2025-CHUNK-000006"
+        ],
+        "used_fallback": false,
+        "diagnostic_reason": "resolved_citations",
+        "source_display_exact": true,
+        "citation_precision": 0.5,
+        "citation_recall": 1.0,
+        "invalid_citation_count": 1,
+        "first_failure_stage": null,
+        "latency_ms": 0.03508201916702092
+      },
+      {
+        "id": "candidate-only-rejected",
+        "category": "candidate_only_id",
+        "parsed_ids": [
+          "APTV-2025-CHUNK-000044"
+        ],
+        "resolved_visible_ids": [],
+        "expected_visible_ids": [],
+        "used_fallback": false,
+        "diagnostic_reason": "no_resolved_citations",
+        "source_display_exact": true,
+        "citation_precision": 0.0,
+        "citation_recall": 1.0,
+        "invalid_citation_count": 1,
+        "first_failure_stage": null,
+        "latency_ms": 0.0223059905692935
+      },
+      {
+        "id": "malformed-group-rejected",
+        "category": "malformed_id",
+        "parsed_ids": [],
+        "resolved_visible_ids": [],
+        "expected_visible_ids": [],
+        "used_fallback": false,
+        "diagnostic_reason": "no_resolved_citations",
+        "source_display_exact": true,
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "invalid_citation_count": 0,
+        "first_failure_stage": null,
+        "latency_ms": 0.026875000912696123
+      },
+      {
+        "id": "no-citations",
+        "category": "no_citation",
+        "parsed_ids": [],
+        "resolved_visible_ids": [],
+        "expected_visible_ids": [],
+        "used_fallback": false,
+        "diagnostic_reason": "no_resolved_citations",
+        "source_display_exact": true,
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "invalid_citation_count": 0,
+        "first_failure_stage": null,
+        "latency_ms": 0.009228999260812998
+      },
+      {
+        "id": "supported-abstention",
+        "category": "abstention",
+        "parsed_ids": [],
+        "resolved_visible_ids": [],
+        "expected_visible_ids": [],
+        "used_fallback": false,
+        "diagnostic_reason": "no_resolved_citations",
+        "source_display_exact": true,
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "invalid_citation_count": 0,
+        "first_failure_stage": null,
+        "latency_ms": 0.00797698157839477
+      }
+    ]
+  },
+  "images": {
+    "node_count": 35,
+    "filing_count": 10,
+    "label_counts": {
+      "decorative_or_unverified": 1,
+      "information_bearing_figure": 29,
+      "logo_or_page_artifact": 5
+    },
+    "raw_html_match": true
+  },
+  "conversation_history": {
+    "case_count": 8,
+    "status": "labels_frozen_not_yet_implemented"
+  }
+}

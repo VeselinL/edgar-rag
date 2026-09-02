@@ -1,0 +1,336 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-09-02T08:32:26.379513+00:00",
+  "answer_mode": "provider",
+  "model": "AZURE_GPT_51_2025_1113",
+  "corpus_chunk_id_fingerprint": "sha256:ca68e6fc5f41703e835e80a5cf665709f349377905459a82247914d4f101ea76",
+  "summary": {
+    "case_count": 7,
+    "category_counts": {
+      "absent_abstention": 1,
+      "calculation": 1,
+      "cross_company_comparison": 1,
+      "cross_section_synthesis": 1,
+      "direct_factual": 1,
+      "numerical": 1,
+      "table": 1
+    },
+    "completeness": 1.0,
+    "labeled_claim_support": 1.0,
+    "numerical_correctness": 1.0,
+    "abstention_accuracy": 0.8571428571428571,
+    "comparison_coverage": 1.0,
+    "contradiction_rate": 0.0,
+    "citation_precision": 1.0,
+    "citation_recall": 1.0,
+    "invalid_citation_count": 0,
+    "uncited_labeled_fact_count": 0,
+    "source_display_exactness": 1.0,
+    "judge_claim_support": 0.9428571428571428,
+    "judge_unsupported_claim_rate": 0.05714285714285714,
+    "judge_uncited_factual_claim_rate": 0.0,
+    "latency_ms": {
+      "mean": 3282.215799284001,
+      "max": 5940.08455099538
+    }
+  },
+  "records": [
+    {
+      "id": "direct-tsla-ai-strategy",
+      "category": "direct_factual",
+      "query": "Which AI products does Tesla identify as part of its real-world AI strategy?",
+      "answer": "Tesla identifies the following AI products as part of its real-world AI strategy:\n\n- Full Self-Driving (“FSD”) (Supervised) [TSLA-2025-CHUNK-000001]  \n- Robotaxi [TSLA-2025-CHUNK-000001]  \n- AI robots (“Bots”), including Optimus [TSLA-2025-CHUNK-000001]",
+      "final_evidence_ids": [
+        "TSLA-2025-CHUNK-000001"
+      ],
+      "deterministic": {
+        "required_fact_count": 1,
+        "covered_required_fact_count": 1,
+        "supported_labeled_claim_count": 1,
+        "uncited_labeled_fact_count": 0,
+        "numerical_fact_count": 0,
+        "correct_numerical_fact_count": 0,
+        "comparison_company_count": 0,
+        "covered_comparison_company_count": 0,
+        "expects_abstention": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "contradiction_count": 0,
+        "parsed_citation_ids": [
+          "TSLA-2025-CHUNK-000001"
+        ],
+        "resolved_citation_ids": [
+          "TSLA-2025-CHUNK-000001"
+        ],
+        "rejected_citation_ids": [],
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "source_display_exact": true
+      },
+      "grounding_judge": {
+        "factual_claim_count": 4,
+        "supported_claim_count": 4,
+        "unsupported_claim_count": 0,
+        "contradiction_count": 0,
+        "uncited_factual_claim_count": 0
+      },
+      "provider_usage": {},
+      "latency_ms": 4028.1277140020393
+    },
+    {
+      "id": "table-tsla-facility",
+      "category": "table",
+      "query": "Where is Tesla's Gigafactory Texas located, and is it owned or leased?",
+      "answer": "Tesla’s Gigafactory Texas is located in Austin, Texas, and it is owned. [TSLA-2025-CHUNK-000094]",
+      "final_evidence_ids": [
+        "TSLA-2025-CHUNK-000094"
+      ],
+      "deterministic": {
+        "required_fact_count": 1,
+        "covered_required_fact_count": 1,
+        "supported_labeled_claim_count": 1,
+        "uncited_labeled_fact_count": 0,
+        "numerical_fact_count": 0,
+        "correct_numerical_fact_count": 0,
+        "comparison_company_count": 0,
+        "covered_comparison_company_count": 0,
+        "expects_abstention": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "contradiction_count": 0,
+        "parsed_citation_ids": [
+          "TSLA-2025-CHUNK-000094"
+        ],
+        "resolved_citation_ids": [
+          "TSLA-2025-CHUNK-000094"
+        ],
+        "rejected_citation_ids": [],
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "source_display_exact": true
+      },
+      "grounding_judge": {
+        "factual_claim_count": 2,
+        "supported_claim_count": 2,
+        "unsupported_claim_count": 0,
+        "contradiction_count": 0,
+        "uncited_factual_claim_count": 0
+      },
+      "provider_usage": {},
+      "latency_ms": 2150.22372599924
+    },
+    {
+      "id": "numerical-tsla-revenue",
+      "category": "numerical",
+      "query": "What were Tesla's total revenues in 2025?",
+      "answer": "Tesla’s total revenues for the year ended December 31, 2025 were **$94,827 million** (i.e., $94.827 billion). [TSLA-2025-CHUNK-000121]",
+      "final_evidence_ids": [
+        "TSLA-2025-CHUNK-000121"
+      ],
+      "deterministic": {
+        "required_fact_count": 1,
+        "covered_required_fact_count": 1,
+        "supported_labeled_claim_count": 1,
+        "uncited_labeled_fact_count": 0,
+        "numerical_fact_count": 1,
+        "correct_numerical_fact_count": 1,
+        "comparison_company_count": 0,
+        "covered_comparison_company_count": 0,
+        "expects_abstention": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "contradiction_count": 0,
+        "parsed_citation_ids": [
+          "TSLA-2025-CHUNK-000121"
+        ],
+        "resolved_citation_ids": [
+          "TSLA-2025-CHUNK-000121"
+        ],
+        "rejected_citation_ids": [],
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "source_display_exact": true
+      },
+      "grounding_judge": {
+        "factual_claim_count": 2,
+        "supported_claim_count": 2,
+        "unsupported_claim_count": 0,
+        "contradiction_count": 0,
+        "uncited_factual_claim_count": 0
+      },
+      "provider_usage": {},
+      "latency_ms": 2867.7267899911385
+    },
+    {
+      "id": "calculation-tsla-revenue-change",
+      "category": "calculation",
+      "query": "By how much did Tesla's total revenues change from 2024 to 2025?",
+      "answer": "Tesla’s total revenues decreased by $2,863 million (a decline of 3%) from 2024 to 2025. [TSLA-2025-CHUNK-000121]",
+      "final_evidence_ids": [
+        "TSLA-2025-CHUNK-000121"
+      ],
+      "deterministic": {
+        "required_fact_count": 1,
+        "covered_required_fact_count": 1,
+        "supported_labeled_claim_count": 1,
+        "uncited_labeled_fact_count": 0,
+        "numerical_fact_count": 1,
+        "correct_numerical_fact_count": 1,
+        "comparison_company_count": 0,
+        "covered_comparison_company_count": 0,
+        "expects_abstention": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "contradiction_count": 0,
+        "parsed_citation_ids": [
+          "TSLA-2025-CHUNK-000121"
+        ],
+        "resolved_citation_ids": [
+          "TSLA-2025-CHUNK-000121"
+        ],
+        "rejected_citation_ids": [],
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "source_display_exact": true
+      },
+      "grounding_judge": {
+        "factual_claim_count": 4,
+        "supported_claim_count": 4,
+        "unsupported_claim_count": 0,
+        "contradiction_count": 0,
+        "uncited_factual_claim_count": 0
+      },
+      "provider_usage": {},
+      "latency_ms": 2355.9544989839196
+    },
+    {
+      "id": "synthesis-ford-executives",
+      "category": "cross_section_synthesis",
+      "query": "Who were Ford's CEO and COO, and when did each begin the role?",
+      "answer": "Ford’s Chief Executive Officer and Chief Operating Officer, and their start dates in those roles, were:\n\n- CEO: **James D. Farley, Jr.**, President and Chief Executive Officer since **October 2020**. [F-2025-CHUNK-000123]  \n- COO: **Ashwani (“Kumar”) Galhotra**, Chief Operating Officer since **October 2023**. [F-2025-CHUNK-000123]",
+      "final_evidence_ids": [
+        "F-2025-CHUNK-000123"
+      ],
+      "deterministic": {
+        "required_fact_count": 2,
+        "covered_required_fact_count": 2,
+        "supported_labeled_claim_count": 2,
+        "uncited_labeled_fact_count": 0,
+        "numerical_fact_count": 0,
+        "correct_numerical_fact_count": 0,
+        "comparison_company_count": 0,
+        "covered_comparison_company_count": 0,
+        "expects_abstention": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "contradiction_count": 0,
+        "parsed_citation_ids": [
+          "F-2025-CHUNK-000123"
+        ],
+        "resolved_citation_ids": [
+          "F-2025-CHUNK-000123"
+        ],
+        "rejected_citation_ids": [],
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "source_display_exact": true
+      },
+      "grounding_judge": {
+        "factual_claim_count": 6,
+        "supported_claim_count": 6,
+        "unsupported_claim_count": 0,
+        "contradiction_count": 0,
+        "uncited_factual_claim_count": 0
+      },
+      "provider_usage": {},
+      "latency_ms": 3072.3646730184555
+    },
+    {
+      "id": "comparison-tsla-ford-strategy",
+      "category": "cross_company_comparison",
+      "query": "Compare Tesla's autonomous service strategy with Ford Model e's technology focus.",
+      "answer": "Tesla’s autonomous service strategy centers on operating its own ride-hailing platform, while Ford Model e’s focus is on EV and digital/connected vehicle technologies rather than a specific autonomous service.\n\n- **Tesla**: In June 2025, Tesla launched a **Robotaxi service**, described as “an autonomous ride-hailing platform that harnesses our technology and vehicles.” Tesla expects this service, together with its **Full Self-Driving (FSD) (Supervised)** subscriptions, to “advance a service-driven business model based on AI, software and fleet-based profits.” The Robotaxi business currently uses Model Y vehicles and is planned to expand to **Cybercab**, a “purpose-built autonomous vehicle.” [TSLA-2025-CHUNK-000003]\n\n- **Ford Model e**: The Ford Model e segment is defined by the **sale of EVs (including EREVs), service parts, accessories, and digital services**, and it “focuses on developing EV and digital vehicle technologies, as well as software development.” It also “provides software and connected vehicle technologies on behalf of the enterprise” and manufactures certain EVs, including for Ford Pro. Its operations span North America, Europe, and China. [F-2025-CHUNK-000005]\n\nBased on these disclosures, Tesla’s strategy explicitly targets an **autonomous ride-hailing services business and AI/software-driven fleet profits**, whereas Ford Model e’s technology focus is on **developing EV, digital, software, and connected-vehicle technologies and selling related products and services**, without a specifically described autonomous ride-hailing platform in the excerpt. [TSLA-2025-CHUNK-000003][F-2025-CHUNK-000005]",
+      "final_evidence_ids": [
+        "TSLA-2025-CHUNK-000003",
+        "F-2025-CHUNK-000005"
+      ],
+      "deterministic": {
+        "required_fact_count": 2,
+        "covered_required_fact_count": 2,
+        "supported_labeled_claim_count": 2,
+        "uncited_labeled_fact_count": 0,
+        "numerical_fact_count": 0,
+        "correct_numerical_fact_count": 0,
+        "comparison_company_count": 2,
+        "covered_comparison_company_count": 2,
+        "expects_abstention": false,
+        "abstained": false,
+        "abstention_correct": true,
+        "contradiction_count": 0,
+        "parsed_citation_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "F-2025-CHUNK-000005"
+        ],
+        "resolved_citation_ids": [
+          "TSLA-2025-CHUNK-000003",
+          "F-2025-CHUNK-000005"
+        ],
+        "rejected_citation_ids": [],
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "source_display_exact": true
+      },
+      "grounding_judge": {
+        "factual_claim_count": 15,
+        "supported_claim_count": 14,
+        "unsupported_claim_count": 1,
+        "contradiction_count": 0,
+        "uncited_factual_claim_count": 0
+      },
+      "provider_usage": {},
+      "latency_ms": 5940.08455099538
+    },
+    {
+      "id": "absent-tsla-dividend",
+      "category": "absent_abstention",
+      "query": "How much cash dividend did Tesla declare in 2025?",
+      "answer": "Tesla’s 2025 filings excerpt provided does not state any cash dividend declared in 2025. Based on the available text, there is no disclosed amount for a cash dividend for that year. [TSLA-2025-CHUNK-000001]",
+      "final_evidence_ids": [
+        "TSLA-2025-CHUNK-000001"
+      ],
+      "deterministic": {
+        "required_fact_count": 0,
+        "covered_required_fact_count": 0,
+        "supported_labeled_claim_count": 0,
+        "uncited_labeled_fact_count": 0,
+        "numerical_fact_count": 0,
+        "correct_numerical_fact_count": 0,
+        "comparison_company_count": 0,
+        "covered_comparison_company_count": 0,
+        "expects_abstention": true,
+        "abstained": false,
+        "abstention_correct": false,
+        "contradiction_count": 0,
+        "parsed_citation_ids": [
+          "TSLA-2025-CHUNK-000001"
+        ],
+        "resolved_citation_ids": [
+          "TSLA-2025-CHUNK-000001"
+        ],
+        "rejected_citation_ids": [],
+        "citation_precision": 1.0,
+        "citation_recall": 1.0,
+        "source_display_exact": true
+      },
+      "grounding_judge": {
+        "factual_claim_count": 2,
+        "supported_claim_count": 1,
+        "unsupported_claim_count": 1,
+        "contradiction_count": 0,
+        "uncited_factual_claim_count": 0
+      },
+      "provider_usage": {},
+      "latency_ms": 2561.0286419978365
+    }
+  ]
+}
