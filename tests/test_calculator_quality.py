@@ -36,6 +36,7 @@ class CalculatorQualityTests(unittest.TestCase):
         self.assertEqual(result["summary"]["passed_count"], 1)
         self.assertEqual(result["summary"]["error_count"], 1)
         self.assertFalse(result["summary"]["gate_pass"])
+        self.assertGreaterEqual(result["summary"]["latency_ms"]["mean"], 0.0)
         self.assertEqual(result["records"][1]["error"]["type"], "ValueError")
 
     def test_loader_rejects_duplicate_ids(self):

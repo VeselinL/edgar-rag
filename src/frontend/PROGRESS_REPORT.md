@@ -1009,3 +1009,22 @@ and was not included in AVA commits.
   baseline, candidate output, hashes, metric deltas, and removal decision are
   versioned under `data/evaluation/ava_p0/v1/runs/phase-10-*`; the focused
   rollback suite passes 98 tests and three subtests.
+
+### Corrected over-strict web routing and natural-language calculations
+
+- Reproduced the owner-reported behavior: unqualified Tesla and Ford CEO
+  questions selected web search, and eight of ten ordinary worded calculations
+  were rejected after correctly reaching the calculator. Saved both pre-fix
+  baselines before changing behavior.
+- Made a resolved corpus company filing-first unless the request explicitly asks
+  for current/latest/live information, news, market data, or a web lookup.
+  Explicit temporal requests still use web search and uploaded-file cues retain
+  their owner/chat-scoped route.
+- Extended the allow-listed Decimal calculator parser for worded percentages,
+  sums, subtraction, multiplication, division, growth, and percentage decrease;
+  arbitrary code and unsupported operations remain rejected.
+- The candidate passes 13/13 new routing regressions, 10/10 calculator cases, and
+  the unchanged 24/24 Phase 9 route gate. The focused orchestration, generation,
+  pipeline, and API matrix passes 121 tests and 51 subtests. The promoted
+  decision, artifact hashes, latency, cost boundary, and rollback switches are
+  recorded in `phase-10-routing-calculator-decision.json`.

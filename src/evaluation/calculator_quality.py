@@ -6,6 +6,7 @@ import argparse
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+import time
 from typing import Any, Sequence
 
 from src.tools.calculator import CalculatorTool
@@ -44,6 +45,7 @@ def evaluate_calculator(
     tool = calculator or CalculatorTool()
     records: list[dict[str, Any]] = []
     for case in cases:
+        started = time.perf_counter()
         try:
             actual = tool.calculate_query(case["query"])
             passed = actual.result == case["result"] and actual.unit == case["unit"]
@@ -55,6 +57,7 @@ def evaluate_calculator(
                     "expected_unit": case["unit"],
                     "actual_unit": actual.unit,
                     "normalized_expression": actual.normalized_expression,
+                    "latency_ms": round((time.perf_counter() - started) * 1_000, 3),
                     "pass": passed,
                     "error": None,
                 }
@@ -68,17 +71,23 @@ def evaluate_calculator(
                     "expected_unit": case["unit"],
                     "actual_unit": None,
                     "normalized_expression": None,
+                    "latency_ms": round((time.perf_counter() - started) * 1_000, 3),
                     "pass": False,
                     "error": {"type": type(error).__name__, "message": str(error)},
                 }
             )
     passed_count = sum(record["pass"] for record in records)
+    latencies = [record["latency_ms"] for record in records]
     return {
         "summary": {
             "case_count": len(records),
             "passed_count": passed_count,
             "exact_accuracy": passed_count / len(records) if records else 1.0,
             "error_count": sum(record["error"] is not None for record in records),
+            "latency_ms": {
+                "mean": sum(latencies) / len(latencies) if latencies else 0.0,
+                "max": max(latencies, default=0.0),
+            },
             "gate_pass": passed_count == len(records),
         },
         "records": records,

@@ -1103,9 +1103,23 @@ the active production path; `AVA_STRICT_ABSTENTION_PROMPT=true` exists only to
 reproduce the negative experiment. The baseline, candidate, and removal decision
 are saved under `data/evaluation/ava_p0/v1/runs/phase-10-*`.
 
-No Phase 10 improvement is promoted from this measurement. Do not begin another
-item below until a new saved current-path failure identifies its need and the
-candidate can be compared without changing the frozen baseline.
+No retrieval or generation-prompt improvement was promoted from that measurement.
+
+Later on 2 September, the owner reported two separate Phase 9 execution defects:
+unqualified in-corpus executive questions were over-routed to disabled web search,
+and common natural-language calculations reached the calculator but failed its
+safe parser. A frozen regression set measured routing at 11/13 and calculator
+exactness at 2/10. The promoted bounded correction makes resolved in-corpus
+companies filing-first unless the request contains an explicit current, latest,
+live, news, market-data, online, or web-search cue. It also normalizes common
+percentage, addition, subtraction, multiplication, division, and growth wording
+into the existing Decimal-only grammar. Candidate gates pass 13/13 routing and
+10/10 calculator cases while the original Phase 9 route gate remains 24/24. The
+decision and hashes are saved in
+`phase-10-routing-calculator-decision.json`.
+
+Do not begin another item below until a new saved current-path failure identifies
+its need and the candidate can be compared without changing the frozen baseline.
 
 Implement only after a saved failure demonstrates the need:
 

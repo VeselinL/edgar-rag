@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-09-02T12:48:33+00:00",
+  "change": "filing_first_company_routing_and_natural_language_calculator",
+  "decision": "promoted",
+  "observed_failures": [
+    "Unqualified in-corpus executive questions such as 'Who is Tesla CEO?' were incorrectly routed to disabled web search.",
+    "The router selected the calculator for common natural-language arithmetic, but the allow-listed parser rejected eight of ten labeled expressions."
+  ],
+  "routing": {
+    "baseline": {
+      "path": "data/evaluation/ava_p0/v1/runs/phase-10-routing-regression-baseline.json",
+      "sha256": "5420af42bd5131d668ec6bfd430080d82ea057586620cb344b93234a52ed6862",
+      "passed": 11,
+      "cases": 13,
+      "accuracy": 0.8461538461538461,
+      "mean_latency_ms": 984.4309230769232
+    },
+    "candidate": {
+      "path": "data/evaluation/ava_p0/v1/runs/phase-10-routing-regression-candidate.json",
+      "sha256": "f635ce5b70bb2a853ad41e4dac282e736273bdc189edb88a92e9fc91598fb24b",
+      "passed": 13,
+      "cases": 13,
+      "accuracy": 1.0,
+      "mean_latency_ms": 15.252923076923075
+    },
+    "unchanged_original_gate": {
+      "path": "data/evaluation/ava_p0/v1/runs/phase-10-routing-original-gate.json",
+      "sha256": "311541a55bca8472ac1f07575fb095145ba8034116e297d6cdfd6836492240b2",
+      "passed": 24,
+      "cases": 24,
+      "accuracy": 1.0
+    }
+  },
+  "calculator": {
+    "baseline": {
+      "path": "data/evaluation/ava_p0/v1/runs/phase-10-calculator-regression-baseline.json",
+      "sha256": "d67058a156af8a120ba3ce31002a7058dbdffb31f51c535a3d750d62af9a5dd7",
+      "passed": 2,
+      "cases": 10,
+      "exact_accuracy": 0.2,
+      "error_count": 8
+    },
+    "candidate": {
+      "path": "data/evaluation/ava_p0/v1/runs/phase-10-calculator-regression-candidate.json",
+      "sha256": "8dffd8800b42985e64337409123299118719d032c2bd063750e7b1bb9a4b4095",
+      "passed": 10,
+      "cases": 10,
+      "exact_accuracy": 1.0,
+      "error_count": 0,
+      "mean_latency_ms": 0.4207,
+      "max_latency_ms": 3.636
+    }
+  },
+  "behavior": {
+    "filing_default": "An ordinary question about a resolved in-corpus company uses filing RAG unless an explicit current, latest, live, news, market-data, online, or web-search cue is present.",
+    "web_boundary": "Explicit current/external cues still route to web search and never fall back to filing evidence when search is unavailable.",
+    "calculator_boundary": "Natural-language arithmetic is normalized into the existing bounded Decimal expression grammar; arbitrary code and unsupported operations remain rejected."
+  },
+  "rollback": {
+    "routing_kill_switch": "AVA_REQUEST_ROUTING_ENABLED=false",
+    "calculator_kill_switch": "AVA_CALCULATOR_ENABLED=false"
+  },
+  "usage_and_cost": {
+    "calculator_external_cost": 0,
+    "provider_cost_available": false,
+    "note": "The gateway did not return price data. Deterministic routing removed provider calls from the new in-corpus and direct-calculation cases, reducing rather than increasing routed-model usage."
+  }
+}

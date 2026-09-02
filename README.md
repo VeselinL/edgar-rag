@@ -174,6 +174,14 @@ contract and never exposes the subscription token to the browser. If those value
 are absent, external questions return an explicit unavailable response rather
 than falling back to filing chunks or unstated model knowledge.
 
+Routing is filing-first for ordinary questions about a resolved corpus company.
+For example, `Who is Tesla CEO?` uses Tesla's frozen filing; web search is chosen
+only when the request explicitly asks for current/latest/live information, news,
+market data, or an online/web lookup. Direct arithmetic accepts common bounded
+phrasing such as `25 percent of 80`, `100 minus 40`, and `growth rate from 80 to
+100`; it is still executed by the deterministic Decimal calculator, never by the
+language model.
+
 `AVA_REQUEST_ROUTING_ENABLED=false` is the filing-only rollback switch: it
 skips route selection and all optional tool/upload paths while retaining the
 existing SEC retrieval and generation pipeline. Tool plans are also capped by
