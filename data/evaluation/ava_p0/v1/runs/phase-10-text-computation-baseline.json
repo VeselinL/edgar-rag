@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "evaluation": "exact_text_computation",
+  "evaluated_at": "2026-09-02T12:55:00+00:00",
+  "source": "owner-reported live AVA response",
+  "summary": {
+    "case_count": 2,
+    "passed_count": 0,
+    "exact_accuracy": 0.0,
+    "deterministic_tool_used_count": 0,
+    "clarification_accuracy": 0.0,
+    "gate_pass": false
+  },
+  "records": [
+    {
+      "case_id": "tesla-gm-ceo-letter-frequency",
+      "operands": ["Elon Musk", "Mary T. Barra"],
+      "expected": {
+        "a": 3,
+        "b": 1,
+        "e": 1,
+        "k": 1,
+        "l": 1,
+        "m": 2,
+        "n": 1,
+        "o": 1,
+        "r": 3,
+        "s": 1,
+        "t": 1,
+        "u": 1,
+        "y": 1
+      },
+      "actual": {
+        "a": 4,
+        "b": 2,
+        "e": 1,
+        "k": 1,
+        "l": 1,
+        "m": 2,
+        "n": 1,
+        "r": 2,
+        "s": 1,
+        "t": 1,
+        "u": 1,
+        "y": 1
+      },
+      "missing_letters": ["o"],
+      "incorrect_counts": ["a", "b", "r"],
+      "deterministic_tool_used": false,
+      "pass": false
+    },
+    {
+      "case_id": "ceo-vowel-window-missing-size",
+      "expected_action": "clarify",
+      "actual_action": "answered_different_problem",
+      "missing_required_parameter": "window_size",
+      "invented_scope": "six CEOs",
+      "diagnosis": "The answer implemented longest consecutive all-vowel run instead of maximum vowels in a fixed-size window and introduced four unsupported CEOs.",
+      "deterministic_tool_used": false,
+      "pass": false
+    }
+  ]
+}
