@@ -108,8 +108,8 @@ class EmbeddingPipelineTests(unittest.TestCase):
         self.assertIn("Amount", text)
         self.assertIn("2026", text)
         self.assertIn("Total lease liabilities", text)
-        self.assertNotIn("$20", text)
-        self.assertNotIn("$71", text)
+        self.assertIn("$20", text)
+        self.assertIn("$71", text)
 
     def test_narrative_uses_complete_chunk_text(self):
         chunk = {"content_type": "narrative", "text": "  Complete evidence.  "}
