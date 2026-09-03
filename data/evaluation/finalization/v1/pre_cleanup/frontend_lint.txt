@@ -1,0 +1,6 @@
+
+> ava-frontend@0.1.0 lint
+> eslint .
+
+
+exit_code=0

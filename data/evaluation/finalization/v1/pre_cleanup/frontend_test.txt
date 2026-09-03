@@ -1,0 +1,19 @@
+
+> ava-frontend@0.1.0 test
+> vitest run --run
+
+
+ RUN  v3.2.7 /home/veselin/Documents/Programiranje/edgar-insight-rag/src/frontend
+
+ ✓ src/api/auth.test.ts (2 tests) 33ms
+ ✓ src/api/documents.test.ts (3 tests) 49ms
+ ✓ src/api/chatStream.test.ts (11 tests) 54ms
+ ✓ src/App.test.tsx (15 tests) 1567ms
+
+ Test Files  4 passed (4)
+      Tests  31 passed (31)
+   Start at  23:47:42
+   Duration  3.70s (transform 666ms, setup 391ms, collect 1.39s, tests 1.70s, environment 2.71s, prepare 615ms)
+
+
+exit_code=0

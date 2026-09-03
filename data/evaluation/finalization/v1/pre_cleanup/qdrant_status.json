@@ -1,0 +1,8 @@
+{
+  "collection_name": "ava_filing_chunks_89d3a5be9e7d7a8e",
+  "collection_exists": true,
+  "alias": "ava_filing_chunks_current",
+  "alias_target": "ava_filing_chunks_89d3a5be9e7d7a8e",
+  "expected_point_count": 4526,
+  "artifact_version": "sha256:89d3a5be9e7d7a8e0d1188f4a5564c7be9bf01b92e381a7410e048a07738610c"
+}

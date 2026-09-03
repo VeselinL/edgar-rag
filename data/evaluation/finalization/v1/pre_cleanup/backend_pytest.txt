@@ -1,0 +1,248 @@
+.......F...........F.....................................F........... [ 21%]
+.......F................................................ [ 39%]
+................................s.............FF.................... [ 60%]
+................................s........s............... [ 78%]
+........................... [ 87%]
+........................ [ 94%]
+................                 [100%]
+=================================== FAILURES ===================================
+____ AvaP0DatasetTests.test_resolution_labels_cover_every_configured_alias _____
+
+self = <test_ava_p0_evaluation.AvaP0DatasetTests testMethod=test_resolution_labels_cover_every_configured_alias>
+
+    def test_resolution_labels_cover_every_configured_alias(self):
+        cases = load_cases(DEFAULT_LABEL_DIRECTORY, "company_resolution_v1.json")
+        exact_queries = "\n".join(
+            case["query"].casefold()
+            for case in cases
+            if case["category"].startswith("exact")
+        )
+        for aliases in COMPANY_ALIASES.values():
+            for alias in aliases:
+>               self.assertIn(alias, exact_queries)
+E               AssertionError: 'super cruise' not found in "summarize aurora innovation's strategy.\nwhat does aurora disclose?\nhow is aurora driver commercialized?\nwhat are tesla's principal risks?\nsummarize mobileye.\nhow does eyeq generate revenue?\ndescribe mobileye drive.\nwhat does alphabet disclose about waymo?\nsummarize google's business risks.\nhow does waymo fit the filing?\nwhat is general motors' av strategy?\nsummarize gm revenue.\nwhat segments does ford motor company report?\nsummarize ford's strategy.\nwhat automotive products does nvidia discuss?\nsummarize qualcomm's automotive business.\ndescribe snapdragon digital chassis.\nwhat is snapdragon revenue exposure?\nhow is aptiv organized?\ndescribe ouster's lidar portfolio.\nsummarize rivian automotive's products.\nwhat are rivian's risks?\ncompare tsla, mbly, nvda, qcom, aptv, oust, and rivn.\ntesla—ford; mobileye/gm: compare strategy.\ncompare nvda with qcom and rivn.\ncompare ticker f with gm."
+
+tests/test_ava_p0_evaluation.py:25: AssertionError
+_________ BackendApiTests.test_health_distinguishes_mode_and_readiness _________
+
+self = <test_backend_api.BackendApiTests testMethod=test_health_distinguishes_mode_and_readiness>
+
+    def test_health_distinguishes_mode_and_readiness(self):
+        response = self.client.get("/api/health")
+        self.assertEqual(response.status_code, 200)
+>       self.assertEqual(
+            response.json(),
+            {
+                "status": "ok",
+                "mode": "mock",
+                "pipeline_ready": True,
+                "answer_delivery": "mock_streaming",
+                "conversation_history": {
+                    "enabled": False,
+                    "deployment_boundary": "stateless",
+                    "long_term_store": "disabled",
+                },
+                "authentication": {"mode": "none", "required": False},
+                "uploads": {
+                    "enabled": False,
+                    "media_types": ["application/pdf", "text/plain"],
+                    "maximum_bytes": 20 * 1024 * 1024,
+                },
+                "request_routing": {
+                    "enabled": False,
+                    "filing_only_rollback": True,
+                },
+                "tools": {
+                    "calculator_enabled": False,
+                    "web_search_enabled": False,
+                    "maximum_executions": 0,
+                    "maximum_web_searches": 0,
+                },
+            },
+        )
+E       AssertionError: {'sta[183 chars]e': 'qdrant'}, 'authentication': {'mode': 'non[316 chars]: 0}} != {'sta[183 chars]e': 'disabled'}, 'authentication': {'mode': 'n[318 chars]: 0}}
+E       Diff is 881 characters long. Set self.maxDiff to None to see it.
+
+tests/test_backend_api.py:58: AssertionError
+_ RealPipelineTests.test_planner_subset_of_all_companies_continues_to_generation _
+
+self = <test_backend_pipeline.RealPipelineTests testMethod=test_planner_subset_of_all_companies_continues_to_generation>
+
+    async def test_planner_subset_of_all_companies_continues_to_generation(self):
+        retriever = FakeRetriever()
+        generator = PartialAllCompanyGenerator()
+        pipeline = RealPipeline(retriever, generator, llm_streaming=False)
+    
+        async def connected():
+            return False
+    
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Who are the CEOs of all companies?", connected
+            )
+        ]
+    
+        self.assertEqual(
+            generator.deterministic_resolution.resolved_tickers, tuple(FILINGS)
+        )
+>       self.assertEqual(retriever.arguments[2].resolved_tickers, ("TSLA",))
+E       AssertionError: Tuples differ: ('AUR', 'TSLA', 'MBLY', 'GOOGL', 'GM', 'F',[35 chars]IVN') != ('TSLA',)
+E       
+E       First differing element 0:
+E       'AUR'
+E       'TSLA'
+E       
+E       First tuple contains 10 additional elements.
+E       First extra element 1:
+E       'TSLA'
+E       
+E       - ('AUR',
+E       -  'TSLA',
+E       ? ^
+E       
+E       + ('TSLA',)
+E       ? ^       +
+E       
+E       -  'MBLY',
+E       -  'GOOGL',
+E       -  'GM',
+E       -  'F',
+E       -  'NVDA',
+E       -  'QCOM',
+E       -  'APTV',
+E       -  'OUST',
+E       -  'RIVN')
+
+tests/test_backend_pipeline.py:1187: AssertionError
+__ RealPipelineTests.test_web_route_does_not_receive_arbitrary_filing_chunks ___
+
+self = <test_backend_pipeline.RealPipelineTests testMethod=test_web_route_does_not_receive_arbitrary_filing_chunks>
+
+    async def test_web_route_does_not_receive_arbitrary_filing_chunks(self):
+        retriever = FakeRetriever()
+        generator = RoutedGenerator(
+            RequestRoute(RouteKind.WEB_SEARCH, RouteReason.CURRENT_OR_EXTERNAL)
+        )
+        pipeline = RealPipeline(retriever, generator)
+    
+        async def connected():
+            return False
+    
+>       events = [
+            event
+            async for event in pipeline.stream(
+                "What is Tesla's stock price today?", connected
+            )
+        ]
+
+tests/test_backend_pipeline.py:748: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/backend/pipeline.py:1106: in stream
+    async for event in self._stream_traced(
+src/backend/pipeline.py:1484: in _stream_traced
+    plan = await asyncio.to_thread(
+/usr/lib/python3.12/asyncio/threads.py:25: in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/concurrent/futures/thread.py:58: in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <test_backend_pipeline.RoutedGenerator object at 0x705e19211a60>
+query = "What is Tesla's stock price today?"
+deterministic_resolution = CompanyResolution(original_query="What is Tesla's stock price today?", mentions=(CompanyMention(raw_text='tesla', tick...ope='single_company', comparison=False, needs_clarification=False, explicit_scope_tickers=(), planner_scope_tickers=())
+
+    def plan_retrieval(self, query, deterministic_resolution=None):
+>       raise AssertionError("Non-filing routes must not invoke the filing planner.")
+E       AssertionError: Non-filing routes must not invoke the filing planner.
+
+tests/test_backend_pipeline.py:260: AssertionError
+_ EmbeddingPipelineTests.test_table_embedding_text_keeps_searchable_structure __
+
+self = <test_embed_chunks.EmbeddingPipelineTests testMethod=test_table_embedding_text_keeps_searchable_structure>
+
+    def test_table_embedding_text_keeps_searchable_structure(self):
+        chunk = {
+            "content_type": "table",
+            "table_schema_version": 2,
+            "section": "Item 8 — Financial Statements",
+            "section_path": ["Item 8 — Financial Statements", "Leases"],
+            "document_region": "financial_statement_notes",
+            "effective_section_path": [
+                "Item 8 — Financial Statements",
+                "Leases",
+            ],
+            "title": "Operating Lease Maturities",
+            "units": "U.S. dollars in millions",
+            "logical_column_units": ["years", "usd_millions"],
+            "logical_header_context": ["December 27"],
+            "logical_header_paths": [["Year"], ["Amount"]],
+            "logical_column_headers": ["Year", "Amount"],
+            "logical_rows": [
+                ["2026", "$20"],
+                ["Total lease liabilities", "$71"],
+            ],
+            "text": "complete table text",
+        }
+    
+        text = table_embedding_text(chunk)
+    
+        self.assertIn("Operating Lease Maturities", text)
+        self.assertEqual(text.count("Header context: December 27"), 1)
+        self.assertIn("Year", text)
+        self.assertIn("Amount", text)
+        self.assertIn("2026", text)
+        self.assertIn("Total lease liabilities", text)
+>       self.assertNotIn("$20", text)
+E       AssertionError: '$20' unexpectedly found in 'Section: Item 8 — Financial Statements — Leases\nDocument region: Financial Statement Notes\nTitle: Operating Lease Maturities\nUnits: U.S. dollars in millions\nColumn units: years | usd_millions\nHeaders:\nHeader context: December 27\nYear\nAmount\nTable values:\n2026 for December 27 — Amount was $20.\nTotal lease liabilities for December 27 — Amount was $71.'
+
+tests/test_embed_chunks.py:111: AssertionError
+_ EvaluationCompatibilityTests.test_baseline_review_covers_every_incomplete_retrieval _
+
+self = <test_evaluation.EvaluationCompatibilityTests testMethod=test_baseline_review_covers_every_incomplete_retrieval>
+
+    def test_baseline_review_covers_every_incomplete_retrieval(self):
+        baseline_path = (
+            PROJECT_ROOT
+            / "data"
+            / "evaluation"
+            / "mobileye_bgebase_table_v2_baseline.json"
+        )
+        review_path = (
+            PROJECT_ROOT
+            / "data"
+            / "evaluation"
+            / "mobileye_bgebase_table_v2_review.json"
+        )
+        baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
+        review = json.loads(review_path.read_text(encoding="utf-8"))
+        baseline_hash = hashlib.sha256(baseline_path.read_bytes()).hexdigest()
+    
+>       self.assertEqual(review["baseline_sha256"], f"sha256:{baseline_hash}")
+E       AssertionError: 'sha256:356c1c13551eb485daf5d938f9406ead99cdcae0172c2156cee22dbb68fa2cac' != 'sha256:b5eead7ea558aedafe92dcd4d606009154f93230aab7cc4dbe5238ac8ef6ec49'
+E       - sha256:356c1c13551eb485daf5d938f9406ead99cdcae0172c2156cee22dbb68fa2cac
+E       + sha256:b5eead7ea558aedafe92dcd4d606009154f93230aab7cc4dbe5238ac8ef6ec49
+
+tests/test_evaluation.py:78: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /home/veselin/Documents/Programiranje/edgar-insight-rag/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/test_conversations.py::QdrantMemoryTests::test_delete_conversation_removes_only_owned_points
+  /home/veselin/Documents/Programiranje/edgar-insight-rag/src/conversations/memory.py:132: UserWarning: Payload indexes have no effect in the local Qdrant. Please use server Qdrant if you need payload indexes.
+    self.client.create_payload_index(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_ava_p0_evaluation.py::AvaP0DatasetTests::test_resolution_labels_cover_every_configured_alias
+FAILED tests/test_backend_api.py::BackendApiTests::test_health_distinguishes_mode_and_readiness
+FAILED tests/test_backend_pipeline.py::RealPipelineTests::test_planner_subset_of_all_companies_continues_to_generation
+FAILED tests/test_backend_pipeline.py::RealPipelineTests::test_web_route_does_not_receive_arbitrary_filing_chunks
+FAILED tests/test_embed_chunks.py::EmbeddingPipelineTests::test_table_embedding_text_keeps_searchable_structure
+FAILED tests/test_evaluation.py::EvaluationCompatibilityTests::test_baseline_review_covers_every_incomplete_retrieval
+6 failed, 308 passed, 3 skipped, 2 warnings, 243 subtests passed in 33.79s
+
+exit_code=1

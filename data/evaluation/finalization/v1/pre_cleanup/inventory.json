@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-09-03",
+  "starting_branch": "main",
+  "working_branch": "ava-completion",
+  "starting_commit": "f70bb3aa15cfccf972bda082a73fcfa6f12b8d6d",
+  "starting_dirty_files": [],
+  "runtime": {
+    "python": "3.12.3",
+    "python_packages_file": "python_packages.txt",
+    "python_packages_sha256": "sha256:f44ef03edfbc5c24ce36fd25ca6993ca42da95843a0a1b564a264f61ed59a35e",
+    "requirements_sha256": "sha256:b80cad530c778ea05cc305837c72b916b72d43a7aa883dd941a12f2f6056e440",
+    "requirements_dev_sha256": "sha256:1438527233ce7beb1cdf4a046b8b5d38f140bd77217ef4df17d5592989d3ec15",
+    "node": "22.13.1",
+    "npm": "10.9.2",
+    "root_package_lock_sha256": "sha256:0599500326de8e1563a8e54634fd57b89884b7096d8580eabb2eca5fad19d492",
+    "frontend_package_lock_sha256": "sha256:831ed92c1c568f65a6c0290374dc50391a634195572191b90e62a5a790c34c8c"
+  },
+  "corpus": {
+    "ticker_count": 11,
+    "chunk_count": 4526,
+    "embedding_shape": [4526, 768],
+    "fingerprint": "sha256:8e2181e42846070bdc3e6cef2fd483a194971909b147e41151fa12777fbb5ef7"
+  },
+  "qdrant": {
+    "status_file": "qdrant_status.json",
+    "alias": "ava_filing_chunks_current",
+    "alias_target": "ava_filing_chunks_89d3a5be9e7d7a8e",
+    "expected_point_count": 4526,
+    "artifact_version": "sha256:89d3a5be9e7d7a8e0d1188f4a5564c7be9bf01b92e381a7410e048a07738610c"
+  },
+  "migrations": [
+    {
+      "path": "src/auth/migrations/0001_auth_sessions.sql",
+      "sha256": "sha256:53967fe4252a54ed10c7d218dac800604f3880e150b1d44ad35e09c73cde28ad"
+    },
+    {
+      "path": "src/conversations/migrations/0001_conversations.sql",
+      "sha256": "sha256:aef60ec2d72f5da6673602f241060d556f8cf68faad1f85803d0408b93f43923"
+    },
+    {
+      "path": "src/conversations/migrations/0002_feedback_metadata.sql",
+      "sha256": "sha256:66f9310a76025163a6c65dc6120286c8bb7057330a9e4e0e9030ea1ac380010b"
+    },
+    {
+      "path": "src/conversations/migrations/0003_uploaded_documents.sql",
+      "sha256": "sha256:cff9717a56100c55145e26596e1edc532fc82b8beb2590b4b804df1189b00daa"
+    },
+    {
+      "path": "src/conversations/migrations/0004_conversation_pins.sql",
+      "sha256": "sha256:e0be13f83e5f2af4e39a3ad4471218c0de1b91b437607c201d68d07bccdc4dcf"
+    },
+    {
+      "path": "src/conversations/migrations/0005_company_scope.sql",
+      "sha256": "sha256:a016366a73b86274bee1101c65caa7cdf346257d93bb87309863697a6af86d62"
+    }
+  ],
+  "verification": {
+    "backend": {
+      "command": "PYTHONPATH=. .venv/bin/python -m pytest -q",
+      "exit_code": 1,
+      "passed": 308,
+      "failed": 6,
+      "skipped": 3,
+      "subtests_passed": 243,
+      "output": "backend_pytest.txt",
+      "output_sha256": "sha256:aaab6b3a6e4996b8c0c1baa06958ac64f4611d1e8cec37e061476b3f096f6292"
+    },
+    "frontend_lint": {
+      "command": "npm --prefix src/frontend run lint",
+      "exit_code": 0,
+      "output": "frontend_lint.txt",
+      "output_sha256": "sha256:433ab30cfd0fe8a6b5562317b199c260af2b21d45d1c18da51ee39d0d35e0c7a"
+    },
+    "frontend_tests": {
+      "command": "npm --prefix src/frontend test -- --run",
+      "exit_code": 0,
+      "test_files_passed": 4,
+      "tests_passed": 31,
+      "output": "frontend_test.txt",
+      "output_sha256": "sha256:3daecf912c4b81cf354bad47624583a6fa33a5cfce18a0cca5426fb5e3286ec0"
+    },
+    "frontend_build": {
+      "command": "npm --prefix src/frontend run build",
+      "exit_code": 0,
+      "output": "frontend_build.txt",
+      "output_sha256": "sha256:c48021f6a980e1e07465be24b36a11e8171288ba5cbdafe2ab72f44eb294af39"
+    }
+  },
+  "known_backend_failures": [
+    "company alias coverage does not include Super Cruise",
+    "backend health test inherits local environment state",
+    "all-company pipeline test expects obsolete planner-subset behavior",
+    "web-required request invokes filing planning when web is disabled",
+    "table embedding test rejects promoted searchable cell values",
+    "Mobileye review artifact contains an obsolete baseline SHA-256"
+  ]
+}
