@@ -1166,7 +1166,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
 
-    async def test_planner_subset_of_all_companies_continues_to_generation(self):
+    async def test_all_companies_scope_remains_authoritative_for_retrieval(self):
         retriever = FakeRetriever()
         generator = PartialAllCompanyGenerator()
         pipeline = RealPipeline(retriever, generator, llm_streaming=False)
@@ -1184,8 +1184,8 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(
             generator.deterministic_resolution.resolved_tickers, tuple(FILINGS)
         )
-        self.assertEqual(retriever.arguments[2].resolved_tickers, ("TSLA",))
-        self.assertEqual(retriever.arguments[3], [["TSLA"]])
+        self.assertEqual(retriever.arguments[2].resolved_tickers, tuple(FILINGS))
+        self.assertEqual(retriever.arguments[3], [list(FILINGS)])
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
 
     async def test_follow_up_context_reaches_planner_packing_and_generation_separately(self):
