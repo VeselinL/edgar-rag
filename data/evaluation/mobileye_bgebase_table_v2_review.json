@@ -5,7 +5,7 @@
   "reviewer": "Codex senior-engineer implementation review",
   "baseline_path": "data/evaluation/mobileye_bgebase_table_v2_baseline.json",
   "baseline_id": "mobileye-bgebase-table-v2-chunk-v3.20260813-r2",
-  "baseline_sha256": "sha256:356c1c13551eb485daf5d938f9406ead99cdcae0172c2156cee22dbb68fa2cac",
+  "baseline_sha256": "sha256:b5eead7ea558aedafe92dcd4d606009154f93230aab7cc4dbe5238ac8ef6ec49",
   "dataset_sha256": "sha256:1c7ec7041cb596b18a018f1f0b00df015f3feea5351879ca5d3957497716b301",
   "chunks_sha256": "sha256:a84fb4c9b6058d84e07b4f8f63479c64696e4608ea67da99fe1fb989b6dc7154",
   "embedding_manifest_sha256": "sha256:0b4edf04d40e8c20893436b6c93956ccc73e93c59101187082f02dd3c54b043f",
