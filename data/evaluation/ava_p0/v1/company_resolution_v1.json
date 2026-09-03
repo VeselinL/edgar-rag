@@ -14,6 +14,7 @@
     {"id": "exact-waymo", "category": "exact_alias", "query": "How does Waymo fit the filing?", "expected_tickers": ["GOOGL"], "expected_scope": "single_company", "expected_needs_clarification": false},
     {"id": "exact-general-motors", "category": "exact_alias", "query": "What is General Motors' AV strategy?", "expected_tickers": ["GM"], "expected_scope": "single_company", "expected_needs_clarification": false},
     {"id": "exact-gm", "category": "exact_alias", "query": "Summarize GM revenue.", "expected_tickers": ["GM"], "expected_scope": "single_company", "expected_needs_clarification": false},
+    {"id": "exact-super-cruise", "category": "exact_alias", "query": "What is Super Cruise?", "expected_tickers": ["GM"], "expected_scope": "single_company", "expected_needs_clarification": false},
     {"id": "exact-ford-motor-company", "category": "exact_alias", "query": "What segments does Ford Motor Company report?", "expected_tickers": ["F"], "expected_scope": "single_company", "expected_needs_clarification": false},
     {"id": "exact-ford", "category": "exact_alias", "query": "Summarize FORD's strategy.", "expected_tickers": ["F"], "expected_scope": "single_company", "expected_needs_clarification": false},
     {"id": "exact-nvidia", "category": "exact_alias", "query": "What automotive products does NVIDIA discuss?", "expected_tickers": ["NVDA"], "expected_scope": "single_company", "expected_needs_clarification": false},
