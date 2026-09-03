@@ -1276,15 +1276,9 @@ class RealPipeline:
             route = without_calculator_route(route)
         trace.route = route.as_dict()
         if route.uses_web_search and not self.web_search_enabled:
-            # Web search is intentionally disabled until its provider is wired
-            # into this deployment. Fall back to the normal filing path.
-            route = RequestRoute(
-                RouteKind.FILING_AND_CALCULATOR if route.uses_calculator else RouteKind.FILING_RAG,
-                RouteReason.FILING_EVIDENCE,
-                arithmetic_required=route.arithmetic_required,
-                decided_by="web_disabled_filing_fallback",
-            )
-            trace.route = route.as_dict()
+            # Keep the non-filing boundary intact. The web handler emits a safe,
+            # source-free unavailable response without invoking filing planning.
+            LOGGER.info("AVA web search required but disabled")
         LOGGER.info("AVA request route", extra={"ava_request_route": trace.route})
 
         required_web_searches = 1 if route.uses_web_search else 0
