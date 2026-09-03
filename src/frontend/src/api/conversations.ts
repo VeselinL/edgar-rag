@@ -54,7 +54,7 @@ export async function listMessages(conversationId: string): Promise<PersistedMes
 
 export function updateConversation(
   conversationId: string,
-  update: { title?: string; memory_enabled?: boolean; pinned?: boolean },
+  update: { title?: string; memory_enabled?: boolean; pinned?: boolean; company_scope?: string[] },
 ): Promise<ConversationSummary> {
   return api(`/api/conversations/${encodeURIComponent(conversationId)}`, {
     method: 'PATCH',

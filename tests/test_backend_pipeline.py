@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -385,6 +386,22 @@ class FakeDocumentService:
         ]
 
 
+class RoadrunnerDocumentService(FakeDocumentService):
+    def search(self, conversation_id, query, *, limit=10):
+        self.search_arguments = (conversation_id, query, limit)
+        return [
+            DocumentEvidence(
+                "upload:roadrunner:0",
+                "document-roadrunner",
+                "ava_upload_test.txt",
+                "text/plain",
+                None,
+                "The Roadrunner prototype uses three lidar sensors.",
+                0.91,
+            )
+        ]
+
+
 class UploadGenerator(RoutedGenerator):
     def __init__(self, route=None):
         super().__init__(
@@ -442,12 +459,26 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertFalse(settings.llm_streaming)
 
-    def test_settings_can_disable_calculator(self):
+    def test_settings_cannot_enable_calculator(self):
         with patch.dict(
-            "os.environ", {"AVA_CALCULATOR_ENABLED": "false"}, clear=False
+            "os.environ", {"AVA_CALCULATOR_ENABLED": "true"}, clear=False
         ):
             settings = PipelineSettings.from_environment()
         self.assertFalse(settings.calculator_enabled)
+
+    def test_calculator_is_disabled_in_all_deployment_defaults(self):
+        project_root = Path(__file__).resolve().parents[1]
+        self.assertFalse(PipelineSettings().calculator_enabled)
+        self.assertIn(
+            'export AVA_CALCULATOR_ENABLED="false"',
+            (project_root / "start_app.sh").read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            'AVA_CALCULATOR_ENABLED: "false"',
+            (project_root / "docker-compose.production.yml").read_text(
+                encoding="utf-8"
+            ),
+        )
 
     def test_settings_expose_routing_kill_switch_and_finite_tool_limits(self):
         with patch.dict(
@@ -478,12 +509,12 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaisesRegex(ValueError, "cannot exceed"):
                 PipelineSettings.from_environment()
 
-    def test_settings_reject_ambiguous_calculator_toggle(self):
+    def test_settings_ignore_legacy_calculator_toggle(self):
         with patch.dict(
             "os.environ", {"AVA_CALCULATOR_ENABLED": "off"}, clear=False
         ):
-            with self.assertRaisesRegex(ValueError, "AVA_CALCULATOR_ENABLED"):
-                PipelineSettings.from_environment()
+            settings = PipelineSettings.from_environment()
+        self.assertFalse(settings.calculator_enabled)
 
     def test_settings_require_explicit_configured_web_provider(self):
         with patch.dict(
@@ -640,9 +671,47 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(generator.answer_called)
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
         self.assertIn("Hello", events[0].data["text"])
+        self.assertIn("Available companies:", events[0].data["text"])
+        self.assertIn("General Motors' total consolidated revenue", events[0].data["text"])
+        self.assertIn("latest indexed 10-K", events[0].data["text"])
         self.assertEqual(events[1].data["sources"], [])
         self.assertEqual(records[0]["route"]["route"], "conversation_only")
         self.assertNotIn("retrieval_selection", records[0]["stage_latency_ms"])
+
+    async def test_explicit_company_outside_saved_scope_guides_user_without_retrieval(self):
+        class NoRouteGenerator(FakeGenerator):
+            def route_request(self, *args, **kwargs):
+                raise AssertionError("A company-scope mismatch must bypass the router.")
+
+        retriever = FakeRetriever()
+        records = []
+        pipeline = RealPipeline(
+            retriever,
+            NoRouteGenerator(),
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Fetch me the CEO of Tesla",
+                connected,
+                company_scope=["F"],
+            )
+        ]
+
+        self.assertIsNone(retriever.arguments)
+        self.assertIn("Tesla, Inc. (TSLA)", events[0].data["text"])
+        self.assertIn("Ford Motor Company (F)", events[0].data["text"])
+        self.assertIn("select All companies", events[0].data["text"])
+        self.assertEqual(events[1].data["sources"], [])
+        self.assertEqual(
+            records[0]["route"]["decided_by"],
+            "manual_company_scope_mismatch",
+        )
 
     async def test_routing_kill_switch_restores_filing_only_path(self):
         class KillSwitchGenerator(FakeGenerator):
@@ -755,6 +824,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         pipeline = RealPipeline(
             FakeRetriever(),
             generator,
+            calculator_enabled=True,
             web_search=FakeWebSearch(),
             web_search_enabled=True,
             telemetry_sink=records.append,
@@ -788,6 +858,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         pipeline = RealPipeline(
             FakeRetriever(),
             WebGenerator(route),
+            calculator_enabled=True,
             web_search=web_search,
             web_search_enabled=True,
             max_tool_executions=1,
@@ -828,12 +899,46 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             )
         ]
         self.assertIsNone(retriever.arguments)
-        self.assertEqual(generator.uploaded_source_names, ("architecture.txt",))
+        self.assertEqual(documents.list_conversation_id, "chat-1")
         self.assertEqual(documents.search_arguments[0], "chat-1")
         self.assertEqual(events[0].data["text"], "Failover uses a passive replica.")
         self.assertNotIn("upload:", events[0].data["text"])
         self.assertEqual(events[1].data["sources"][0]["content_type"], "upload")
         self.assertEqual(records[0]["selected_asset_ids"], ["document-1"])
+
+    async def test_relevant_upload_content_precedes_filing_route_without_source_cue(self):
+        retriever = FakeRetriever()
+        generator = UploadGenerator(
+            RequestRoute(RouteKind.FILING_RAG, RouteReason.FILING_EVIDENCE)
+        )
+        documents = RoadrunnerDocumentService()
+        pipeline = RealPipeline(retriever, generator, llm_streaming=False)
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "How many lidar sensors does RoadRunner use?",
+                connected,
+                conversation_id="chat-1",
+                document_service=documents,
+            )
+        ]
+
+        self.assertIsNone(retriever.arguments)
+        self.assertEqual(
+            documents.search_arguments,
+            ("chat-1", "How many lidar sensors does RoadRunner use?", 10),
+        )
+        self.assertEqual(
+            generator.upload_evidence[0]["chunk"]["chunk_id"],
+            "upload:roadrunner:0",
+        )
+        self.assertEqual(
+            [event.event for event in events], ["delta", "sources", "done"]
+        )
 
     async def test_uploaded_document_calculation_must_execute_cited_calculator(self):
         route = RequestRoute(
@@ -845,6 +950,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         pipeline = RealPipeline(
             FakeRetriever(),
             UploadGenerator(route),
+            calculator_enabled=True,
             telemetry_sink=records.append,
         )
 
@@ -875,7 +981,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
                 arithmetic_required=True,
             )
         )
-        pipeline = RealPipeline(retriever, generator)
+        pipeline = RealPipeline(retriever, generator, calculator_enabled=True)
 
         async def connected():
             return False
@@ -900,7 +1006,6 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         pipeline = RealPipeline(
             retriever,
             generator,
-            calculator_enabled=False,
             telemetry_sink=records.append,
         )
 
@@ -908,8 +1013,9 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             return False
 
         events = [event async for event in pipeline.stream("12 * 4", connected)]
-        self.assertIn("disabled", events[0].data["text"])
-        self.assertIn("won't guess", events[0].data["text"])
+        self.assertIn("outside AVA's SEC-filing analysis scope", events[0].data["text"])
+        self.assertEqual(records[0]["route"]["route"], "conversation_only")
+        self.assertFalse(records[0]["route"]["uses_calculator"])
         self.assertEqual(records[0]["tool_executions"], [])
 
     async def test_filing_calculation_retrieves_then_executes_cited_calculator(self):
@@ -917,6 +1023,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         pipeline = RealPipeline(
             FakeRetriever(),
             FilingCalculationGenerator(),
+            calculator_enabled=True,
             telemetry_sink=records.append,
         )
 
@@ -940,6 +1047,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         pipeline = RealPipeline(
             FakeRetriever(),
             FilingCalculationGenerator(ready=False),
+            calculator_enabled=True,
             telemetry_sink=records.append,
         )
 

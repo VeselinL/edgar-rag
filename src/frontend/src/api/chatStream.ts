@@ -6,6 +6,7 @@ const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, ''
 interface StreamHandlers {
   signal: AbortSignal
   onOpen: () => void
+  onStatus?: (text: string) => void
   onDelta: (text: string) => void
   onSources: (sources: Source[], sourceStatus: SourceStatus, malformedSourceCount: number) => void
   onDone: () => void
@@ -51,6 +52,7 @@ export async function streamChat(
   query: string,
   handlers: StreamHandlers,
   conversation?: ConversationTurn,
+  model?: string,
 ): Promise<void> {
   let response: Response
   try {
@@ -68,6 +70,7 @@ export async function streamChat(
           conversation_id: conversation.conversationId,
           client_turn_id: conversation.clientTurnId,
         } : {}),
+        ...(model ? { model } : {}),
       }),
       signal: handlers.signal,
     })
@@ -100,6 +103,11 @@ export async function streamChat(
     if (raw.event === 'delta') {
       if (typeof raw.data.text !== 'string') throw new ChatStreamError('AVA returned an invalid text fragment.')
       if (raw.data.text.length > 0) handlers.onDelta(raw.data.text)
+      return
+    }
+    if (raw.event === 'status') {
+      if (typeof raw.data.text !== 'string' || !raw.data.text) throw new ChatStreamError('AVA returned an invalid activity status.')
+      handlers.onStatus?.(raw.data.text)
       return
     }
     if (raw.event === 'sources') {

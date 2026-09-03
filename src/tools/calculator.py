@@ -237,7 +237,7 @@ def _expression_from_query(query: str) -> tuple[str, str, str | None]:
         (
             "percentage_increase",
             re.compile(
-                rf"^\D*?percentage\s+increase\s+from\s+({_SIGNED_NUMBER})\s+to\s+({_SIGNED_NUMBER})$",
+                rf"^\D*?(?:percentage\s+increase|percentage\s+change)\s+from\s+({_SIGNED_NUMBER})\s+to\s+({_SIGNED_NUMBER})$",
                 re.I,
             ),
         ),
@@ -256,9 +256,23 @@ def _expression_from_query(query: str) -> tuple[str, str, str | None]:
             ),
         ),
         (
+            "percentage",
+            re.compile(
+                rf"^\D*?what\s+percent(?:age)?\s+is\s+({_SIGNED_NUMBER})\s+of\s+({_SIGNED_NUMBER})$",
+                re.I,
+            ),
+        ),
+        (
             "percentage_of",
             re.compile(
                 rf"^\D*?({_SIGNED_NUMBER})\s*(?:%|percent(?:age)?)\s+of\s+({_SIGNED_NUMBER})$",
+                re.I,
+            ),
+        ),
+        (
+            "percentage_of",
+            re.compile(
+                rf"^\D*?(?:how\s+much\s+is\s+)?({_SIGNED_NUMBER})\s*%\s+of\s+({_SIGNED_NUMBER})$",
                 re.I,
             ),
         ),

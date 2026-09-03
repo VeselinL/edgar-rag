@@ -24,7 +24,7 @@ function AssistantMessage({
     <article className="message message--assistant" aria-label="AVA response">
       <div className="assistant-avatar">
         <AvaAvatar decorative theme={theme} />
-        {waiting && <WaitingBubble />}
+        {waiting && <WaitingBubble activity={message.activity} />}
       </div>
       <div className="assistant-content">
         {message.text && (

@@ -18,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel
 
-from .pipeline import PipelineEvent, PipelineSettings, build_pipeline
+from .pipeline import AVAILABLE_MODELS, PipelineEvent, PipelineSettings, build_pipeline
 from .operations import (
     BodyLimitMiddleware,
     OperationalMiddleware,
@@ -77,17 +77,20 @@ class ChatRequest(BaseModel):
     query: str
     conversation_id: UUID | None = None
     client_turn_id: UUID | None = None
+    model: str | None = None
 
 
 class CreateConversationRequest(BaseModel):
     title: str = "New conversation"
     memory_enabled: bool = False
+    company_scope: list[str] = []
 
 
 class UpdateConversationRequest(BaseModel):
     title: str | None = None
     memory_enabled: bool | None = None
     pinned: bool | None = None
+    company_scope: list[str] | None = None
 
 
 class FeedbackRequest(BaseModel):
@@ -109,6 +112,7 @@ def _conversation_payload(value: Any) -> dict[str, Any]:
         "pinned_at": value.pinned_at.isoformat() if value.pinned_at else None,
         "created_at": value.created_at.isoformat(),
         "updated_at": value.updated_at.isoformat(),
+        "company_scope": list(value.company_scope),
     }
 
 
@@ -555,7 +559,8 @@ def create_app(
         service = await conversation_service_for(request, require_csrf=True)
         try:
             value = await asyncio.to_thread(
-                service.create, title=body.title, memory_enabled=body.memory_enabled
+                service.create, title=body.title, memory_enabled=body.memory_enabled,
+                company_scope=body.company_scope,
             )
         except ValueError as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
@@ -684,7 +689,7 @@ def create_app(
     async def update_conversation(
         conversation_id: UUID, body: UpdateConversationRequest, request: Request
     ) -> dict[str, Any]:
-        if body.title is None and body.memory_enabled is None and body.pinned is None:
+        if body.title is None and body.memory_enabled is None and body.pinned is None and body.company_scope is None:
             raise HTTPException(status_code=422, detail="No conversation change was supplied.")
         try:
             value = await asyncio.to_thread(
@@ -693,6 +698,7 @@ def create_app(
                 title=body.title,
                 memory_enabled=body.memory_enabled,
                 pinned=body.pinned,
+                company_scope=body.company_scope,
             )
         except ConversationNotFoundError as error:
             raise HTTPException(status_code=404, detail="Conversation was not found.") from error
@@ -759,6 +765,8 @@ def create_app(
                 status_code=422,
                 detail=f"Question must be {query_max_length} characters or fewer.",
             )
+        if body.model is not None and body.model not in AVAILABLE_MODELS:
+            raise HTTPException(status_code=422, detail="That model is not available.")
         active_pipeline = getattr(request.app.state, "pipeline", None)
         if active_pipeline is None or not getattr(active_pipeline, "ready", False):
             raise HTTPException(status_code=503, detail="AVA is still preparing its filing index.")
@@ -768,6 +776,7 @@ def create_app(
         turn = None
         conversation_context = None
         active_document_service = None
+        company_scope: list[str] = []
         history_enabled = (
             getattr(request.app.state, "conversation_service", None) is not None
             or getattr(request.app.state, "conversation_factory", None) is not None
@@ -782,6 +791,7 @@ def create_app(
             conversation_id = str(body.conversation_id)
             client_turn_id = str(body.client_turn_id)
             try:
+                company_scope = list((await asyncio.to_thread(service.get, conversation_id)).company_scope)
                 turn = await asyncio.to_thread(
                     service.begin_turn,
                     conversation_id,
@@ -833,6 +843,8 @@ def create_app(
                     "conversation_context": conversation_context,
                     "conversation_id": str(body.conversation_id) if body.conversation_id else None,
                     "turn_id": str(body.client_turn_id) if body.client_turn_id else None,
+                    "company_scope": company_scope,
+                    "model": body.model,
                 }
                 if active_document_service is not None:
                     stream_arguments["document_service"] = active_document_service

@@ -343,6 +343,7 @@ class CompanyResolver:
                 candidate = normalize_company_phrase(raw)
                 if (
                     not candidate
+                    or all(token in QUESTION_WORDS for token in candidate.split())
                     or candidate in occupied
                     or any(
                         re.search(rf"(?<!\w){re.escape(alias)}(?!\w)", candidate)
@@ -549,8 +550,22 @@ class CompanyResolver:
             if ticker in ACTIVE_FILINGS and ticker not in already_scoped
         ]
         if not additions:
-            return query
-        return f"{query}\nCompany scope: {'; '.join(additions)}"
+            scoped_query = query
+        else:
+            scoped_query = f"{query}\nCompany scope: {'; '.join(additions)}"
+        # Filing language often says “consumer vehicles” and “vehicle models”
+        # rather than “cars”. Add a narrow lexical bridge for manufacturing
+        # questions so the exact Item 1 product chunk remains selectable.
+        if re.search(
+            r"\b(?:cars?|automobiles?|vehicles?|manufactur(?:e|es|ed|ing)|builds?|built)\b",
+            query,
+            re.I,
+        ):
+            # Normalize common user/planner variants toward the exact Item 1
+            # language used in vehicle-product disclosures. In particular,
+            # `manufactured` must not rank differently from `manufacture`.
+            scoped_query += " consumer vehicles vehicle models currently manufacture"
+        return scoped_query
 
     @staticmethod
     def clarification_message(resolution: CompanyResolution) -> str:

@@ -1047,3 +1047,104 @@ and was not included in AVA commits.
   remain exact. The focused unit/pipeline suite passes 91 tests and 45 subtests,
   and the versioned decision records latency, hashes, cost boundaries, and the
   routing rollback.
+
+### Added persistent manual company scope
+
+- Added an owner-scoped `company_scope` conversation setting, persisted in
+  PostgreSQL and returned through the conversation API. An empty scope means
+  all ten baseline companies; otherwise every filing subquery is forced to the
+  selected validated tickers.
+- Added an accessible multi-select company control to the conversation sidebar.
+  Selecting the last active company returns to “All companies”; scope remains
+  active until changed and is never trusted from the browser during retrieval.
+- Backend conversation, API, and frontend build/test checks pass.
+
+### Added deterministic live activity statuses
+
+- Added streamed `status` events for filing retrieval, bounded web search,
+  uploaded-document search, calculator execution, and final answer generation.
+- The waiting bubble now displays the current deterministic activity with an
+  animated three-dot suffix; generation uses `Thinking...`.
+- Existing delta/source/done streaming behavior remains unchanged, and the
+  backend/API and frontend regression suites pass.
+
+### Added model selection and filing-first current queries
+
+- Exposed all configured generation models in the sidebar, defaulting to
+  `AZURE_GPT_4o_2024_1120`; the selected model is retained in browser settings
+  and sent to the backend for each request with server-side allow-listing.
+- Current/latest wording no longer automatically bypasses filing retrieval
+  when a company and filing-relevant fact are identified. Web routing is
+  temporarily disabled; external routes fall back to the normal filing path
+  instead of displaying a web-disabled error.
+- The final-generation activity is randomly selected per request from the
+  approved verb list, while retrieval/tool activity remains deterministic.
+- The initial waiting-bubble label now uses the same eight-verb list with a
+  uniform random choice, so it no longer defaults to `Thinking`.
+
+### Added GM product resolution
+
+- Added the verified `Super Cruise` product alias to the GM resolver, so
+  product-only questions resolve to `GM` instead of being split into an
+  unresolved `Super` mention.
+
+- Manual scope and full-corpus phrases are now applied before clarification, so
+  queries such as “CEOs of these companies” and “all companies” use the active
+  selected scope or the complete corpus deterministically.
+
+### Hard-disabled calculator routing and fixed repetition false positives
+
+- Hard-disabled calculator execution in application settings, local startup,
+  and production Compose; a legacy environment override cannot enable it.
+- Reproduced the reported jailbreak-style request and traced it to two
+  deterministic false positives: `times` was treated as multiplication without
+  two numeric operands, and the stop word `for` was fuzzily resolved as Ford.
+- Added explicit text-repetition routing, numeric-only `times` recognition,
+  stop-word exclusion in fuzzy company resolution, router-prompt examples, and
+  runtime route normalization before any calculator planner or tool can run.
+
+### Stabilized vehicle follow-up retrieval and scope guidance
+
+- Compared the stored source uses for two Tesla vehicle questions. The complete
+  Item 1 evidence (`TSLA-2025-CHUNK-000003`) was selected for “cars built” but
+  was absent from the candidate set for the planner wording “vehicles
+  manufactured.”
+- Expanded the deterministic vehicle lexical bridge across build/manufacture
+  inflections. The failing follow-up now selects the gold chunk at final context
+  rank 1 (dense rank 1, BM25 rank 2).
+- Added a pre-retrieval mismatch guard when an explicit query company is outside
+  the server-owned chat scope. AVA now names both scopes and directs the user to
+  add the company or choose “All companies,” without searching unrelated
+  filings.
+- Expanded deterministic identity/help responses with the current corpus list
+  and concrete filing-question examples while preserving zero-model latency.
+
+### Quarantined uploaded-document prompt injection at generation
+
+- Preserved uploaded files unchanged for extraction, search, provenance, and the
+  Sources view while removing instruction-like sentences only from the excerpt
+  copy sent to the model provider.
+- Added sentence-level quarantine so a malicious instruction cannot discard a
+  factual sentence beside it in the same paragraph, and retained the original
+  upload source ID for exact citation resolution.
+- Prevented the documented Roadrunner upload test from forwarding its embedded
+  system-prompt extraction request to Azure's content filter.
+
+### Prioritized relevant conversation uploads before filing routing
+
+- Added a bounded, owner/chat-scoped upload pre-search after short- and long-term
+  context preparation and before the filing/tool route decision.
+- A strong lexical match between the question and retrieved upload text now
+  selects uploaded-document RAG even when the user does not say “attached file.”
+  Explicit 10-K/filing requests still select the filing corpus, and weak nearest-
+  neighbor results cannot hijack unrelated filing questions.
+- Reused pre-search results during upload generation to avoid a second query
+  embedding and Qdrant request.
+
+### Prevented malformed internal citation IDs from reaching chat text
+
+- Extended the streaming visibility filter to suppress source-shaped filing,
+  upload, and web IDs even when the model emits a malformed or unresolved ID.
+- Kept exact citation validation unchanged for the Sources panel: only genuinely
+  resolved evidence becomes a visible source, while ordinary bracketed user text
+  remains untouched.

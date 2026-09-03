@@ -7,6 +7,10 @@ interface Props {
   memoryEnabled: boolean
   onNew: () => void
   onToggleMemory: () => void
+  companyScope: string[]
+  onToggleCompany: (ticker: string) => void
+  model: string
+  onModelChange: (model: string) => void
   onSelect: (conversation: ConversationSummary) => void
   onPin: (conversation: ConversationSummary) => void
   onRename: (conversation: ConversationSummary) => void
@@ -25,6 +29,16 @@ function DotsIcon() {
     </svg>
   )
 }
+
+const AVAILABLE_MODELS = [
+  ['AZURE_GPT_4o_2024_1120', 'GPT-4o (2024-11-20)'],
+  ['AZURE_GPT_41_2025_0414', 'GPT-4.1 (2025-04-14)'],
+  ['AZURE_GPT_5_2025_0807', 'GPT-5 (2025-08-07)'],
+  ['AZURE_GPT_51_2025_1113', 'GPT-5.1 (2025-11-13)'],
+  ['AZURE_GPT_54_2026_0305', 'GPT-5.4 (2026-03-05)'],
+  ['AZURE_GPT_55_2026_0424', 'GPT-5.5 (2026-04-24)'],
+  ['AZURE_GPT_56_SOL_2026_0709', 'GPT-5.6 SOL (2026-07-09)'],
+] as const
 
 function ConversationRow({
   conversation,
@@ -120,6 +134,10 @@ export function ConversationSidebar({
   memoryEnabled,
   onNew,
   onToggleMemory,
+  companyScope,
+  onToggleCompany,
+  model,
+  onModelChange,
   onSelect,
   onPin,
   onRename,
@@ -173,6 +191,23 @@ export function ConversationSidebar({
         <span>Long-term memory</span>
         <strong>{memoryEnabled ? 'On' : 'Off'}</strong>
       </button>
+      <fieldset className="sidebar-companies">
+        <legend>Company scope</legend>
+        <label><input type="checkbox" checked={companyScope.length === 0} onChange={() => companyScope.length && onToggleCompany('ALL')} /> All companies</label>
+        {[
+          ['APTV', 'Aptiv'], ['AUR', 'Aurora'], ['F', 'Ford'], ['GM', 'General Motors'],
+          ['GOOGL', 'Alphabet'], ['MBLY', 'Mobileye'], ['NVDA', 'NVIDIA'], ['OUST', 'Ouster'],
+          ['QCOM', 'Qualcomm'], ['RIVN', 'Rivian'], ['TSLA', 'Tesla'],
+        ].map(([ticker, name]) => (
+          <label key={ticker}><input type="checkbox" checked={companyScope.includes(ticker)} onChange={() => onToggleCompany(ticker)} /> {name} ({ticker})</label>
+        ))}
+      </fieldset>
+      <label className="sidebar-model">
+        <span>Answer model</span>
+        <select value={model} onChange={(event) => onModelChange(event.target.value)}>
+          {AVAILABLE_MODELS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+        </select>
+      </label>
       <nav aria-label="Saved chats" className="conversation-sidebar__history">
         {pinned.length > 0 && (
           <section aria-labelledby="pinned-chats-heading">

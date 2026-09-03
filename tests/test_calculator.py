@@ -42,7 +42,10 @@ class CalculatorToolTests(unittest.TestCase):
             "What is 20 times 5?": ("100", None),
             "What is 100 divided by 4?": ("25", None),
             "Calculate the growth rate from 80 to 100.": ("25", "%"),
+            "What is the percentage change from 80 to 100?": ("25", "%"),
             "Calculate the percentage decrease from 100 to 80.": ("20", "%"),
+            "How much is 25% of 80?": ("20", None),
+            "What percent is 18 of 72?": ("25", "%"),
         }
         for query, expected in cases.items():
             with self.subTest(query=query):

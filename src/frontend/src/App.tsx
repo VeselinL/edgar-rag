@@ -24,6 +24,8 @@ import type { AssistantMessage, ChatDocument, ChatMessage, ConversationSummary, 
 
 const PRE_TOKEN_ERROR = 'The filing-analysis service is temporarily unavailable. Please retry shortly.'
 const MID_STREAM_ERROR = 'The response was interrupted. Please try again.'
+const DEFAULT_MODEL = 'AZURE_GPT_4o_2024_1120'
+const GENERATION_ACTIVITIES = ['Thinking', 'Reasoning', 'Cogitating', 'Cerebrating', 'Contemplating', 'Pondering', 'Ruminating', 'Sleuthing'] as const
 
 export default function App() {
   const { theme, toggleTheme } = useTheme()
@@ -45,6 +47,7 @@ export default function App() {
   const [sourcesError, setSourcesError] = useState('')
   const [uploadStatus, setUploadStatus] = useState('')
   const [deletingDocumentId, setDeletingDocumentId] = useState<string | null>(null)
+  const [selectedModel, setSelectedModel] = useState(() => window.localStorage.getItem('ava-model') ?? DEFAULT_MODEL)
   const controller = useRef<AbortController | null>(null)
   const idSequence = useRef(0)
 
@@ -112,7 +115,6 @@ export default function App() {
     setDocuments([])
     setSourcesOpen(false)
     setUploadStatus('')
-    setSidebarOpen(false)
   }
 
   const newConversation = async () => {
@@ -124,7 +126,6 @@ export default function App() {
     setDocuments([])
     setSourcesOpen(false)
     setUploadStatus('')
-    setSidebarOpen(false)
   }
 
   const openSources = async () => {
@@ -202,6 +203,7 @@ export default function App() {
       sources: null,
       sourceStatus: 'none_cited',
       malformedSourceCount: 0,
+      activity: GENERATION_ACTIVITIES[Math.floor(Math.random() * GENERATION_ACTIVITIES.length)],
     }
     setMessages((current) => [
       ...current,
@@ -219,6 +221,9 @@ export default function App() {
         onOpen: () => {
           opened = true
           setDraft('')
+        },
+        onStatus: (activity) => {
+          updateAssistant(assistantId, (message) => ({ ...message, activity }))
         },
         onDelta: (text) => {
           receivedText = true
@@ -241,12 +246,13 @@ export default function App() {
         },
       }
       if (currentConversation) {
-        await streamChat(query, handlers, {
+        const conversation = {
           conversationId: currentConversation.id,
           clientTurnId,
-        })
+        }
+        await streamChat(query, handlers, conversation, selectedModel)
       } else {
-        await streamChat(query, handlers)
+        await streamChat(query, handlers, undefined, selectedModel)
       }
       if (currentConversation) {
         setMessages(storedMessages(await listMessages(currentConversation.id)))
@@ -296,6 +302,25 @@ export default function App() {
             conversations={conversations}
             activeId={currentConversation?.id}
             memoryEnabled={currentConversation?.memory_enabled ?? false}
+            companyScope={currentConversation?.company_scope ?? []}
+            onToggleCompany={(ticker) => {
+              if (!currentConversation) return
+              const currentScope = currentConversation.company_scope ?? []
+              const nextScope = ticker === 'ALL'
+                ? []
+                : currentScope.includes(ticker)
+                  ? currentScope.filter((value) => value !== ticker)
+                  : [...currentScope, ticker]
+              void updateConversation(currentConversation.id, { company_scope: nextScope }).then((updated) => {
+                setCurrentConversation(updated)
+                setConversations((items) => items.map((item) => item.id === updated.id ? updated : item))
+              })
+            }}
+            model={selectedModel}
+            onModelChange={(model) => {
+              setSelectedModel(model)
+              window.localStorage.setItem('ava-model', model)
+            }}
             onNew={() => void newConversation()}
             onToggleMemory={() => {
               if (!currentConversation) return
@@ -337,7 +362,6 @@ export default function App() {
                 setConversations([created])
                 setCurrentConversation(created)
                 setMessages([])
-                setSidebarOpen(false)
               })
             }}
             onExport={() => {

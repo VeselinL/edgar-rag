@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterator, Sequence
 from dataclasses import dataclass, field, replace
 import hashlib
+import inspect
 import json
 import logging
 import os
+import random
+import re
 from pathlib import Path
 import resource
 import time
@@ -21,8 +24,10 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from src.embeddings.embed_chunks import MODEL_CONFIGS
-from src.filings.corpus import ACTIVE_FILINGS
+from src.filings.corpus import ACTIVE_FILINGS, COMPANY_NAMES
 from src.generation.rag import (
+    AVAILABLE_MODELS,
+    DEFAULT_LLM_MODEL,
     CitationVisibilityFilter,
     GenerationResult,
     GenerationService,
@@ -39,7 +44,13 @@ from src.indexing.qdrant_index import (
     make_client,
 )
 from src.observability import RequestTrace, safe_error_class
-from src.orchestration.routing import RequestRoute, RouteKind, RouteReason
+from src.orchestration.routing import (
+    RequestRoute,
+    RouteKind,
+    RouteReason,
+    deterministic_route,
+    explicit_filing_source_requested,
+)
 from src.resolution.companies import (
     CompanyResolver,
     confidence_band,
@@ -57,6 +68,7 @@ from src.retrieval.evidence_policy import (
     EvidencePolicyError,
 )
 from src.tools import (
+    DEFAULT_ALLOWED_DOMAINS,
     BraveWebSearchTool,
     CalculationError,
     CalculatorTool,
@@ -73,6 +85,20 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 FILINGS = ACTIVE_FILINGS
 LOGGER = logging.getLogger(__name__)
 TelemetrySink = Callable[[dict[str, Any]], None]
+GENERATION_ACTIVITIES = (
+    "Thinking", "Reasoning", "Cogitating", "Cerebrating", "Contemplating",
+    "Pondering", "Ruminating", "Sleuthing",
+)
+UPLOAD_MATCH_STOP_WORDS = frozenset(
+    {
+        "about", "after", "also", "answer", "attached", "before", "build",
+        "built", "company", "could", "document", "does", "file", "from",
+        "have", "information", "into", "latest", "many", "much", "question",
+        "report", "source", "that", "their", "these", "they", "this", "those",
+        "uploaded", "uses", "using", "what", "when", "where", "which", "with",
+        "would",
+    }
+)
 
 
 def corpus_version(chunks: list[dict[str, Any]]) -> str:
@@ -92,11 +118,111 @@ class PipelineEvent:
     internal: dict[str, Any] | None = None
 
 
+def activity_event(text: str) -> PipelineEvent:
+    """Create a safe, deterministic progress update for the waiting bubble."""
+    return PipelineEvent("status", {"text": text})
+
+
+def infer_filing_scope_query(query: str) -> bool:
+    """Recognize concise filing facts that can use a selected company scope."""
+    return bool(re.search(
+        r"\b(?:ceos?|coos?|cfos?|ctos?|chief\s+(?:executive|operating|financial|technology)\s+officer|"
+        r"executive|officer|leadership|product|technology|business|strategy|risk|revenue|"
+        r"sales|income|profit|financial|employees?|autonomous|adas|evs?)\b",
+        query,
+        re.IGNORECASE,
+    ))
+
+
+def uploaded_evidence_matches_query(query: str, results: Sequence[Any]) -> bool:
+    """Require a strong lexical bridge before an upload can pre-empt filing RAG."""
+    query_terms = {
+        term
+        for term in re.findall(r"[a-z0-9]+", query.casefold())
+        if len(term) >= 4 and term not in UPLOAD_MATCH_STOP_WORDS
+    }
+    if not query_terms:
+        return False
+    for result in results:
+        searchable = f"{getattr(result, 'filename', '')} {getattr(result, 'text', '')}"
+        evidence_terms = set(re.findall(r"[a-z0-9]+", searchable.casefold()))
+        overlap = query_terms & evidence_terms
+        if len(overlap) >= 2 or any(len(term) >= 8 for term in overlap):
+            return True
+    return False
+
+
+def without_calculator_route(route: RequestRoute) -> RequestRoute:
+    """Remove calculator execution from a route while preserving useful evidence."""
+    replacements = {
+        RouteKind.CALCULATOR: (
+            RouteKind.CONVERSATION_ONLY,
+            RouteReason.OUT_OF_SCOPE,
+        ),
+        RouteKind.FILING_AND_CALCULATOR: (
+            RouteKind.FILING_RAG,
+            RouteReason.FILING_EVIDENCE,
+        ),
+        RouteKind.WEB_AND_CALCULATOR: (
+            RouteKind.WEB_SEARCH,
+            RouteReason.CURRENT_OR_EXTERNAL,
+        ),
+        RouteKind.UPLOAD_AND_CALCULATOR: (
+            RouteKind.UPLOADED_DOCUMENT_RAG,
+            RouteReason.UPLOADED_EVIDENCE,
+        ),
+    }
+    replacement = replacements.get(route.route)
+    if replacement is None:
+        return route
+    route_kind, reason = replacement
+    return RequestRoute(
+        route_kind,
+        reason,
+        arithmetic_required=False,
+        decided_by=f"{route.decided_by}_calculator_disabled",
+    )
+
+
+def ava_introduction() -> str:
+    """Return the deterministic, corpus-aware AVA introduction."""
+    available = ", ".join(
+        f"{COMPANY_NAMES[ticker]} ({ticker})" for ticker in FILINGS
+    )
+    return (
+        "Hello! I'm AVA, your Autonomous Vehicle Analyst. I search the indexed "
+        "annual SEC filings, explain company disclosures, compare companies, and "
+        "cite the evidence I use.\n\n"
+        f"Available companies: {available}.\n\n"
+        "For example, try:\n"
+        "- What was General Motors' total consolidated revenue?\n"
+        "- What future plans does Aurora disclose?\n"
+        "- Who was Tesla's CEO as of its latest indexed 10-K?"
+    )
+
+
+def company_scope_mismatch_message(
+    requested_tickers: Sequence[str], selected_tickers: Sequence[str]
+) -> str:
+    """Explain an explicit query target excluded by the chat's saved scope."""
+    requested = ", ".join(
+        f"{COMPANY_NAMES[ticker]} ({ticker})" for ticker in requested_tickers
+    )
+    selected = ", ".join(
+        f"{COMPANY_NAMES[ticker]} ({ticker})" for ticker in selected_tickers
+    )
+    return (
+        f"Your question targets {requested}, but this chat's company scope is "
+        f"limited to {selected}. In the sidebar, add the requested company or "
+        "select All companies, then ask again."
+    )
+
+
 @dataclass(frozen=True)
 class PipelineSettings:
     mode: str = "real"
     model_device: str = "cpu"
-    llm_model: str = "AZURE_GPT_51_2025_1113"
+    llm_model: str = DEFAULT_LLM_MODEL
     llm_streaming: bool = True
     context_window_tokens: int = 32_768
     reserved_output_tokens: int = 4_096
@@ -109,7 +235,7 @@ class PipelineSettings:
     qdrant_timeout_seconds: int = 30
     request_routing_enabled: bool = True
     strict_abstention_prompt: bool = False
-    calculator_enabled: bool = True
+    calculator_enabled: bool = False
     web_search_enabled: bool = False
     web_search_provider: str = "disabled"
     web_search_api_key: str | None = field(default=None, repr=False)
@@ -139,11 +265,6 @@ class PipelineSettings:
         ).strip().casefold()
         if raw_strict_abstention not in {"true", "false"}:
             raise ValueError("AVA_STRICT_ABSTENTION_PROMPT must be 'true' or 'false'.")
-        raw_calculator_enabled = os.getenv(
-            "AVA_CALCULATOR_ENABLED", "true"
-        ).strip().casefold()
-        if raw_calculator_enabled not in {"true", "false"}:
-            raise ValueError("AVA_CALCULATOR_ENABLED must be 'true' or 'false'.")
         raw_web_search_enabled = os.getenv(
             "AVA_WEB_SEARCH_ENABLED", "false"
         ).strip().casefold()
@@ -197,7 +318,7 @@ class PipelineSettings:
         return cls(
             mode=mode,
             model_device=os.getenv("AVA_MODEL_DEVICE", "cpu"),
-            llm_model=os.getenv("AVA_LLM_MODEL", "AZURE_GPT_51_2025_1113"),
+            llm_model=os.getenv("AVA_LLM_MODEL", DEFAULT_LLM_MODEL),
             llm_streaming=raw_streaming == "true",
             context_window_tokens=context_window_tokens,
             reserved_output_tokens=reserved_output_tokens,
@@ -212,7 +333,10 @@ class PipelineSettings:
             qdrant_timeout_seconds=qdrant_timeout_seconds,
             request_routing_enabled=raw_routing_enabled == "true",
             strict_abstention_prompt=raw_strict_abstention == "true",
-            calculator_enabled=raw_calculator_enabled == "true",
+            # Calculator execution is intentionally hard-disabled in deployed
+            # settings. Keep the implementation injectable only for isolated
+            # regression tests until a measured re-enable decision is made.
+            calculator_enabled=False,
             web_search_enabled=raw_web_search_enabled == "true",
             web_search_provider=web_search_provider,
             web_search_api_key=web_search_api_key,
@@ -280,12 +404,13 @@ class RealPipeline:
         qdrant_health: dict[str, Any] | None = None,
         request_routing_enabled: bool = True,
         calculator: CalculatorTool | None = None,
-        calculator_enabled: bool = True,
+        calculator_enabled: bool = False,
         web_search: WebSearchTool | None = None,
         web_search_enabled: bool = False,
         web_search_max_results: int = 5,
         max_tool_executions: int = 4,
         max_web_searches: int = 2,
+        emit_activity: bool = False,
     ) -> None:
         self.retriever = retriever
         self.generator = generator
@@ -314,6 +439,7 @@ class RealPipeline:
             raise ValueError("Maximum web searches cannot exceed total tool executions.")
         self.max_tool_executions = max_tool_executions
         self.max_web_searches = max_web_searches
+        self.emit_activity = emit_activity
 
     @staticmethod
     def _log_trace(record: dict[str, Any]) -> None:
@@ -326,6 +452,10 @@ class RealPipeline:
         disconnected: Callable[[], Awaitable[bool]],
         trace: RequestTrace,
     ) -> AsyncIterator[PipelineEvent]:
+        if self.emit_activity:
+            yield activity_event(
+                f'Searching web (SEC.gov, Robinhood.com, Reuters.com, Nasdaq.com) for "{query[:160]}"'
+            )
         if not self.web_search_enabled:
             answer = (
                 "That question needs current or external information, but web search "
@@ -577,14 +707,20 @@ class RealPipeline:
         disconnected: Callable[[], Awaitable[bool]],
         trace: RequestTrace,
         document_service: Any,
+        prefetched_results: Sequence[Any] | None = None,
     ) -> AsyncIterator[PipelineEvent]:
-        with trace.stage("uploaded_document_search"):
-            results = await asyncio.to_thread(
-                document_service.search,
-                trace.conversation_id,
-                query,
-                limit=10,
-            )
+        if prefetched_results is None:
+            if self.emit_activity:
+                yield activity_event("Searching through uploaded documents")
+            with trace.stage("uploaded_document_search"):
+                results = await asyncio.to_thread(
+                    document_service.search,
+                    trace.conversation_id,
+                    query,
+                    limit=10,
+                )
+        else:
+            results = list(prefetched_results)
         if not results:
             answer = "No relevant text was found in the files attached to this chat."
             trace.generated_answer = answer
@@ -903,6 +1039,7 @@ class RealPipeline:
             web_search = BraveWebSearchTool(
                 settings.web_search_api_key or "",
                 timeout_seconds=settings.web_search_timeout_seconds,
+                allowed_domains=DEFAULT_ALLOWED_DOMAINS,
             )
         startup_metrics = {
             "corpus_load_ms": round(load_ms, 3),
@@ -941,6 +1078,7 @@ class RealPipeline:
             web_search_max_results=settings.web_search_max_results,
             max_tool_executions=settings.max_tool_executions,
             max_web_searches=settings.max_web_searches,
+            emit_activity=True,
         )
 
     async def stream(
@@ -952,6 +1090,8 @@ class RealPipeline:
         conversation_id: str | None = None,
         turn_id: str | None = None,
         document_service: Any | None = None,
+        company_scope: list[str] | tuple[str, ...] | None = None,
+        model: str | None = None,
     ) -> AsyncIterator[PipelineEvent]:
         trace = RequestTrace(
             original_query=query,
@@ -964,7 +1104,8 @@ class RealPipeline:
         )
         try:
             async for event in self._stream_traced(
-                query, is_disconnected, trace, conversation_context, document_service
+                query, is_disconnected, trace, conversation_context, document_service,
+                company_scope, model,
             ):
                 yield event
         except asyncio.CancelledError:
@@ -986,6 +1127,8 @@ class RealPipeline:
         trace: RequestTrace,
         conversation_context: Any | None = None,
         document_service: Any | None = None,
+        company_scope: list[str] | tuple[str, ...] | None = None,
+        model: str | None = None,
     ) -> AsyncIterator[PipelineEvent]:
         async def disconnected() -> bool:
             value = await is_disconnected()
@@ -993,6 +1136,10 @@ class RealPipeline:
                 trace.cancelled = True
             return value
 
+        if model is not None:
+            if model not in AVAILABLE_MODELS:
+                raise ValueError("That model is not available.")
+            self.generator.model = model
         prompt_context = (
             conversation_context.prompt_text()
             if conversation_context is not None
@@ -1014,8 +1161,89 @@ class RealPipeline:
         uploaded_source_names = [item.filename for item in uploaded_documents]
         with trace.stage("deterministic_resolution"):
             deterministic_resolution = self.company_resolver.resolve(query)
+        preliminary_route = (
+            deterministic_route(
+                query,
+                deterministic_resolution,
+                uploads_available=bool(uploaded_source_names),
+                conversation_context=prompt_context,
+            )
+            if self.request_routing_enabled
+            else None
+        )
+        upload_candidates: list[Any] = []
+        upload_match = False
+        should_search_uploads = bool(
+            uploaded_documents
+            and (
+                preliminary_route is None
+                or preliminary_route.route
+                not in {RouteKind.CONVERSATION_ONLY, RouteKind.CALCULATOR}
+            )
+        )
+        if should_search_uploads:
+            if self.emit_activity:
+                yield activity_event("Searching through uploaded documents")
+            with trace.stage("uploaded_document_search"):
+                upload_candidates = await asyncio.to_thread(
+                    document_service.search,
+                    trace.conversation_id,
+                    query,
+                    limit=10,
+                )
+            upload_match = bool(
+                not explicit_filing_source_requested(query)
+                and uploaded_evidence_matches_query(query, upload_candidates)
+            )
+        selected_scope = tuple(company_scope or ())
+        excluded_query_tickers = tuple(
+            ticker
+            for ticker in deterministic_resolution.resolved_tickers
+            if selected_scope and ticker not in selected_scope
+        )
+        if excluded_query_tickers and not upload_match:
+            route = RequestRoute(
+                RouteKind.CLARIFY,
+                RouteReason.AMBIGUOUS_INTENT,
+                decided_by="manual_company_scope_mismatch",
+            )
+            trace.route = route.as_dict()
+            trace.resolver = {
+                "resolved_tickers": list(deterministic_resolution.resolved_tickers),
+                "selected_tickers": list(selected_scope),
+                "excluded_query_tickers": list(excluded_query_tickers),
+            }
+            response_text = company_scope_mismatch_message(
+                excluded_query_tickers, selected_scope
+            )
+            trace.generated_answer = response_text
+            trace.source_status = "none_cited"
+            trace.mark_first_token()
+            yield PipelineEvent("delta", {"text": response_text})
+            yield PipelineEvent(
+                "sources",
+                {
+                    "sources": [],
+                    "source_status": "none_cited",
+                    "malformed_source_count": 0,
+                },
+            )
+            yield PipelineEvent("done", {})
+            return
         with trace.stage("routing"):
-            if not self.request_routing_enabled:
+            if upload_match:
+                route = RequestRoute(
+                    RouteKind.UPLOADED_DOCUMENT_RAG,
+                    RouteReason.UPLOADED_EVIDENCE,
+                    decided_by="chat_upload_content_match",
+                )
+            elif selected_scope and infer_filing_scope_query(query):
+                route = RequestRoute(
+                    RouteKind.FILING_RAG,
+                    RouteReason.FILING_EVIDENCE,
+                    decided_by="manual_company_scope",
+                )
+            elif not self.request_routing_enabled:
                 route = RequestRoute(
                     RouteKind.FILING_RAG,
                     RouteReason.FILING_EVIDENCE,
@@ -1044,7 +1272,19 @@ class RealPipeline:
                     RouteReason.FILING_EVIDENCE,
                     decided_by="compatibility_fallback",
                 )
+        if not self.calculator_enabled:
+            route = without_calculator_route(route)
         trace.route = route.as_dict()
+        if route.uses_web_search and not self.web_search_enabled:
+            # Web search is intentionally disabled until its provider is wired
+            # into this deployment. Fall back to the normal filing path.
+            route = RequestRoute(
+                RouteKind.FILING_AND_CALCULATOR if route.uses_calculator else RouteKind.FILING_RAG,
+                RouteReason.FILING_EVIDENCE,
+                arithmetic_required=route.arithmetic_required,
+                decided_by="web_disabled_filing_fallback",
+            )
+            trace.route = route.as_dict()
         LOGGER.info("AVA request route", extra={"ava_request_route": trace.route})
 
         required_web_searches = 1 if route.uses_web_search else 0
@@ -1075,6 +1315,7 @@ class RealPipeline:
             return
 
         if route.route is RouteKind.CALCULATOR:
+            calculation = None
             if not self.calculator_enabled:
                 response_text = (
                     "That request requires the calculator, but it is disabled in this "
@@ -1100,6 +1341,9 @@ class RealPipeline:
                         "I couldn't safely parse that calculation. Please provide the "
                         "numeric operands and operation explicitly."
                     )
+            if calculation is not None:
+                if self.emit_activity:
+                    yield activity_event(f"Calculating {calculation.normalized_expression}")
             trace.generated_answer = response_text
             trace.source_status = "none_cited"
             trace.mark_first_token()
@@ -1163,22 +1407,21 @@ class RealPipeline:
                 yield PipelineEvent("done", {})
                 return
             async for event in self._stream_upload_route(
-                query, route, disconnected, trace, document_service
+                query,
+                route,
+                disconnected,
+                trace,
+                document_service,
+                upload_candidates if upload_candidates else None,
             ):
                 yield event
             return
 
         if not route.uses_filing_retrieval:
             if route.reason_code is RouteReason.GREETING:
-                response_text = (
-                    "Hello! I'm AVA, the Autonomous Vehicle Analyst. "
-                    "Ask me about the available SEC filings."
-                )
+                response_text = ava_introduction()
             elif route.reason_code is RouteReason.AVA_HELP:
-                response_text = (
-                    "I analyze the available companies' SEC filings with cited "
-                    "evidence. I can also use conversation memory when you enable it."
-                )
+                response_text = ava_introduction()
             elif route.reason_code is RouteReason.OUT_OF_SCOPE:
                 response_text = (
                     "That request is outside AVA's SEC-filing analysis scope. I can "
@@ -1221,17 +1464,55 @@ class RealPipeline:
             yield PipelineEvent("done", {})
             return
         with trace.stage("planning"):
+            planner_supports_scope = "selected_tickers" in inspect.signature(
+                self.generator.plan_retrieval
+            ).parameters
+            planner_scope_kwargs = (
+                {"selected_tickers": selected_scope}
+                if selected_scope and planner_supports_scope
+                else {}
+            )
             if prompt_context:
                 plan = await asyncio.to_thread(
                     self.generator.plan_retrieval,
                     query,
                     deterministic_resolution,
                     prompt_context,
+                    **planner_scope_kwargs,
                 )
             else:
                 plan = await asyncio.to_thread(
-                    self.generator.plan_retrieval, query, deterministic_resolution
+                    self.generator.plan_retrieval,
+                    query,
+                    deterministic_resolution,
+                    **planner_scope_kwargs,
                 )
+        # A manually selected scope is authoritative for this conversation.
+        # Keep planner intent, but force every retrieval subquery to the
+        # validated selected tickers; an empty selection means the full corpus.
+        selected_scope = tuple(company_scope or ())
+        if selected_scope:
+            plan["resolved_tickers"] = list(selected_scope)
+            plan["company_mentions"] = []
+            plan["subqueries"] = [
+                {"query": item["query"], "tickers": list(selected_scope)}
+                for item in plan["subqueries"]
+            ]
+        elif deterministic_resolution.explicit_scope_tickers and re.search(
+            r"\b(?:all|each|every)\s+(?:of\s+the\s+)?(?:eleven\s+)?companies\b",
+            query,
+            re.IGNORECASE,
+        ):
+            # “all companies” is a deterministic corpus scope. Do not let a
+            # conservative planner reinterpret the word “all” as ambiguity.
+            corpus_scope = tuple(deterministic_resolution.explicit_scope_tickers)
+            plan["resolved_tickers"] = list(corpus_scope)
+            plan["company_mentions"] = []
+            plan["ambiguity"] = False
+            plan["subqueries"] = [
+                {"query": item["query"], "tickers": list(corpus_scope)}
+                for item in plan["subqueries"]
+            ]
         with trace.stage("validated_resolution"):
             resolution = self.company_resolver.apply_planner_resolution(
                 deterministic_resolution,
@@ -1328,6 +1609,21 @@ class RealPipeline:
         }
 
         if resolution.needs_clarification:
+            # An unresolved product/company is the one case where a bounded
+            # external lookup is useful. Keep filing-first behavior for every
+            # resolved request; only fall back when the planner cannot map the
+            # target and web search is explicitly enabled.
+            if self.web_search_enabled:
+                fallback_route = RequestRoute(
+                    RouteKind.WEB_SEARCH,
+                    RouteReason.CURRENT_OR_EXTERNAL,
+                    decided_by="unresolved_company_fallback",
+                )
+                async for event in self._stream_web_route(
+                    query, fallback_route, disconnected, trace
+                ):
+                    yield event
+                return
             trace.generated_answer = self.company_resolver.clarification_message(resolution)
             trace.source_status = "none_cited"
             trace.mark_first_token()
@@ -1359,6 +1655,11 @@ class RealPipeline:
             for item in plan["subqueries"]
         ]
         trace.retrieval_subqueries = retrieval_queries
+        for ticker in dict.fromkeys(
+            ticker for item in plan["subqueries"] for ticker in item["tickers"]
+        ):
+            if self.emit_activity:
+                yield activity_event(f"Searching through {ticker} filings")
         try:
             with trace.stage("retrieval_selection"):
                 retrieval_arguments = (
@@ -1568,6 +1869,8 @@ class RealPipeline:
                         + f", the {calculation.operation.replace('_', ' ')} is "
                         + f"{calculation.result}{result_unit}."
                     )
+                    if self.emit_activity:
+                        yield activity_event(f"Calculating {calculation.normalized_expression}")
             else:
                 trace.tool_executions.append(
                     {
@@ -1588,6 +1891,8 @@ class RealPipeline:
                 yield PipelineEvent("delta", {"text": visible_answer})
         elif self.llm_streaming:
             streaming_generation_started = time.perf_counter()
+            if self.emit_activity:
+                yield activity_event(random.choice(GENERATION_ACTIVITIES))
             with trace.stage("generation_start"):
                 if hasattr(self.generator, "stream_answer_with_metadata"):
                     if prompt_context:
@@ -1639,6 +1944,8 @@ class RealPipeline:
                     (time.perf_counter() - streaming_generation_started) * 1_000, 3
                 )
         else:
+            if self.emit_activity:
+                yield activity_event(random.choice(GENERATION_ACTIVITIES))
             with trace.stage("generation"):
                 if hasattr(self.generator, "answer_with_metadata"):
                     if prompt_context:
@@ -1760,6 +2067,8 @@ class MockPipeline:
         conversation_id: str | None = None,
         turn_id: str | None = None,
         document_service: Any | None = None,
+        company_scope: list[str] | tuple[str, ...] | None = None,
+        model: str | None = None,
     ) -> AsyncIterator[PipelineEvent]:
         await asyncio.sleep(self.delay_seconds)
         if "[mock:pre-error]" in query.casefold():

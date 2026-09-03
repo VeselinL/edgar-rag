@@ -138,11 +138,11 @@ describe('App', () => {
     const input = screen.getByLabelText('Ask AVA about the SEC filings')
     await waitFor(() => expect(input).not.toBeDisabled())
     await userEvent.type(input, 'What does Tesla do?{enter}')
-    expect(mockedStream).toHaveBeenCalledWith('What does Tesla do?', expect.any(Object))
-    expect(screen.getByLabelText('AVA is finding evidence and preparing an answer.')).toBeInTheDocument()
+    expect(mockedStream).toHaveBeenCalledWith('What does Tesla do?', expect.any(Object), undefined, 'AZURE_GPT_4o_2024_1120')
+    expect(screen.getByRole('status', { name: /^(Thinking|Reasoning|Cogitating|Cerebrating|Contemplating|Pondering|Ruminating|Sleuthing) \(in progress\)$/ })).toBeInTheDocument()
 
     act(() => handlers?.onDelta('Tesla builds electric vehicles.'))
-    expect(screen.queryByLabelText('AVA is finding evidence and preparing an answer.')).not.toBeInTheDocument()
+    expect(screen.queryByRole('status', { name: /in progress/ })).not.toBeInTheDocument()
     expect(screen.getByText('Tesla builds electric vehicles.')).toBeInTheDocument()
     act(() => {
       handlers?.onDone()
@@ -277,6 +277,7 @@ describe('App', () => {
       'What about its risks?',
       expect.any(Object),
       expect.objectContaining({ conversationId: 'conversation-1', clientTurnId: expect.any(String) }),
+      'AZURE_GPT_4o_2024_1120',
     )
     expect(screen.getByRole('button', { name: 'Open conversation sidebar' })).toBeInTheDocument()
   })

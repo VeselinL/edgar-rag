@@ -22,6 +22,9 @@ class Conversation:
     pinned_at: datetime | None
     created_at: datetime
     updated_at: datetime
+    # Empty means the complete fixed corpus; otherwise retrieval is restricted
+    # to these validated tickers for the lifetime of this conversation.
+    company_scope: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)

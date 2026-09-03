@@ -63,6 +63,7 @@ export interface AssistantMessage {
   sources: Source[] | null
   sourceStatus: SourceStatus
   malformedSourceCount: number
+  activity?: string
   error?: string
   feedbackEligible?: boolean
   feedback?: 'helpful' | 'not_helpful' | 'submitting' | 'error'
@@ -78,6 +79,7 @@ export interface ConversationSummary {
   pinned_at: string | null
   created_at: string
   updated_at: string
+  company_scope?: string[]
 }
 
 export interface ChatDocument {

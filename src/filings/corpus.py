@@ -33,7 +33,7 @@ COMPANY_ALIASES: dict[str, tuple[str, ...]] = {
     "TSLA": ("tesla",),
     "MBLY": ("mobileye", "eyeq", "mobileye drive"),
     "GOOGL": ("alphabet", "google", "waymo"),
-    "GM": ("general motors", "gm"),
+    "GM": ("general motors", "gm", "super cruise"),
     "F": ("ford motor company", "ford"),
     "NVDA": ("nvidia",),
     "QCOM": ("qualcomm", "snapdragon digital chassis", "snapdragon"),

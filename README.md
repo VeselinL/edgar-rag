@@ -141,7 +141,7 @@ AVA_LLM_MODEL=AZURE_GPT_51_2025_1113
 AVA_LLM_STREAMING=false
 AVA_REQUEST_ROUTING_ENABLED=true
 AVA_STRICT_ABSTENTION_PROMPT=false
-AVA_CALCULATOR_ENABLED=true
+AVA_CALCULATOR_ENABLED=false
 AVA_WEB_SEARCH_ENABLED=false
 AVA_WEB_SEARCH_PROVIDER=disabled
 AVA_MAX_TOOL_EXECUTIONS=4
@@ -177,10 +177,11 @@ than falling back to filing chunks or unstated model knowledge.
 Routing is filing-first for ordinary questions about a resolved corpus company.
 For example, `Who is Tesla CEO?` uses Tesla's frozen filing; web search is chosen
 only when the request explicitly asks for current/latest/live information, news,
-market data, or an online/web lookup. Direct arithmetic accepts common bounded
-phrasing such as `25 percent of 80`, `100 minus 40`, and `growth rate from 80 to
-100`; it is still executed by the deterministic Decimal calculator, never by the
-language model.
+market data, or an online/web lookup. The calculator is hard-disabled in every
+current startup/deployment path and cannot be enabled through an environment
+override. Calculator routes stop before operand planning or tool execution; the
+dormant Decimal implementation remains only for tests and a later measured
+re-enable decision.
 
 AVA enforces a task boundary before evidence selection. Programming exercises,
 code generation, arbitrary manipulation of executive names or letters, unrelated

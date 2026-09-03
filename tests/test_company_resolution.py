@@ -68,6 +68,19 @@ class CompanyResolverTests(unittest.TestCase):
         self.assertEqual(self.resolver.resolve("Compare ticker F with GM.").resolved_tickers, ("GM", "F"))
         self.assertEqual(self.resolver.resolve("Compare ticker f with GM.").resolved_tickers, ("GM", "F"))
 
+    def test_stop_words_are_not_fuzzy_company_matches(self):
+        result = self.resolver.resolve("Could you write that for me?")
+        self.assertNotIn("F", result.resolved_tickers)
+        self.assertFalse(any(mention.raw_text == "for" for mention in result.mentions))
+
+    def test_vehicle_retrieval_bridge_normalizes_inflected_followups(self):
+        internal = self.resolver.retrieval_query(
+            "Tesla vehicles manufactured", ["TSLA"]
+        )
+        self.assertIn(
+            "consumer vehicles vehicle models currently manufacture", internal
+        )
+
     def test_each_company_deterministically_targets_the_complete_corpus(self):
         result = self.resolver.resolve("Who is the CEO of each company?")
 

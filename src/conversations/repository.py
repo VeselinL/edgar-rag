@@ -23,10 +23,10 @@ class TurnConflictError(RuntimeError):
 
 
 class ConversationRepository(Protocol):
-    def create_conversation(self, tenant_id: str, user_id: str, title: str, memory_enabled: bool) -> Conversation: ...
+    def create_conversation(self, tenant_id: str, user_id: str, title: str, memory_enabled: bool, company_scope: Sequence[str] = ()) -> Conversation: ...
     def list_conversations(self, tenant_id: str, user_id: str) -> list[Conversation]: ...
     def get_conversation(self, tenant_id: str, user_id: str, conversation_id: str) -> Conversation: ...
-    def update_conversation(self, tenant_id: str, user_id: str, conversation_id: str, *, title: str | None = None, memory_enabled: bool | None = None, pinned: bool | None = None) -> Conversation: ...
+    def update_conversation(self, tenant_id: str, user_id: str, conversation_id: str, *, title: str | None = None, memory_enabled: bool | None = None, pinned: bool | None = None, company_scope: Sequence[str] | None = None) -> Conversation: ...
     def delete_conversation(self, tenant_id: str, user_id: str, conversation_id: str) -> bool: ...
     def delete_all_conversations(self, tenant_id: str, user_id: str) -> list[str]: ...
     def begin_turn(self, tenant_id: str, user_id: str, conversation_id: str, client_turn_id: str, query: str, request_id: str) -> StoredTurn: ...
@@ -55,13 +55,14 @@ class InMemoryConversationRepository:
     def health_check(self) -> bool:
         return True
 
-    def create_conversation(self, tenant_id: str, user_id: str, title: str, memory_enabled: bool) -> Conversation:
+    def create_conversation(self, tenant_id: str, user_id: str, title: str, memory_enabled: bool, company_scope: Sequence[str] = ()) -> Conversation:
         with self._lock:
             now = utc_now()
             item = Conversation(
                 id=str(uuid4()), tenant_id=tenant_id, user_id=user_id,
                 title=title, memory_enabled=memory_enabled, pinned=False,
                 pinned_at=None, created_at=now, updated_at=now,
+                company_scope=tuple(company_scope),
             )
             self._conversations[item.id] = item
             self._messages[item.id] = []
@@ -90,7 +91,7 @@ class InMemoryConversationRepository:
         with self._lock:
             return self._owned(tenant_id, user_id, conversation_id)
 
-    def update_conversation(self, tenant_id: str, user_id: str, conversation_id: str, *, title: str | None = None, memory_enabled: bool | None = None, pinned: bool | None = None) -> Conversation:
+    def update_conversation(self, tenant_id: str, user_id: str, conversation_id: str, *, title: str | None = None, memory_enabled: bool | None = None, pinned: bool | None = None, company_scope: Sequence[str] | None = None) -> Conversation:
         with self._lock:
             current = self._owned(tenant_id, user_id, conversation_id)
             now = utc_now()
@@ -104,6 +105,7 @@ class InMemoryConversationRepository:
                 pinned_at=(now if pinned else None) if pinned is not None else current.pinned_at,
                 created_at=current.created_at,
                 updated_at=now,
+                company_scope=tuple(company_scope) if company_scope is not None else current.company_scope,
             )
             self._conversations[conversation_id] = item
             return item
@@ -340,19 +342,20 @@ class PostgresConversationRepository:
             pinned_at=row["pinned_at"],
             created_at=row["created_at"],
             updated_at=row["updated_at"],
+            company_scope=tuple(row.get("company_scope") or ()) if isinstance(row, dict) else tuple(row["company_scope"] or ()),
         )
 
     @staticmethod
     def _message(row: dict[str, Any]) -> Message:
         return Message(str(row["message_id"]), str(row["conversation_id"]), str(row["client_turn_id"]), row["role"], row["content"], row["status"], row["ordinal"], row["created_at"], str(row["request_id"]) if row["request_id"] else None, row["metadata"] or {})
 
-    def create_conversation(self, tenant_id: str, user_id: str, title: str, memory_enabled: bool) -> Conversation:
+    def create_conversation(self, tenant_id: str, user_id: str, title: str, memory_enabled: bool, company_scope: Sequence[str] = ()) -> Conversation:
         self.ensure_identity(tenant_id, user_id)
         with self._connect() as connection:
             row = connection.execute(
-                """INSERT INTO ava_conversations (conversation_id, tenant_id, user_id, title, memory_enabled)
-                   VALUES (%s, %s, %s, %s, %s) RETURNING *""",
-                (str(uuid4()), tenant_id, user_id, title, memory_enabled),
+                """INSERT INTO ava_conversations (conversation_id, tenant_id, user_id, title, memory_enabled, company_scope)
+                   VALUES (%s, %s, %s, %s, %s, %s) RETURNING *""",
+                (str(uuid4()), tenant_id, user_id, title, memory_enabled, list(company_scope)),
             ).fetchone()
         return self._conversation(row)
 
@@ -374,7 +377,7 @@ class PostgresConversationRepository:
             raise ConversationNotFoundError("Conversation was not found.")
         return self._conversation(row)
 
-    def update_conversation(self, tenant_id: str, user_id: str, conversation_id: str, *, title: str | None = None, memory_enabled: bool | None = None, pinned: bool | None = None) -> Conversation:
+    def update_conversation(self, tenant_id: str, user_id: str, conversation_id: str, *, title: str | None = None, memory_enabled: bool | None = None, pinned: bool | None = None, company_scope: Sequence[str] | None = None) -> Conversation:
         current = self.get_conversation(tenant_id, user_id, conversation_id)
         next_pinned = pinned if pinned is not None else current.pinned
         next_pinned_at = (
@@ -385,13 +388,14 @@ class PostgresConversationRepository:
         with self._connect() as connection:
             row = connection.execute(
                 """UPDATE ava_conversations
-                   SET title=%s, memory_enabled=%s, pinned=%s, pinned_at=%s, updated_at=NOW()
+                   SET title=%s, memory_enabled=%s, pinned=%s, pinned_at=%s, company_scope=%s, updated_at=NOW()
                    WHERE conversation_id=%s AND tenant_id=%s AND user_id=%s AND deleted_at IS NULL RETURNING *""",
                 (
                     title if title is not None else current.title,
                     memory_enabled if memory_enabled is not None else current.memory_enabled,
                     next_pinned,
                     next_pinned_at,
+                    list(company_scope) if company_scope is not None else list(current.company_scope),
                     conversation_id,
                     tenant_id,
                     user_id,

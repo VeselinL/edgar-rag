@@ -11,6 +11,7 @@ from .context import ConversationContext, ConversationContextBuilder
 from .memory import MemoryStore, NullMemoryStore
 from .models import Conversation, MemoryItem, Message, StoredTurn
 from .repository import ConversationRepository
+from src.filings.corpus import ACTIVE_FILINGS
 
 
 @dataclass(frozen=True)
@@ -149,9 +150,18 @@ class ConversationService:
         self.long_term_token_budget = long_term_token_budget
         self.document_lifecycle = document_lifecycle
 
-    def create(self, *, title: str = "New conversation", memory_enabled: bool = False) -> Conversation:
+    def create(self, *, title: str = "New conversation", memory_enabled: bool = False, company_scope: Sequence[str] = ()) -> Conversation:
         clean_title = title.strip()[:120] or "New conversation"
-        return self.repository.create_conversation(self.tenant_id, self.user_id, clean_title, memory_enabled)
+        company_scope = self._validate_scope(company_scope)
+        return self.repository.create_conversation(self.tenant_id, self.user_id, clean_title, memory_enabled, company_scope)
+
+    @staticmethod
+    def _validate_scope(company_scope: Sequence[str]) -> tuple[str, ...]:
+        values = tuple(dict.fromkeys(str(item).strip().upper() for item in company_scope if str(item).strip()))
+        unknown = set(values) - set(ACTIVE_FILINGS)
+        if unknown:
+            raise ValueError("Company scope contains an unsupported ticker.")
+        return values
 
     def list(self) -> list[Conversation]:
         return self.repository.list_conversations(self.tenant_id, self.user_id)
@@ -166,11 +176,14 @@ class ConversationService:
         title: str | None = None,
         memory_enabled: bool | None = None,
         pinned: bool | None = None,
+        company_scope: Sequence[str] | None = None,
     ) -> Conversation:
         if title is not None:
             title = title.strip()[:120]
             if not title:
                 raise ValueError("Conversation title cannot be empty.")
+        if company_scope is not None:
+            company_scope = self._validate_scope(company_scope)
         if memory_enabled is False:
             self.get(conversation_id)
             self.memory_store.delete_conversation(
@@ -179,6 +192,7 @@ class ConversationService:
         updated = self.repository.update_conversation(
             self.tenant_id, self.user_id, conversation_id,
             title=title, memory_enabled=memory_enabled, pinned=pinned,
+            company_scope=company_scope,
         )
         if memory_enabled is True:
             self._sync_conversation_memory(conversation_id)

@@ -19,6 +19,9 @@ MAX_QUERY_WORDS = 50
 MAX_RESULTS = 10
 MAX_EXCERPT_CHARACTERS = 1_000
 MAX_RESPONSE_BYTES = 1_048_576
+# Small, high-signal allowlist for company lookups. SEC is primary; the others
+# are secondary corroborating sources and keep the fallback bounded.
+DEFAULT_ALLOWED_DOMAINS = ("sec.gov", "robinhood.com", "reuters.com", "nasdaq.com")
 
 
 class WebSearchError(RuntimeError):
@@ -120,6 +123,7 @@ class BraveWebSearchTool:
         timeout_seconds: float = 8.0,
         client: httpx.Client | None = None,
         now: Callable[[], datetime] | None = None,
+        allowed_domains: tuple[str, ...] | None = None,
     ) -> None:
         if not api_key.strip():
             raise ValueError("Brave Search requires a non-empty API key.")
@@ -132,6 +136,9 @@ class BraveWebSearchTool:
             follow_redirects=False,
         )
         self._now = now or (lambda: datetime.now(timezone.utc))
+        self._allowed_domains = tuple(
+            d.casefold().lstrip(".") for d in (allowed_domains or ()) if d.strip()
+        )
 
     def search(self, query: str, *, max_results: int = 5) -> WebSearchResponse:
         normalized_query = " ".join(query.split())
@@ -143,11 +150,13 @@ class BraveWebSearchTool:
             raise WebSearchError("Web-search query is empty or exceeds provider limits.")
         if not isinstance(max_results, int) or isinstance(max_results, bool) or not 1 <= max_results <= MAX_RESULTS:
             raise ValueError(f"Web search returns between 1 and {MAX_RESULTS} results.")
+        domain_query = " OR ".join(f"site:{domain}" for domain in self._allowed_domains)
+        provider_query = f"({normalized_query}) ({domain_query})" if domain_query else normalized_query
         try:
             response = self._client.get(
                 BRAVE_WEB_SEARCH_URL,
                 params={
-                    "q": normalized_query,
+                    "q": provider_query,
                     "count": max_results,
                     "safesearch": "moderate",
                     "text_decorations": "false",
@@ -189,6 +198,11 @@ class BraveWebSearchTool:
             publisher = urlsplit(url).hostname or "unknown"
             if publisher.startswith("www."):
                 publisher = publisher[4:]
+            if self._allowed_domains and not any(
+                publisher == domain or publisher.endswith("." + domain)
+                for domain in self._allowed_domains
+            ):
+                continue
             results.append(
                 WebSearchResult(
                     source_id=f"web-{len(results) + 1}",
