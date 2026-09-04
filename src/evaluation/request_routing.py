@@ -19,6 +19,16 @@ DEFAULT_MANIFEST = PROJECT_ROOT / "data/evaluation/ava_p0/v1/request_routing_v1.
 DEFAULT_OUTPUT = (
     PROJECT_ROOT / "data/evaluation/ava_p0/v1/runs/phase-9-request-routing.json"
 )
+_LEGACY_ROUTE_VALUES = {
+    "conversation_only": "conversation", "filing_rag": "filing",
+    "uploaded_document_rag": "upload", "web_search": "web", "calculator": "calculate",
+    "filing_and_calculator": "filing_calculate", "web_and_calculator": "web_calculate",
+    "upload_and_calculator": "upload_calculate",
+}
+
+
+def _normalized_route(value: str) -> str:
+    return _LEGACY_ROUTE_VALUES.get(value, value)
 
 
 class RequestRouter(Protocol):
@@ -61,7 +71,7 @@ def load_routing_manifest(path: Path = DEFAULT_MANIFEST) -> list[dict[str, Any]]
             isinstance(name, str) and name for name in case["uploads"]
         ):
             raise ValueError(f"Routing case {case['id']} has invalid uploads.")
-        RouteKind(case["route"])
+        RouteKind(_normalized_route(case["route"]))
         if not isinstance(case["arithmetic_required"], bool):
             raise ValueError(f"Routing case {case['id']} has invalid arithmetic label.")
     return cases
@@ -82,7 +92,7 @@ def evaluate_request_routes(
                 case["context"],
                 case["uploads"],
             )
-            route_match = actual.route.value == case["route"]
+            route_match = actual.route.value == _normalized_route(case["route"])
             arithmetic_match = (
                 actual.arithmetic_required == case["arithmetic_required"]
             )
@@ -130,8 +140,8 @@ def evaluate_request_routes(
     non_filing = [
         record
         for record in records
-        if record["expected_route"]
-        not in {"filing_rag", "filing_and_calculator"}
+        if _normalized_route(record["expected_route"])
+        not in {"filing", "filing_calculate"}
     ]
     passed = sum(record["pass"] for record in records)
     summary = {
@@ -148,10 +158,7 @@ def evaluate_request_routes(
                 record["actual_arithmetic_required"] is True
                 and record["actual_route"]
                 in {
-                    "calculator",
-                    "filing_and_calculator",
-                    "web_and_calculator",
-                    "upload_and_calculator",
+                    "calculate", "filing_calculate", "web_calculate", "upload_calculate",
                 }
                 for record in calculations
             )
@@ -161,7 +168,7 @@ def evaluate_request_routes(
         ),
         "unnecessary_filing_route_rate": (
             sum(
-                record["actual_route"] in {"filing_rag", "filing_and_calculator"}
+                record["actual_route"] in {"filing", "filing_calculate"}
                 for record in non_filing
             )
             / len(non_filing)

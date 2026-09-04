@@ -432,8 +432,10 @@ class GenerationTests(unittest.TestCase):
     def test_router_does_not_use_web_as_a_static_general_knowledge_fallback(self):
         response = SimpleNamespace(
             choices=[SimpleNamespace(message=SimpleNamespace(content=(
-                '{"route":"conversation","reason_code":"out_of_scope",'
-                '"arithmetic_required":false}'
+                '{"route":"conversation","resolved_tickers":[],"selected_company_scope":[],'
+                '"subqueries":[],"freshness":"none","required_sources":[],'
+                '"web_source_keys":[],"calculation":null,"clarification":null,'
+                '"reason_code":"out_of_scope","maximum_steps":1}'
             )))]
         )
         completions = FakeCompletions(response)

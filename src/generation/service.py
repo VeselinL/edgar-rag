@@ -20,7 +20,7 @@ from src.filings.corpus import ACTIVE_FILINGS
 from src.orchestration.routing import (
     RequestRoute,
     deterministic_route,
-    parse_route_decision,
+    parse_evidence_plan,
     router_messages,
 )
 from src.orchestration.models import EvidenceCalculationPlan
@@ -326,7 +326,7 @@ class GenerationService:
             max_tokens=256,
         )
         raw_route = response.choices[0].message.content or ""
-        return parse_route_decision(
+        return parse_evidence_plan(
             raw_route,
             uploads_available=bool(uploaded_source_names),
         )

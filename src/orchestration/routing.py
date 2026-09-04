@@ -8,6 +8,8 @@ from typing import Any, Sequence
 
 from src.filings.corpus import ACTIVE_FILINGS, COMPANY_ALIASES, COMPANY_NAMES
 from src.orchestration.models import (
+    AtomicQuery,
+    CalculationRequest,
     EvidencePlan,
     EvidenceSource,
     Freshness,
@@ -167,12 +169,17 @@ BOUNDARY EXAMPLES
 """
 
 ROUTER_JSON_FORMAT = """Return a JSON object with exactly these keys: route,
-reason_code, arithmetic_required. route must be one of conversation, clarify,
-filing, upload, filing_upload, web, calculate, filing_calculate,
-upload_calculate, web_calculate.
+resolved_tickers, selected_company_scope, subqueries, freshness, required_sources,
+web_source_keys, calculation, clarification, reason_code, maximum_steps. route
+must be one of conversation, clarify, filing, upload, filing_upload, web,
+calculate, filing_calculate, upload_calculate, web_calculate.
 reason_code must be one of greeting, ava_help, casual_conversation, out_of_scope,
 filing_evidence, uploaded_evidence, current_or_external, pure_arithmetic,
-evidence_arithmetic, ambiguous_intent. arithmetic_required must be a JSON boolean.
+evidence_arithmetic, ambiguous_intent. Each subquery is {"query": string,
+"tickers": [allowed ticker]}. calculation is null or {"operation": one of add,
+subtract, multiply, divide, percentage, difference, ratio, growth_rate, sum}.
+clarification is null or one public question. maximum_steps is 1 through 4. Never
+include URLs or keys outside the supplied trusted-source registry.
 """
 
 _GREETING_PATTERN = re.compile(
@@ -290,6 +297,12 @@ _FILING_ANALYSIS_CUES = re.compile(
     r"employees?|manufacturing|facilit(?:y|ies)|competition|regulatory|autonomous|adas|evs?)\b",
     re.IGNORECASE,
 )
+_LEGACY_ROUTE_VALUES = {
+    "conversation_only": "conversation", "filing_rag": "filing",
+    "uploaded_document_rag": "upload", "web_search": "web", "calculator": "calculate",
+    "filing_and_calculator": "filing_calculate", "web_and_calculator": "web_calculate",
+    "upload_and_calculator": "upload_calculate",
+}
 
 
 def explicit_filing_source_requested(query: str) -> bool:
@@ -537,12 +550,7 @@ def router_messages(
     return messages
 
 
-def parse_route_decision(
-    payload: str | dict[str, Any],
-    *,
-    uploads_available: bool = False,
-) -> RequestRoute:
-    """Validate a model route and enforce source/tool consistency."""
+def _decode_route_payload(payload: str | dict[str, Any]) -> dict[str, Any]:
     if isinstance(payload, str):
         raw = payload.strip()
         if raw.startswith("```"):
@@ -552,6 +560,67 @@ def parse_route_decision(
         value = json.loads(raw)
     else:
         value = payload
+    if not isinstance(value, dict):
+        raise ValueError("Router returned an invalid route object.")
+    return value
+
+
+def parse_evidence_plan(
+    payload: str | dict[str, Any], *, uploads_available: bool = False
+) -> RequestRoute:
+    """Validate the complete finite model plan before any tool can execute."""
+    value = _decode_route_payload(payload)
+    required = {
+        "route", "resolved_tickers", "selected_company_scope", "subqueries",
+        "freshness", "required_sources", "web_source_keys", "calculation",
+        "clarification", "reason_code", "maximum_steps",
+    }
+    if set(value) != required:
+        raise ValueError("Router returned an invalid evidence plan object.")
+    try:
+        route, reason, freshness = (
+            RouteKind(value["route"]), RouteReason(value["reason_code"]), Freshness(value["freshness"])
+        )
+        sources = tuple(EvidenceSource(item) for item in value["required_sources"])
+        keys = tuple(TrustedSourceKey(item) for item in value["web_source_keys"])
+        resolved = tuple(value["resolved_tickers"])
+        scope = tuple(value["selected_company_scope"])
+        subqueries = tuple(AtomicQuery(item["query"], tuple(item["tickers"])) for item in value["subqueries"])
+        calculation = (
+            None if value["calculation"] is None else CalculationRequest(value["calculation"]["operation"])
+        )
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError("Router returned an invalid evidence plan value.") from error
+    if not all(isinstance(item, str) for item in (*resolved, *scope)) or not isinstance(value["maximum_steps"], int) or isinstance(value["maximum_steps"], bool):
+        raise ValueError("Router returned an invalid evidence plan value.")
+    if not isinstance(value["required_sources"], list) or not isinstance(value["web_source_keys"], list) or not isinstance(value["subqueries"], list):
+        raise ValueError("Router returned an invalid evidence plan value.")
+    calculator_routes = {RouteKind.CALCULATOR, RouteKind.FILING_AND_CALCULATOR, RouteKind.WEB_AND_CALCULATOR, RouteKind.UPLOAD_AND_CALCULATOR}
+    web_routes = {RouteKind.WEB_SEARCH, RouteKind.WEB_AND_CALCULATOR}
+    upload_routes = {RouteKind.UPLOADED_DOCUMENT_RAG, RouteKind.FILING_UPLOAD, RouteKind.UPLOAD_AND_CALCULATOR}
+    filing_routes = {RouteKind.FILING_RAG, RouteKind.FILING_UPLOAD, RouteKind.FILING_AND_CALCULATOR}
+    if (route in calculator_routes) != (calculation is not None) or (route in web_routes) != bool(keys) or (route in web_routes) != (freshness is not Freshness.NONE):
+        raise ValueError("Router evidence plan has missing mandatory tool arguments.")
+    expected_sources = set()
+    if route in filing_routes: expected_sources.add(EvidenceSource.FILING)
+    if route in upload_routes: expected_sources.add(EvidenceSource.UPLOAD)
+    if route in web_routes: expected_sources.add(EvidenceSource.WEB)
+    if set(sources) != expected_sources or len(sources) != len(set(sources)) or len(keys) != len(set(keys)):
+        raise ValueError("Router evidence plan has inconsistent sources.")
+    if route not in web_routes and (keys or freshness is not Freshness.NONE):
+        raise ValueError("Router evidence plan has inconsistent web arguments.")
+    if route in upload_routes and not uploads_available:
+        raise ValueError("Router selected uploaded evidence when this chat has no uploads.")
+    return RequestRoute(route, reason, calculation is not None, "model", resolved, scope, subqueries, freshness, sources, keys, calculation, value["clarification"], value["maximum_steps"])
+
+
+def parse_route_decision(
+    payload: str | dict[str, Any],
+    *,
+    uploads_available: bool = False,
+) -> RequestRoute:
+    """Validate a model route and enforce source/tool consistency."""
+    value = _decode_route_payload(payload)
     if not isinstance(value, dict) or set(value) != {
         "route",
         "reason_code",
@@ -559,7 +628,7 @@ def parse_route_decision(
     }:
         raise ValueError("Router returned an invalid route object.")
     try:
-        route = RouteKind(value["route"])
+        route = RouteKind(_LEGACY_ROUTE_VALUES.get(value["route"], value["route"]))
         reason = RouteReason(value["reason_code"])
     except (TypeError, ValueError) as error:
         raise ValueError("Router returned an unsupported route value.") from error

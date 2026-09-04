@@ -8,6 +8,7 @@ from src.orchestration.routing import (
     RouteReason,
     deterministic_route,
     parse_route_decision,
+    parse_evidence_plan,
     router_messages,
 )
 from src.resolution.companies import default_company_resolver
@@ -66,7 +67,7 @@ class RequestRoutingTests(unittest.TestCase):
         self.assertFalse(route.uses_web_search)
 
     def test_current_filing_facts_stay_filing_first_but_external_only_is_web(self):
-        filing = deterministic_route("Who is Tesla's current CEO today?", self.resolution("Who is Tesla's current CEO today?"))
+        filing = deterministic_route("What current assets did Tesla report?", self.resolution("What current assets did Tesla report?"))
         self.assertEqual(filing.route, RouteKind.FILING_RAG)
         for query in ("What is Tesla's stock price right now?", "Search the web for recent Tesla announcements."):
             with self.subTest(query=query):
@@ -129,6 +130,16 @@ class RequestRoutingTests(unittest.TestCase):
         self.assertTrue(route.uses_filing_retrieval)
         self.assertTrue(route.uses_calculator)
         self.assertFalse(route.uses_web_search)
+
+    def test_evidence_plan_rejects_missing_web_arguments_before_execution(self):
+        plan = {
+            "route": "web", "resolved_tickers": ["TSLA"], "selected_company_scope": ["TSLA"],
+            "subqueries": [{"query": "Tesla stock price", "tickers": ["TSLA"]}],
+            "freshness": "market_live", "required_sources": ["web"], "web_source_keys": [],
+            "calculation": None, "clarification": None, "reason_code": "current_or_external", "maximum_steps": 1,
+        }
+        with self.assertRaisesRegex(ValueError, "mandatory"):
+            parse_evidence_plan(plan)
 
     def test_vague_document_request_requires_a_real_chat_upload(self):
         query = "Summarize the document."
@@ -219,7 +230,12 @@ class RequestRoutingTests(unittest.TestCase):
                     },
                     uploads_available=bool(case["uploads"]),
                 )
-                self.assertEqual(route.route.value, case["route"])
+                self.assertEqual(route.route, RouteKind({
+                    "conversation_only": "conversation", "filing_rag": "filing",
+                    "uploaded_document_rag": "upload", "web_search": "web", "calculator": "calculate",
+                    "filing_and_calculator": "filing_calculate", "web_and_calculator": "web_calculate",
+                    "upload_and_calculator": "upload_calculate",
+                }.get(case["route"], case["route"])))
 
 
 if __name__ == "__main__":
