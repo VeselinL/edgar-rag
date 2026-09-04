@@ -600,14 +600,14 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         ]
         with (
             patch(
-                "src.backend.pipeline.load_corpus",
+                "src.orchestration.executor.load_corpus",
                 return_value=(np.eye(1, 768, dtype="float32"), chunks),
             ),
-            patch("src.backend.pipeline.build_bm25_index", return_value=object()),
-            patch("src.backend.pipeline.SentenceTransformer", return_value=object()),
-            patch("src.backend.pipeline.make_llm_client", return_value=object()),
+            patch("src.orchestration.executor.build_bm25_index", return_value=object()),
+            patch("src.orchestration.executor.SentenceTransformer", return_value=object()),
+            patch("src.orchestration.executor.make_llm_client", return_value=object()),
             patch(
-                "src.backend.pipeline.make_client",
+                "src.orchestration.executor.make_client",
                 side_effect=ConnectionError("qdrant is down"),
             ),
         ):
