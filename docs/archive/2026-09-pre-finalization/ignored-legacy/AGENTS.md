@@ -1,3 +1,7 @@
+> **Archived 4 September 2026.** This previously ignored local document is
+> preserved as a read-only historical record, not a current plan or authority.
+> See [`FINALIZATION.md`](../../../../FINALIZATION.md) for the sole remaining-work plan.
+>
 # RAG Assistant Project Instructions
 
 ## Project Goal
@@ -15,24 +19,22 @@ The system must:
 - provide the AVA browser interface through React + TypeScript and FastAPI;
 - retrieve relevant filing content and use it to answer questions;
 - provide references or citations to retrieved filing content whenever possible;
-- show owner-scoped conversation history, bounded short-term context, and explicit
-  opt-in long-term memory as implemented in Phase 7;
+- show a current-session transcript without persisting or sending prior turns as context in the current frontend phase;
 - evaluate retrieval quality separately from generation quality;
 - include a small test set built from the extracted documents.
 
 The baseline corpus is fixed to these eleven companies: Aptiv, Aurora, Ford,
-General Motors, Alphabet, Mobileye, NVIDIA, Ouster, Qualcomm, Rivian, and Tesla.
-Do not expand or replace this corpus without an explicit decision.
+General Motors, Alphabet, Mobileye, NVIDIA, Ouster, Qualcomm, Rivian, and Tesla. Do not
+expand or replace this corpus without an explicit decision.
 
-## Current Verified State — 2026-08-20
+## Current Verified State — 2026-08-21
 
 - Raw SEC HTML and metadata exist for all eleven companies.
 - Structured block JSONL exists for all eleven filings.
 - All eleven filings use the current recursive `500`-token, `32`-token-overlap
   configuration with one complete retained logical table per table chunk.
-- The promoted corpus contains 4,526 chunk-schema-v3 chunks, including 462
-  Mobileye chunks and 411 Rivian chunks; Tesla has been regenerated with the
-  current configuration.
+- The active corpus contains 4,526 chunk-schema-v3 chunks, including 462
+  Mobileye chunks and 411 Rivian chunks.
 - BGE-base v1.5 is the selected baseline embedder. Valid aligned normalized
   768-dimensional vectors and manifest-v3 records exist for all eleven filings.
 - Corpus-wide dense, BM25, hybrid RRF, and scope-aware retrieval evaluation
@@ -80,7 +82,7 @@ process-existing
 1. Implement SEC EDGAR fetching.
 2. Test acquisition and preprocessing on one or two filings.
 3. Inspect the extracted document blocks manually.
-4. Fix preprocessing before processing all 11 filings.
+4. Fix preprocessing before processing all 10 filings.
 5. Process the full corpus.
 6. Chunk the cleaned content.
 7. Generate embeddings.
@@ -275,10 +277,9 @@ For questions that cannot be answered from the indexed filings, the assistant sh
 
 ## Conversation History
 
-Phase 7 added PostgreSQL-backed owner-scoped history, bounded short-term context,
-and explicit opt-in long-term memory. Remaining conversation work is limited to
-`FINALIZATION.md`; transcript ordering and ownership remain server-side and
-browser storage is not a trust boundary.
+The current AVA phase is stateless. The browser may show several messages during
+one tab session, but it must not persist them and each backend request receives
+only the current query. Persistent history and conversational memory are deferred.
 
 ## Observability
 
@@ -336,11 +337,11 @@ Do not report only an overall chatbot score.
 - Preserve reproducibility through frozen filing snapshots and saved configuration.
 - Make one improvement at a time in response to an observed failure.
 - Do not discard tables or document hierarchy for implementation convenience.
-- Do not add Graph RAG or an open-ended autonomous agent. `FINALIZATION.md`
-  authorizes only the bounded typed route-and-tool orchestrator. Hybrid
-  BGE/BM25 retrieval with RRF remains the
-  evaluated filing baseline; preserve the separate reranking experiment and
-  saved non-reranked baseline for later measured comparison.
+- Do not add Graph RAG or agentic RAG. Hybrid BGE/BM25 retrieval with RRF is
+  now the evaluated baseline. AVA's active generation path follows the current
+  main notebook's planned multi-subquery RRF selector without cross-encoder
+  reranking. Preserve the separate reranking experiment and saved non-reranked
+  baseline for later measured comparison.
 
 ## AVA Web Application Rules
 
@@ -348,13 +349,9 @@ Do not report only an overall chatbot score.
 
 - The user-facing product name is **AVA**, which expands to **Autonomous Vehicle Analyst**.
 - The internal historical repository name may remain in code and engineering documentation, but it must never appear in the browser interface, page metadata, user-facing errors, or frontend accessibility text.
-- `src/frontend/avatar/ava.png` is the canonical supplied AVA avatar. The owner
-  has additionally approved the supplied `ava-light.png` and `ava-dark.png`
-  variants for the corresponding light and dark UI themes.
+- `src/frontend/avatar/ava.png` is the canonical supplied AVA avatar.
 - `src/frontend/avatar/favicon.png` is the supplied favicon source.
-- Do not regenerate, redraw, recolour, crop destructively, or move supplied
-  avatar or favicon images without an explicit request. CSS backing and sizing
-  may be used without altering the source files.
+- Do not regenerate, redraw, recolour, crop destructively, or move either supplied image without an explicit request. CSS backing and sizing may be used without altering the source files.
 - AVA is a restrained product identity, not a human-like mascot. Do not invent a biography, face, personality, onboarding story, or decorative animation.
 
 ### Shared retrieval source of truth
@@ -365,23 +362,16 @@ Do not report only an overall chatbot score.
 - The frontend sends the original query unchanged. Company detection, Comparison Cue detection, subquery planning, retrieval scope, evidence allocation, merging, context selection, and citation validation are backend responsibilities.
 - Do not change core retrieval behaviour merely to make FastAPI integration easier, and do not create a second scope detector in the API.
 - Before connecting or changing the endpoint, compare the shared API/evaluation path on representative queries. Detected companies, comparison status, retrieval scopes, selected-evidence companies, final count, and internal chunk IDs must match before frontend normalization.
-- For a multi-company request, allocate evidence fairly across the planner's
-  company-specific subqueries. If available candidates or the token limit make
-  the configured quota impossible, retain and generate from the balanced
-  partial evidence instead of discarding every supported company; record the
-  unmet quota only in backend diagnostics.
+- For a multi-company comparison, the planner's company-specific subqueries must each retain at least two available evidence chunks within the 10-chunk final context. Reject a plan whose subquery count makes that invariant impossible rather than silently starving a subquery.
 
 ### API and source adaptation
 
 - FastAPI is a thin adapter. Core retrieval and generation modules remain independently usable outside the web application.
-- Conversation, memory, upload, and tool state must use the server-owned Phase 7
-  identity/ownership boundary. The frontend still sends the original query
-  unchanged and cannot assert trusted history, scope, or tool results.
+- The first API is stateless: accept only the current query and do not accept or infer conversation history.
 - Use a streaming `POST` with actual provider streaming. Fake typing, splitting a completed answer, and artificial per-token delays are prohibited.
 - Emit structured SSE events named `delta`, `sources`, `done`, and `error` over streamed `fetch`.
 - Map pipeline chunks into explicit frontend-safe narrative and structured-table schemas. Keep internal IDs for backend correlation and citation resolution, but never use a raw chunk ID as the primary user-visible source label.
-- Return only exact validated cited/used evidence. If no citation resolves, return
-  an empty source list; never fall back to all retrieved or final evidence.
+- Prefer explicitly cited final-evidence chunks. If no citation can be resolved, return only the final evidence given to generation and describe it as retrieved evidence.
 - Tables remain structured end to end. Use existing logical headers and rows; never make the frontend reconstruct a Markdown table, and never fabricate missing headers, units, values, or labels.
 - Never expose API keys, gateway headers, system prompts, retrieval scores, stack traces, or raw provider errors to the browser.
 
@@ -391,11 +381,7 @@ Do not report only an overall chatbot score.
 - The layout must be responsive and accessible at desktop and mobile widths, with semantic controls, keyboard navigation, visible focus, sufficient contrast, reduced-motion support, and appropriate non-token-spamming live regions.
 - Render model Markdown safely without unsanitized HTML.
 - Display the AVA avatar beside assistant messages, not user messages. Remove the retrieval/waiting bubble on the first non-empty streamed fragment.
-- `FINALIZATION.md` authorizes the bounded router, calculator/web tools,
-  conversation-scoped PDF/text uploads, Sources view, and left history/memory
-  sidebar. It does not authorize corpus
-  management, admin controls, model selectors, autonomous actions, or unrelated
-  product expansion.
+- Current-session messages may remain visible in memory only. Do not add persistence, a history sidebar, authentication, accounts, profiles, uploads, corpus management, admin controls, analytics, model/tool selectors, or agentic behaviour in this phase.
 
 ### Implementation discipline
 
@@ -403,6 +389,5 @@ Do not report only an overall chatbot score.
 - Preserve existing user changes and unrelated work. Inspect the worktree before edits and stage only task-related paths.
 - Keep mock mode explicitly separate from real pipeline mode; do not hide a broken real integration behind mock output.
 - Run repository-relevant backend tests plus frontend type checking, linting, component tests, and production build before declaring completion.
-- Record finalization work in the versioned phase artifacts required by
-  `FINALIZATION.md` and make incremental, concise Conventional Commits on the
-  owner-selected active branch.
+- Record AVA work chronologically in `src/frontend/PROGRESS_REPORT.md` and make incremental commits on `deploy_front` with messages formatted `feat: implemented/added/ [feature]`.
+> **Archived 4 September 2026.** This previously ignored local document is\n> preserved as a read-only historical record, not a current plan or authority.\n> See [\`FINALIZATION.md\`](../../../../FINALIZATION.md) for the sole remaining-work plan.\n>\n# RAG Assistant Project Instructions

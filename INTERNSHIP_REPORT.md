@@ -104,11 +104,10 @@ The main constraints were:
 - avoid Graph RAG, unrestricted agents, arbitrary code tools, trading actions,
   and unmeasured “only-if-time” additions.
 
-The root [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) became the canonical
-plan when the application work expanded beyond the original notebooks. This
-report uses current manifests, saved evaluation runs, code, and the chronological
-[progress report](src/frontend/PROGRESS_REPORT.md) as evidence. Older documents
-are treated as historical snapshots when they conflict with current artifacts.
+The archived implementation plan governed the earlier application expansion.
+The sole authority for remaining release work is now
+[FINALIZATION.md](FINALIZATION.md). This report uses current manifests, saved
+evaluation runs, code, and archived chronological progress records as evidence.
 
 ### 1.1 Project phase map
 
@@ -992,12 +991,12 @@ and optional image support only if the owner resumes the skipped phase.
 
 ## Appendix A — primary evidence and reproduction points
 
-- Canonical implementation state and decisions:
-  [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
+- Remaining-work authority and release decisions:
+  [FINALIZATION.md](FINALIZATION.md)
 - Current setup and commands: [README.md](README.md)
 - Deployment behavior: [DEPLOYMENT.md](DEPLOYMENT.md)
-- Chronological application work:
-  [src/frontend/PROGRESS_REPORT.md](src/frontend/PROGRESS_REPORT.md)
+- Historical chronological application work:
+  [archived progress report](docs/archive/2026-09-pre-finalization/PROGRESS_REPORT.md)
 - Chunk configuration: [data/chunks/chunking-config.json](data/chunks/chunking-config.json)
 - Retrieval runs: `data/evaluation/dense_retrieval/`,
   `data/evaluation/bm25_retrieval/`, `data/evaluation/fusion_retrieval/`, and

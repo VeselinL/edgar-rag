@@ -6,10 +6,8 @@
 This document defines the local vertical slice and the self-hosted production
 reference deployment. It does not select a hosting provider.
 
-> This document records the currently verified local deployment. The
-> authoritative future architecture, priorities, Qdrant migration, image source
-> contract, conversation history, and release gates are in
-> [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md). Where this document describes
+> This document records the currently verified local deployment. For remaining
+> work and release gates, see [FINALIZATION.md](FINALIZATION.md). Where this document describes
 > the current 10-chunk or source-fallback behavior, it is a baseline description,
 > not the target design.
 

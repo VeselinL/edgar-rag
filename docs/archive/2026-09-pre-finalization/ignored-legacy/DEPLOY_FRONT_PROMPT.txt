@@ -1,0 +1,1044 @@
+> **Archived 4 September 2026.** This previously ignored local document is
+> preserved as a read-only historical record, not a current plan or authority.
+> See [`FINALIZATION.md`](../../../../FINALIZATION.md) for the sole remaining-work plan.
+>
+You are working inside an existing Python RAG repository for querying SEC 10-K filings from ten companies in the autonomous-vehicle ecosystem.
+
+Your task has three sequential phases:
+
+1. Create and update the project/deployment documentation.
+2. Create a detailed frontend implementation plan.
+3. Implement the first local end-to-end frontend and API version.
+
+Complete the phases in order. Inspect the repository before making decisions, and do not begin implementation until the documentation and frontend plan exist.
+
+## Core scope
+
+The application is named **AVA**, meaning **Autonomous Vehicle Analyst**.
+
+The current internal repository name may remain EdgarRAG, but **EdgarRAG must not appear anywhere in the user-facing interface**.
+
+The first version must support only:
+
+* Entering a user query.
+* Sending the query to the existing RAG pipeline.
+* Retrieving and reranking filing evidence.
+* Streaming the LLM response token by token.
+* Displaying AVA beside assistant responses.
+* Showing the actual cited/retrieved source chunks.
+* Rendering structured table sources as readable HTML tables.
+* Light and dark modes.
+
+Do not implement:
+
+* Accounts or user profiles.
+* Authentication.
+* Persistent chat history.
+* Conversation memory.
+* A history sidebar.
+* Document uploads.
+* Agentic RAG.
+* Tool orchestration.
+* A new vector database.
+* Corpus management.
+* Admin functionality.
+* Analytics dashboards.
+* Hosting-provider-specific infrastructure.
+* Unrelated retrieval or generation refactoring.
+
+The current browser session may display multiple messages, but previous messages must not be persisted and must not be sent as conversational context. Each backend request receives only the current query.
+
+## Mandatory retrieval source of truth
+
+The web application must reuse the scope-aware retrieval and generation behaviour already demonstrated in:
+
+```text
+notebooks/hybrid_rag_generation
+```
+
+Also locate and inspect:
+
+```text
+evaluate_scope_aware_retrieval
+```
+
+Search the repository if either name has an extension or is defined inside another file.
+
+These implementations are the behavioural source of truth for the API integration. Before documenting or implementing the backend, trace their full execution path, including every helper they call.
+
+Preserve the existing logic for:
+
+* Detecting company names, tickers and supported aliases in the user query using the existing regex-based logic.
+* Determining whether retrieval should be limited to one explicitly mentioned company.
+* Detecting the existing **Comparison Cues**.
+* Recognizing questions that require evidence from multiple companies.
+* Splitting or allocating retrieval across the relevant companies so that one company does not consume the evidence budget.
+* Merging and deduplicating evidence from scoped subqueries.
+* Applying the current hybrid dense/BM25 retrieval.
+* Applying the current RRF combination.
+* Applying the current reranking and final evidence selection.
+* Passing the final selected chunks into generation.
+* Resolving citations back to the evidence chunks.
+* Preserving the current final context budget, including the existing 12-chunk limit if that remains the value used by the notebook.
+
+Expected high-level behaviour:
+
+```text
+User query
+→ detect mentioned companies and tickers
+→ detect Comparison Cues
+→ determine retrieval scope
+→ run the appropriate company-scoped or global retrieval
+→ retrieve from every required company for comparison questions
+→ merge and deduplicate candidates
+→ rerank
+→ select the existing final evidence budget
+→ generate and stream the answer
+→ resolve and return cited sources
+```
+
+Do not replace this with a simplified global retrieval call merely because it is easier to expose through FastAPI.
+
+Do not create a second, slightly different implementation of scope detection inside the API. Extract or reuse production-safe functions so that:
+
+* Notebook evaluation.
+* `evaluate_scope_aware_retrieval`.
+* The FastAPI endpoint.
+
+all exercise the same underlying retrieval behaviour.
+
+The notebook itself must not become a runtime dependency. Do not import code directly from an `.ipynb` file. If the relevant logic currently exists only inside the notebook:
+
+1. Identify the smallest coherent production units.
+2. Move or reproduce them in an appropriate Python module.
+3. Preserve their behaviour.
+4. Update the notebook/evaluation path to call the shared module where practical.
+5. Add regression tests before changing or cleaning the logic.
+
+Do not redesign, optimize or generalize the retrieval algorithm during frontend integration. Behavioural cleanup is allowed only where necessary to make the existing logic reusable and testable.
+
+At minimum, add regression coverage for:
+
+* A query naming one supported company.
+* A query using a ticker instead of a company name.
+* A company alias recognized by the existing regex logic.
+* A comparison query naming two companies.
+* A comparison query using an existing Comparison Cue.
+* A comparison query where relevant evidence must be retrieved from both companies.
+* A global query with no explicit company.
+* Candidate deduplication after multiple scoped retrievals.
+* Preservation of the final context/chunk budget.
+* Citation resolution against the final selected evidence.
+
+For multi-company questions, verify that the resulting context actually contains evidence from every detected comparison target when relevant evidence is available. A test must fail if one target company incorrectly dominates the complete context.
+
+Reflect this source-of-truth requirement throughout the three phases:
+
+### Phase 1 documentation
+
+`DEPLOYMENT.md`, `ROADMAP.md` and `AGENTS.md` must explicitly state that the deployed API uses the same scope-aware retrieval path as `notebooks/hybrid_rag_generation` and `evaluate_scope_aware_retrieval`.
+
+Document the company-detection and Comparison Cue decision path as part of the API request lifecycle.
+
+### Phase 2 frontend plan
+
+`frontend_plan.md` should treat retrieval, company detection and comparison handling as backend responsibilities. The frontend sends the user’s original query unchanged and must not attempt to detect companies or Comparison Cues itself.
+
+The waiting bubble remains visible while scope detection, retrieval, merging and reranking run. It disappears only when the first non-empty model token arrives.
+
+### Phase 3 implementation
+
+The FastAPI endpoint must call the shared scope-aware retrieval entry point rather than a generic retriever.
+
+Before connecting the endpoint, compare its results against `evaluate_scope_aware_retrieval` for representative queries. Confirm that both paths produce equivalent:
+
+* Detected companies.
+* Comparison status.
+* Retrieval scopes.
+* Selected evidence companies.
+* Final evidence count.
+* Chunk identifiers before they are normalized for the frontend.
+
+If the notebook and evaluation code disagree, do not silently choose one. Report the exact difference and use `evaluate_scope_aware_retrieval` as the validation reference unless repository evidence clearly establishes a newer authoritative implementation.
+
+---
+
+# Phase 1 — Project and deployment documentation
+
+First inspect:
+
+* The complete repository structure.
+* Every existing `AGENTS.md`.
+* Existing README and documentation files.
+* Python package layout.
+* Dependency and environment files.
+* Current retrieval, reranking, generation and citation code.
+* Existing CLIs and entry points.
+* Current tests.
+* Existing frontend or API code, if any.
+* The actual chunk and table schemas.
+* How Azure OpenAI is currently called.
+* How retrieved chunks are passed into generation.
+* How cited chunk identifiers are produced and resolved.
+
+Do not assume filenames, APIs or schemas before inspecting them.
+
+After inspection, create or update the following files at the appropriate repository locations:
+
+## 1. `DEPLOYMENT.md`
+
+Write a complete deployment document covering both the first local version and the later production path.
+
+It must include:
+
+### System architecture
+
+Document the intended boundary:
+
+```text
+Browser
+→ React + TypeScript frontend
+→ FastAPI API
+→ existing retrieval/reranking pipeline
+→ existing LLM generation
+```
+
+Explain that:
+
+* The frontend contains no API secrets, model logic or retrieval logic.
+* FastAPI is a thin adapter around the existing Python pipeline.
+* Core retrieval and generation modules remain independently usable outside the web application.
+* The frontend receives user-facing source objects rather than raw internal chunk objects.
+* The first version is stateless.
+* The repository/project name and the product-facing name are separate.
+
+### Local development architecture
+
+Document:
+
+* Frontend development server.
+* FastAPI development server.
+* Environment-variable handling.
+* Local CORS configuration.
+* Model and index loading.
+* Startup behaviour.
+* Health checks.
+* How the frontend API base URL is configured.
+* How a developer starts both services.
+* How mock mode differs from real pipeline mode.
+
+Use the repository’s existing dependency and configuration conventions wherever possible.
+
+### API lifecycle
+
+Describe the complete request lifecycle:
+
+1. The frontend submits one query.
+2. FastAPI validates it.
+3. The current query planner/retriever runs.
+4. Candidate chunks are retrieved and reranked.
+5. The selected context is sent to the LLM.
+6. Generated text is streamed to the browser.
+7. Cited source identifiers are resolved internally.
+8. User-facing source objects are emitted.
+9. The stream ends.
+
+Document that internal chunk IDs may be used inside the backend but must not be shown as the primary source representation in the UI.
+
+### Streaming transport
+
+Use a streaming `POST` endpoint implemented with FastAPI `StreamingResponse`.
+
+Use Server-Sent Event framing over a streamed `fetch` request, because native `EventSource` does not support a POST request body.
+
+Document the event types:
+
+```text
+delta
+sources
+done
+error
+```
+
+Suggested payloads:
+
+```json
+{
+  "event": "delta",
+  "data": {
+    "text": "new generated fragment"
+  }
+}
+```
+
+```json
+{
+  "event": "sources",
+  "data": {
+    "sources": []
+  }
+}
+```
+
+```json
+{
+  "event": "done",
+  "data": {}
+}
+```
+
+```json
+{
+  "event": "error",
+  "data": {
+    "message": "Safe user-facing error message"
+  }
+}
+```
+
+The exact wire framing may follow standard SSE syntax, but the data payloads must remain structured JSON.
+
+Document buffering concerns and the relevant response headers, including:
+
+* `Content-Type: text/event-stream`
+* `Cache-Control: no-cache`
+* Disabling reverse-proxy buffering where applicable.
+
+### Source contract
+
+Document the normalized frontend source model.
+
+Narrative source:
+
+```json
+{
+  "company": "Tesla, Inc.",
+  "ticker": "TSLA",
+  "filing_year": 2025,
+  "section": "Item 1 — Business",
+  "content_type": "text",
+  "text": "The complete source chunk shown to the user."
+}
+```
+
+Table source:
+
+```json
+{
+  "company": "Mobileye Global Inc.",
+  "ticker": "MBLY",
+  "filing_year": 2025,
+  "section": "Item 8 — Financial Statements",
+  "content_type": "table",
+  "title": "Revenue by segment",
+  "units": "USD millions",
+  "headers": ["Segment", "2025", "2024"],
+  "rows": [
+    ["Mobileye", "1,613", "1,756"],
+    ["Other", "41", "37"]
+  ]
+}
+```
+
+Adapt this contract to the real repository schema after inspection. Preserve useful metadata but do not expose irrelevant implementation details.
+
+Tables must remain structured. Never send a Markdown table and ask the frontend to recover its structure.
+
+Clarify which sources are returned:
+
+* Prefer chunks explicitly cited by the generated answer when citation identifiers are available.
+* Resolve those identifiers on the backend.
+* If the current generator cannot reliably identify cited chunks, return the final evidence chunks supplied to generation and document that limitation.
+* Never silently claim that a source supported the answer when it was not part of the generation context.
+
+### Production direction
+
+Document the later production model without selecting a provider prematurely:
+
+* Static frontend hosting.
+* Docker-compatible backend compute.
+* Backend-only secrets.
+* Versioned retrieval/index artifacts.
+* CORS restricted to the deployed frontend origin.
+* HTTPS.
+* Health and readiness endpoints.
+* Request timeouts.
+* Graceful streaming cancellation.
+* Basic structured logs.
+* Resource measurements before selecting hosting.
+
+State that hosting must not be chosen until these have been measured:
+
+* Backend startup time.
+* Idle and peak RAM.
+* Model download/cache size.
+* Index size.
+* Retrieval latency.
+* Reranking latency.
+* Time to first token.
+* Complete response latency.
+* Expected request concurrency.
+
+### Security and operational rules
+
+Include:
+
+* Never expose Azure/OpenAI credentials to the frontend.
+* Never commit `.env` files.
+* Validate and length-limit queries using a repository-appropriate limit.
+* Do not render unsanitized model HTML.
+* Cancel backend work when the client disconnects when reasonably possible.
+* Log technical details server-side but show safe errors to users.
+* Raw SEC filing data remains immutable.
+* Do not add authentication in this phase.
+
+### Future deployment milestones
+
+Document later milestones but do not implement them now:
+
+1. Local vertical slice.
+2. Containerized reproducible build.
+3. Hosted preview.
+4. Persistent conversations.
+5. Authentication and accounts.
+6. Document uploads and corpus management.
+7. Vector-database migration if justified by measured needs.
+8. Agentic functionality only after a concrete use case and evaluation exist.
+
+## 2. `ROADMAP.md`
+
+Create or update a project roadmap that distinguishes:
+
+* Completed work.
+* Current generation-robustness work.
+* Current frontend/API work.
+* Immediate next work.
+* Deferred capabilities.
+
+The roadmap must use measurable acceptance criteria rather than vague labels.
+
+The frontend milestone is complete only when:
+
+* A query reaches the actual backend pipeline.
+* The first LLM token appears without waiting for the complete answer.
+* The loading bubble disappears on the first token.
+* AVA appears beside the response.
+* Cited evidence can be opened.
+* Narrative chunks are readable.
+* Table chunks render as actual HTML tables.
+* Both themes work.
+* The favicon uses AVA.
+* The page works at desktop and mobile widths.
+* Frontend build/lint checks pass.
+* Backend streaming tests pass.
+* No secret is present in the frontend bundle.
+
+Keep accounts, uploads, persistent history, vector-database work and agentic RAG explicitly deferred.
+
+## 3. Root `AGENTS.md`
+
+Update or create the root `AGENTS.md`.
+
+Do not delete valid existing RAG, SEC-processing, evaluation or raw-data safety instructions. Merge the new web-application rules into the existing instructions.
+
+Correct stale “current state” claims only when repository evidence proves they are stale.
+
+Add clear instructions covering:
+
+* AVA is the user-facing product name.
+* AVA expands to Autonomous Vehicle Analyst.
+* EdgarRAG is internal and must not appear in the UI.
+* `frontend/avatar/ava.png` is the canonical supplied avatar.
+* The avatar file must not be regenerated, redrawn, recoloured or moved without an explicit request.
+* Core retrieval behaviour must not be changed merely to simplify API integration.
+* The API layer must adapt existing pipeline outputs into frontend-safe schemas.
+* Tables remain structured end to end.
+* Real model streaming must be used; fake typing delays are prohibited.
+* Internal chunk IDs must not be used as the primary user-visible citation.
+* Light and dark themes are required.
+* Accessibility, responsive behaviour and keyboard navigation are required.
+* Current scope exclusions must be preserved.
+* All implementation decisions must be verified against the repository rather than guessed.
+* Existing user changes and unrelated work must be preserved.
+* Tests and build checks must be run before declaring completion.
+
+After Phase 1, review the three files for contradictions and correct them before proceeding.
+
+---
+
+# Phase 2 — Create `frontend_plan.md`
+
+Create `frontend_plan.md` before writing frontend code.
+
+This file must be detailed enough that another developer could implement the interface without making major visual or behavioural decisions.
+
+Include all of the following.
+
+## Product identity
+
+* Product name: `AVA`
+* Full name: `Autonomous Vehicle Analyst`
+* Internal repository name `EdgarRAG` must not appear in the interface.
+* Canonical avatar path: `frontend/avatar/ava.png`
+* AVA is a restrained product identity, not a human-like mascot or conversational character.
+* Do not add an artificial personality, biography, face, onboarding story or decorative animations.
+
+## Overall visual direction
+
+The application should resemble the established structure shared by ChatGPT, Claude and DeepSeek:
+
+* Minimal.
+* Spacious.
+* Content-focused.
+* Central chat column.
+* Fixed or sticky composer near the bottom.
+* Thin top header.
+* No sidebar in this version.
+* No profile controls.
+* No empty navigation.
+* No dashboard cards.
+* No gradients.
+* No glassmorphism.
+* No excessive shadows.
+* No decorative financial charts.
+* No official SEC branding.
+* No visible “EdgarRAG” text.
+
+Do not clone a specific product. Use the familiar chatbot structure while keeping AVA’s identity.
+
+## Header
+
+Define a thin header with:
+
+### Top left
+
+* AVA avatar.
+* Primary label: `AVA`
+* Secondary label: `Autonomous Vehicle Analyst`
+
+The full name must be visible somewhere without requiring a tooltip. On narrow mobile screens, the secondary label may move to the empty state or become visually smaller, but it must remain available in the interface.
+
+### Top right
+
+A single theme-toggle button:
+
+* Show a sun icon while light mode is active.
+* Show a moon icon while dark mode is active.
+* Use an accessible text label and tooltip.
+* Do not display “Light mode” or “Dark mode” as permanent text.
+* Save the user’s selection in `localStorage`.
+* On the first visit, use the operating-system preference.
+* Avoid a flash of the wrong theme during initial page load.
+
+No other top-right buttons.
+
+## Favicon and avatar usage
+
+Use `frontend/avatar/ava.png` for:
+
+* The header identity.
+* The empty state.
+* Every assistant response.
+
+Do not show the avatar beside user messages.
+
+Because the supplied image may have a transparent background and dark outlines:
+
+* Ensure it remains readable in dark mode.
+* A subtle light circular backing may be used around the image in dark mode.
+* Do not permanently alter the supplied source file.
+* Keep avatar sizing and treatment consistent.
+
+The favicon uses a separate image, its inside src/frontend/avatar/favicon.png.
+
+## Theme system
+
+### Light mode
+
+The principal page background must be completely white:
+
+```text
+background: #FFFFFF
+main text: #172033
+secondary text: #667085
+border: #E5E7EB
+primary blue: #55AEEF
+citation amber: #E9A62F
+```
+
+Avoid large grey page surfaces. Subtle borders and extremely light hover states are allowed.
+
+### Dark mode
+
+Use a very dark blue rather than black:
+
+```text
+background: #07111F
+main text: #EAF2FA
+secondary text: #91A4B7
+border: #1B2C3D
+primary blue: #6BBEFF
+citation amber: #F2B84B
+```
+
+Define colours as reusable CSS custom properties or theme tokens. Components must not contain scattered hard-coded theme colours.
+
+Both modes must provide sufficient contrast.
+
+## Empty state
+
+Before the first query, show a restrained centered empty state containing:
+
+* A larger AVA avatar.
+* `Ask AVA`
+* `Autonomous Vehicle Analyst`
+* A short description explaining that AVA answers questions using SEC 10-K filings from ten companies in the autonomous-vehicle ecosystem.
+* The composer.
+
+Do not add feature cards, product marketing, onboarding slides or a sidebar.
+
+Example questions may be included only if they are visually restrained and use genuine corpus-supported question types. Keep them secondary to the composer.
+
+## Conversation layout
+
+Use a centered conversation column with a readable maximum width, approximately 760–840 px.
+
+User messages:
+
+* Right-aligned.
+* Compact rounded bubble.
+* Distinguishable in both themes.
+* No user avatar.
+* Preserve intentional line breaks.
+
+AVA responses:
+
+* Left-aligned.
+* AVA avatar positioned to the left.
+* Response text should generally sit directly on the page rather than inside a large coloured bubble.
+* Use comfortable line height.
+* Support paragraphs, lists, emphasis, inline code and links.
+* Render model Markdown safely.
+* Never use unsanitized `dangerouslySetInnerHTML`.
+
+The visible current-session transcript may remain on screen, but:
+
+* It must not persist across reloads.
+* It must not create saved conversations.
+* Previous turns must not be sent to the backend.
+* There must be no history sidebar.
+
+Automatically scroll as the stream grows only while the user remains near the bottom. Do not forcibly pull the user downward after they scroll upward to inspect earlier text.
+
+## Composer
+
+The composer should:
+
+* Remain near the bottom of the viewport.
+* Align with the conversation column.
+* Use a multiline textarea.
+* Grow up to a sensible maximum height and then scroll internally.
+* Submit with Enter.
+* Insert a newline with Shift+Enter.
+* Include a simple send-arrow button.
+* Disable duplicate submission while one request is active.
+* Preserve the submitted query in the transcript.
+* Clear after successful submission.
+* Restore or retain the text if submission fails before the request begins.
+* Include a clear accessible label.
+* Work without a mouse.
+
+Do not add attachments, microphone controls, model selectors, tools, web-search switches or extra menus.
+
+## Waiting state
+
+Immediately after submission:
+
+* Insert the AVA response row.
+* Display AVA’s avatar.
+* Show a small speech/thought bubble visually anchored above or slightly above-right of the avatar.
+* Inside the bubble, animate three dots.
+* Keep the motion subtle.
+* Provide an accessible loading label.
+* Respect `prefers-reduced-motion`.
+
+The loading bubble represents retrieval, reranking and waiting for the first generated token.
+
+It must disappear immediately when the first non-empty `delta` event arrives.
+
+Do not keep the bubble visible while text is streaming.
+
+## Token streaming
+
+Streaming must reflect actual backend generation.
+
+Requirements:
+
+* Do not wait for the complete answer.
+* Do not split a completed answer in JavaScript.
+* Do not add fake per-character or per-token delays.
+* Append each received text fragment immediately.
+* Preserve whitespace correctly across fragments.
+* Avoid rerendering the entire transcript unnecessarily.
+* Treat the request as active until a `done` event arrives.
+* Allow clean handling of cancellation, connection loss and malformed events.
+* If the stream fails after partial output, preserve the partial answer and show a concise retryable error state.
+
+## Sources
+
+The source control appears only after sources are received or generation completes.
+
+Use a compact button such as:
+
+```text
+View sources (3)
+```
+
+Requirements:
+
+* Do not display raw chunk IDs as source labels.
+* Do not show Markdown source tables.
+* Expand sources below the relevant answer or in a focused drawer.
+* Associate each source panel with the specific AVA answer.
+* Allow keyboard opening and closing.
+* Include clear focus states.
+* Preserve long source text without truncating away evidence.
+* Avoid presenting retrieval scores unless explicitly placed in a developer/debug mode.
+
+Narrative source presentation:
+
+* Company name and ticker.
+* Filing year.
+* Section.
+* Readable original chunk text.
+* Optional filing/source link if valid metadata already exists.
+
+Table source presentation:
+
+* Company name and ticker.
+* Filing year.
+* Section.
+* Table title.
+* Units.
+* Semantic HTML `<table>`.
+* `<thead>` and `<tbody>`.
+* Correct headers and row ordering.
+* Readable number alignment.
+* Horizontal scrolling on narrow screens.
+* Empty cells preserved.
+* No attempt to infer missing values.
+* No conversion from Markdown.
+
+If several sources exist, show them as separate source cards or accordion entries.
+
+## Error and edge states
+
+Specify visual and behavioural handling for:
+
+* Empty query.
+* Backend unavailable.
+* Retrieval/generation error before the first token.
+* Stream interruption after partial output.
+* No answerable evidence.
+* Successful answer with no resolvable cited sources.
+* Malformed source data.
+* Extremely long narrative chunks.
+* Wide financial tables.
+* Repeated submission attempts.
+* Theme switching during a stream.
+
+Errors should be concise, visible and recoverable. Do not expose stack traces or provider error details.
+
+## Responsive behaviour
+
+Desktop:
+
+* Centered conversation column.
+* Stable header.
+* Comfortable whitespace.
+* Avatar remains beside AVA responses.
+
+Mobile:
+
+* Reduced outer padding.
+* Header remains readable.
+* Composer fits the viewport and safe areas.
+* Tables scroll horizontally.
+* Source controls remain tappable.
+* User bubbles do not consume the complete width.
+* AVA avatar may become slightly smaller but must remain visible.
+
+Avoid desktop-only fixed heights that break mobile browser viewports.
+
+## Accessibility
+
+Include:
+
+* Semantic buttons and form controls.
+* Keyboard navigation.
+* Visible focus states.
+* Meaningful image alt text.
+* Decorative animation hidden from screen readers where appropriate.
+* Live-region behaviour for loading and completed/error status.
+* Reduced-motion support.
+* Sufficient colour contrast.
+* Theme-toggle accessible naming.
+* No information communicated only through colour.
+
+Do not repeatedly announce every streamed token to screen readers. Announce loading status and completion/error state appropriately.
+
+## Component structure
+
+Define a small, maintainable component breakdown such as:
+
+```text
+App
+├── Header
+│   ├── Brand
+│   └── ThemeToggle
+├── EmptyState
+├── Conversation
+│   ├── UserMessage
+│   └── AssistantMessage
+│       ├── AvaAvatar
+│       ├── WaitingBubble
+│       ├── StreamedAnswer
+│       └── Sources
+│           ├── NarrativeSource
+│           └── TableSource
+└── Composer
+```
+
+Adjust names to repository conventions, but keep components focused. Do not introduce global state libraries for this version.
+
+Document the state model:
+
+```text
+idle
+submitting
+waiting_for_first_token
+streaming
+completed
+error
+```
+
+Document transitions and what appears in each state.
+
+## Testing plan
+
+Include:
+
+* Theme initialization and persistence.
+* Composer keyboard behaviour.
+* Duplicate-submit prevention.
+* Waiting bubble visibility.
+* Waiting bubble removal on the first token.
+* Correct fragment concatenation.
+* Stream completion.
+* Pre-token error.
+* Mid-stream error with partial-answer preservation.
+* Narrative source rendering.
+* Structured table rendering.
+* No visible raw chunk IDs.
+* Responsive table behaviour.
+* Accessible labels.
+* Frontend production build.
+* Backend health endpoint.
+* Backend SSE event ordering.
+* Source normalization.
+* No frontend exposure of secrets.
+
+After writing `frontend_plan.md`, compare it with `DEPLOYMENT.md`, `ROADMAP.md` and `AGENTS.md`. Resolve contradictions before implementing.
+
+---
+
+# Phase 3 — Implement the local vertical slice
+
+Implement the documented frontend and FastAPI adapter.
+
+## General implementation rules
+
+* Follow the repository’s existing conventions.
+* Preserve unrelated user changes.
+* Do not rewrite the RAG pipeline.
+* Add the thinnest reasonable adapter around existing retrieval and generation functions.
+* Do not hide integration problems behind fake data in real mode.
+* Keep a clearly separated mock mode for frontend development and deterministic tests.
+* Do not add large frameworks without a concrete need.
+* Do not add a global state-management dependency.
+* Do not add a component library merely to reproduce simple chatbot elements.
+* Prefer plain CSS/CSS modules and small focused React components.
+* Use existing package managers and lockfiles when present.
+
+## Frontend stack
+
+Unless the repository already contains a compatible frontend stack, use:
+
+* React.
+* TypeScript.
+* Vite.
+* Plain CSS or CSS modules.
+* Browser `fetch`.
+* A safe Markdown renderer for model answer text if required.
+* Inline SVG or a lightweight existing icon package for the theme and send icons.
+
+Do not use an image-generation system. The supplied avatar already exists at:
+
+```text
+frontend/avatar/ava.png
+```
+
+## Backend endpoints
+
+Implement at minimum:
+
+```http
+GET /api/health
+POST /api/chat/stream
+```
+
+`GET /api/health` should distinguish:
+
+* API process alive.
+* Retrieval/generation pipeline ready, if readiness can be checked safely.
+
+`POST /api/chat/stream` should:
+
+* Accept a structured JSON query request.
+* Validate input.
+* Run the actual current retrieval/reranking path.
+* Pass the selected evidence to the current generator.
+* Request streaming from the current Azure OpenAI chat-completions integration.
+* Emit non-empty generated fragments as `delta` events.
+* Resolve source identifiers on the backend.
+* Normalize sources for the frontend.
+* Emit one `sources` event.
+* Emit one terminal `done` event.
+* Emit a safe `error` event when a failure occurs after streaming begins.
+* Detect client cancellation where practical.
+* Avoid leaking credentials, prompts, stack traces or raw provider errors.
+
+Do not simulate streaming by generating the complete answer and dividing it afterward.
+
+If the existing generation function cannot stream, refactor only the narrow generation boundary required to expose the provider’s real stream while preserving the existing non-streaming path and tests.
+
+## Source adaptation
+
+Inspect the real chunk schemas.
+
+Create explicit backend normalization code that:
+
+* Maps narrative chunks to narrative source objects.
+* Maps table chunks to structured table source objects.
+* Retrieves original structured table data using stable internal metadata when necessary.
+* Preserves company, ticker, year, section, title, units, headers and rows.
+* Keeps internal IDs available only for backend resolution/debugging.
+* Does not present raw IDs as user-facing source labels.
+* Does not parse a Markdown table in the browser.
+* Does not fabricate missing headers, labels, values or units.
+
+If the repository currently lacks enough structured data to render a table correctly, report the exact schema gap. Do not silently create an unreliable parser.
+
+## Frontend behaviour
+
+Implement the approved design exactly:
+
+* AVA identity in the header.
+* Full `Autonomous Vehicle Analyst` name visible.
+* No EdgarRAG branding.
+* Theme toggle at the top right.
+* Sun shown in light mode.
+* Moon shown in dark mode.
+* White light theme.
+* Very dark-blue dark theme.
+* Theme persistence.
+* AVA favicon.
+* AVA avatar beside assistant output.
+* No avatar beside user messages.
+* Waiting bubble with animated dots above AVA.
+* Bubble removed on the first received token.
+* Real incremental token/text-fragment rendering.
+* Source button after generation.
+* Narrative source viewer.
+* Proper HTML table source viewer.
+* Responsive mobile behaviour.
+* Accessible keyboard behaviour.
+* No sidebar.
+* No account/profile elements.
+* No upload controls.
+* No history persistence.
+
+## Mock mode
+
+Provide a deterministic development/test mode that exercises:
+
+* A short wait before the first token.
+* Several streamed delta fragments.
+* One narrative source.
+* One structured table source.
+* A pre-token failure.
+* A mid-stream failure.
+
+Mock mode must be clearly isolated and must never be mistaken for the production pipeline.
+
+## Verification
+
+Run the relevant checks available in the repository, including where applicable:
+
+### Frontend
+
+* Dependency installation using the existing package manager.
+* Type checking.
+* Linting.
+* Unit/component tests.
+* Production build.
+
+### Backend
+
+* Formatting/linting already used by the repository.
+* Existing tests.
+* New API and streaming tests.
+* Health-endpoint test.
+* Event-order test.
+* Source-normalization tests.
+* Failure-path tests.
+
+### Manual visual verification
+
+Inspect at minimum:
+
+* Light desktop.
+* Dark desktop.
+* Light mobile.
+* Dark mobile.
+* Empty state.
+* Waiting state.
+* Mid-stream response.
+* Completed response with narrative sources.
+* Completed response with a wide table.
+* Error after a partial response.
+
+Check that the supplied AVA image is not cropped, stretched or invisible.
+
+## Completion report
+
+At the end, provide:
+
+* A concise summary of what was implemented.
+* All documentation files created or updated.
+* Main frontend and backend files created or updated.
+* Commands used to run the frontend and backend.
+* Required environment variables.
+* Tests and build checks run.
+* Their actual results.
+* Any real integration blocker.
+* Any documented limitation in source resolution or table reconstruction.
+* The next single deployment step.
+
+Do not claim completion if the frontend only works with mocks or if streaming is simulated. Clearly distinguish a complete real integration from a visually complete mock implementation.
+
+Work on deploy_front branch at all times. Do not switch branches, do
+   incremental commits with commit messages in this format: "feat: implemented/added/ [feature]",
+  and make sure to create reports on every action you take, inside src/frontend/PROGRESS_REPORT.md
+
+> **Archived 4 September 2026.** This previously ignored local document is\n> preserved as a read-only historical record, not a current plan or authority.\n> See [\`FINALIZATION.md\`](../../../../FINALIZATION.md) for the sole remaining-work plan.\n>\nYou are working inside an existing Python RAG repository for querying SEC 10-K filings from ten companies in the autonomous-vehicle ecosystem.
