@@ -139,7 +139,7 @@ def web_generation_messages(
             f'publisher={json.dumps(chunk["publisher"])} '
             f'retrieved_at={json.dumps(chunk["retrieved_at"])} '
             f'url={json.dumps(chunk["source_url"])}>\n'
-            f'{chunk["text"]}\n</web_source>'
+            f'{quarantine_uploaded_instructions(chunk["text"])}\n</web_source>'
         )
     return [
         {"role": "system", "content": WEB_SYSTEM_PROMPT},
