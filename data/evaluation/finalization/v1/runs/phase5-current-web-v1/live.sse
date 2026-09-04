@@ -1,0 +1,8 @@
+event: delta
+data: {"text":"Web search returned no usable public sources for that question."}
+
+event: sources
+data: {"sources":[],"source_status":"none_cited","malformed_source_count":0}
+
+event: done
+data: {}
