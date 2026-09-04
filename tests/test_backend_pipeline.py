@@ -333,7 +333,7 @@ class FakeWebSearch:
     def __init__(self):
         self.query = None
 
-    def search(self, query, *, max_results=5):
+    def search(self, query, *, max_results=5, source_keys=(), tickers=()):
         self.query = query
         return WebSearchResponse(
             query,
@@ -693,7 +693,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("General Motors' total consolidated revenue", events[0].data["text"])
         self.assertIn("latest indexed 10-K", events[0].data["text"])
         self.assertEqual(events[1].data["sources"], [])
-        self.assertEqual(records[0]["route"]["route"], "conversation_only")
+        self.assertEqual(records[0]["route"]["route"], "conversation")
         self.assertNotIn("retrieval_selection", records[0]["stage_latency_ms"])
 
     async def test_explicit_company_outside_saved_scope_guides_user_without_retrieval(self):
@@ -1032,7 +1032,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
 
         events = [event async for event in pipeline.stream("12 * 4", connected)]
         self.assertIn("outside AVA's SEC-filing analysis scope", events[0].data["text"])
-        self.assertEqual(records[0]["route"]["route"], "conversation_only")
+        self.assertEqual(records[0]["route"]["route"], "conversation")
         self.assertFalse(records[0]["route"]["uses_calculator"])
         self.assertEqual(records[0]["tool_executions"], [])
 

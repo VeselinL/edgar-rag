@@ -73,7 +73,6 @@ from src.retrieval.evidence_policy import (
     EvidencePolicyError,
 )
 from src.tools import (
-    DEFAULT_ALLOWED_DOMAINS,
     BraveWebSearchTool,
     CalculationError,
     CalculatorTool,
@@ -392,7 +391,6 @@ class RealPipeline(RouteHandlerMixin):
             web_search = BraveWebSearchTool(
                 settings.web_search_api_key or "",
                 timeout_seconds=settings.web_search_timeout_seconds,
-                allowed_domains=DEFAULT_ALLOWED_DOMAINS,
             )
         startup_metrics = {
             "corpus_load_ms": round(load_ms, 3),

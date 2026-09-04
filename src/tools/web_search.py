@@ -12,6 +12,8 @@ from urllib.parse import urlsplit, urlunsplit
 
 import httpx
 
+from src.orchestration.models import TrustedSourceKey
+
 
 BRAVE_WEB_SEARCH_URL = "https://api.search.brave.com/res/v1/web/search"
 MAX_QUERY_CHARACTERS = 400
@@ -19,9 +21,112 @@ MAX_QUERY_WORDS = 50
 MAX_RESULTS = 10
 MAX_EXCERPT_CHARACTERS = 1_000
 MAX_RESPONSE_BYTES = 1_048_576
-# Small, high-signal allowlist for company lookups. SEC is primary; the others
-# are secondary corroborating sources and keep the fallback bounded.
-DEFAULT_ALLOWED_DOMAINS = ("sec.gov", "robinhood.com", "reuters.com", "nasdaq.com")
+
+
+@dataclass(frozen=True)
+class TrustedWebSource:
+    key: TrustedSourceKey
+    urls: tuple[str, ...]
+    use_for: tuple[str, ...]
+    priority: int
+
+
+TRUSTED_WEB_SOURCES = (
+    TrustedWebSource(
+        TrustedSourceKey.SEC_EDGAR,
+        ("https://www.sec.gov/", "https://data.sec.gov/"),
+        ("latest filings", "8-K", "proxy statements", "XBRL facts", "official filer metadata"),
+        1,
+    ),
+    TrustedWebSource(
+        TrustedSourceKey.ISSUER_OFFICIAL,
+        (
+            "https://www.aptiv.com/", "https://ir.aptiv.com/", "https://aurora.tech/", "https://ir.aurora.tech/",
+            "https://www.ford.com/", "https://shareholder.ford.com/", "https://www.gm.com/", "https://investors.gm.com/",
+            "https://abc.xyz/", "https://abc.xyz/investor/", "https://www.mobileye.com/", "https://ir.mobileye.com/",
+            "https://www.nvidia.com/", "https://investor.nvidia.com/", "https://ouster.com/", "https://investors.ouster.com/",
+            "https://www.qualcomm.com/", "https://investor.qualcomm.com/", "https://rivian.com/", "https://rivian.com/investors/",
+            "https://www.tesla.com/", "https://ir.tesla.com/",
+        ),
+        ("current leadership", "current products", "earnings releases", "official company announcements"),
+        2,
+    ),
+    TrustedWebSource(
+        TrustedSourceKey.VEHICLE_REGULATOR,
+        ("https://www.nhtsa.gov/", "https://api.nhtsa.gov/"),
+        ("recalls", "vehicle safety", "official regulatory data"),
+        2,
+    ),
+    TrustedWebSource(
+        TrustedSourceKey.MARKET_PRIMARY,
+        ("https://www.nasdaq.com/market-activity/stocks/", "https://www.nyse.com/quote/"),
+        ("exchange listing", "market status", "delayed or exchange-sourced quote data"),
+        3,
+    ),
+    TrustedWebSource(
+        TrustedSourceKey.MARKET_SECONDARY,
+        ("https://robinhood.com/us/en/stocks/",),
+        ("current retail quote", "market summary", "secondary corroboration"),
+        4,
+    ),
+    TrustedWebSource(
+        TrustedSourceKey.NEWS_INDEPENDENT,
+        ("https://www.reuters.com/",),
+        ("recent independent company news", "leadership-change corroboration"),
+        4,
+    ),
+)
+
+_ISSUER_DOMAINS = {
+    "APTV": ("aptiv.com", "ir.aptiv.com"), "AUR": ("aurora.tech", "ir.aurora.tech"),
+    "F": ("ford.com", "shareholder.ford.com"), "GM": ("gm.com", "investors.gm.com"),
+    "GOOGL": ("abc.xyz",), "MBLY": ("mobileye.com", "ir.mobileye.com"),
+    "NVDA": ("nvidia.com", "investor.nvidia.com"), "OUST": ("ouster.com", "investors.ouster.com"),
+    "QCOM": ("qualcomm.com", "investor.qualcomm.com"), "RIVN": ("rivian.com",),
+    "TSLA": ("tesla.com", "ir.tesla.com"),
+}
+_EXCHANGE_DOMAINS = {
+    "APTV": "nyse.com", "AUR": "nasdaq.com", "F": "nyse.com", "GM": "nyse.com",
+    "GOOGL": "nasdaq.com", "MBLY": "nasdaq.com", "NVDA": "nasdaq.com", "OUST": "nyse.com",
+    "QCOM": "nasdaq.com", "RIVN": "nasdaq.com", "TSLA": "nasdaq.com",
+}
+
+
+def _registry_domains(key: TrustedSourceKey) -> tuple[str, ...]:
+    source = next(source for source in TRUSTED_WEB_SOURCES if source.key is key)
+    return tuple(
+        dict.fromkeys((urlsplit(url).hostname or "").removeprefix("www.") for url in source.urls)
+    )
+
+
+def allowed_domains_for(
+    source_keys: tuple[TrustedSourceKey, ...], tickers: tuple[str, ...] = ()
+) -> tuple[str, ...]:
+    """Map reviewed source keys to the only hosts a search may return."""
+    if not source_keys or len(source_keys) != len(set(source_keys)):
+        raise ValueError("Web search requires unique trusted source keys.")
+    try:
+        keys = tuple(TrustedSourceKey(key) for key in source_keys)
+    except (TypeError, ValueError) as error:
+        raise ValueError("Web search contains an unknown trusted source key.") from error
+    normalized_tickers = tuple(ticker.upper() for ticker in tickers)
+    if len(normalized_tickers) != len(set(normalized_tickers)) or any(
+        ticker not in _ISSUER_DOMAINS for ticker in normalized_tickers
+    ):
+        raise ValueError("Web search contains an invalid ticker scope.")
+    domains: list[str] = []
+    for key in keys:
+        if key is TrustedSourceKey.ISSUER_OFFICIAL:
+            if not normalized_tickers:
+                raise ValueError("Issuer web search requires a ticker scope.")
+            domains.extend(domain for ticker in normalized_tickers for domain in _ISSUER_DOMAINS[ticker])
+        elif key is TrustedSourceKey.MARKET_PRIMARY:
+            if not normalized_tickers:
+                raise ValueError("Market web search requires a ticker scope.")
+            domains.extend(_EXCHANGE_DOMAINS[ticker] for ticker in normalized_tickers)
+        else:
+            domains.extend(_registry_domains(key))
+    return tuple(dict.fromkeys(domains))
 
 
 class WebSearchError(RuntimeError):
@@ -55,7 +160,14 @@ class WebSearchResponse:
 class WebSearchTool(Protocol):
     provider: str
 
-    def search(self, query: str, *, max_results: int = 5) -> WebSearchResponse: ...
+    def search(
+        self,
+        query: str,
+        *,
+        max_results: int = 5,
+        source_keys: tuple[TrustedSourceKey, ...],
+        tickers: tuple[str, ...] = (),
+    ) -> WebSearchResponse: ...
 
     def close(self) -> None: ...
 
@@ -63,7 +175,10 @@ class WebSearchTool(Protocol):
 class UnavailableWebSearchTool:
     provider = "disabled"
 
-    def search(self, query: str, *, max_results: int = 5) -> WebSearchResponse:
+    def search(
+        self, query: str, *, max_results: int = 5,
+        source_keys: tuple[TrustedSourceKey, ...], tickers: tuple[str, ...] = (),
+    ) -> WebSearchResponse:
         raise WebSearchUnavailableError("Web search is not configured.")
 
     def close(self) -> None:
@@ -123,7 +238,6 @@ class BraveWebSearchTool:
         timeout_seconds: float = 8.0,
         client: httpx.Client | None = None,
         now: Callable[[], datetime] | None = None,
-        allowed_domains: tuple[str, ...] | None = None,
     ) -> None:
         if not api_key.strip():
             raise ValueError("Brave Search requires a non-empty API key.")
@@ -136,11 +250,15 @@ class BraveWebSearchTool:
             follow_redirects=False,
         )
         self._now = now or (lambda: datetime.now(timezone.utc))
-        self._allowed_domains = tuple(
-            d.casefold().lstrip(".") for d in (allowed_domains or ()) if d.strip()
-        )
 
-    def search(self, query: str, *, max_results: int = 5) -> WebSearchResponse:
+    def search(
+        self,
+        query: str,
+        *,
+        max_results: int = 5,
+        source_keys: tuple[TrustedSourceKey, ...],
+        tickers: tuple[str, ...] = (),
+    ) -> WebSearchResponse:
         normalized_query = " ".join(query.split())
         if (
             not normalized_query
@@ -150,8 +268,9 @@ class BraveWebSearchTool:
             raise WebSearchError("Web-search query is empty or exceeds provider limits.")
         if not isinstance(max_results, int) or isinstance(max_results, bool) or not 1 <= max_results <= MAX_RESULTS:
             raise ValueError(f"Web search returns between 1 and {MAX_RESULTS} results.")
-        domain_query = " OR ".join(f"site:{domain}" for domain in self._allowed_domains)
-        provider_query = f"({normalized_query}) ({domain_query})" if domain_query else normalized_query
+        allowed_domains = allowed_domains_for(source_keys, tickers)
+        domain_query = " OR ".join(f"site:{domain}" for domain in allowed_domains)
+        provider_query = f"({normalized_query}) ({domain_query})"
         try:
             response = self._client.get(
                 BRAVE_WEB_SEARCH_URL,
@@ -198,9 +317,9 @@ class BraveWebSearchTool:
             publisher = urlsplit(url).hostname or "unknown"
             if publisher.startswith("www."):
                 publisher = publisher[4:]
-            if self._allowed_domains and not any(
+            if not any(
                 publisher == domain or publisher.endswith("." + domain)
-                for domain in self._allowed_domains
+                for domain in allowed_domains
             ):
                 continue
             results.append(

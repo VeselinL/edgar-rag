@@ -6,11 +6,14 @@ import httpx
 
 from src.tools.web_search import (
     BRAVE_WEB_SEARCH_URL,
+    TRUSTED_WEB_SOURCES,
     BraveWebSearchTool,
     UnavailableWebSearchTool,
     WebSearchError,
     WebSearchUnavailableError,
+    allowed_domains_for,
 )
+from src.orchestration.models import TrustedSourceKey
 
 
 class WebSearchToolTests(unittest.TestCase):
@@ -28,7 +31,7 @@ class WebSearchToolTests(unittest.TestCase):
                             "results": [
                                 {
                                     "title": "<strong>First</strong> result",
-                                    "url": "https://www.example.com/article#section",
+                                    "url": "https://www.reuters.com/article#section",
                                     "description": "A <em>bounded</em> excerpt.",
                                 },
                                 {
@@ -38,7 +41,7 @@ class WebSearchToolTests(unittest.TestCase):
                                 },
                                 {
                                     "title": "Second result",
-                                    "url": "https://news.example.org/item",
+                                    "url": "https://www.reuters.com/item",
                                     "description": "Another excerpt.",
                                 },
                             ]
@@ -53,13 +56,17 @@ class WebSearchToolTests(unittest.TestCase):
             client=client,
             now=lambda: datetime(2026, 9, 1, tzinfo=timezone.utc),
         )
-        response = tool.search(" current   AV news ", max_results=2)
+        response = tool.search(
+            " current   AV news ",
+            max_results=2,
+            source_keys=(TrustedSourceKey.NEWS_INDEPENDENT,),
+        )
         self.assertEqual(response.query, "current AV news")
         self.assertEqual(len(response.results), 2)
         self.assertEqual(response.results[0].source_id, "web-1")
         self.assertEqual(response.results[0].title, "First result")
-        self.assertEqual(response.results[0].url, "https://www.example.com/article")
-        self.assertEqual(response.results[0].publisher, "example.com")
+        self.assertEqual(response.results[0].url, "https://www.reuters.com/article")
+        self.assertEqual(response.results[0].publisher, "reuters.com")
         self.assertEqual(response.results[0].retrieved_at, "2026-09-01T00:00:00+00:00")
 
     def test_adapter_rejects_bad_status_type_size_and_query(self):
@@ -78,16 +85,54 @@ class WebSearchToolTests(unittest.TestCase):
                     transport=httpx.MockTransport(lambda request: response)
                 )
                 with self.assertRaises(WebSearchError):
-                    BraveWebSearchTool("secret", client=client).search("query")
+                    BraveWebSearchTool("secret", client=client).search(
+                        "query", source_keys=(TrustedSourceKey.NEWS_INDEPENDENT,)
+                    )
         with self.assertRaises(WebSearchError):
             BraveWebSearchTool(
                 "secret",
                 client=httpx.Client(transport=httpx.MockTransport(lambda request: responses[0])),
-            ).search("word " * 51)
+            ).search("word " * 51, source_keys=(TrustedSourceKey.NEWS_INDEPENDENT,))
 
     def test_unavailable_adapter_is_explicit(self):
         with self.assertRaises(WebSearchUnavailableError):
-            UnavailableWebSearchTool().search("latest news")
+            UnavailableWebSearchTool().search(
+                "latest news",
+                source_keys=(TrustedSourceKey.NEWS_INDEPENDENT,),
+            )
+
+    def test_registry_and_ticker_scope_are_the_only_domain_authority(self):
+        self.assertEqual(
+            tuple(source.key for source in TRUSTED_WEB_SOURCES),
+            tuple(TrustedSourceKey),
+        )
+        self.assertEqual(
+            allowed_domains_for((TrustedSourceKey.ISSUER_OFFICIAL,), ("AUR",)),
+            ("aurora.tech", "ir.aurora.tech"),
+        )
+        self.assertNotIn(
+            "tesla.com",
+            allowed_domains_for((TrustedSourceKey.ISSUER_OFFICIAL,), ("AUR",)),
+        )
+        with self.assertRaisesRegex(ValueError, "ticker scope"):
+            allowed_domains_for((TrustedSourceKey.ISSUER_OFFICIAL,), ())
+
+    def test_search_rejects_missing_or_unknown_source_keys_before_provider_call(self):
+        called = False
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            nonlocal called
+            called = True
+            return httpx.Response(500)
+
+        tool = BraveWebSearchTool(
+            "secret", client=httpx.Client(transport=httpx.MockTransport(handler))
+        )
+        with self.assertRaisesRegex(ValueError, "source key"):
+            tool.search("Tesla news", source_keys=())
+        with self.assertRaisesRegex(ValueError, "source key"):
+            tool.search("Tesla news", source_keys=("arbitrary",))
+        self.assertFalse(called)
 
 
 if __name__ == "__main__":

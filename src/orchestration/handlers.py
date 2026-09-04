@@ -68,6 +68,8 @@ class RouteHandlerMixin:
                     self.web_search.search,
                     query,
                     max_results=self.web_search_max_results,
+                    source_keys=route.web_source_keys,
+                    tickers=route.resolved_tickers or route.selected_company_scope,
                 )
         except WebSearchError:
             trace.tool_executions.append(
@@ -95,6 +97,7 @@ class RouteHandlerMixin:
                 "provider": response.provider,
                 "status": "succeeded",
                 "query": response.query,
+                "source_keys": [key.value for key in route.web_source_keys],
                 "result_count": len(response.results),
             }
         )

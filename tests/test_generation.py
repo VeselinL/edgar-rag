@@ -425,14 +425,14 @@ class GenerationTests(unittest.TestCase):
 
         route = service.route_request("Hello")
 
-        self.assertEqual(route.route.value, "conversation_only")
+        self.assertEqual(route.route.value, "conversation")
         self.assertEqual(route.reason_code.value, "greeting")
         self.assertIsNone(completions.arguments)
 
-    def test_router_uses_strict_model_contract_for_unresolved_external_question(self):
+    def test_router_does_not_use_web_as_a_static_general_knowledge_fallback(self):
         response = SimpleNamespace(
             choices=[SimpleNamespace(message=SimpleNamespace(content=(
-                '{"route":"web_search","reason_code":"current_or_external",'
+                '{"route":"conversation","reason_code":"out_of_scope",'
                 '"arithmetic_required":false}'
             )))]
         )
@@ -444,10 +444,26 @@ class GenerationTests(unittest.TestCase):
 
         route = service.route_request("What is the capital of France?")
 
-        self.assertEqual(route.route.value, "web_search")
+        self.assertEqual(route.route.value, "conversation")
         self.assertEqual(completions.arguments["max_tokens"], 256)
         self.assertEqual(completions.arguments["temperature"], 0.0)
         self.assertIn("aurora driver", completions.arguments["messages"][2]["content"])
+
+    def test_freshness_routing_distinguishes_filing_terms_from_live_facts(self):
+        service = GenerationService(
+            SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(None))),
+            model="test",
+        )
+
+        assets = service.route_request("What current assets did GM report in 2025?")
+        leadership = service.route_request("Who is Tesla's CEO right now?")
+        quote = service.route_request("What is TSLA trading at?")
+
+        self.assertEqual(assets.route.value, "filing")
+        self.assertEqual(leadership.route.value, "web")
+        self.assertEqual(leadership.freshness.value, "leadership_current")
+        self.assertEqual(quote.route.value, "web")
+        self.assertEqual(quote.freshness.value, "market_live")
 
     def test_citation_ids_accept_grouped_ids_without_matching_prose(self):
         answer = (

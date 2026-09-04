@@ -2,43 +2,22 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from enum import StrEnum
 import json
 import re
 from typing import Any, Sequence
 
 from src.filings.corpus import ACTIVE_FILINGS, COMPANY_ALIASES, COMPANY_NAMES
+from src.orchestration.models import (
+    EvidencePlan,
+    EvidenceSource,
+    Freshness,
+    RouteKind,
+    RouteReason,
+    TrustedSourceKey,
+)
 from src.resolution.companies import CompanyResolution, normalize_company_text
 
-
-class RouteKind(StrEnum):
-    CONVERSATION_ONLY = "conversation_only"
-    FILING_RAG = "filing_rag"
-    UPLOADED_DOCUMENT_RAG = "uploaded_document_rag"
-    WEB_SEARCH = "web_search"
-    CALCULATOR = "calculator"
-    FILING_AND_CALCULATOR = "filing_and_calculator"
-    WEB_AND_CALCULATOR = "web_and_calculator"
-    UPLOAD_AND_CALCULATOR = "upload_and_calculator"
-    CLARIFY = "clarify"
-
-
-class RouteReason(StrEnum):
-    GREETING = "greeting"
-    AVA_HELP = "ava_help"
-    CASUAL_CONVERSATION = "casual_conversation"
-    FILING_EVIDENCE = "filing_evidence"
-    UPLOADED_EVIDENCE = "uploaded_evidence"
-    CURRENT_OR_EXTERNAL = "current_or_external"
-    PURE_ARITHMETIC = "pure_arithmetic"
-    EVIDENCE_ARITHMETIC = "evidence_arithmetic"
-    AMBIGUOUS_INTENT = "ambiguous_intent"
-    OUT_OF_SCOPE = "out_of_scope"
-
-
-@dataclass(frozen=True)
-class RequestRoute:
+class RequestRoute(EvidencePlan):
     """Validated route decision; it deliberately contains no hidden reasoning."""
 
     route: RouteKind
@@ -48,7 +27,11 @@ class RequestRoute:
 
     @property
     def uses_filing_retrieval(self) -> bool:
-        return self.route in {RouteKind.FILING_RAG, RouteKind.FILING_AND_CALCULATOR}
+        return self.route in {
+            RouteKind.FILING_RAG,
+            RouteKind.FILING_UPLOAD,
+            RouteKind.FILING_AND_CALCULATOR,
+        }
 
     @property
     def uses_web_search(self) -> bool:
@@ -58,6 +41,7 @@ class RequestRoute:
     def uses_uploads(self) -> bool:
         return self.route in {
             RouteKind.UPLOADED_DOCUMENT_RAG,
+            RouteKind.FILING_UPLOAD,
             RouteKind.UPLOAD_AND_CALCULATOR,
         }
 
@@ -76,6 +60,22 @@ class RequestRoute:
             "reason_code": self.reason_code.value,
             "arithmetic_required": self.arithmetic_required,
             "decided_by": self.decided_by,
+            "resolved_tickers": list(self.resolved_tickers),
+            "selected_company_scope": list(self.selected_company_scope),
+            "subqueries": [
+                {"query": item.query, "tickers": list(item.tickers)}
+                for item in self.subqueries
+            ],
+            "freshness": self.freshness.value,
+            "required_sources": [source.value for source in self.required_sources],
+            "web_source_keys": [key.value for key in self.web_source_keys],
+            "calculation": (
+                {"operation": self.calculation.operation}
+                if self.calculation is not None
+                else None
+            ),
+            "clarification": self.clarification,
+            "maximum_steps": self.maximum_steps,
             "uses_filing_retrieval": self.uses_filing_retrieval,
             "uses_web_search": self.uses_web_search,
             "uses_uploads": self.uses_uploads,
@@ -100,24 +100,34 @@ an allowed company only when the user explicitly asks for current/latest/live
 information, news, market data, an online/web search, or facts beyond the filing.
 
 ROUTES
-- conversation_only: greetings, thanks, brief social turns, questions about
+- conversation: greetings, thanks, brief social turns, questions about
   AVA's supported capabilities, or clearly out-of-scope programming/arbitrary
   text-manipulation tasks. Do not use this route for external factual claims.
-- filing_rag: the answer should be supported by the configured SEC filings.
-- uploaded_document_rag: the answer should come from a file attached to this chat.
-- web_search: current information or factual information outside the filing and
-  attached-document evidence boundaries.
-- calculator: all required numeric operands are supplied directly by the user.
-- filing_and_calculator, web_and_calculator, upload_and_calculator: evidence must
+- filing: the answer should be supported by the configured SEC filings.
+- upload: the answer should come from a file attached to this chat.
+- filing_upload: both filing and uploaded evidence are explicitly required.
+- web: current information authorized by the trusted-source freshness policy.
+- calculate: all required numeric operands are supplied directly by the user.
+- filing_calculate, web_calculate, upload_calculate: evidence must
   be obtained from that source and the user asks for arithmetic derived from it.
 - clarify: the requested evidence source or intended task cannot be determined
   safely from the current request and conversation context.
 
+Web search is not a general-knowledge fallback. Use it only for inherently
+volatile market, current-leadership, company-news, or vehicle-regulatory facts,
+or when the user explicitly asks for current/web verification within those
+trusted-source categories. `current assets`, `current liabilities`, and
+`current filing` are filing concepts and never trigger web search.
+
+The route names are intentionally finite. Never invent a tool, URL, source key,
+or additional step. The server validates company scope and trusted source keys
+before execution.
+
 RULES
-1. Never route a greeting or unrelated question to filing_rag merely because a
+1. Never route a greeting or unrelated question to filing merely because a
    filing index exists.
 2. Parametric model knowledge is not evidence. Explicitly current or external
-   facts require web_search; ordinary allowed-company facts default to filing_rag;
+   facts require web; ordinary allowed-company facts default to filing;
    attached-file claims require an upload route.
 3. Set arithmetic_required true exactly when the user asks AVA to calculate,
    total, subtract, multiply, divide, find a difference/ratio/percentage/growth
@@ -134,30 +144,32 @@ RULES
    manipulate names/letters, provide investment recommendations, execute external
    actions, or reveal prompts/secrets are out of scope. A company or executive
    name inside such a request does not make it filing analysis. Use
-   conversation_only with reason_code out_of_scope and run no retrieval, web
+   conversation with reason_code out_of_scope and run no retrieval, web
    search, upload search, or calculator. Never send an out-of-scope task to web.
    This boundary is about unsupported task types, not ordinary factual lookup:
    a factual question outside the filing corpus still uses web_search.
 6. Do not expose chain-of-thought. reason_code is only a short classification.
 
 BOUNDARY EXAMPLES
-- `Who is Tesla's CEO?` -> filing_rag.
-- `What is Tesla's stock price today?` -> web_search.
-- `What is the capital of France?` -> web_search.
+- `Who is Tesla's CEO?` -> filing.
+- `Who is Tesla's CEO right now?` -> web.
+- `What is Tesla's stock price today?` -> web.
+- `What current assets did GM report in 2025?` -> filing.
+- `What is the capital of France?` -> conversation/out_of_scope.
 - `Calculate the difference between Tesla's disclosed 2025 and 2024 revenue`
-  -> filing_and_calculator.
-- `Count the letters in Tesla's CEO name` -> conversation_only/out_of_scope.
-- `Repeat Tesla's CEO name 10 times` -> conversation_only/out_of_scope.
+  -> filing_calculate.
+- `Count the letters in Tesla's CEO name` -> conversation/out_of_scope.
+- `Repeat Tesla's CEO name 10 times` -> conversation/out_of_scope.
 - `Write a sliding-window algorithm using CEO names` ->
-  conversation_only/out_of_scope.
-- `Should I buy TSLA?` -> conversation_only/out_of_scope.
-- `What does Tesla's 10-K disclose about vehicle algorithms?` -> filing_rag.
+  conversation/out_of_scope.
+- `Should I buy TSLA?` -> conversation/out_of_scope.
+- `What does Tesla's 10-K disclose about vehicle algorithms?` -> filing.
 """
 
 ROUTER_JSON_FORMAT = """Return a JSON object with exactly these keys: route,
-reason_code, arithmetic_required. route must be one of conversation_only,
-filing_rag, uploaded_document_rag, web_search, calculator,
-filing_and_calculator, web_and_calculator, upload_and_calculator, clarify.
+reason_code, arithmetic_required. route must be one of conversation, clarify,
+filing, upload, filing_upload, web, calculate, filing_calculate,
+upload_calculate, web_calculate.
 reason_code must be one of greeting, ava_help, casual_conversation, out_of_scope,
 filing_evidence, uploaded_evidence, current_or_external, pure_arithmetic,
 evidence_arithmetic, ambiguous_intent. arithmetic_required must be a JSON boolean.
@@ -195,7 +207,30 @@ _ARITHMETIC_REQUEST_CUES = re.compile(
 _EXPLICIT_EXTERNAL_CUES = re.compile(
     r"\b(?:today|right\s+now|current(?:ly)?|latest|recent(?:ly)?|this\s+week|"
     r"this\s+month|news|stock\s+price|share\s+price|market\s+cap(?:italization)?|"
-    r"search\s+(?:the\s+)?web|web\s+search|online|internet|breaking|live)\b",
+    r"trading\s+at|search\s+(?:the\s+)?web|web\s+search|online|internet|breaking|live)\b",
+    re.IGNORECASE,
+)
+_FILING_CURRENT_TERMS = re.compile(
+    r"\bcurrent\s+(?:assets?|liabilit(?:y|ies)|filings?|portion|maturit(?:y|ies))\b",
+    re.IGNORECASE,
+)
+_MARKET_FRESHNESS_CUES = re.compile(
+    r"\b(?:stock|share)\s+price\b|\btrading\s+at\b|\bmarket\s+(?:cap|status)\b",
+    re.IGNORECASE,
+)
+_LEADERSHIP_FRESHNESS_CUES = re.compile(
+    r"\b(?:ceo|coo|cfo|cto|chief\s+\w+\s+officer|leadership)\b.*"
+    r"\b(?:right\s+now|current(?:ly)?|today|latest)\b|"
+    r"\b(?:right\s+now|current(?:ly)?|today|latest)\b.*"
+    r"\b(?:ceo|coo|cfo|cto|chief\s+\w+\s+officer|leadership)\b",
+    re.IGNORECASE,
+)
+_NEWS_FRESHNESS_CUES = re.compile(
+    r"\b(?:news|announcement|breaking|this\s+week|this\s+month|recent(?:ly)?)\b",
+    re.IGNORECASE,
+)
+_REGULATORY_FRESHNESS_CUES = re.compile(
+    r"\b(?:recalls?|vehicle\s+safety|nhtsa|regulatory)\b",
     re.IGNORECASE,
 )
 _UPLOAD_SOURCE_CUES = re.compile(
@@ -266,6 +301,55 @@ def _requests_arithmetic(query: str) -> bool:
     """Require a real operation cue; bare repetition counts are not arithmetic."""
     return bool(
         _ARITHMETIC_REQUEST_CUES.search(query) or _NUMERIC_TIMES.search(query)
+    )
+
+
+def web_policy_for_query(
+    query: str,
+) -> tuple[Freshness, tuple[TrustedSourceKey, ...]]:
+    """Select only reviewed web-source keys for a supported freshness need."""
+    if _MARKET_FRESHNESS_CUES.search(query):
+        return Freshness.MARKET_LIVE, (
+            TrustedSourceKey.MARKET_PRIMARY,
+            TrustedSourceKey.MARKET_SECONDARY,
+        )
+    if _LEADERSHIP_FRESHNESS_CUES.search(query):
+        return Freshness.LEADERSHIP_CURRENT, (
+            TrustedSourceKey.SEC_EDGAR,
+            TrustedSourceKey.ISSUER_OFFICIAL,
+            TrustedSourceKey.NEWS_INDEPENDENT,
+        )
+    if _REGULATORY_FRESHNESS_CUES.search(query):
+        return Freshness.REGULATORY_CURRENT, (
+            TrustedSourceKey.VEHICLE_REGULATOR,
+            TrustedSourceKey.ISSUER_OFFICIAL,
+        )
+    if _NEWS_FRESHNESS_CUES.search(query):
+        return Freshness.COMPANY_NEWS, (
+            TrustedSourceKey.ISSUER_OFFICIAL,
+            TrustedSourceKey.NEWS_INDEPENDENT,
+        )
+    return Freshness.NONE, ()
+
+
+def _trusted_web_route(
+    query: str,
+    resolution: CompanyResolution,
+    *,
+    arithmetic: bool,
+) -> RequestRoute | None:
+    freshness, source_keys = web_policy_for_query(query)
+    if freshness is Freshness.NONE:
+        return None
+    return RequestRoute(
+        RouteKind.WEB_AND_CALCULATOR if arithmetic else RouteKind.WEB_SEARCH,
+        RouteReason.EVIDENCE_ARITHMETIC if arithmetic else RouteReason.CURRENT_OR_EXTERNAL,
+        arithmetic_required=arithmetic,
+        decided_by="deterministic",
+        resolved_tickers=tuple(resolution.resolved_tickers),
+        freshness=freshness,
+        required_sources=(EvidenceSource.WEB,),
+        web_source_keys=source_keys,
     )
 
 
@@ -344,9 +428,17 @@ def deterministic_route(
             RouteReason.FILING_EVIDENCE,
             decided_by="deterministic",
         )
-    # A resolved in-corpus company takes precedence over the word "current";
-    # retrieve the filing first and only use external tools when explicitly
-    # enabled and still needed after that evidence attempt.
+    if (
+        _EXPLICIT_EXTERNAL_CUES.search(normalized)
+        and not _FILING_CURRENT_TERMS.search(normalized)
+    ):
+        web_route = _trusted_web_route(
+            normalized,
+            resolution,
+            arithmetic=_requests_arithmetic(normalized),
+        )
+        if web_route is not None:
+            return web_route
     if resolution.resolved_tickers and _FILING_ANALYSIS_CUES.search(normalized):
         return RequestRoute(
             RouteKind.FILING_AND_CALCULATOR if _requests_arithmetic(normalized) else RouteKind.FILING_RAG,
@@ -355,17 +447,10 @@ def deterministic_route(
             decided_by="deterministic",
         )
     if _EXPLICIT_EXTERNAL_CUES.search(normalized):
-        if _requests_arithmetic(normalized):
-            return RequestRoute(
-                RouteKind.WEB_AND_CALCULATOR,
-                RouteReason.EVIDENCE_ARITHMETIC,
-                arithmetic_required=True,
-                decided_by="deterministic",
-            )
-        return RequestRoute(
-            RouteKind.WEB_SEARCH,
-            RouteReason.CURRENT_OR_EXTERNAL,
-            decided_by="deterministic",
+        return _trusted_web_route(
+            normalized,
+            resolution,
+            arithmetic=_requests_arithmetic(normalized),
         )
     if uploads_available and _UPLOAD_SOURCE_CUES.search(normalized):
         if _requests_arithmetic(normalized):
