@@ -452,7 +452,7 @@ def deterministic_route(
         )
         if web_route is not None:
             return web_route
-    if resolution.resolved_tickers and _FILING_ANALYSIS_CUES.search(normalized):
+    if resolution.resolved_tickers:
         return RequestRoute(
             RouteKind.FILING_AND_CALCULATOR if _requests_arithmetic(normalized) else RouteKind.FILING_RAG,
             RouteReason.FILING_EVIDENCE,

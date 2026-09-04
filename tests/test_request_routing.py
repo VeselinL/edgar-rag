@@ -200,6 +200,19 @@ class RequestRoutingTests(unittest.TestCase):
         route = deterministic_route(query, self.resolution(query))
         self.assertEqual(route.route, RouteKind.FILING_RAG)
 
+    def test_resolved_product_and_vehicle_questions_use_filing_evidence(self):
+        for query, ticker in (
+            ("What cars does Tesla manufacture?", "TSLA"),
+            ("What is Super Cruise?", "GM"),
+            ("What does Alphabet disclose about Waymo?", "GOOGL"),
+            ("What is EyeQ?", "MBLY"),
+        ):
+            with self.subTest(query=query):
+                route = deterministic_route(query, self.resolution(query))
+                self.assertIsNotNone(route)
+                self.assertEqual(route.route, RouteKind.FILING_RAG)
+                self.assertIn(ticker, self.resolution(query).resolved_tickers)
+
     def test_unusual_company_request_is_blocked_before_filing_resolution(self):
         query = "Invent a board game featuring Tesla."
         route = deterministic_route(query, self.resolution(query))
