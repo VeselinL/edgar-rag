@@ -1,6 +1,10 @@
 import unittest
 
-from src.evaluation.agent_routes import evaluate_agent_routes, load_agent_routes
+from src.evaluation.agent_routes import (
+    evaluate_agent_routes,
+    load_agent_routes,
+    parse_arguments,
+)
 from src.orchestration.routing import deterministic_route
 from src.orchestration.routing import RequestRoute, RouteKind, RouteReason
 from src.resolution.companies import default_company_resolver
@@ -17,6 +21,10 @@ class DeterministicRouter:
 class AgentRouteTests(unittest.TestCase):
     def test_manifest_has_reviewed_required_distribution(self):
         self.assertEqual(len(load_agent_routes()), 60)
+
+    def test_evaluator_accepts_a_freeze_manifest(self):
+        arguments = parse_arguments(["--freeze-manifest", "frozen.json"])
+        self.assertEqual(str(arguments.freeze_manifest), "frozen.json")
 
     def test_deterministic_routes_cover_every_manifest_case(self):
         result = evaluate_agent_routes(load_agent_routes(), DeterministicRouter())

@@ -11,6 +11,7 @@ import time
 from typing import Any
 
 from src.generation.rag import GenerationService, make_llm_client
+from src.evaluation.freeze import DEFAULT_MANIFEST as DEFAULT_FREEZE_MANIFEST, validate_manifest
 from src.orchestration.routing import RequestRoute
 from src.resolution.companies import default_company_resolver
 
@@ -99,11 +100,17 @@ def evaluate_agent_routes(cases: list[dict[str, Any]], router: Any) -> dict[str,
     return {"summary": summary, "records": records}
 
 
-def main() -> None:
+def parse_arguments(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
-    args = parser.parse_args()
+    parser.add_argument("--freeze-manifest", type=Path, default=DEFAULT_FREEZE_MANIFEST)
+    return parser.parse_args(argv)
+
+
+def main() -> None:
+    args = parse_arguments()
+    validate_manifest(args.freeze_manifest)
     result = evaluate_agent_routes(load_agent_routes(args.manifest), GenerationService(make_llm_client()))
     output = {"schema_version": 1, "evaluated_at": datetime.now(timezone.utc).isoformat(), **result}
     args.output.parent.mkdir(parents=True, exist_ok=True)
