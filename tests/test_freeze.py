@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from src.config.settings import ApplicationSettings
 from src.evaluation.freeze import (
+    _input_hashes,
     _prompt_hashes,
     _safe_settings,
     _sha256_json,
@@ -18,6 +19,22 @@ from src.tools.web_search import TRUSTED_WEB_SOURCES
 
 
 class FreezeTests(unittest.TestCase):
+    def test_input_hashes_cover_finalization_evaluation_manifests(self):
+        hashes = _input_hashes(Path(__file__).resolve().parents[1])
+
+        self.assertEqual(
+            set(hashes["evaluation_manifests"]),
+            {
+                "data/evaluation/finalization/v1/qa_gold.jsonl",
+                "data/evaluation/finalization/v1/agent_routes.jsonl",
+                "data/evaluation/finalization/v1/conversations.jsonl",
+                "data/evaluation/finalization/v1/memory.jsonl",
+                "data/evaluation/finalization/v1/security.jsonl",
+                "data/evaluation/finalization/v1/ui_language.jsonl",
+                "data/evaluation/finalization/v1/splits.json",
+            },
+        )
+
     def test_safe_settings_exclude_credentials_and_connection_secrets(self):
         settings = ApplicationSettings.for_tests(
             OPENAI_API_KEY="provider-secret",

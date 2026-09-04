@@ -110,6 +110,13 @@ def _input_hashes(project_root: Path) -> dict[str, dict[str, str]]:
     artifacts = {
         "raw_metadata": [], "processed_blocks": [], "chunks": [],
         "embedding_manifests": [], "embedding_vectors": [],
+        "evaluation_manifests": [
+            project_root / "data/evaluation/finalization/v1" / name
+            for name in (
+                "qa_gold.jsonl", "agent_routes.jsonl", "conversations.jsonl",
+                "memory.jsonl", "security.jsonl", "ui_language.jsonl", "splits.json",
+            )
+        ],
     }
     for ticker, filing in ACTIVE_FILINGS.items():
         artifacts["raw_metadata"].append(project_root / "data/raw" / ticker / f"{filing}.metadata.json")
