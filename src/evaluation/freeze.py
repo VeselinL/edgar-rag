@@ -204,8 +204,10 @@ def create_manifest(
     return manifest
 
 
-def _permitted_post_freeze_paths(path: Path) -> set[str]:
-    return {str(path), "data/evaluation/finalization/v1/phase3/RESULTS.md"}
+def _is_permitted_post_freeze_path(path: str, manifest_path: Path) -> bool:
+    return path in {
+        str(manifest_path), "data/evaluation/finalization/v1/phase3/RESULTS.md",
+    } or path.startswith("data/evaluation/finalization/v1/runs/") or path == "data/evaluation/finalization/v1/reports/baseline.md"
 
 
 def _is_ancestor(project_root: Path, ancestor: str) -> bool:
@@ -240,8 +242,8 @@ def validate_manifest(
     if not isinstance(source_commit, str):
         raise ValueError("Freeze manifest source commit is invalid.")
     changed = set(filter(None, _git(project_root, "diff", "--name-only", f"{source_commit}..HEAD").splitlines()))
-    permitted = _permitted_post_freeze_paths(path.relative_to(project_root))
-    if changed - permitted:
+    manifest_path = path.relative_to(project_root)
+    if any(not _is_permitted_post_freeze_path(item, manifest_path) for item in changed):
         raise ValueError("Freeze manifest source commit does not match current code.")
     if not _is_ancestor(project_root, source_commit):
         raise ValueError("Freeze manifest source commit is not an ancestor of HEAD.")

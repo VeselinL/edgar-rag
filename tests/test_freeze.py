@@ -8,6 +8,7 @@ from unittest.mock import patch
 from src.config.settings import ApplicationSettings
 from src.evaluation.freeze import (
     _input_hashes,
+    _is_permitted_post_freeze_path,
     _prompt_hashes,
     _safe_settings,
     _sha256_json,
@@ -19,6 +20,13 @@ from src.tools.web_search import TRUSTED_WEB_SOURCES
 
 
 class FreezeTests(unittest.TestCase):
+    def test_permits_saved_evaluation_outputs_but_not_code(self):
+        manifest = Path("data/evaluation/finalization/v1/freeze_manifest.json")
+
+        self.assertTrue(_is_permitted_post_freeze_path("data/evaluation/finalization/v1/runs/run/raw.jsonl", manifest))
+        self.assertTrue(_is_permitted_post_freeze_path("data/evaluation/finalization/v1/reports/baseline.md", manifest))
+        self.assertFalse(_is_permitted_post_freeze_path("src/generation/rag.py", manifest))
+
     def test_input_hashes_cover_finalization_evaluation_manifests(self):
         hashes = _input_hashes(Path(__file__).resolve().parents[1])
 
