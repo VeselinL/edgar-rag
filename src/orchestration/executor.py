@@ -73,7 +73,7 @@ from src.retrieval.evidence_policy import (
     EvidencePolicyError,
 )
 from src.tools import (
-    BraveWebSearchTool,
+    TavilyWebSearchTool,
     CalculationError,
     CalculatorTool,
     UnavailableWebSearchTool,
@@ -387,10 +387,11 @@ class RealPipeline(RouteHandlerMixin):
             ),
         )
         web_search: WebSearchTool = UnavailableWebSearchTool()
-        if settings.web_search_enabled and settings.web_search_provider == "brave":
-            web_search = BraveWebSearchTool(
+        if settings.web_search_enabled and settings.web_search_provider == "tavily":
+            web_search = TavilyWebSearchTool(
                 settings.web_search_api_key or "",
                 timeout_seconds=settings.web_search_timeout_seconds,
+                api_url=settings.web_search_api_url,
             )
         startup_metrics = {
             "corpus_load_ms": round(load_ms, 3),

@@ -1,13 +1,14 @@
 from datetime import datetime, timezone
 import json
+import json
 import unittest
 
 import httpx
 
 from src.tools.web_search import (
-    BRAVE_WEB_SEARCH_URL,
+    TAVILY_WEB_SEARCH_URL,
     TRUSTED_WEB_SOURCES,
-    BraveWebSearchTool,
+    TavilyWebSearchTool,
     UnavailableWebSearchTool,
     WebSearchError,
     WebSearchUnavailableError,
@@ -17,22 +18,23 @@ from src.orchestration.models import TrustedSourceKey
 
 
 class WebSearchToolTests(unittest.TestCase):
-    def test_brave_adapter_returns_bounded_safe_provenance(self):
+    def test_tavily_adapter_returns_bounded_safe_provenance(self):
         def handler(request: httpx.Request) -> httpx.Response:
-            self.assertEqual(str(request.url).split("?", 1)[0], BRAVE_WEB_SEARCH_URL)
-            self.assertEqual(request.headers["x-subscription-token"], "secret")
-            self.assertEqual(request.url.params["count"], "2")
+            self.assertEqual(str(request.url), TAVILY_WEB_SEARCH_URL)
+            self.assertEqual(request.headers["Authorization"], "Bearer secret")
+            self.assertEqual(request.headers["authorization"], "Bearer secret")
+            self.assertEqual(request.method, "POST")
+            self.assertEqual(json.loads(request.content)["max_results"], 2)
             return httpx.Response(
                 200,
                 headers={"content-type": "application/json"},
                 content=json.dumps(
                     {
-                        "web": {
-                            "results": [
+                        "results": [
                                 {
                                     "title": "<strong>First</strong> result",
                                     "url": "https://www.reuters.com/article#section",
-                                    "description": "A <em>bounded</em> excerpt.",
+                                    "content": "A <em>bounded</em> excerpt.",
                                 },
                                 {
                                     "title": "Unsafe local",
@@ -42,16 +44,15 @@ class WebSearchToolTests(unittest.TestCase):
                                 {
                                     "title": "Second result",
                                     "url": "https://www.reuters.com/item",
-                                    "description": "Another excerpt.",
+                                    "content": "Another excerpt.",
                                 },
                             ]
-                        }
                     }
                 ).encode(),
             )
 
         client = httpx.Client(transport=httpx.MockTransport(handler))
-        tool = BraveWebSearchTool(
+        tool = TavilyWebSearchTool(
             "secret",
             client=client,
             now=lambda: datetime(2026, 9, 1, tzinfo=timezone.utc),
@@ -85,11 +86,11 @@ class WebSearchToolTests(unittest.TestCase):
                     transport=httpx.MockTransport(lambda request: response)
                 )
                 with self.assertRaises(WebSearchError):
-                    BraveWebSearchTool("secret", client=client).search(
+                    TavilyWebSearchTool("secret", client=client).search(
                         "query", source_keys=(TrustedSourceKey.NEWS_INDEPENDENT,)
                     )
         with self.assertRaises(WebSearchError):
-            BraveWebSearchTool(
+            TavilyWebSearchTool(
                 "secret",
                 client=httpx.Client(transport=httpx.MockTransport(lambda request: responses[0])),
             ).search("word " * 51, source_keys=(TrustedSourceKey.NEWS_INDEPENDENT,))
@@ -125,7 +126,7 @@ class WebSearchToolTests(unittest.TestCase):
             called = True
             return httpx.Response(500)
 
-        tool = BraveWebSearchTool(
+        tool = TavilyWebSearchTool(
             "secret", client=httpx.Client(transport=httpx.MockTransport(handler))
         )
         with self.assertRaisesRegex(ValueError, "source key"):

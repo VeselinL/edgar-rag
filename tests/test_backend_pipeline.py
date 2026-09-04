@@ -524,14 +524,14 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         settings = PipelineSettings.from_mapping(
             {
                 "AVA_WEB_SEARCH_ENABLED": "true",
-                "AVA_WEB_SEARCH_PROVIDER": "brave",
-                "BRAVE_SEARCH_API_KEY": "test-key",
+                "AVA_WEB_SEARCH_PROVIDER": "tavily",
+                "TAVILY_API_KEY": "test-key",
                 "AVA_WEB_SEARCH_TIMEOUT_SECONDS": "6",
                 "AVA_WEB_SEARCH_MAX_RESULTS": "4",
             }
         )
         self.assertTrue(settings.web_search_enabled)
-        self.assertEqual(settings.web_search_provider, "brave")
+        self.assertEqual(settings.web_search_provider, "tavily")
         self.assertEqual(settings.web_search_max_results, 4)
 
         with self.assertRaisesRegex(ValueError, "requires"):
@@ -539,7 +539,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
                 {
                 "AVA_WEB_SEARCH_ENABLED": "true",
                 "AVA_WEB_SEARCH_PROVIDER": "disabled",
-                "BRAVE_SEARCH_API_KEY": "",
+                "TAVILY_API_KEY": "",
                 }
             )
 

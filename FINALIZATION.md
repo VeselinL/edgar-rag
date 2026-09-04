@@ -81,7 +81,7 @@ updated when Phase 1 closes.
   state, company scope, OIDC transactions, and auth sessions.
 - The current model client uses OpenAI-compatible Chat Completions through
   `OPENAI_API_URL`. It does not send native `tools` or `tool_choice` arguments.
-- Web discovery is a direct Brave Search API adapter; it is not enabled locally.
+- Web discovery is a direct Tavily Search API adapter; it is not enabled locally.
   Calculator execution is local Decimal-based code and does not require an LLM
   provider or proxy.
 - The current system has route, retrieval, generation, citation, calculation,
@@ -525,7 +525,7 @@ Rules:
   request cannot search Tesla's domains merely because both share a source key.
 - A stock quote must include source, quote timestamp, retrieval timestamp, market
   status, and any delay disclosed by the source.
-- Search discovery may use Brave's direct Search API. The LLM proxy is not the
+- Search discovery uses Tavily's direct Search API. The LLM proxy is not the
   search provider. Apply `site:` restrictions from the selected registry keys.
 - Fetch at most three allowlisted result pages. Validate every redirect and host;
   allow only HTTPS and approved HTML/JSON/PDF content; cap bytes, elapsed time,
@@ -561,7 +561,7 @@ OpenAI's Responses API documents both built-in web search and custom function
 tools, but AVA's current client calls an OpenAI-compatible Chat Completions
 gateway. Do not change endpoint families without an explicit live compatibility
 test and rollback. See the [official OpenAI Responses API reference](https://developers.openai.com/api/reference/cli/resources/responses/methods/create)
-and the [Brave Search API reference](https://api-dashboard.search.brave.com/api-reference/web/search/get).
+and the [Tavily Search API reference](https://docs.tavily.com/documentation/api-reference/endpoint/search).
 
 ### 7.6 Phase 2 gate
 
@@ -1066,7 +1066,7 @@ phase if a required gate slips.
 - extract typed settings, per-request model choice, prompts, and orchestrator
   handlers without changing retrieval;
 - verify provider capabilities;
-- enable and live-test direct Brave web search with trusted source keys;
+- enable and live-test direct Tavily web search with trusted source keys;
 - freeze route/calculator/web regression manifests.
 
 ### Day 2 — Freeze and evaluate
@@ -1199,7 +1199,7 @@ recognizable while the information design remains calm and credible.
 - [OpenAI Responses API](https://developers.openai.com/api/reference/cli/resources/responses/methods/create)
   documents built-in and custom tools, while AVA deliberately remains functional
   through its provider-neutral server executor.
-- [Brave Search API](https://api-dashboard.search.brave.com/api-reference/web/search/get)
+- [Tavily Search API](https://docs.tavily.com/documentation/api-reference/endpoint/search)
   documents the direct bounded search endpoint already represented by AVA's web
   adapter.
 - [OWASP prompt-injection prevention](https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html)

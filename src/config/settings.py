@@ -138,6 +138,7 @@ class PipelineSettings:
     web_search_enabled: bool = False
     web_search_provider: str = "disabled"
     web_search_api_key: str | None = field(default=None, repr=False)
+    web_search_api_url: str = "https://api.tavily.com"
     web_search_timeout_seconds: float = 8.0
     web_search_max_results: int = 5
     max_tool_executions: int = 4
@@ -154,18 +155,19 @@ class PipelineSettings:
         if llm_model not in ALLOWED_MODELS:
             raise ValueError("AVA_LLM_MODEL is not in the supported model allowlist.")
         web_provider = _enum(
-            values, "AVA_WEB_SEARCH_PROVIDER", "disabled", {"disabled", "brave"}
+            values, "AVA_WEB_SEARCH_PROVIDER", "disabled", {"disabled", "tavily"}
         )
         web_enabled = _boolean(values, "AVA_WEB_SEARCH_ENABLED", False)
-        web_key = _optional(values, "BRAVE_SEARCH_API_KEY")
+        web_key = _optional(values, "TAVILY_API_KEY")
+        web_url = _text(values, "TAVILY_API_URL", "https://api.tavily.com")
         maximum_tools = _integer(values, "AVA_MAX_TOOL_EXECUTIONS", 4)
         maximum_searches = _integer(values, "AVA_MAX_WEB_SEARCHES", 2)
         if maximum_searches > maximum_tools:
             raise ValueError("AVA_MAX_WEB_SEARCHES cannot exceed AVA_MAX_TOOL_EXECUTIONS.")
-        if web_enabled and (web_provider != "brave" or not web_key):
+        if web_enabled and (web_provider != "tavily" or not web_key):
             raise ValueError(
-                "Enabled web search requires AVA_WEB_SEARCH_PROVIDER=brave and "
-                "BRAVE_SEARCH_API_KEY."
+                "Enabled web search requires AVA_WEB_SEARCH_PROVIDER=tavily and "
+                "TAVILY_API_KEY."
             )
         web_timeout = _number(values, "AVA_WEB_SEARCH_TIMEOUT_SECONDS", 8)
         if web_timeout > 30:
@@ -209,6 +211,7 @@ class PipelineSettings:
             web_search_enabled=web_enabled,
             web_search_provider=web_provider,
             web_search_api_key=web_key,
+            web_search_api_url=web_url,
             web_search_timeout_seconds=web_timeout,
             web_search_max_results=web_results,
             max_tool_executions=maximum_tools,

@@ -1,4 +1,4 @@
-"""Provider-neutral bounded web search and a Brave Search adapter."""
+"""Provider-neutral bounded web search and a Tavily Search adapter."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ import httpx
 from src.orchestration.models import TrustedSourceKey
 
 
-BRAVE_WEB_SEARCH_URL = "https://api.search.brave.com/res/v1/web/search"
+TAVILY_WEB_SEARCH_URL = "https://api.tavily.com/search"
 MAX_QUERY_CHARACTERS = 400
 MAX_QUERY_WORDS = 50
 MAX_RESULTS = 10
@@ -226,10 +226,10 @@ def _clean_text(value: Any, *, maximum: int) -> str:
     return normalized[:maximum].rstrip()
 
 
-class BraveWebSearchTool:
-    """One-call Brave web adapter; returned page text is never fetched or executed."""
+class TavilyWebSearchTool:
+    """One-call Tavily adapter; returned page text is never fetched or executed."""
 
-    provider = "brave"
+    provider = "tavily"
 
     def __init__(
         self,
@@ -238,9 +238,10 @@ class BraveWebSearchTool:
         timeout_seconds: float = 8.0,
         client: httpx.Client | None = None,
         now: Callable[[], datetime] | None = None,
+        api_url: str = TAVILY_WEB_SEARCH_URL,
     ) -> None:
         if not api_key.strip():
-            raise ValueError("Brave Search requires a non-empty API key.")
+            raise ValueError("Tavily Search requires a non-empty API key.")
         if not 0 < timeout_seconds <= 30:
             raise ValueError("Web-search timeout must be between 0 and 30 seconds.")
         self._api_key = api_key
@@ -250,6 +251,7 @@ class BraveWebSearchTool:
             follow_redirects=False,
         )
         self._now = now or (lambda: datetime.now(timezone.utc))
+        self._api_url = api_url.rstrip("/") + "/search" if not api_url.rstrip("/").endswith("/search") else api_url
 
     def search(
         self,
@@ -272,18 +274,19 @@ class BraveWebSearchTool:
         domain_query = " OR ".join(f"site:{domain}" for domain in allowed_domains)
         provider_query = f"({normalized_query}) ({domain_query})"
         try:
-            response = self._client.get(
-                BRAVE_WEB_SEARCH_URL,
-                params={
-                    "q": provider_query,
-                    "count": max_results,
-                    "safesearch": "moderate",
-                    "text_decorations": "false",
-                    "spellcheck": "true",
+            response = self._client.post(
+                self._api_url,
+                json={
+                    "query": normalized_query,
+                    "search_depth": "basic",
+                    "max_results": max_results,
+                    "include_answer": False,
+                    "include_raw_content": False,
+                    "include_domains": list(allowed_domains),
                 },
                 headers={
                     "Accept": "application/json",
-                    "X-Subscription-Token": self._api_key,
+                    "Authorization": f"Bearer {self._api_key}",
                 },
             )
         except httpx.HTTPError as error:
@@ -299,7 +302,7 @@ class BraveWebSearchTool:
             payload = response.json()
         except ValueError as error:
             raise WebSearchError("The web-search provider returned invalid JSON.") from error
-        raw_results = payload.get("web", {}).get("results", []) if isinstance(payload, dict) else []
+        raw_results = payload.get("results", []) if isinstance(payload, dict) else []
         if not isinstance(raw_results, list):
             raise WebSearchError("The web-search provider returned an invalid result list.")
         retrieved_at = self._now().astimezone(timezone.utc).isoformat()
@@ -310,7 +313,7 @@ class BraveWebSearchTool:
                 continue
             url = _safe_result_url(item.get("url"))
             title = _clean_text(item.get("title"), maximum=300)
-            excerpt = _clean_text(item.get("description"), maximum=MAX_EXCERPT_CHARACTERS)
+            excerpt = _clean_text(item.get("content"), maximum=MAX_EXCERPT_CHARACTERS)
             if not url or url in seen_urls or not title or not excerpt:
                 continue
             seen_urls.add(url)

@@ -8,7 +8,7 @@ from .calculator import (
     parse_evidence_number,
 )
 from .web_search import (
-    BraveWebSearchTool,
+    TavilyWebSearchTool,
     TRUSTED_WEB_SOURCES,
     UnavailableWebSearchTool,
     WebSearchError,
@@ -25,7 +25,7 @@ __all__ = [
     "CalculatorTool",
     "infer_calculation_operation",
     "parse_evidence_number",
-    "BraveWebSearchTool",
+    "TavilyWebSearchTool",
     "TRUSTED_WEB_SOURCES",
     "allowed_domains_for",
     "UnavailableWebSearchTool",
