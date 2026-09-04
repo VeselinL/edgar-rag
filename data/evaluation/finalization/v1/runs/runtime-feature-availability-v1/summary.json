@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "layer": "runtime_feature_availability",
+  "evaluated_at": "2026-09-04T23:12:26.176786+00:00",
+  "health": {
+    "conversation_history_enabled": false,
+    "uploads_enabled": false,
+    "calculator_enabled": false,
+    "web_search_enabled": true
+  },
+  "endpoint_statuses": {
+    "create_conversation": 503,
+    "list_documents": 503
+  },
+  "chat_request_properties": [
+    "client_turn_id",
+    "conversation_id",
+    "model",
+    "query"
+  ],
+  "manifest_case_counts": {
+    "conversations": 12,
+    "memory": 20,
+    "security_indirect": 16,
+    "ui_language": 20
+  },
+  "available_case_count": 0,
+  "not_executed_configuration_count": 76,
+  "conclusion": "The required conversation, memory, upload, and language runtime paths are unavailable in the frozen configuration; these are recorded baseline failures, not passed or skipped gates."
+}
