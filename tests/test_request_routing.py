@@ -184,6 +184,17 @@ class RequestRoutingTests(unittest.TestCase):
                 self.assertFalse(route.uses_web_search)
                 self.assertFalse(route.uses_calculator)
 
+    def test_repetition_and_enumeration_never_select_the_calculator(self):
+        for query in (
+            "Repeat Elon Musk ten times.",
+            "List Tesla's ten largest risks.",
+            "Count the letters in Tesla's CEO name.",
+            "Enumerate 10 Tesla products.",
+        ):
+            with self.subTest(query=query):
+                route = deterministic_route(query, self.resolution(query))
+                self.assertFalse(route.uses_calculator)
+
     def test_filing_question_about_company_algorithms_remains_in_scope(self):
         query = "What does Tesla's 10-K disclose about its vehicle algorithms?"
         route = deterministic_route(query, self.resolution(query))

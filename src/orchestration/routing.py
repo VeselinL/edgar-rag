@@ -255,7 +255,7 @@ _NUMERIC_TIMES = re.compile(
 )
 _TEXT_REPETITION_TASK = re.compile(
     r"\b(?:repeat|print|write|say|list|enumerate)\b.{0,180}"
-    r"\b(?:\d+|once|twice|thrice)\s+times?\b",
+    r"\b(?:\d+|once|twice|thrice|one|two|three|four|five|six|seven|eight|nine|ten)\s+times?\b",
     re.IGNORECASE,
 )
 _VAGUE_DOCUMENT_PATTERN = re.compile(
