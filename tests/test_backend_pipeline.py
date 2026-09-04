@@ -450,28 +450,28 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(FILINGS), 11)
 
     def test_settings_disable_provider_streaming_explicitly(self):
-        with patch.dict(
-            "os.environ",
-            {"AVA_PIPELINE_MODE": "real", "AVA_LLM_STREAMING": "false"},
-            clear=False,
-        ):
-            settings = PipelineSettings.from_environment()
+        settings = PipelineSettings.from_mapping(
+            {"AVA_PIPELINE_MODE": "real", "AVA_LLM_STREAMING": "false"}
+        )
 
         self.assertFalse(settings.llm_streaming)
 
     def test_settings_cannot_enable_calculator(self):
-        with patch.dict(
-            "os.environ", {"AVA_CALCULATOR_ENABLED": "true"}, clear=False
-        ):
-            settings = PipelineSettings.from_environment()
+        settings = PipelineSettings.from_mapping({"AVA_CALCULATOR_ENABLED": "true"})
         self.assertFalse(settings.calculator_enabled)
 
     def test_calculator_is_disabled_in_all_deployment_defaults(self):
         project_root = Path(__file__).resolve().parents[1]
         self.assertFalse(PipelineSettings().calculator_enabled)
-        self.assertIn(
-            'export AVA_CALCULATOR_ENABLED="false"',
+        with self.assertRaisesRegex(ValueError, "Phase 2"):
+            PipelineSettings(calculator_enabled=True)
+        self.assertNotIn(
+            "AVA_CALCULATOR_ENABLED",
             (project_root / "start_app.sh").read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            "AVA_CALCULATOR_ENABLED=false",
+            (project_root / ".env.example").read_text(encoding="utf-8"),
         )
         self.assertIn(
             'AVA_CALCULATOR_ENABLED: "false"',
@@ -481,118 +481,95 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         )
 
     def test_settings_expose_routing_kill_switch_and_finite_tool_limits(self):
-        with patch.dict(
-            "os.environ",
+        settings = PipelineSettings.from_mapping(
             {
                 "AVA_REQUEST_ROUTING_ENABLED": "false",
                 "AVA_MAX_TOOL_EXECUTIONS": "3",
                 "AVA_MAX_WEB_SEARCHES": "1",
-            },
-            clear=False,
-        ):
-            settings = PipelineSettings.from_environment()
+            }
+        )
         self.assertFalse(settings.request_routing_enabled)
         self.assertEqual(settings.max_tool_executions, 3)
         self.assertEqual(settings.max_web_searches, 1)
 
-        with patch.dict(
-            "os.environ", {"AVA_STRICT_ABSTENTION_PROMPT": "false"}, clear=False
-        ):
-            rollback = PipelineSettings.from_environment()
+        rollback = PipelineSettings.from_mapping(
+            {"AVA_STRICT_ABSTENTION_PROMPT": "false"}
+        )
         self.assertFalse(rollback.strict_abstention_prompt)
 
-        with patch.dict(
-            "os.environ",
-            {"AVA_MAX_TOOL_EXECUTIONS": "1", "AVA_MAX_WEB_SEARCHES": "2"},
-            clear=False,
-        ):
-            with self.assertRaisesRegex(ValueError, "cannot exceed"):
-                PipelineSettings.from_environment()
+        with self.assertRaisesRegex(ValueError, "cannot exceed"):
+            PipelineSettings.from_mapping(
+                {"AVA_MAX_TOOL_EXECUTIONS": "1", "AVA_MAX_WEB_SEARCHES": "2"}
+            )
 
     def test_settings_ignore_legacy_calculator_toggle(self):
-        with patch.dict(
-            "os.environ", {"AVA_CALCULATOR_ENABLED": "off"}, clear=False
-        ):
-            settings = PipelineSettings.from_environment()
+        settings = PipelineSettings.from_mapping({"AVA_CALCULATOR_ENABLED": "off"})
         self.assertFalse(settings.calculator_enabled)
 
     def test_settings_require_explicit_configured_web_provider(self):
-        with patch.dict(
-            "os.environ",
+        settings = PipelineSettings.from_mapping(
             {
                 "AVA_WEB_SEARCH_ENABLED": "true",
                 "AVA_WEB_SEARCH_PROVIDER": "brave",
                 "BRAVE_SEARCH_API_KEY": "test-key",
                 "AVA_WEB_SEARCH_TIMEOUT_SECONDS": "6",
                 "AVA_WEB_SEARCH_MAX_RESULTS": "4",
-            },
-            clear=False,
-        ):
-            settings = PipelineSettings.from_environment()
+            }
+        )
         self.assertTrue(settings.web_search_enabled)
         self.assertEqual(settings.web_search_provider, "brave")
         self.assertEqual(settings.web_search_max_results, 4)
 
-        with patch.dict(
-            "os.environ",
-            {
+        with self.assertRaisesRegex(ValueError, "requires"):
+            PipelineSettings.from_mapping(
+                {
                 "AVA_WEB_SEARCH_ENABLED": "true",
                 "AVA_WEB_SEARCH_PROVIDER": "disabled",
                 "BRAVE_SEARCH_API_KEY": "",
-            },
-            clear=False,
-        ):
-            with self.assertRaisesRegex(ValueError, "requires"):
-                PipelineSettings.from_environment()
+                }
+            )
 
     def test_settings_load_project_dotenv_before_reading_values(self):
-        with patch("src.backend.pipeline.dotenv.load_dotenv") as load_dotenv:
+        with (
+            patch("src.config.settings.load_dotenv") as load_dotenv,
+            patch.dict("os.environ", {}, clear=True),
+        ):
             PipelineSettings.from_environment()
 
         load_dotenv.assert_called_once()
 
     def test_settings_reject_ambiguous_streaming_value(self):
-        with patch.dict("os.environ", {"AVA_LLM_STREAMING": "off"}, clear=False):
-            with self.assertRaisesRegex(ValueError, "AVA_LLM_STREAMING"):
-                PipelineSettings.from_environment()
+        with self.assertRaisesRegex(ValueError, "AVA_LLM_STREAMING"):
+            PipelineSettings.from_mapping({"AVA_LLM_STREAMING": "off"})
 
     def test_settings_read_typed_token_and_observability_budgets(self):
-        with patch.dict(
-            "os.environ",
+        settings = PipelineSettings.from_mapping(
             {
                 "AVA_LLM_CONTEXT_WINDOW_TOKENS": "65536",
                 "AVA_LLM_RESERVED_OUTPUT_TOKENS": "8192",
                 "AVA_OBSERVABILITY_RETENTION_DAYS": "14",
-            },
-            clear=False,
-        ):
-            settings = PipelineSettings.from_environment()
+            }
+        )
         self.assertEqual(settings.context_window_tokens, 65_536)
         self.assertEqual(settings.reserved_output_tokens, 8_192)
         self.assertEqual(settings.observability_retention_days, 14)
 
     def test_settings_read_qdrant_shadow_configuration(self):
-        with patch.dict(
-            "os.environ",
+        settings = PipelineSettings.from_mapping(
             {
                 "AVA_QDRANT_MODE": "shadow",
                 "QDRANT_URL": "http://127.0.0.1:6333",
                 "QDRANT_COLLECTION_ALIAS": "ava_test_current",
                 "QDRANT_TIMEOUT_SECONDS": "12",
-            },
-            clear=False,
-        ):
-            settings = PipelineSettings.from_environment()
+            }
+        )
         self.assertEqual(settings.qdrant_mode, "shadow")
         self.assertEqual(settings.qdrant_collection_alias, "ava_test_current")
         self.assertEqual(settings.qdrant_timeout_seconds, 12)
 
     def test_settings_reject_unknown_qdrant_mode(self):
-        with patch.dict(
-            "os.environ", {"AVA_QDRANT_MODE": "fallback"}, clear=False
-        ):
-            with self.assertRaisesRegex(ValueError, "AVA_QDRANT_MODE"):
-                PipelineSettings.from_environment()
+        with self.assertRaisesRegex(ValueError, "AVA_QDRANT_MODE"):
+            PipelineSettings.from_mapping({"AVA_QDRANT_MODE": "fallback"})
 
     def test_configured_unavailable_qdrant_makes_real_pipeline_unready(self):
         chunks = [

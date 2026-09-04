@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterator, Sequence
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, replace
 import hashlib
 import inspect
 import json
@@ -19,15 +19,17 @@ from typing import Any
 from uuid import uuid4
 
 import bm25s
-import dotenv
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
+from src.config.settings import (
+    ALLOWED_MODELS,
+    PipelineSettings,
+    ProviderSettings,
+)
 from src.embeddings.embed_chunks import MODEL_CONFIGS
 from src.filings.corpus import ACTIVE_FILINGS, COMPANY_NAMES
 from src.generation.rag import (
-    AVAILABLE_MODELS,
-    DEFAULT_LLM_MODEL,
     CitationVisibilityFilter,
     GenerationResult,
     GenerationService,
@@ -38,8 +40,6 @@ from src.generation.rag import (
     visible_answer_text,
 )
 from src.indexing.qdrant_index import (
-    DEFAULT_ALIAS,
-    DEFAULT_QDRANT_URL,
     alias_target,
     make_client,
 )
@@ -83,6 +83,7 @@ from .sources import normalize_sources
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 FILINGS = ACTIVE_FILINGS
+AVAILABLE_MODELS = list(ALLOWED_MODELS)
 LOGGER = logging.getLogger(__name__)
 TelemetrySink = Callable[[dict[str, Any]], None]
 GENERATION_ACTIVITIES = (
@@ -216,135 +217,6 @@ def company_scope_mismatch_message(
         f"limited to {selected}. In the sidebar, add the requested company or "
         "select All companies, then ask again."
     )
-
-
-@dataclass(frozen=True)
-class PipelineSettings:
-    mode: str = "real"
-    model_device: str = "cpu"
-    llm_model: str = DEFAULT_LLM_MODEL
-    llm_streaming: bool = True
-    context_window_tokens: int = 32_768
-    reserved_output_tokens: int = 4_096
-    observability_retention_days: int = 30
-    qdrant_mode: str = "disabled"
-    qdrant_url: str = DEFAULT_QDRANT_URL
-    qdrant_api_key: str | None = None
-    qdrant_collection_alias: str = DEFAULT_ALIAS
-    qdrant_local_path: str | None = None
-    qdrant_timeout_seconds: int = 30
-    request_routing_enabled: bool = True
-    strict_abstention_prompt: bool = False
-    calculator_enabled: bool = False
-    web_search_enabled: bool = False
-    web_search_provider: str = "disabled"
-    web_search_api_key: str | None = field(default=None, repr=False)
-    web_search_timeout_seconds: float = 8.0
-    web_search_max_results: int = 5
-    max_tool_executions: int = 4
-    max_web_searches: int = 2
-
-    @classmethod
-    def from_environment(cls) -> "PipelineSettings":
-        # Keep direct production-module/CLI use consistent with FastAPI startup.
-        # Existing process environment values retain precedence over `.env`.
-        dotenv.load_dotenv(PROJECT_ROOT / ".env")
-        mode = os.getenv("AVA_PIPELINE_MODE", "real").strip().casefold()
-        if mode not in {"real", "mock"}:
-            raise ValueError("AVA_PIPELINE_MODE must be 'real' or 'mock'.")
-        raw_streaming = os.getenv("AVA_LLM_STREAMING", "true").strip().casefold()
-        if raw_streaming not in {"true", "false"}:
-            raise ValueError("AVA_LLM_STREAMING must be 'true' or 'false'.")
-        raw_routing_enabled = os.getenv(
-            "AVA_REQUEST_ROUTING_ENABLED", "true"
-        ).strip().casefold()
-        if raw_routing_enabled not in {"true", "false"}:
-            raise ValueError("AVA_REQUEST_ROUTING_ENABLED must be 'true' or 'false'.")
-        raw_strict_abstention = os.getenv(
-            "AVA_STRICT_ABSTENTION_PROMPT", "false"
-        ).strip().casefold()
-        if raw_strict_abstention not in {"true", "false"}:
-            raise ValueError("AVA_STRICT_ABSTENTION_PROMPT must be 'true' or 'false'.")
-        raw_web_search_enabled = os.getenv(
-            "AVA_WEB_SEARCH_ENABLED", "false"
-        ).strip().casefold()
-        if raw_web_search_enabled not in {"true", "false"}:
-            raise ValueError("AVA_WEB_SEARCH_ENABLED must be 'true' or 'false'.")
-        web_search_provider = os.getenv(
-            "AVA_WEB_SEARCH_PROVIDER", "disabled"
-        ).strip().casefold()
-        if web_search_provider not in {"disabled", "brave"}:
-            raise ValueError("AVA_WEB_SEARCH_PROVIDER must be 'disabled' or 'brave'.")
-        web_search_api_key = os.getenv("BRAVE_SEARCH_API_KEY") or None
-        web_search_timeout_seconds = float(
-            os.getenv("AVA_WEB_SEARCH_TIMEOUT_SECONDS", "8")
-        )
-        web_search_max_results = int(os.getenv("AVA_WEB_SEARCH_MAX_RESULTS", "5"))
-        max_tool_executions = int(os.getenv("AVA_MAX_TOOL_EXECUTIONS", "4"))
-        max_web_searches = int(os.getenv("AVA_MAX_WEB_SEARCHES", "2"))
-        if not 0 < web_search_timeout_seconds <= 30:
-            raise ValueError("AVA_WEB_SEARCH_TIMEOUT_SECONDS must be between 0 and 30.")
-        if not 1 <= web_search_max_results <= 10:
-            raise ValueError("AVA_WEB_SEARCH_MAX_RESULTS must be between 1 and 10.")
-        if max_tool_executions <= 0 or max_web_searches <= 0:
-            raise ValueError("AVA tool execution limits must be positive.")
-        if max_web_searches > max_tool_executions:
-            raise ValueError("AVA_MAX_WEB_SEARCHES cannot exceed AVA_MAX_TOOL_EXECUTIONS.")
-        if raw_web_search_enabled == "true" and (
-            web_search_provider != "brave" or not web_search_api_key
-        ):
-            raise ValueError(
-                "Enabled web search requires AVA_WEB_SEARCH_PROVIDER=brave and "
-                "BRAVE_SEARCH_API_KEY."
-            )
-        qdrant_mode = os.getenv("AVA_QDRANT_MODE", "disabled").strip().casefold()
-        if qdrant_mode not in {"disabled", "shadow", "primary"}:
-            raise ValueError(
-                "AVA_QDRANT_MODE must be 'disabled', 'shadow', or 'primary'."
-            )
-        context_window_tokens = int(os.getenv("AVA_LLM_CONTEXT_WINDOW_TOKENS", "32768"))
-        reserved_output_tokens = int(os.getenv("AVA_LLM_RESERVED_OUTPUT_TOKENS", "4096"))
-        observability_retention_days = int(
-            os.getenv("AVA_OBSERVABILITY_RETENTION_DAYS", "30")
-        )
-        qdrant_timeout_seconds = int(os.getenv("QDRANT_TIMEOUT_SECONDS", "30"))
-        if context_window_tokens <= 0 or reserved_output_tokens <= 0:
-            raise ValueError("AVA LLM token budgets must be positive.")
-        if observability_retention_days <= 0:
-            raise ValueError("AVA_OBSERVABILITY_RETENTION_DAYS must be positive.")
-        if qdrant_timeout_seconds <= 0:
-            raise ValueError("QDRANT_TIMEOUT_SECONDS must be positive.")
-        qdrant_local_path = os.getenv("QDRANT_LOCAL_PATH", "").strip() or None
-        return cls(
-            mode=mode,
-            model_device=os.getenv("AVA_MODEL_DEVICE", "cpu"),
-            llm_model=os.getenv("AVA_LLM_MODEL", DEFAULT_LLM_MODEL),
-            llm_streaming=raw_streaming == "true",
-            context_window_tokens=context_window_tokens,
-            reserved_output_tokens=reserved_output_tokens,
-            observability_retention_days=observability_retention_days,
-            qdrant_mode=qdrant_mode,
-            qdrant_url=os.getenv("QDRANT_URL", DEFAULT_QDRANT_URL).strip(),
-            qdrant_api_key=os.getenv("QDRANT_API_KEY") or None,
-            qdrant_collection_alias=os.getenv(
-                "QDRANT_COLLECTION_ALIAS", DEFAULT_ALIAS
-            ).strip(),
-            qdrant_local_path=qdrant_local_path,
-            qdrant_timeout_seconds=qdrant_timeout_seconds,
-            request_routing_enabled=raw_routing_enabled == "true",
-            strict_abstention_prompt=raw_strict_abstention == "true",
-            # Calculator execution is intentionally hard-disabled in deployed
-            # settings. Keep the implementation injectable only for isolated
-            # regression tests until a measured re-enable decision is made.
-            calculator_enabled=False,
-            web_search_enabled=raw_web_search_enabled == "true",
-            web_search_provider=web_search_provider,
-            web_search_api_key=web_search_api_key,
-            web_search_timeout_seconds=web_search_timeout_seconds,
-            web_search_max_results=web_search_max_results,
-            max_tool_executions=max_tool_executions,
-            max_web_searches=max_web_searches,
-        )
 
 
 def load_corpus(
@@ -927,7 +799,11 @@ class RealPipeline:
             close_qdrant()
 
     @classmethod
-    def build(cls, settings: PipelineSettings) -> "RealPipeline":
+    def build(
+        cls,
+        settings: PipelineSettings,
+        provider_settings: ProviderSettings | None = None,
+    ) -> "RealPipeline":
         startup_started = time.perf_counter()
         load_started = time.perf_counter()
         embeddings, chunks = load_corpus()
@@ -1024,13 +900,14 @@ class RealPipeline:
             token_counter=count_generation_input_tokens,
             dense_retriever=dense_retriever,
         )
+        provider_settings = provider_settings or ProviderSettings.from_environment()
         generator = GenerationService(
-            make_llm_client(),
+            make_llm_client(provider_settings),
             model=settings.llm_model,
             max_output_tokens=settings.reserved_output_tokens,
             circuit_breaker=ProviderCircuitBreaker(
-                failure_threshold=int(os.getenv("AVA_PROVIDER_CIRCUIT_FAILURES", "5")),
-                recovery_seconds=float(os.getenv("AVA_PROVIDER_CIRCUIT_RECOVERY_SECONDS", "30")),
+                failure_threshold=provider_settings.circuit_failures,
+                recovery_seconds=provider_settings.circuit_recovery_seconds,
             ),
             strict_absence_grounding=settings.strict_abstention_prompt,
         )
@@ -1137,7 +1014,7 @@ class RealPipeline:
             return value
 
         if model is not None:
-            if model not in AVAILABLE_MODELS:
+            if model not in ALLOWED_MODELS:
                 raise ValueError("That model is not available.")
             self.generator.model = model
         prompt_context = (
@@ -2090,7 +1967,10 @@ class MockPipeline:
         yield PipelineEvent("done", {})
 
 
-def build_pipeline(settings: PipelineSettings) -> RealPipeline | MockPipeline:
+def build_pipeline(
+    settings: PipelineSettings,
+    provider_settings: ProviderSettings | None = None,
+) -> RealPipeline | MockPipeline:
     if settings.mode == "mock":
         return MockPipeline()
-    return RealPipeline.build(settings)
+    return RealPipeline.build(settings, provider_settings)

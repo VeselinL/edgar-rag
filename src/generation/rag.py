@@ -4,20 +4,22 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import re
 from threading import Lock
 import time
 from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass
 from functools import lru_cache
-from pathlib import Path
 from typing import Any
 
-import dotenv
 from openai import OpenAI
 import tiktoken
 
+from src.config.settings import (
+    ALLOWED_MODELS,
+    DEFAULT_LLM_MODEL,
+    ProviderSettings,
+)
 from src.filings.corpus import ACTIVE_FILINGS
 from src.orchestration.routing import (
     RequestRoute,
@@ -29,16 +31,7 @@ from src.orchestration.models import EvidenceCalculationPlan, EvidenceOperand
 from src.resolution.companies import CompanyResolution, default_company_resolver
 from src.tools import CalculationError, parse_evidence_number
 
-AVAILABLE_MODELS = [
-    "AZURE_GPT_4o_2024_1120",
-    "AZURE_GPT_41_2025_0414",
-    "AZURE_GPT_5_2025_0807",
-    "AZURE_GPT_51_2025_1113",
-    "AZURE_GPT_54_2026_0305",
-    "AZURE_GPT_55_2026_0424",
-    "AZURE_GPT_56_SOL_2026_0709",
-]
-DEFAULT_LLM_MODEL = AVAILABLE_MODELS[0]
+AVAILABLE_MODELS = list(ALLOWED_MODELS)
 
 DEFAULT_MAX_OUTPUT_TOKENS = 4_096
 DEFAULT_GENERATION_ENCODING = "o200k_base"
@@ -763,29 +756,21 @@ def resolve_cited_evidence(
     )
 
 
-def make_llm_client(project_root: Path | None = None) -> OpenAI:
-    root = project_root or Path(__file__).resolve().parents[2]
-    dotenv.load_dotenv(root / ".env")
-    api_key = os.getenv("OPENAI_API_KEY")
-    base_url = os.getenv("OPENAI_API_URL")
-    if not api_key or not base_url:
-        raise RuntimeError("The backend LLM credentials are not configured.")
-    timeout_seconds = float(os.getenv("AVA_PROVIDER_TIMEOUT_SECONDS", "90"))
-    maximum_retries = int(os.getenv("AVA_PROVIDER_MAX_RETRIES", "2"))
-    if timeout_seconds <= 0 or not 0 <= maximum_retries <= 5:
-        raise ValueError("Provider timeout must be positive and retries must be between 0 and 5.")
+def make_llm_client(settings: ProviderSettings | None = None) -> OpenAI:
+    settings = settings or ProviderSettings.from_environment()
+    settings.validate(required=True)
     return OpenAI(
-        api_key=api_key,
-        base_url=base_url,
-        timeout=timeout_seconds,
-        max_retries=maximum_retries,
+        api_key=settings.api_key,
+        base_url=settings.base_url,
+        timeout=settings.timeout_seconds,
+        max_retries=settings.maximum_retries,
         default_headers={
             key: value
             for key, value in {
-                "x-app-id": os.getenv("OPENAI_APP_ID"),
-                "x-user-id": os.getenv("OPENAI_USER_ID"),
-                "x-company-id": os.getenv("OPENAI_COMPANY_ID"),
-                "x-api-version": os.getenv("OPENAI_API_VERSION"),
+                "x-app-id": settings.app_id,
+                "x-user-id": settings.user_id,
+                "x-company-id": settings.company_id,
+                "x-api-version": settings.api_version,
             }.items()
             if value
         },

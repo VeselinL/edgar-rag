@@ -4,43 +4,16 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict, deque
-from dataclasses import dataclass
 from datetime import datetime, timezone
 import json
 import logging
-import os
 import time
 from typing import Any, Callable
 from uuid import uuid4
 
 from starlette.responses import JSONResponse
 
-
-@dataclass(frozen=True)
-class OperationalSettings:
-    maximum_body_bytes: int = 16_384
-    maximum_upload_bytes: int = 20 * 1024 * 1024
-    requests_per_minute: int = 60
-    stream_timeout_seconds: int = 180
-
-    @classmethod
-    def from_environment(cls) -> "OperationalSettings":
-        settings = cls(
-            maximum_body_bytes=int(os.getenv("AVA_MAX_BODY_BYTES", "16384")),
-            maximum_upload_bytes=int(
-                os.getenv("AVA_UPLOAD_MAX_BODY_BYTES", str(20 * 1024 * 1024))
-            ),
-            requests_per_minute=int(os.getenv("AVA_REQUESTS_PER_MINUTE", "60")),
-            stream_timeout_seconds=int(os.getenv("AVA_STREAM_TIMEOUT_SECONDS", "180")),
-        )
-        if min(
-            settings.maximum_body_bytes,
-            settings.maximum_upload_bytes,
-            settings.requests_per_minute,
-            settings.stream_timeout_seconds,
-        ) <= 0:
-            raise ValueError("AVA operational limits must be positive.")
-        return settings
+from src.config.settings import LoggingSettings, OperationalSettings
 
 
 class BodyLimitMiddleware:
@@ -206,14 +179,11 @@ class JsonFormatter(logging.Formatter):
         return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
 
 
-def configure_json_logging() -> None:
-    enabled = os.getenv("AVA_JSON_LOGS", "false").strip().casefold()
-    if enabled not in {"true", "false"}:
-        raise ValueError("AVA_JSON_LOGS must be true or false.")
-    if enabled == "false":
+def configure_json_logging(settings: LoggingSettings) -> None:
+    if not settings.json_logs:
         return
     handler = logging.StreamHandler()
     handler.setFormatter(JsonFormatter())
     root = logging.getLogger()
     root.handlers = [handler]
-    root.setLevel(os.getenv("AVA_LOG_LEVEL", "INFO").upper())
+    root.setLevel(settings.level)

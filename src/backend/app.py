@@ -7,12 +7,10 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 import json
 import logging
-import os
 from pathlib import Path
 from typing import Any, Literal
 from uuid import UUID, uuid4
 
-from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
@@ -28,6 +26,7 @@ from .operations import (
 from src.auth.oidc import AuthenticationError, OIDCSettings, OIDCTokenVerifier
 from src.auth.repository import PostgresAuthRepository
 from src.auth.service import OIDCSessionService, SessionSettings
+from src.config.settings import ApplicationSettings, AuthSettings
 from src.conversations.context import ConversationContextBuilder
 from src.conversations.memory import NullMemoryStore, QdrantMemoryStore
 from src.conversations.repository import (
@@ -224,39 +223,64 @@ def _build_conversation_factory(
 
 def _build_auth_service(
     settings: ConversationSettings,
+    auth_settings: AuthSettings,
 ) -> OIDCSessionService | None:
     if settings.mode != "oidc":
         return None
-    verifier = OIDCTokenVerifier(OIDCSettings.from_environment())
+    oidc_settings = OIDCSettings(
+        issuer=auth_settings.issuer,
+        client_id=auth_settings.client_id,
+        client_secret=auth_settings.client_secret,
+        redirect_uri=auth_settings.redirect_uri,
+        fixed_tenant_id=auth_settings.fixed_tenant_id,
+        tenant_claim=auth_settings.tenant_claim,
+        algorithms=auth_settings.algorithms,
+        scopes=auth_settings.scopes,
+        discovery_timeout_seconds=auth_settings.discovery_timeout_seconds,
+        clock_skew_seconds=auth_settings.clock_skew_seconds,
+        allow_insecure_http=auth_settings.allow_insecure_http,
+    )
+    oidc_settings.validate()
+    session_settings = SessionSettings(
+        cookie_name=auth_settings.cookie_name,
+        csrf_cookie_name=auth_settings.csrf_cookie_name,
+        login_ttl_seconds=auth_settings.login_ttl_seconds,
+        session_ttl_seconds=auth_settings.session_ttl_seconds,
+        cookie_secure=auth_settings.cookie_secure,
+        cookie_same_site=auth_settings.cookie_same_site,
+    )
+    session_settings.validate()
+    verifier = OIDCTokenVerifier(oidc_settings)
     repository = PostgresAuthRepository(settings.postgres_dsn or "")
     return OIDCSessionService(
         repository,
         verifier,
-        session_settings=SessionSettings.from_environment(),
+        session_settings=session_settings,
     )
 
 
 def create_app(
     *,
+    application_settings: ApplicationSettings | None = None,
     pipeline: Any | None = None,
     conversation_service: ConversationService | None = None,
     conversation_factory: ConversationServiceFactory | None = None,
     document_factory: DocumentServiceFactory | None = None,
     auth_service: OIDCSessionService | None = None,
 ) -> FastAPI:
-    load_dotenv()
-    settings = PipelineSettings.from_environment()
-    conversation_settings = ConversationSettings.from_environment()
-    document_settings = DocumentSettings.from_environment()
-    query_max_length = int(os.getenv("AVA_QUERY_MAX_LENGTH", "4000"))
-    operational_settings = OperationalSettings.from_environment()
-    if query_max_length < 1:
-        raise ValueError("AVA_QUERY_MAX_LENGTH must be positive.")
+    application_settings = application_settings or ApplicationSettings.from_environment()
+    settings = application_settings.pipeline
+    conversation_settings = application_settings.conversation
+    document_settings = application_settings.documents
+    operational_settings = application_settings.operations
+    query_max_length = application_settings.ui.query_max_length
 
     @asynccontextmanager
     async def lifespan(application: FastAPI):
-        configure_json_logging()
-        application.state.pipeline = pipeline or build_pipeline(settings)
+        configure_json_logging(application_settings.logging)
+        application.state.pipeline = pipeline or build_pipeline(
+            settings, application_settings.provider
+        )
         application.state.conversation_service = conversation_service
         application.state.conversation_factory = (
             conversation_factory
@@ -284,7 +308,7 @@ def create_app(
                 application.state.document_factory.for_owner(conversation_service)
             )
         application.state.auth = auth_service or _build_auth_service(
-            conversation_settings
+            conversation_settings, application_settings.auth
         )
         try:
             yield
@@ -309,13 +333,7 @@ def create_app(
         version="0.1.0",
         lifespan=lifespan,
     )
-    origins = [
-        origin.strip()
-        for origin in os.getenv("AVA_CORS_ORIGINS", "http://localhost:5173").split(",")
-        if origin.strip()
-    ]
-    if conversation_settings.mode == "oidc" and "*" in origins:
-        raise ValueError("OIDC deployments require explicit AVA_CORS_ORIGINS.")
+    origins = list(application_settings.ui.cors_origins)
     application.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
@@ -911,6 +929,3 @@ def create_app(
         )
 
     return application
-
-
-app = create_app()

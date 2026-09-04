@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from datetime import datetime, timezone
-import os
-from pathlib import Path
 from typing import Callable
 from uuid import uuid4
 
@@ -14,6 +11,7 @@ from .models import StoredDocumentChunk, UploadedDocument
 from .repository import DocumentRepository
 from .storage import FilesystemAssetStore
 from .retrieval import DocumentIndex, NullDocumentIndex
+from src.config.settings import DocumentSettings
 
 
 MAX_DOCUMENTS_PER_CHAT = 20
@@ -22,24 +20,6 @@ MAX_BYTES_PER_CHAT = 100 * 1024 * 1024
 
 class DocumentQuotaError(ValueError):
     pass
-
-
-@dataclass(frozen=True)
-class DocumentSettings:
-    enabled: bool = False
-    asset_root: Path = Path("data/private/uploads")
-
-    @classmethod
-    def from_environment(cls) -> "DocumentSettings":
-        raw_enabled = os.getenv("AVA_UPLOADS_ENABLED", "false").strip().casefold()
-        if raw_enabled not in {"true", "false"}:
-            raise ValueError("AVA_UPLOADS_ENABLED must be 'true' or 'false'.")
-        return cls(
-            enabled=raw_enabled == "true",
-            asset_root=Path(
-                os.getenv("AVA_UPLOAD_STORE_PATH", "data/private/uploads")
-            ).expanduser().resolve(),
-        )
 
 
 class DocumentServiceFactory:

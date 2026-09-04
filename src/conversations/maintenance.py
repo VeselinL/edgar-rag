@@ -9,14 +9,11 @@ import json
 from typing import Any
 
 from src.auth.repository import PostgresAuthRepository
-from src.backend.pipeline import PipelineSettings
+from src.config.settings import ApplicationSettings, ConversationSettings
 from src.indexing.qdrant_index import make_client
 
 from .memory import NullMemoryStore, QdrantMemoryStore
 from .repository import PostgresConversationRepository
-from .service import ConversationSettings
-
-
 @dataclass(frozen=True)
 class RetentionResult:
     cutoff: datetime
@@ -96,13 +93,14 @@ class ConversationRetentionJob:
 
 
 def build_job() -> tuple[ConversationRetentionJob, ConversationSettings]:
-    settings = ConversationSettings.from_environment()
+    application_settings = ApplicationSettings.from_environment()
+    settings = application_settings.conversation
     if settings.mode == "disabled" or not settings.postgres_dsn:
         raise RuntimeError("Conversation persistence is not enabled.")
     repository = PostgresConversationRepository(settings.postgres_dsn)
     memory_store: Any = NullMemoryStore()
     if settings.long_term_store == "qdrant":
-        pipeline = PipelineSettings.from_environment()
+        pipeline = application_settings.pipeline
         client = make_client(
             url=pipeline.qdrant_url,
             api_key=pipeline.qdrant_api_key,

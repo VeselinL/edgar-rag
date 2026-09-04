@@ -12,23 +12,8 @@ QDRANT_CONTAINER="ava-qdrant"
 
 export AVA_POSTGRES_PASSWORD="${AVA_POSTGRES_PASSWORD:-local-password}"
 export AVA_POSTGRES_DSN="${AVA_POSTGRES_DSN:-postgresql://ava:${AVA_POSTGRES_PASSWORD}@127.0.0.1:5432/ava}"
-export AVA_PIPELINE_MODE="real"
-export AVA_REQUEST_ROUTING_ENABLED="${AVA_REQUEST_ROUTING_ENABLED:-true}"
-export AVA_STRICT_ABSTENTION_PROMPT="${AVA_STRICT_ABSTENTION_PROMPT:-false}"
-export AVA_CALCULATOR_ENABLED="false"
-export AVA_MAX_TOOL_EXECUTIONS="${AVA_MAX_TOOL_EXECUTIONS:-4}"
-export AVA_MAX_WEB_SEARCHES="${AVA_MAX_WEB_SEARCHES:-2}"
-export AVA_CORS_ORIGINS="${AVA_CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}"
-export AVA_QDRANT_MODE="primary"
 export QDRANT_URL="http://127.0.0.1:6333"
 export QDRANT_COLLECTION_ALIAS="${QDRANT_COLLECTION_ALIAS:-ava_filing_chunks_current}"
-export AVA_CONVERSATION_MODE="single_user"
-export AVA_SINGLE_USER_BOUNDARY_ACKNOWLEDGED="true"
-export AVA_TENANT_ID="${AVA_TENANT_ID:-local-test}"
-export AVA_USER_ID="${AVA_USER_ID:-local-test}"
-export AVA_LONG_TERM_MEMORY_STORE="qdrant"
-export AVA_UPLOADS_ENABLED="true"
-export AVA_UPLOAD_STORE_PATH="${AVA_UPLOAD_STORE_PATH:-$PROJECT_ROOT/data/private/uploads}"
 
 API_PID=""
 FRONTEND_PID=""
@@ -124,7 +109,7 @@ if ! .venv/bin/python -m src.indexing.qdrant_index status \
 fi
 
 log "Starting the real AVA API with short- and long-term memory support..."
-.venv/bin/uvicorn src.backend.app:app --host 127.0.0.1 --port 8000 &
+.venv/bin/uvicorn src.backend.app:create_app --factory --host 127.0.0.1 --port 8000 &
 API_PID=$!
 
 api_ready=false

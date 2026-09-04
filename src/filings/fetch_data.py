@@ -153,8 +153,8 @@ def fetch_and_save_all_filings(
         save_filing_html(filing, output_directory)
 
 if __name__ == "__main__":
-    from dotenv import load_dotenv
+    from src.config.settings import load_project_environment
 
-    load_dotenv()
+    load_project_environment()
     user_agent = os.getenv("SEC_USER_AGENT")
     fetch_and_save_all_filings(str(user_agent))

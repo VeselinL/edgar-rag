@@ -2,86 +2,16 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import replace
 from datetime import datetime, timezone
-import os
 from typing import Any, Sequence
 
 from .context import ConversationContext, ConversationContextBuilder
 from .memory import MemoryStore, NullMemoryStore
 from .models import Conversation, MemoryItem, Message, StoredTurn
 from .repository import ConversationRepository
+from src.config.settings import ConversationSettings
 from src.filings.corpus import ACTIVE_FILINGS
-
-
-@dataclass(frozen=True)
-class ConversationSettings:
-    mode: str = "disabled"
-    postgres_dsn: str | None = None
-    tenant_id: str | None = None
-    user_id: str | None = None
-    single_user_boundary_acknowledged: bool = False
-    recent_token_budget: int = 2_048
-    summary_token_budget: int = 768
-    long_term_token_budget: int = 512
-    long_term_candidate_k: int = 5
-    long_term_score_threshold: float = 0.55
-    retention_days: int = 90
-    long_term_store: str = "disabled"
-
-    @classmethod
-    def from_environment(cls) -> "ConversationSettings":
-        mode = os.getenv("AVA_CONVERSATION_MODE", "disabled").strip().casefold()
-        if mode not in {"disabled", "single_user", "oidc"}:
-            raise ValueError(
-                "AVA_CONVERSATION_MODE must be 'disabled', 'single_user', or 'oidc'."
-            )
-        acknowledged = os.getenv("AVA_SINGLE_USER_BOUNDARY_ACKNOWLEDGED", "false").strip().casefold()
-        if acknowledged not in {"true", "false"}:
-            raise ValueError("AVA_SINGLE_USER_BOUNDARY_ACKNOWLEDGED must be true or false.")
-        settings = cls(
-            mode=mode,
-            postgres_dsn=os.getenv("AVA_POSTGRES_DSN") or None,
-            tenant_id=os.getenv("AVA_TENANT_ID") or None,
-            user_id=os.getenv("AVA_USER_ID") or None,
-            single_user_boundary_acknowledged=acknowledged == "true",
-            recent_token_budget=int(os.getenv("AVA_SHORT_TERM_TOKEN_BUDGET", "2048")),
-            summary_token_budget=int(os.getenv("AVA_SUMMARY_TOKEN_BUDGET", "768")),
-            long_term_token_budget=int(os.getenv("AVA_LONG_TERM_TOKEN_BUDGET", "512")),
-            long_term_candidate_k=int(os.getenv("AVA_LONG_TERM_CANDIDATE_K", "5")),
-            long_term_score_threshold=float(os.getenv("AVA_LONG_TERM_SCORE_THRESHOLD", "0.55")),
-            retention_days=int(os.getenv("AVA_CONVERSATION_RETENTION_DAYS", "90")),
-            long_term_store=os.getenv("AVA_LONG_TERM_MEMORY_STORE", "disabled").strip().casefold(),
-        )
-        settings.validate()
-        return settings
-
-    def validate(self) -> None:
-        values = (
-            self.recent_token_budget,
-            self.summary_token_budget,
-            self.long_term_token_budget,
-            self.long_term_candidate_k,
-            self.retention_days,
-        )
-        if any(value <= 0 for value in values):
-            raise ValueError("Conversation budgets and retention must be positive.")
-        if not 0 <= self.long_term_score_threshold <= 1:
-            raise ValueError("AVA_LONG_TERM_SCORE_THRESHOLD must be between zero and one.")
-        if self.long_term_store not in {"disabled", "qdrant"}:
-            raise ValueError("AVA_LONG_TERM_MEMORY_STORE must be 'disabled' or 'qdrant'.")
-        if self.mode == "single_user" and (
-            not self.postgres_dsn
-            or not self.tenant_id
-            or not self.user_id
-            or not self.single_user_boundary_acknowledged
-        ):
-            raise ValueError(
-                "Single-user history requires AVA_POSTGRES_DSN, AVA_TENANT_ID, "
-                "AVA_USER_ID, and AVA_SINGLE_USER_BOUNDARY_ACKNOWLEDGED=true."
-            )
-        if self.mode == "oidc" and not self.postgres_dsn:
-            raise ValueError("OIDC conversation history requires AVA_POSTGRES_DSN.")
 
 
 class ConversationServiceFactory:
