@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "tested_at": "2026-09-04T12:46:30.916589+00:00",
+  "provider": "tavily",
+  "query": "Tesla investor relations current leadership",
+  "result_count": 3,
+  "allowlisted_results": [
+    {
+      "publisher": "ir.tesla.com",
+      "url": "https://ir.tesla.com/corporate",
+      "retrieved_at": "2026-09-04T12:46:30.915607+00:00"
+    },
+    {
+      "publisher": "ir.tesla.com",
+      "url": "https://ir.tesla.com/corporate/ira-ehrenpreis",
+      "retrieved_at": "2026-09-04T12:46:30.915607+00:00"
+    },
+    {
+      "publisher": "ir.tesla.com",
+      "url": "https://ir.tesla.com/_flysystem/s3/sec/000110465925087598/tm252289-4_pre14a-gen.pdf",
+      "retrieved_at": "2026-09-04T12:46:30.915607+00:00"
+    }
+  ],
+  "gate_pass": true
+}
