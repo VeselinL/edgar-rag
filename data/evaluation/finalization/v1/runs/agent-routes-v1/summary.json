@@ -1,0 +1,9 @@
+{
+  "case_count": 60,
+  "passed_count": 60,
+  "route_accuracy": 1.0,
+  "web_required_recall": 1.0,
+  "unnecessary_web_call_rate": 0.0,
+  "calculator_false_positives": 0,
+  "gate_pass": true
+}
