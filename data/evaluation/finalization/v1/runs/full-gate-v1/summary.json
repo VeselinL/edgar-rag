@@ -1,0 +1,6 @@
+{
+  "backend_pytest_exit": 0,
+  "frontend_lint_exit": 0,
+  "frontend_test_exit": 0,
+  "frontend_build_exit": 0
+}
