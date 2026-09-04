@@ -144,10 +144,6 @@ class PipelineSettings:
     max_tool_executions: int = 4
     max_web_searches: int = 2
 
-    def __post_init__(self) -> None:
-        if self.calculator_enabled:
-            raise ValueError("Calculator settings remain disabled until the Phase 2 gate passes.")
-
     @classmethod
     def from_mapping(cls, values: Mapping[str, str]) -> "PipelineSettings":
         mode = _enum(values, "AVA_PIPELINE_MODE", "real", {"real", "mock"})
@@ -205,9 +201,7 @@ class PipelineSettings:
             request_routing_enabled=_boolean(
                 values, "AVA_REQUEST_ROUTING_ENABLED", True
             ),
-            # Phase 1 keeps every deployment path fail-closed. Phase 2 may
-            # promote this only after the route and false-positive gates pass.
-            calculator_enabled=False,
+            calculator_enabled=_boolean(values, "AVA_CALCULATOR_ENABLED", False),
             web_search_enabled=web_enabled,
             web_search_provider=web_provider,
             web_search_api_key=web_key,

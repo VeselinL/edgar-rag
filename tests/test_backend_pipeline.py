@@ -475,15 +475,18 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertFalse(settings.llm_streaming)
 
-    def test_settings_cannot_enable_calculator(self):
+    def test_settings_enable_calculator_only_when_explicitly_configured(self):
         settings = PipelineSettings.from_mapping({"AVA_CALCULATOR_ENABLED": "true"})
-        self.assertFalse(settings.calculator_enabled)
+        self.assertTrue(settings.calculator_enabled)
+        self.assertFalse(
+            PipelineSettings.from_mapping(
+                {"AVA_CALCULATOR_ENABLED": "false"}
+            ).calculator_enabled
+        )
 
     def test_calculator_is_disabled_in_all_deployment_defaults(self):
         project_root = Path(__file__).resolve().parents[1]
         self.assertFalse(PipelineSettings().calculator_enabled)
-        with self.assertRaisesRegex(ValueError, "Phase 2"):
-            PipelineSettings(calculator_enabled=True)
         self.assertNotIn(
             "AVA_CALCULATOR_ENABLED",
             (project_root / "start_app.sh").read_text(encoding="utf-8"),
@@ -516,8 +519,12 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
                 {"AVA_MAX_TOOL_EXECUTIONS": "1", "AVA_MAX_WEB_SEARCHES": "2"}
             )
 
-    def test_settings_ignore_legacy_calculator_toggle(self):
-        settings = PipelineSettings.from_mapping({"AVA_CALCULATOR_ENABLED": "off"})
+    def test_settings_reject_invalid_calculator_toggle(self):
+        with self.assertRaisesRegex(ValueError, "AVA_CALCULATOR_ENABLED"):
+            PipelineSettings.from_mapping({"AVA_CALCULATOR_ENABLED": "off"})
+
+    def test_settings_disable_calculator_when_not_configured(self):
+        settings = PipelineSettings.from_mapping({})
         self.assertFalse(settings.calculator_enabled)
 
     def test_settings_require_explicit_configured_web_provider(self):
