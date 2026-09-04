@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "review_method": "independent_llm_pair_rubric_compared_with_single_human_pair_rubric",
+  "model": "AZURE_GPT_4o_2024_1120",
+  "temperature": 0.0,
+  "evaluated_at": "2026-09-04T23:17:56.689319+00:00",
+  "pair_count": 20,
+  "completed_count": 20,
+  "error_count": 0,
+  "aggregate_agreement": 0.95,
+  "aggregate_cohen_kappa": -0.022727272727271694,
+  "per_field": {
+    "claim_correctness": {
+      "agreement": 0.95,
+      "cohen_kappa": 0.0,
+      "human": {
+        "pass": 20
+      },
+      "llm": {
+        "pass": 19,
+        "fail": 1
+      }
+    },
+    "faithfulness": {
+      "agreement": 1.0,
+      "cohen_kappa": null,
+      "human": {
+        "pass": 20
+      },
+      "llm": {
+        "pass": 20
+      }
+    },
+    "citation_support": {
+      "agreement": 0.95,
+      "cohen_kappa": 0.0,
+      "human": {
+        "pass": 20
+      },
+      "llm": {
+        "pass": 19,
+        "fail": 1
+      }
+    },
+    "abstention": {
+      "agreement": 0.9,
+      "cohen_kappa": 0.0,
+      "human": {
+        "pass": 20
+      },
+      "llm": {
+        "pass": 18,
+        "fail": 2
+      }
+    },
+    "answer_relevance": {
+      "agreement": 1.0,
+      "cohen_kappa": null,
+      "human": {
+        "pass": 20
+      },
+      "llm": {
+        "pass": 20
+      }
+    },
+    "conciseness": {
+      "agreement": 0.9,
+      "cohen_kappa": 0.0,
+      "human": {
+        "pass": 18,
+        "fail": 2
+      },
+      "llm": {
+        "pass": 20
+      }
+    }
+  },
+  "limitations": [
+    "This is human-versus-LLM agreement, not the two-human-review agreement specified by the original plan.",
+    "Human labels are pair-level: pass means the reviewer accepted both candidate answers for that criterion. The LLM uses the same documented pair-level rule.",
+    "The LLM is diagnostic only; the recorded human labels remain authoritative."
+  ]
+}
