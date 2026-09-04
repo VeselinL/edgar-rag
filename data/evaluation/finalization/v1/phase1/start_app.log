@@ -1,0 +1,35 @@
+[AVA] Starting PostgreSQL...
+time="2026-09-04T10:13:42+02:00" level=warning msg="Found orphan containers (ava-qdrant) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container edgar-insight-rag-postgres-1 Running
+[AVA] Starting Qdrant...
+[AVA] Waiting for PostgreSQL and Qdrant...
+[AVA] Checking the active filing vector index...
+[AVA] Starting the real AVA API with short- and long-term memory support...
+INFO:     Started server process [1024753]
+INFO:     Waiting for application startup.
+Split strings:   0%|          | 0/4526 [00:00<?, ?it/s]Split strings:  30%|██▉       | 1356/4526 [00:00<00:00, 13553.26it/s]Split strings:  60%|█████▉    | 2712/4526 [00:00<00:00, 13361.50it/s]Split strings:  89%|████████▉ | 4049/4526 [00:00<00:00, 12565.78it/s]                                                                     BM25S Count Tokens:   0%|          | 0/4526 [00:00<?, ?it/s]                                                            BM25S Compute Scores:   0%|          | 0/4526 [00:00<?, ?it/s]BM25S Compute Scores:  86%|████████▋ | 3910/4526 [00:00<00:00, 39098.73it/s]                                                                            Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 3593.22it/s]
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:33786 - "GET /api/ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33788 - "GET /api/ready HTTP/1.1" 200 OK
+[AVA] Starting the AVA frontend...
+
+> ava-frontend@0.1.0 dev
+> vite --host 127.0.0.1
+
+
+  VITE v7.3.6  ready in 157 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+[AVA] AVA is ready at http://localhost:5173
+[AVA] Short-term history is active. Long-term memory is available per conversation.
+[AVA] Press Ctrl+C to stop the complete stack.
+INFO:     127.0.0.1:33792 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33802 - "GET /api/conversations?limit=1 HTTP/1.1" 200 OK
+[AVA] Stopping application processes...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1024753]
+[AVA] AVA stopped. Service state from before startup and all data volumes were preserved.

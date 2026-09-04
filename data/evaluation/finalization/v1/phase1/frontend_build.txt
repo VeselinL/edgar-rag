@@ -1,0 +1,16 @@
+
+> ava-frontend@0.1.0 build
+> tsc --noEmit -p tsconfig.app.json && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 298 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                         1.00 kB │ gzip:   0.54 kB
+dist/assets/ava-dark-NAMdlnd4.png   1,027.86 kB
+dist/assets/favicon-Bk2bQGsW.png    1,099.73 kB
+dist/assets/ava-light-D5DbQWfv.png  1,102.27 kB
+dist/assets/index-Cf475yyl.css         17.25 kB │ gzip:   4.27 kB
+dist/assets/index-CoLyMhHB.js         375.47 kB │ gzip: 116.94 kB
+✓ built in 1.48s

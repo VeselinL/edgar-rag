@@ -1,0 +1,36 @@
+{
+  "status": "ok",
+  "mode": "real",
+  "pipeline_ready": true,
+  "answer_delivery": "buffered",
+  "qdrant": {
+    "configured": true,
+    "mode": "primary",
+    "alias": "ava_filing_chunks_current",
+    "alias_target": "ava_filing_chunks_89d3a5be9e7d7a8e",
+    "status": "ok",
+    "identity": "qdrant-dense-exact",
+    "collection": "ava_filing_chunks_current",
+    "point_count": 4526,
+    "collection_status": "green",
+    "exact": true
+  },
+  "conversation_history": {
+    "enabled": true,
+    "deployment_boundary": "single_user",
+    "long_term_store": "qdrant"
+  },
+  "authentication": {"mode": "none", "required": false},
+  "uploads": {
+    "enabled": true,
+    "media_types": ["application/pdf", "text/plain"],
+    "maximum_bytes": 20971520
+  },
+  "request_routing": {"enabled": true, "filing_only_rollback": false},
+  "tools": {
+    "calculator_enabled": false,
+    "web_search_enabled": false,
+    "maximum_executions": 4,
+    "maximum_web_searches": 2
+  }
+}
