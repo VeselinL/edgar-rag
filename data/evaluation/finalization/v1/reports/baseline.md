@@ -24,9 +24,17 @@
 
 The human review is intentionally recorded as provisional in
 `runs/judge-calibration-v1/summary.json`: the user authorized one reviewer, so
-there is no inter-reviewer agreement or Cohen's kappa. The packet contains
-reviewed claims rather than complete excerpts, so it is not a full-excerpt
-entailment certification and has not calibrated an LLM judge.
+there is no two-human inter-reviewer agreement or Cohen's kappa. The packet
+contains reviewed claims rather than complete excerpts, so it is not a
+full-excerpt entailment certification.
+
+An independent diagnostic LLM subsequently scored the same 20 pairs using the
+full chunks cited by either answer plus matching gold chunks. It agreed with the
+human pair-level rubric on `0.95` of 120 decisions. Aggregate Cohen's kappa was
+`-0.0227`, and per-field kappas were either `0` or undefined because the human
+labels are almost entirely `pass`; this is a prevalence limitation, not evidence
+of a reliable calibrated judge. The raw output and exact limitations are in
+`runs/judge-calibration-v1/llm_judge.jsonl` and `llm_judge_summary.json`.
 
 ## Layered baseline results
 
@@ -102,8 +110,8 @@ baseline measurement set.
 ## Phase status
 
 The Phase 4 measurement artifacts are saved, but the Phase 4 exit gate is **not
-ready to pass**: its required human/LLM calibration is incomplete under the
-one-reviewer decision, and the conversation, memory, upload, language, and full
-security execution manifests are unavailable in the frozen runtime. The measured
-end-to-end results also identify hard failures for later correction. Do not claim
-release readiness from this baseline.
+ready to pass**: the one-human plus diagnostic-LLM comparison does not meet the
+plan's double-human calibration requirement, and the conversation, memory,
+upload, language, and full-security execution manifests are unavailable in the
+frozen runtime. The measured end-to-end results also identify hard failures for
+later correction. Do not claim release readiness from this baseline.
