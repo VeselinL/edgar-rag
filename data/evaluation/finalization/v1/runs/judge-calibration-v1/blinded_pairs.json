@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "required_reviewers": 2,
+  "required_reviewers": 1,
   "pairs": [
     {
       "pair_id": "blind-01",
@@ -13,10 +13,10 @@
       "reviewer_a": null,
       "reviewer_b": null,
       "rubric": {
-        "claim_correctness": "pass|fail",
-        "faithfulness": "pass|fail",
-        "citation_support": "pass|fail",
-        "abstention": "pass|fail",
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
         "notes": "required when fail"
       }
     },
@@ -31,10 +31,10 @@
       "reviewer_a": null,
       "reviewer_b": null,
       "rubric": {
-        "claim_correctness": "pass|fail",
-        "faithfulness": "pass|fail",
-        "citation_support": "pass|fail",
-        "abstention": "pass|fail",
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
         "notes": "required when fail"
       }
     },
@@ -51,10 +51,10 @@
       "reviewer_a": null,
       "reviewer_b": null,
       "rubric": {
-        "claim_correctness": "pass|fail",
-        "faithfulness": "pass|fail",
-        "citation_support": "pass|fail",
-        "abstention": "pass|fail",
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
         "notes": "required when fail"
       }
     },
@@ -71,10 +71,12 @@
       "reviewer_a": null,
       "reviewer_b": null,
       "rubric": {
-        "claim_correctness": "pass|fail",
-        "faithfulness": "pass|fail",
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -96,6 +98,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -117,6 +121,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -138,6 +144,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -159,6 +167,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -177,6 +187,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -195,6 +207,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -215,6 +229,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -235,6 +251,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -255,6 +273,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -275,6 +295,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -295,6 +317,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -315,6 +339,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -335,6 +361,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -355,6 +383,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -375,6 +405,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     },
@@ -395,6 +427,8 @@
         "faithfulness": "pass|fail",
         "citation_support": "pass|fail",
         "abstention": "pass|fail",
+        "answer_relevance": "pass|fail",
+        "conciseness": "pass|fail",
         "notes": "required when fail"
       }
     }
