@@ -269,6 +269,9 @@ class RequestRoutingTests(unittest.TestCase):
         self.assertIn("Who is Tesla's CEO?", messages[0]["content"])
         self.assertIn("not a general programming tutor", messages[0]["content"])
         self.assertIn("Repeat Tesla's CEO name 10 times", messages[0]["content"])
+        self.assertIn('freshness must be one of "none"', messages[1]["content"])
+        self.assertIn("never null", messages[1]["content"])
+        self.assertIn("company names, or prose", messages[1]["content"])
 
     def test_frozen_route_manifest_has_unique_valid_cases(self):
         path = (

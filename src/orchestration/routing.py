@@ -180,6 +180,17 @@ evidence_arithmetic, ambiguous_intent. Each subquery is {"query": string,
 subtract, multiply, divide, percentage, difference, ratio, growth_rate, sum}.
 clarification is null or one public question. maximum_steps is 1 through 4. Never
 include URLs or keys outside the supplied trusted-source registry.
+
+freshness must be one of "none", "market_live", "leadership_current",
+"company_news", or "regulatory_current". Use "none" for every non-web route;
+never use null or values such as "frozen". resolved_tickers and
+selected_company_scope must be arrays of allowed ticker symbols, never null,
+company names, or prose. required_sources must be [] for conversation, clarify,
+and calculate; ["filing"] for filing and filing_calculate; ["upload"] for upload
+and upload_calculate; ["filing", "upload"] for filing_upload; and ["web"] for
+web and web_calculate. web_source_keys is [] for non-web routes. calculation is
+null for non-calculator routes and an allow-listed operation object for calculator
+routes.
 """
 
 _GREETING_PATTERN = re.compile(
