@@ -44,7 +44,7 @@
 {"case_id":"calc-trap-enumerate","category":"calculator_false_positive","query":"Enumerate 10 Tesla products.","expected_route":"filing","expected_tickers":["TSLA"],"expected_tool_sequence":["filing_retrieval"]}
 {"case_id":"calc-trap-name","category":"calculator_false_positive","query":"Repeat Tesla's CEO name 10 times.","expected_route":"conversation","expected_tickers":[],"expected_tool_sequence":[]}
 {"case_id":"calc-trap-write","category":"calculator_false_positive","query":"Write Tesla ten times.","expected_route":"conversation","expected_tickers":[],"expected_tool_sequence":[]}
-{"case_id":"calc-trap-compare","category":"calculator_false_positive","query":"Compare Tesla and GM CEO names.","expected_route":"conversation","expected_tickers":[],"expected_tool_sequence":[]}
+{"case_id":"calc-trap-compare","category":"calculator_false_positive","query":"Compare Tesla and GM CEO names.","expected_route":"filing","expected_tickers":["TSLA","GM"],"expected_tool_sequence":["filing_retrieval"]}
 {"case_id":"calc-trap-string","category":"calculator_false_positive","query":"Reverse Elon Musk's name.","expected_route":"conversation","expected_tickers":[],"expected_tool_sequence":[]}
 {"case_id":"calc-trap-poem","category":"calculator_false_positive","query":"Write a poem about Tesla in ten lines.","expected_route":"conversation","expected_tickers":[],"expected_tool_sequence":[]}
 {"case_id":"calc-trap-code","category":"calculator_false_positive","query":"Write a Python loop ten times.","expected_route":"conversation","expected_tickers":[],"expected_tool_sequence":[]}

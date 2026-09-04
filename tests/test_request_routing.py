@@ -205,6 +205,16 @@ class RequestRoutingTests(unittest.TestCase):
         self.assertEqual(route.reason_code, RouteReason.OUT_OF_SCOPE)
         self.assertFalse(route.uses_filing_retrieval)
 
+    def test_ceo_name_comparison_uses_filing_not_calculator(self):
+        route = deterministic_route(
+            "Compare Tesla and GM CEO names.",
+            self.resolution("Compare Tesla and GM CEO names."),
+        )
+
+        self.assertEqual(route.route, RouteKind.FILING_RAG)
+        self.assertTrue(route.uses_filing_retrieval)
+        self.assertFalse(route.uses_calculator)
+
     def test_filing_question_about_company_algorithms_remains_in_scope(self):
         query = "What does Tesla's 10-K disclose about its vehicle algorithms?"
         route = deterministic_route(query, self.resolution(query))
