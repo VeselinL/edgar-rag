@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "candidate_commit": "1a0d049",
+  "request": "List Tesla reportable segments.",
+  "event_names": [
+    "delta",
+    "sources",
+    "done"
+  ],
+  "allowed_event_contract": [
+    "delta",
+    "sources",
+    "done",
+    "error"
+  ],
+  "contract_pass": true
+}
