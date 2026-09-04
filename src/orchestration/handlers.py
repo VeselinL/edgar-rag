@@ -17,6 +17,7 @@ from src.generation.citations import (
 from src.generation.provider import GenerationResult
 from src.generation.service import GenerationService
 from src.observability import RequestTrace
+from src.orchestration.models import Freshness
 from src.orchestration.routing import RequestRoute
 from src.tools import CalculationError, WebSearchError, infer_calculation_operation
 
@@ -65,10 +66,15 @@ class RouteHandlerMixin:
             yield PipelineEvent("done", {})
             return
         try:
+            search_query = (
+                f"{query} investor relations current leadership"
+                if route.freshness is Freshness.LEADERSHIP_CURRENT
+                else query
+            )
             with trace.stage("web_search"):
                 response = await asyncio.to_thread(
                     self.web_search.search,
-                    query,
+                    search_query,
                     max_results=self.web_search_max_results,
                     source_keys=route.web_source_keys,
                     tickers=route.resolved_tickers or route.selected_company_scope,

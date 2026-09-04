@@ -7,7 +7,7 @@ from unittest.mock import patch
 import numpy as np
 
 from src.backend.pipeline import FILINGS, PipelineSettings, RealPipeline
-from src.orchestration.models import EvidenceCalculationPlan, EvidenceOperand
+from src.orchestration.models import EvidenceCalculationPlan, EvidenceOperand, Freshness
 from src.orchestration.routing import RequestRoute, RouteKind, RouteReason
 from src.retrieval.evidence_policy import EvidencePolicyError
 from src.tools.web_search import WebSearchResponse, WebSearchResult
@@ -780,7 +780,13 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         records = []
         pipeline = RealPipeline(
             retriever,
-            WebGenerator(),
+            WebGenerator(
+                RequestRoute(
+                    RouteKind.WEB_SEARCH,
+                    RouteReason.CURRENT_OR_EXTERNAL,
+                    freshness=Freshness.LEADERSHIP_CURRENT,
+                )
+            ),
             llm_streaming=False,
             web_search=web_search,
             web_search_enabled=True,
@@ -798,7 +804,10 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         ]
 
         self.assertIsNone(retriever.arguments)
-        self.assertEqual(web_search.query, "Who is Tesla's CEO right now?")
+        self.assertEqual(
+            web_search.query,
+            "Who is Tesla's CEO right now? investor relations current leadership",
+        )
         self.assertEqual(records[0]["route"]["route"], "web")
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
 
