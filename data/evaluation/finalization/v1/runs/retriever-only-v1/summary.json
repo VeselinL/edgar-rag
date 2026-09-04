@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "layer": "retriever_only",
+  "run_id": "retriever-only-v1",
+  "shards": 5,
+  "freeze_manifest_sha256": "sha256:c988c03b4627bca63876b840949de3eaf931cad79fcf91c1e1edc980ee364fd8",
+  "frozen_source_commit": "edc65e4272c30fd39d71e3c98adbfd1dd2c7c34c",
+  "case_count": 75,
+  "scored_case_count": 64,
+  "error_count": 0,
+  "scope_accuracy": 0.9333333333333333,
+  "candidate_recall": 0.7890625,
+  "gold_survival": 1.0,
+  "hit_at_50": 0.859375,
+  "mrr_at_50": 0.5050595238095238,
+  "latency_ms": {
+    "mean": 339.969,
+    "max": 1122.9
+  },
+  "by_category": {
+    "absent_abstention": {
+      "case_count": 6,
+      "scored_case_count": 1,
+      "candidate_recall": 0.0,
+      "hit_at_50": 0.0,
+      "mrr_at_50": 0.0
+    },
+    "ambiguous_followup": {
+      "case_count": 5,
+      "scored_case_count": 4,
+      "candidate_recall": 0.75,
+      "hit_at_50": 0.75,
+      "mrr_at_50": 0.2361111111111111
+    },
+    "cross_company_comparison": {
+      "case_count": 8,
+      "scored_case_count": 8,
+      "candidate_recall": 0.75,
+      "hit_at_50": 1.0,
+      "mrr_at_50": 0.4311507936507937
+    },
+    "cross_section_synthesis": {
+      "case_count": 8,
+      "scored_case_count": 8,
+      "candidate_recall": 0.6875,
+      "hit_at_50": 1.0,
+      "mrr_at_50": 0.5697916666666667
+    },
+    "current_web": {
+      "case_count": 5,
+      "scored_case_count": 0,
+      "candidate_recall": 0.0,
+      "hit_at_50": 0.0,
+      "mrr_at_50": 0.0
+    },
+    "direct_factual": {
+      "case_count": 22,
+      "scored_case_count": 22,
+      "candidate_recall": 0.8181818181818182,
+      "hit_at_50": 0.8181818181818182,
+      "mrr_at_50": 0.5531565656565657
+    },
+    "evidence_calculation": {
+      "case_count": 5,
+      "scored_case_count": 5,
+      "candidate_recall": 0.8,
+      "hit_at_50": 0.8,
+      "mrr_at_50": 0.5285714285714286
+    },
+    "numerical_table": {
+      "case_count": 11,
+      "scored_case_count": 11,
+      "candidate_recall": 0.9090909090909091,
+      "hit_at_50": 0.9090909090909091,
+      "mrr_at_50": 0.4751082251082251
+    },
+    "product_alias": {
+      "case_count": 5,
+      "scored_case_count": 5,
+      "candidate_recall": 0.8,
+      "hit_at_50": 0.8,
+      "mrr_at_50": 0.6666666666666667
+    }
+  }
+}
