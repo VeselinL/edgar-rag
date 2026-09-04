@@ -115,10 +115,13 @@ def main() -> None:
     parser.add_argument("--cases", type=Path, default=DEFAULT_CASES)
     parser.add_argument("--output-directory", type=Path, default=DEFAULT_RUN_DIRECTORY)
     parser.add_argument("--device", default="cpu")
+    parser.add_argument("--start", type=int, default=0)
+    parser.add_argument("--stop", type=int)
     parser.add_argument("--freeze-manifest", type=Path, default=DEFAULT_FREEZE_MANIFEST)
     arguments = parser.parse_args()
     validate_manifest(arguments.freeze_manifest)
-    result = evaluate_retriever_only(load_cases(arguments.cases), build_retriever(arguments.device))
+    cases = load_cases(arguments.cases)[arguments.start:arguments.stop]
+    result = evaluate_retriever_only(cases, build_retriever(arguments.device))
     write_run(result, arguments.output_directory)
     print(json.dumps(result["summary"], indent=2))
 
