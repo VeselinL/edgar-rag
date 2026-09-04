@@ -144,7 +144,8 @@ AVA_WEB_SEARCH_ENABLED=false
 AVA_WEB_SEARCH_PROVIDER=disabled
 AVA_MAX_TOOL_EXECUTIONS=4
 AVA_MAX_WEB_SEARCHES=2
-# BRAVE_SEARCH_API_KEY=<backend secret when provider=brave>
+TAVILY_API_KEY=<backend secret when provider=tavily>
+TAVILY_API_URL=https://api.tavily.com
 AVA_QDRANT_MODE=shadow
 QDRANT_URL=http://127.0.0.1:6333
 QDRANT_COLLECTION_ALIAS=ava_filing_chunks_current
@@ -166,8 +167,8 @@ Set `AVA_LLM_STREAMING=true` only when the configured provider returns genuine
 `false`; AVA then waits for its completed JSON answer and displays it at once.
 
 Web search is off by default. To enable the bounded external adapter, set
-`AVA_WEB_SEARCH_ENABLED=true`, `AVA_WEB_SEARCH_PROVIDER=brave`, and a backend-only
-`BRAVE_SEARCH_API_KEY`. The adapter follows the [official Brave Web Search API](https://api-dashboard.search.brave.com/api-reference/web/search/get)
+`AVA_WEB_SEARCH_ENABLED=true`, `AVA_WEB_SEARCH_PROVIDER=tavily`, and a backend-only
+`TAVILY_API_KEY`. The adapter follows the [official Tavily Search API](https://docs.tavily.com/documentation/api-reference/endpoint/search)
 contract and never exposes the subscription token to the browser. If those values
 are absent, external questions return an explicit unavailable response rather
 than falling back to filing chunks or unstated model knowledge.
