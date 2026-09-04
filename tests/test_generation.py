@@ -128,6 +128,46 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(list(measured), ["answer"])
         self.assertEqual(measured.usage["total_tokens"], 25)
 
+    def test_web_and_upload_routes_accept_real_streaming_responses(self):
+        web_stream = FakeStream([chunk("web answer")])
+        web_service = GenerationService(
+            SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(web_stream))),
+            model="test",
+        )
+        web_evidence = [{
+            "chunk": {
+                "chunk_id": "web-1",
+                "title": "Release",
+                "publisher": "Example",
+                "retrieved_at": "2026-09-04T08:00:00Z",
+                "source_url": "https://example.com/release",
+                "text": "Current evidence.",
+            }
+        }]
+        self.assertEqual(
+            list(web_service.stream_web_answer_with_metadata("Question", web_evidence)),
+            ["web answer"],
+        )
+
+        upload_stream = FakeStream([chunk("upload answer")])
+        upload_service = GenerationService(
+            SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(upload_stream))),
+            model="test",
+        )
+        upload_evidence = [{
+            "chunk": {
+                "chunk_id": "upload:document:0",
+                "filename": "brief.txt",
+                "media_type": "text/plain",
+                "page_number": None,
+                "text": "Attached evidence.",
+            }
+        }]
+        self.assertEqual(
+            list(upload_service.stream_upload_answer_with_metadata("Question", upload_evidence)),
+            ["upload answer"],
+        )
+
     def test_provider_usage_ignores_non_numeric_and_unknown_fields(self):
         self.assertEqual(
             provider_usage({"prompt_tokens": 5, "secret": "never", "total_tokens": "5"}),
