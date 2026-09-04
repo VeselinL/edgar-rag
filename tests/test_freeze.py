@@ -1,0 +1,64 @@
+import json
+import tempfile
+import unittest
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
+
+from src.config.settings import ApplicationSettings
+from src.evaluation.freeze import _prompt_hashes, _safe_settings, validate_manifest
+
+
+class FreezeTests(unittest.TestCase):
+    def test_safe_settings_exclude_credentials_and_connection_secrets(self):
+        settings = ApplicationSettings.for_tests(
+            OPENAI_API_KEY="provider-secret",
+            OPENAI_API_URL="https://gateway.example.test",
+            QDRANT_API_KEY="qdrant-secret",
+            TAVILY_API_KEY="tavily-secret",
+        )
+
+        value = json.dumps(_safe_settings(settings))
+
+        self.assertNotIn("provider-secret", value)
+        self.assertNotIn("qdrant-secret", value)
+        self.assertNotIn("tavily-secret", value)
+        self.assertNotIn("gateway.example.test", value)
+
+    def test_prompt_hashes_include_router_instruction(self):
+        hashes = _prompt_hashes()
+
+        self.assertIn("src.orchestration.routing.ROUTER_INSTRUCTION", hashes)
+        self.assertIn("src.generation.prompts.SYSTEM_PROMPT", hashes)
+
+    def test_validate_rejects_post_freeze_code_change(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest_path = root / "data/evaluation/finalization/v1/freeze_manifest.json"
+            manifest_path.parent.mkdir(parents=True)
+            manifest_path.write_text(
+                json.dumps({
+                    "schema_version": 1,
+                    "source_commit": "source",
+                    "corpus": {"input_hashes": {}, "artifact_version": "artifact", "point_count": 1},
+                    "prompts": {"hashes": {}},
+                    "trusted_source_registry_sha256": "registry",
+                }),
+                encoding="utf-8",
+            )
+            bundle = SimpleNamespace(artifact_version="artifact", point_count=1)
+            with (
+                patch("src.evaluation.freeze._assert_clean"),
+                patch("src.evaluation.freeze._git", return_value="src/evaluation/freeze.py"),
+                patch("src.evaluation.freeze._is_ancestor", return_value=True),
+                patch("src.evaluation.freeze._input_hashes", return_value={}),
+                patch("src.evaluation.freeze.load_artifact_bundle", return_value=bundle),
+                patch("src.evaluation.freeze._prompt_hashes", return_value={}),
+                patch("src.evaluation.freeze._sha256_json", return_value="registry"),
+            ):
+                with self.assertRaisesRegex(ValueError, "does not match current code"):
+                    validate_manifest(manifest_path, project_root=root)
+
+
+if __name__ == "__main__":
+    unittest.main()
