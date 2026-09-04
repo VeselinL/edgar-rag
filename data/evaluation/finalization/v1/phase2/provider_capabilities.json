@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "probed_at": "2026-09-04T12:10:51.790599+00:00",
+  "endpoint_family": "openai_compatible_chat_completions",
+  "model": "AZURE_GPT_4o_2024_1120",
+  "ordinary_chat": {
+    "supported": true,
+    "response": {
+      "type": "ChatCompletion",
+      "top_level_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "moderation",
+        "object",
+        "prompt_filter_results",
+        "routing",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "choice_count": 1
+    }
+  },
+  "strict_json": {
+    "supported": false,
+    "safe_error_class": "BadRequestError"
+  },
+  "streaming": {
+    "supported": true,
+    "response": {
+      "type": "Stream",
+      "top_level_keys": [],
+      "choice_count": 0
+    }
+  },
+  "required_function": {
+    "supported": false,
+    "safe_error_class": "BadRequestError"
+  },
+  "native_tools_usable": false
+}
