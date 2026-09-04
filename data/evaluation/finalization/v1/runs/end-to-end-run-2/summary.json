@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "layer": "end_to_end",
+  "run": 2,
+  "evaluated_at": "2026-09-04T20:33:53.424641+00:00",
+  "runtime_mode": "real",
+  "freeze_manifest": "data/evaluation/finalization/v1/freeze_manifest.json",
+  "summary": {
+    "case_count": 75,
+    "completed_count": 69,
+    "error_count": 6,
+    "route_accuracy": 0.8985507246376812,
+    "tool_sequence_exactness": 0.8985507246376812,
+    "abstention_accuracy": 0.927536231884058,
+    "citation_validity": 1.0,
+    "source_display_exactness_proxy": 1.0,
+    "current_web_execution_success": 0.6,
+    "calculator_execution_success": 0.0,
+    "latency_ms": {
+      "mean": 3027.926869565217,
+      "p50": 2629.851,
+      "p95": 5490.493,
+      "max": 6240.939
+    },
+    "failure_count": 14,
+    "known_measurement_limits": [
+      "Claim correctness, completeness, and full faithfulness require reviewed full-evidence or calibrated-judge scoring and are not inferred from string matching.",
+      "Source-display exactness proxy verifies validated citations, no rejected IDs, cited status, and one visible source per resolved cited ID; the browser deliberately does not display raw internal IDs.",
+      "Conversation history is supplied as untrusted bounded context to the pipeline; persistence and ownership flows are measured separately because this frozen runtime has history disabled."
+    ]
+  }
+}
