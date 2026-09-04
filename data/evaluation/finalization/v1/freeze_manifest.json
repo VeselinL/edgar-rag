@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "created_at": "2026-09-04T13:31:46.751653+00:00",
-  "source_commit": "610f29153feaaad4bb90ed1d0807cea1b4fe2125",
-  "source_tree": "13a2dfe3aee68caa44cd469bdf58d4813b07e0f0",
+  "created_at": "2026-09-04T13:34:09.300780+00:00",
+  "source_commit": "434b9fa632e8ac1471818469cfe9a65def4fe065",
+  "source_tree": "f1e499ee9907c3068265c3887a5c5a9705f72fbf",
   "runtime": {
     "python": "3.12.3",
     "python_requirements": "sha256:b80cad530c778ea05cc305837c72b916b72d43a7aa883dd941a12f2f6056e440",
@@ -103,13 +103,13 @@
     "document_prefix": ""
   },
   "qdrant": {
-    "client_version": "1.19.0",
     "server_version": "1.18.2",
+    "client_version": "1.19.0",
+    "alias": "ava_filing_chunks_current",
+    "physical_collection": "ava_filing_chunks_89d3a5be9e7d7a8e",
+    "point_count": 4526,
     "import_manifest": "data/indexes/qdrant/ava_filing_chunks_89d3a5be9e7d7a8e.import.json",
     "import_manifest_sha256": "sha256:6bb4892c8bb1d78b687a227455e40aac5c2aefb7b4478219ff016f57f4e4e4d6",
-    "physical_collection": "ava_filing_chunks_89d3a5be9e7d7a8e",
-    "alias": "ava_filing_chunks_current",
-    "point_count": 4526,
     "payload_schema": "keyword: chunk_id, ticker, cik, accession_number, content_type, artifact_version",
     "audit": {
       "collection_name": "ava_filing_chunks_89d3a5be9e7d7a8e",
