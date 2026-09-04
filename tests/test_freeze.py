@@ -10,6 +10,7 @@ from src.evaluation.freeze import (
     _prompt_hashes,
     _safe_settings,
     _sha256_json,
+    _qdrant_server_version,
     validate_manifest,
 )
 from src.tools.web_search import TRUSTED_WEB_SOURCES
@@ -39,6 +40,12 @@ class FreezeTests(unittest.TestCase):
 
     def test_trusted_source_registry_hashes_typed_records(self):
         self.assertRegex(_sha256_json(TRUSTED_WEB_SOURCES), r"^sha256:[0-9a-f]{64}$")
+
+    def test_qdrant_server_version_requires_a_public_version_field(self):
+        with patch("src.evaluation.freeze.httpx.get") as request:
+            request.return_value.json.return_value = {"version": "1.18.2"}
+            request.return_value.raise_for_status.return_value = None
+            self.assertEqual(_qdrant_server_version("http://qdrant:6333", 5), "1.18.2")
 
     def test_validate_rejects_post_freeze_code_change(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -6,11 +6,14 @@ import argparse
 from dataclasses import asdict, is_dataclass
 from datetime import datetime, timezone
 import hashlib
+from importlib.metadata import version
 import json
 from pathlib import Path
 import subprocess
 import sys
 from typing import Any, Iterable
+
+import httpx
 
 from src.config.settings import ApplicationSettings, PROJECT_ROOT
 from src.filings.corpus import ACTIVE_FILINGS
@@ -116,6 +119,26 @@ def _input_hashes(project_root: Path) -> dict[str, dict[str, str]]:
     return {name: _relative_hashes(project_root, paths) for name, paths in artifacts.items()}
 
 
+def _embedding_configuration(project_root: Path) -> dict[str, Any]:
+    ticker, filing = next(iter(ACTIVE_FILINGS.items()))
+    value = json.loads(
+        (project_root / "data/embeddings" / ticker / f"{filing}.bgebase.embeddings.manifest.json").read_text(encoding="utf-8")
+    )
+    return {
+        key: value[key]
+        for key in ("model_repository", "requested_model_revision", "resolved_model_revision", "dimension", "normalized", "query_prefix", "document_prefix")
+    }
+
+
+def _qdrant_server_version(url: str, timeout: int) -> str:
+    response = httpx.get(url.rstrip("/") + "/", timeout=timeout)
+    response.raise_for_status()
+    version_value = response.json().get("version")
+    if not isinstance(version_value, str):
+        raise ValueError("Qdrant server did not provide a version.")
+    return version_value
+
+
 def create_manifest(
     path: Path = DEFAULT_MANIFEST, *, project_root: Path = PROJECT_ROOT
 ) -> dict[str, Any]:
@@ -135,7 +158,8 @@ def create_manifest(
         "source_tree": _git(project_root, "rev-parse", "HEAD^{tree}"),
         "runtime": {"python": sys.version.split()[0], "python_requirements": _sha256_file(project_root / "requirements.txt"), "frontend_lockfile": _sha256_file(frontend_lock)},
         "corpus": {"active_filings": ACTIVE_FILINGS, "input_hashes": _input_hashes(project_root), "chunking_config": _sha256_file(project_root / "data/chunks/chunking-config.json"), "artifact_version": bundle.artifact_version, "point_count": bundle.point_count},
-        "qdrant": {"import_manifest": str(import_path.relative_to(project_root)), "import_manifest_sha256": _sha256_file(import_path), "physical_collection": qdrant_import["physical_collection"], "alias": qdrant_import["read_alias"], "point_count": qdrant_import["audit"]["point_count"], "audit": qdrant_import["audit"]},
+        "embeddings": _embedding_configuration(project_root),
+        "qdrant": {"client_version": version("qdrant-client"), "server_version": _qdrant_server_version(settings.pipeline.qdrant_url, settings.pipeline.qdrant_timeout_seconds), "import_manifest": str(import_path.relative_to(project_root)), "import_manifest_sha256": _sha256_file(import_path), "physical_collection": qdrant_import["physical_collection"], "alias": qdrant_import["read_alias"], "point_count": qdrant_import["audit"]["point_count"], "payload_schema": "keyword: " + ", ".join(("chunk_id", "ticker", "cik", "accession_number", "content_type", "artifact_version")), "audit": qdrant_import["audit"]},
         "retrieval": {"rrf_k": scope_aware.DEFAULT_RRF_K, "candidate_k": scope_aware.DEFAULT_CANDIDATE_K, "final_evidence_k": scope_aware.DEFAULT_FINAL_EVIDENCE_K, "min_chunks_per_subquery": scope_aware.DEFAULT_MIN_CHUNKS_PER_SUBQUERY, "multi_subquery_bonus": scope_aware.DEFAULT_MULTI_SUBQUERY_BONUS},
         "prompts": {"filing_version": prompts.FILING_PROMPT_VERSION, "hashes": _prompt_hashes()},
         "trusted_source_registry_sha256": _sha256_json(TRUSTED_WEB_SOURCES),
