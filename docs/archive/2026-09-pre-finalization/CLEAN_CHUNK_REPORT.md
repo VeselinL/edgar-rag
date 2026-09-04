@@ -1,3 +1,7 @@
+> **Archived 4 September 2026.** This is a read-only historical record, not a
+> current plan or authority. See [`FINALIZATION.md`](../../../FINALIZATION.md) for the
+> sole remaining-work plan and release gates.
+
 # Cleaning and Chunking Report
 
 The maintained report is [`../CLEANING_AND_CHUNKING_IZVESTAJ.md`](docs/CLEANING_AND_CHUNKING_IZVESTAJ.md).

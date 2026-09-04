@@ -7,7 +7,7 @@ Build a Retrieval-Augmented Generation (RAG) assistant over annual SEC filings f
 The system must:
 
 - use the SEC EDGAR API to obtain filing HTML;
-- obtain the latest `10-K` filing for 10 public companies;
+- obtain the latest `10-K` filing for 11 public companies;
 - save the downloaded filings locally;
 - preprocess the HTML while preserving useful document structure;
 - chunk and embed the processed content;
@@ -20,20 +20,21 @@ The system must:
 - evaluate retrieval quality separately from generation quality;
 - include a small test set built from the extracted documents.
 
-The baseline corpus is fixed to these ten companies: Aptiv, Aurora, Ford,
-General Motors, Alphabet, Mobileye, NVIDIA, Ouster, Qualcomm, and Tesla. Do not
-expand or replace this corpus without an explicit decision.
+The baseline corpus is fixed to these eleven companies: Aptiv, Aurora, Ford,
+General Motors, Alphabet, Mobileye, NVIDIA, Ouster, Qualcomm, Rivian, and Tesla.
+Do not expand or replace this corpus without an explicit decision.
 
 ## Current Verified State — 2026-08-20
 
-- Raw SEC HTML and metadata exist for all ten companies.
-- Structured block JSONL exists for all ten filings.
-- All ten filings use the current recursive `500`-token, `32`-token-overlap
+- Raw SEC HTML and metadata exist for all eleven companies.
+- Structured block JSONL exists for all eleven filings.
+- All eleven filings use the current recursive `500`-token, `32`-token-overlap
   configuration with one complete retained logical table per table chunk.
-- The promoted corpus contains 4,115 chunk-schema-v3 chunks, including 462
-  Mobileye chunks; Tesla has been regenerated with the current configuration.
+- The promoted corpus contains 4,526 chunk-schema-v3 chunks, including 462
+  Mobileye chunks and 411 Rivian chunks; Tesla has been regenerated with the
+  current configuration.
 - BGE-base v1.5 is the selected baseline embedder. Valid aligned normalized
-  768-dimensional vectors and manifest-v3 records exist for all ten filings.
+  768-dimensional vectors and manifest-v3 records exist for all eleven filings.
 - Corpus-wide dense, BM25, hybrid RRF, and scope-aware retrieval evaluation
   implementations exist. Generation, citation, and reranking experiments exist
   in notebooks but were not yet shared production modules at the start of the
@@ -79,7 +80,7 @@ process-existing
 1. Implement SEC EDGAR fetching.
 2. Test acquisition and preprocessing on one or two filings.
 3. Inspect the extracted document blocks manually.
-4. Fix preprocessing before processing all 10 filings.
+4. Fix preprocessing before processing all 11 filings.
 5. Process the full corpus.
 6. Chunk the cleaned content.
 7. Generate embeddings.

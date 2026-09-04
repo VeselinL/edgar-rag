@@ -1,3 +1,7 @@
+> **Archived 4 September 2026.** This is a read-only historical record, not a
+> current plan or authority. See [`FINALIZATION.md`](../../../FINALIZATION.md) for the
+> sole remaining-work plan and release gates.
+
 # AVA — Roadmap Index
 
 **Status date:** 1 September 2026
