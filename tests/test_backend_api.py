@@ -212,6 +212,35 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(events[-2][1]["source_status"], "cited")
         self.assertNotIn("citation_fallback", events[-2][1])
 
+    def test_sse_transport_drops_non_contract_events(self):
+        class StatusPipeline:
+            mode = "real"
+            ready = True
+            answer_delivery = "provider_streaming"
+
+            async def stream(self, *args, **kwargs):
+                yield PipelineEvent("status", {"text": "Searching"})
+                yield PipelineEvent("delta", {"text": "Answer"})
+                yield PipelineEvent(
+                    "sources",
+                    {
+                        "sources": [],
+                        "source_status": "none_cited",
+                        "malformed_source_count": 0,
+                    },
+                )
+                yield PipelineEvent("done", {})
+
+        with TestClient(
+            create_app(application_settings=self.settings, pipeline=StatusPipeline())
+        ) as client:
+            response = client.post("/api/chat/stream", json={"query": "Question"})
+
+        self.assertEqual(
+            [event for event, _ in parse_sse(response.text)],
+            ["delta", "sources", "done"],
+        )
+
     def test_pre_token_failure_is_safe(self):
         response = self.client.post("/api/chat/stream", json={"query": "[mock:pre-error]"})
         events = parse_sse(response.text)

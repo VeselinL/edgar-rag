@@ -151,6 +151,11 @@ def create_router(
                     async for event in active_pipeline.stream(
                         body.query, request.is_disconnected, **stream_arguments
                     ):
+                        if event.event not in {"delta", "sources", "done", "error"}:
+                            LOGGER.debug("Dropping non-contract pipeline event", extra={
+                                "event": event.event,
+                            })
+                            continue
                         if event.event == "delta":
                             answer_fragments.append(str(event.data.get("text", "")))
                         elif event.event == "sources":
