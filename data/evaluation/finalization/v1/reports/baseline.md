@@ -109,9 +109,10 @@ baseline measurement set.
 
 ## Phase status
 
-The Phase 4 measurement artifacts are saved, but the Phase 4 exit gate is **not
-ready to pass**: the one-human plus diagnostic-LLM comparison does not meet the
-plan's double-human calibration requirement, and the conversation, memory,
-upload, language, and full-security execution manifests are unavailable in the
-frozen runtime. The measured end-to-end results also identify hard failures for
-later correction. Do not claim release readiness from this baseline.
+The Phase 4 measurement artifacts are complete under the one-human plus
+diagnostic-LLM protocol now defined in `FINALIZATION.md`. The phase therefore
+passes its **measurement** exit gate and supplies the baseline for Phase 5. It
+does not pass release-readiness gates: conversation, memory, upload, language,
+and full-security execution manifests are unavailable in the frozen runtime, and
+the measured end-to-end results identify hard failures for correction. Do not
+claim release readiness from this baseline.

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "phase": 4,
+  "measurement_exit_gate_pass": true,
+  "release_readiness_pass": false,
+  "freeze_manifest": "data/evaluation/finalization/v1/freeze_manifest.json",
+  "required_artifacts": {
+    "ground_truth_manifests": "complete",
+    "retriever_only": "complete",
+    "generator_oracle_context_three_runs": "complete",
+    "planner_retriever_three_runs": "complete",
+    "end_to_end_three_runs": "complete",
+    "route_tool_manifest": "complete",
+    "human_and_diagnostic_llm_calibration": "complete_under_updated_protocol",
+    "security_direct_live": "complete",
+    "runtime_availability_manifest_results": "complete",
+    "deterministic_delivery_gate": "complete"
+  },
+  "phase_5_inputs": [
+    "route and tool-sequence accuracy below the 0.90 improvement trigger",
+    "abstention accuracy below the 0.90 improvement trigger",
+    "current-web execution success below the required recall threshold",
+    "calculator execution unavailable because the frozen runtime disables it",
+    "unexpected SSE status events violate the endpoint event contract",
+    "conversation, memory, upload, and language runtime paths unavailable"
+  ],
+  "evidence": "data/evaluation/finalization/v1/reports/baseline.md"
+}
