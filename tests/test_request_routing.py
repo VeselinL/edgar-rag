@@ -195,6 +195,16 @@ class RequestRoutingTests(unittest.TestCase):
                 route = deterministic_route(query, self.resolution(query))
                 self.assertFalse(route.uses_calculator)
 
+    def test_name_letter_count_is_out_of_scope_not_filing_retrieval(self):
+        route = deterministic_route(
+            "Count the letters in Tesla's CEO name.",
+            self.resolution("Count the letters in Tesla's CEO name."),
+        )
+
+        self.assertEqual(route.route, RouteKind.CONVERSATION_ONLY)
+        self.assertEqual(route.reason_code, RouteReason.OUT_OF_SCOPE)
+        self.assertFalse(route.uses_filing_retrieval)
+
     def test_filing_question_about_company_algorithms_remains_in_scope(self):
         query = "What does Tesla's 10-K disclose about its vehicle algorithms?"
         route = deterministic_route(query, self.resolution(query))

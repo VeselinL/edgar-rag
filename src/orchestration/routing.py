@@ -279,7 +279,7 @@ _OUT_OF_SCOPE_TASK_CUES = re.compile(
     r"\b(?:ceos?|executives?|names?)\b.{0,120}"
     r"\b(?:frequency\s+map|letter\s+frequenc(?:y|ies)|count\s+(?:the\s+)?letters|"
     r"vowels?|anagrams?|palindromes?|reverse|morse|ascii|sort\s+(?:the\s+)?letters)\b|"
-    r"\b(?:frequency\s+map|letter\s+frequenc(?:y|ies)|vowels?|anagrams?|palindromes?|"
+    r"\b(?:frequency\s+map|letter\s+frequenc(?:y|ies)|count\s+(?:the\s+)?letters|vowels?|anagrams?|palindromes?|"
     r"reverse|morse|ascii|sort\s+(?:the\s+)?letters)\b.{0,120}"
     r"\b(?:ceos?|executives?|names?)\b|"
     r"\b(?:write|generate|compose|invent|create)\b.{0,100}"
