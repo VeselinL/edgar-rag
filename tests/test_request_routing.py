@@ -142,6 +142,21 @@ class RequestRoutingTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "mandatory"):
             parse_evidence_plan(plan)
 
+    def test_evidence_plan_normalizes_null_non_web_freshness_only(self):
+        plan = {
+            "route": "filing", "resolved_tickers": ["TSLA"],
+            "selected_company_scope": ["TSLA"],
+            "subqueries": [{"query": "Tesla segments", "tickers": ["TSLA"]}],
+            "freshness": None, "required_sources": ["filing"],
+            "web_source_keys": [], "calculation": None,
+            "clarification": None, "reason_code": "filing_evidence", "maximum_steps": 1,
+        }
+        self.assertEqual(parse_evidence_plan(plan).freshness.value, "none")
+        plan["route"] = "web"
+        plan["required_sources"] = ["web"]
+        with self.assertRaisesRegex(ValueError, "mandatory"):
+            parse_evidence_plan(plan)
+
     def test_vague_document_request_requires_a_real_chat_upload(self):
         query = "Summarize the document."
         without_upload = deterministic_route(query, self.resolution(query))

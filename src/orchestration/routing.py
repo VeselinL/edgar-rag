@@ -578,8 +578,12 @@ def parse_evidence_plan(
     if set(value) != required:
         raise ValueError("Router returned an invalid evidence plan object.")
     try:
-        route, reason, freshness = (
-            RouteKind(value["route"]), RouteReason(value["reason_code"]), Freshness(value["freshness"])
+        route = RouteKind(value["route"])
+        reason = RouteReason(value["reason_code"])
+        freshness = Freshness(
+            Freshness.NONE.value
+            if value["freshness"] is None
+            else value["freshness"]
         )
         sources = tuple(EvidenceSource(item) for item in value["required_sources"])
         keys = tuple(TrustedSourceKey(item) for item in value["web_source_keys"])
