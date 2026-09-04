@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "layer": "planner_retriever",
+  "runs": 3,
+  "case_count_per_run": 75,
+  "frozen_source_commit": "cb17e84cff19fa986e3cd34807cd8d412bb8a0c9",
+  "metrics": {
+    "scope_accuracy": {
+      "mean": 1.0,
+      "standard_deviation": 0.0,
+      "worst_run": 1.0,
+      "bootstrap_95_ci": [
+        1.0,
+        1.0
+      ]
+    },
+    "candidate_recall": {
+      "mean": 0.7890625,
+      "standard_deviation": 0.0,
+      "worst_run": 0.7890625,
+      "bootstrap_95_ci": [
+        0.7890625,
+        0.7890625
+      ]
+    },
+    "gold_survival": {
+      "mean": 0.9811320754716982,
+      "standard_deviation": 0.0,
+      "worst_run": 0.9811320754716981,
+      "bootstrap_95_ci": [
+        0.9811320754716982,
+        0.9811320754716982
+      ]
+    },
+    "errors": {
+      "mean": 0.0,
+      "worst_run": 0
+    }
+  }
+}

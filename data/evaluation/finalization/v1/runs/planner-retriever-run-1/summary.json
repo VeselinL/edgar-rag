@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "layer": "planner_retriever",
+  "run_id": "planner-retriever-run-1",
+  "freeze_manifest_sha256": "sha256:ea4600bd1ff0741828d19a07cd4b01838f851f11fb156fe998bf1140c4604971",
+  "frozen_source_commit": "cb17e84cff19fa986e3cd34807cd8d412bb8a0c9",
+  "case_count": 75,
+  "scored_case_count": 64,
+  "error_count": 0,
+  "scope_accuracy": 1.0,
+  "candidate_recall": 0.7890625,
+  "gold_survival": 0.9811320754716981,
+  "latency_ms": {
+    "mean": 2049.7266,
+    "max": 4055.541
+  },
+  "first_failure_stages": {
+    "planner": 0,
+    "planner_scope": 0,
+    "candidate_retrieval": 16,
+    "selection": 2
+  }
+}
