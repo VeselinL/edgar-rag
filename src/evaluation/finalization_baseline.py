@@ -105,7 +105,7 @@ def write_run(result: dict[str, Any], directory: Path) -> None:
         encoding="utf-8",
     )
     (directory / "failures.jsonl").write_text(
-        "".join(json.dumps(record, ensure_ascii=False) + "\n" for record in records if record.get("error") or record.get("candidate_recall", 1.0) < 1.0),
+        "".join(json.dumps(record, ensure_ascii=False) + "\n" for record in records if record.get("error") or (record.get("candidate_recall") is not None and record["candidate_recall"] < 1.0)),
         encoding="utf-8",
     )
 

@@ -1,6 +1,8 @@
+import tempfile
 import unittest
+from pathlib import Path
 
-from src.evaluation.finalization_baseline import evaluate_retriever_only
+from src.evaluation.finalization_baseline import evaluate_retriever_only, write_run
 
 
 class _Retriever:
@@ -24,6 +26,12 @@ class FinalizationBaselineTests(unittest.TestCase):
         self.assertEqual(result["summary"]["candidate_recall"], 1.0)
         self.assertEqual(result["summary"]["gold_survival"], 1.0)
         self.assertEqual(result["summary"]["error_count"], 0)
+
+    def test_write_run_accepts_unscored_current_case(self):
+        with tempfile.TemporaryDirectory() as directory:
+            write_run({"records": [{"case_id": "web", "candidate_recall": None}]}, Path(directory))
+
+            self.assertEqual((Path(directory) / "failures.jsonl").read_text(), "")
 
 
 if __name__ == "__main__":
