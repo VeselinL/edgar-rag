@@ -134,7 +134,6 @@ class PipelineSettings:
     qdrant_local_path: str | None = None
     qdrant_timeout_seconds: int = 30
     request_routing_enabled: bool = True
-    strict_abstention_prompt: bool = False
     calculator_enabled: bool = False
     web_search_enabled: bool = False
     web_search_provider: str = "disabled"
@@ -203,9 +202,6 @@ class PipelineSettings:
             qdrant_timeout_seconds=_integer(values, "QDRANT_TIMEOUT_SECONDS", 30),
             request_routing_enabled=_boolean(
                 values, "AVA_REQUEST_ROUTING_ENABLED", True
-            ),
-            strict_abstention_prompt=_boolean(
-                values, "AVA_STRICT_ABSTENTION_PROMPT", False
             ),
             # Phase 1 keeps every deployment path fail-closed. Phase 2 may
             # promote this only after the route and false-positive gates pass.

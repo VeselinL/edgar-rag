@@ -37,12 +37,8 @@ from .prompts import (
     CALCULATION_PLANNER_INSTRUCTION,
     CALCULATION_PLANNER_JSON_FORMAT,
     FILING_PROMPT_VERSION,
-    LEGACY_FILING_PROMPT_VERSION,
-    LEGACY_SYSTEM_PROMPT,
     PLANNER_INSTRUCTION,
     PLANNER_JSON_FORMAT,
-    STRICT_ABSENCE_GROUNDING_ADDENDUM,
-    STRICT_SYSTEM_PROMPT,
     SYSTEM_PROMPT,
     UPLOAD_SYSTEM_PROMPT,
     WEB_SYSTEM_PROMPT,
@@ -241,7 +237,6 @@ class GenerationService:
         temperature: float = 0.0,
         max_output_tokens: int = DEFAULT_MAX_OUTPUT_TOKENS,
         circuit_breaker: ProviderCircuitBreaker | None = None,
-        strict_absence_grounding: bool = False,
     ) -> None:
         if max_output_tokens <= 0:
             raise ValueError("max_output_tokens must be positive.")
@@ -250,17 +245,8 @@ class GenerationService:
         self.temperature = temperature
         self.max_output_tokens = max_output_tokens
         self.circuit_breaker = circuit_breaker or ProviderCircuitBreaker()
-        self.strict_absence_grounding = strict_absence_grounding
-        self.system_prompt = (
-            STRICT_SYSTEM_PROMPT
-            if strict_absence_grounding
-            else LEGACY_SYSTEM_PROMPT
-        )
-        self.prompt_version = (
-            FILING_PROMPT_VERSION
-            if strict_absence_grounding
-            else LEGACY_FILING_PROMPT_VERSION
-        )
+        self.system_prompt = SYSTEM_PROMPT
+        self.prompt_version = FILING_PROMPT_VERSION
 
     def for_model(self, model: str) -> "GenerationService":
         """Return a request-scoped service without mutating shared state."""
@@ -270,7 +256,6 @@ class GenerationService:
             temperature=self.temperature,
             max_output_tokens=self.max_output_tokens,
             circuit_breaker=self.circuit_breaker,
-            strict_absence_grounding=self.strict_absence_grounding,
         )
 
     def _create(self, *, streaming: bool = False, **arguments: Any) -> Any:

@@ -88,10 +88,9 @@ contract, but sends the completed model answer in one `delta` event without fake
 typing or artificial delays. See [DEPLOYMENT.md](DEPLOYMENT.md) for the verified
 gateway behavior and configuration.
 
-[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) is the single source of truth for
-the target architecture, priorities, dynamic per-company evidence policy, Qdrant
-migration, image retrieval, conversation memory, production completion work, and
-acceptance gates. [ROADMAP.md](ROADMAP.md) is its compact phase index.
+[FINALIZATION.md](FINALIZATION.md) is the sole authority for remaining release
+work and acceptance gates. Superseded implementation plans and roadmaps are kept
+as read-only historical records under `docs/archive/2026-09-pre-finalization/`.
 See [OBSERVABILITY.md](OBSERVABILITY.md) for the request-record contract and
 generation-quality commands.
 
@@ -140,7 +139,6 @@ AVA_PIPELINE_MODE=real
 AVA_LLM_MODEL=AZURE_GPT_51_2025_1113
 AVA_LLM_STREAMING=false
 AVA_REQUEST_ROUTING_ENABLED=true
-AVA_STRICT_ABSTENTION_PROMPT=false
 AVA_CALCULATOR_ENABLED=false
 AVA_WEB_SEARCH_ENABLED=false
 AVA_WEB_SEARCH_PROVIDER=disabled
@@ -196,10 +194,6 @@ questions about algorithms a company actually describes.
 skips route selection and all optional tool/upload paths while retaining the
 existing SEC retrieval and generation pipeline. Tool plans are also capped by
 `AVA_MAX_TOOL_EXECUTIONS` and `AVA_MAX_WEB_SEARCHES` before anything executes.
-`AVA_STRICT_ABSTENTION_PROMPT=true` enables the rejected strict-absence prompt
-experiment for reproducibility. It remains off because its saved Phase 10 run
-regressed completeness, numerical correctness, uncited claims, and latency.
-
 Explicit company requests use one fixed evidence policy: at most 50 chunks
 across the request and at most 10 chunks per company. Requests for one through
 five companies target 10 chunks from each company. Above five companies, AVA

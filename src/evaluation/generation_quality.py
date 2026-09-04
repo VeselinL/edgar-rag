@@ -242,7 +242,6 @@ def main() -> None:
     parser.add_argument("--answers", choices=("reference", "provider"), default="reference")
     parser.add_argument("--judge-provider", action="store_true")
     parser.add_argument("--model", default=DEFAULT_LLM_MODEL)
-    parser.add_argument("--strict-absence-grounding", action="store_true")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     client = make_llm_client() if args.answers == "provider" or args.judge_provider else None
@@ -250,7 +249,6 @@ def main() -> None:
         GenerationService(
             client,
             model=args.model,
-            strict_absence_grounding=args.strict_absence_grounding,
         )
         if args.answers == "provider"
         else None

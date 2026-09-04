@@ -386,7 +386,6 @@ class RealPipeline(RouteHandlerMixin):
                 failure_threshold=provider_settings.circuit_failures,
                 recovery_seconds=provider_settings.circuit_recovery_seconds,
             ),
-            strict_absence_grounding=settings.strict_abstention_prompt,
         )
         web_search: WebSearchTool = UnavailableWebSearchTool()
         if settings.web_search_enabled and settings.web_search_provider == "brave":

@@ -511,11 +511,6 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(settings.max_tool_executions, 3)
         self.assertEqual(settings.max_web_searches, 1)
 
-        rollback = PipelineSettings.from_mapping(
-            {"AVA_STRICT_ABSTENTION_PROMPT": "false"}
-        )
-        self.assertFalse(rollback.strict_abstention_prompt)
-
         with self.assertRaisesRegex(ValueError, "cannot exceed"):
             PipelineSettings.from_mapping(
                 {"AVA_MAX_TOOL_EXECUTIONS": "1", "AVA_MAX_WEB_SEARCHES": "2"}
