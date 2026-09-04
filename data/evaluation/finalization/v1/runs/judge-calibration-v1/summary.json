@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "review_method": "single_human_blinded_pair_review",
+  "reviewed_pair_count": 20,
+  "required_reviewers_configured": 1,
+  "rubric_storage": "Each completed rubric in blinded_pairs.json is the single human review; reviewer_a and reviewer_b are intentionally null.",
+  "rubric_pass_rates": {
+    "claim_correctness": 1.0,
+    "faithfulness": 1.0,
+    "citation_support": 1.0,
+    "abstention": 1.0,
+    "answer_relevance": 1.0,
+    "conciseness": 0.9
+  },
+  "rubric_fail_counts": {
+    "claim_correctness": 0,
+    "faithfulness": 0,
+    "citation_support": 0,
+    "abstention": 0,
+    "answer_relevance": 0,
+    "conciseness": 2
+  },
+  "preferred_answer_counts": {
+    "a": 2,
+    "b": 4,
+    "tie": 14
+  },
+  "cohen_kappa": null,
+  "agreement_status": "not_available_single_reviewer",
+  "limitations": [
+    "This user-authorized review has one reviewer, so inter-reviewer agreement and Cohen's kappa cannot be computed.",
+    "The packet provides abbreviated evidence claims rather than the complete retrieved excerpts; this records claim-based human review and does not certify full-excerpt entailment.",
+    "These labels have not yet been compared with an LLM judge, so they are not an LLM-judge calibration result."
+  ],
+  "phase_4_status": "recorded_provisional_human_review_not_a_complete_judge_calibration"
+}
