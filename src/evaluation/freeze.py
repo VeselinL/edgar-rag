@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import argparse
-from dataclasses import asdict
+from dataclasses import asdict, is_dataclass
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -46,8 +46,17 @@ def _sha256_file(path: Path) -> str:
 
 
 def _sha256_json(value: Any) -> str:
+    def default(item: Any) -> Any:
+        if is_dataclass(item):
+            return asdict(item)
+        if isinstance(item, Path):
+            return str(item)
+        raise TypeError(f"Unsupported freeze-hash value: {type(item).__name__}")
+
     return "sha256:" + hashlib.sha256(
-        json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        json.dumps(
+            value, sort_keys=True, separators=(",", ":"), default=default
+        ).encode("utf-8")
     ).hexdigest()
 
 

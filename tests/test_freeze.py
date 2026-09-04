@@ -6,7 +6,13 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from src.config.settings import ApplicationSettings
-from src.evaluation.freeze import _prompt_hashes, _safe_settings, validate_manifest
+from src.evaluation.freeze import (
+    _prompt_hashes,
+    _safe_settings,
+    _sha256_json,
+    validate_manifest,
+)
+from src.tools.web_search import TRUSTED_WEB_SOURCES
 
 
 class FreezeTests(unittest.TestCase):
@@ -30,6 +36,9 @@ class FreezeTests(unittest.TestCase):
 
         self.assertIn("src.orchestration.routing.ROUTER_INSTRUCTION", hashes)
         self.assertIn("src.generation.prompts.SYSTEM_PROMPT", hashes)
+
+    def test_trusted_source_registry_hashes_typed_records(self):
+        self.assertRegex(_sha256_json(TRUSTED_WEB_SOURCES), r"^sha256:[0-9a-f]{64}$")
 
     def test_validate_rejects_post_freeze_code_change(self):
         with tempfile.TemporaryDirectory() as directory:
