@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "evaluation": "calculator_quality",
+  "evaluated_at": "2026-09-04T12:51:15.362512+00:00",
+  "summary": {
+    "case_count": 10,
+    "passed_count": 10,
+    "exact_accuracy": 1.0,
+    "error_count": 0,
+    "latency_ms": {
+      "mean": 0.4861000000000001,
+      "max": 4.272
+    },
+    "gate_pass": true
+  },
+  "records": [
+    {
+      "case_id": "percent-word",
+      "expected_result": "20",
+      "actual_result": "20",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "(25 / 100) * 80",
+      "latency_ms": 4.272,
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "add-two",
+      "expected_result": "30",
+      "actual_result": "30",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "10 + 20",
+      "latency_ms": 0.143,
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "add-three",
+      "expected_result": "60",
+      "actual_result": "60",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "10 + 20 + 30",
+      "latency_ms": 0.064,
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "minus-word",
+      "expected_result": "60",
+      "actual_result": "60",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "100 - 40",
+      "latency_ms": 0.037,
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "plus-word",
+      "expected_result": "140",
+      "actual_result": "140",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "100 + 40",
+      "latency_ms": 0.034,
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "times-word",
+      "expected_result": "100",
+      "actual_result": "100",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "20 * 5",
+      "latency_ms": 0.036,
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "divide-words",
+      "expected_result": "25",
+      "actual_result": "25",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "100 / 4",
+      "latency_ms": 0.041,
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "growth-rate",
+      "expected_result": "25",
+      "actual_result": "25",
+      "expected_unit": "%",
+      "actual_unit": "%",
+      "normalized_expression": "((100 - 80) / 80) * 100",
+      "latency_ms": 0.05,
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "percentage-decrease",
+      "expected_result": "20",
+      "actual_result": "20",
+      "expected_unit": "%",
+      "actual_unit": "%",
+      "normalized_expression": "((100 - 80) / 100) * 100",
+      "latency_ms": 0.049,
+      "pass": true,
+      "error": null
+    },
+    {
+      "case_id": "rounding",
+      "expected_result": "0.67",
+      "actual_result": "0.67",
+      "expected_unit": null,
+      "actual_unit": null,
+      "normalized_expression": "2 / 3",
+      "latency_ms": 0.135,
+      "pass": true,
+      "error": null
+    }
+  ]
+}
