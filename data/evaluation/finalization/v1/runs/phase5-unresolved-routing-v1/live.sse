@@ -1,0 +1,8 @@
+event: delta
+data: {"text":"I need a little more context to choose the right evidence. Please name the company, source, or document you mean."}
+
+event: sources
+data: {"sources":[],"source_status":"none_cited","malformed_source_count":0}
+
+event: done
+data: {}

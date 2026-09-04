@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "candidate_commits": [
+    "615248f",
+    "8901af5",
+    "eadae5b"
+  ],
+  "query": "How many more shares could Colette Kress's listed plan sell than John Dabiri's listed plan?",
+  "baseline_failure": "The unresolved-name fallback invoked web search without trusted source keys and returned a safe transport error.",
+  "candidate_event_names": ["delta", "sources", "done"],
+  "candidate_error_event": null,
+  "candidate_source_count": 0,
+  "candidate_behavior": "Clarifies because the direct request has no resolved company or selected company scope.",
+  "expected_evaluation_route": "filing_calculate",
+  "promotion_status": "partial: safe error removed, but this direct no-scope probe does not establish expected evidence-calculation success"
+}
