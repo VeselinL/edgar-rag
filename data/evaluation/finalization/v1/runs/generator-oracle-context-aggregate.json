@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "layer": "generator_oracle_context",
+  "runs": 3,
+  "case_count_per_run": 75,
+  "frozen_source_commit": "12952e08424c34243d4495fac0d504e5eee20e56",
+  "metrics": {
+    "source_display_exactness": {
+      "mean": 1.0,
+      "standard_deviation": 0.0,
+      "worst_run": 1.0,
+      "bootstrap_95_ci": [
+        1.0,
+        1.0
+      ]
+    },
+    "abstention_accuracy": {
+      "mean": 0.9066666666666666,
+      "standard_deviation": 0.0,
+      "worst_run": 0.9066666666666666,
+      "bootstrap_95_ci": [
+        0.9066666666666666,
+        0.9066666666666666
+      ]
+    },
+    "invalid_citation_count": {
+      "mean": 0.0,
+      "worst_run": 0
+    }
+  }
+}

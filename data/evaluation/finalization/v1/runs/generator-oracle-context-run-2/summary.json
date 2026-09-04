@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "layer": "generator_oracle_context",
+  "run_id": "generator-oracle-context-run-2",
+  "freeze_manifest_sha256": "sha256:ed2aa20b6d792a38e9b5f9d9f3e6ae7236206dd21b5f24cd71b960837b545c80",
+  "frozen_source_commit": "12952e08424c34243d4495fac0d504e5eee20e56",
+  "case_count": 75,
+  "error_count": 0,
+  "invalid_citation_count": 0,
+  "source_display_exactness": 1.0,
+  "abstention_accuracy": 0.9066666666666666,
+  "latency_ms": {
+    "mean": 1169.1864266666666,
+    "max": 3552.045
+  },
+  "provider_usage": {
+    "prompt_tokens": 74151,
+    "completion_tokens": 5135,
+    "total_tokens": 79286
+  }
+}
