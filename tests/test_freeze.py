@@ -11,6 +11,7 @@ from src.evaluation.freeze import (
     _safe_settings,
     _sha256_json,
     _qdrant_server_version,
+    _validate_runtime,
     validate_manifest,
 )
 from src.tools.web_search import TRUSTED_WEB_SOURCES
@@ -46,6 +47,13 @@ class FreezeTests(unittest.TestCase):
             request.return_value.json.return_value = {"version": "1.18.2"}
             request.return_value.raise_for_status.return_value = None
             self.assertEqual(_qdrant_server_version("http://qdrant:6333", 5), "1.18.2")
+
+    def test_runtime_validation_rejects_effective_configuration_change(self):
+        settings = ApplicationSettings.for_tests()
+        manifest = {"effective_configuration": {"changed": True}, "qdrant": {}}
+        with patch("src.evaluation.freeze.ApplicationSettings.from_environment", return_value=settings):
+            with self.assertRaisesRegex(ValueError, "effective configuration"):
+                _validate_runtime(manifest, Path("."))
 
     def test_validate_rejects_post_freeze_code_change(self):
         with tempfile.TemporaryDirectory() as directory:

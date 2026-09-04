@@ -18,7 +18,7 @@ import httpx
 from src.config.settings import ApplicationSettings, PROJECT_ROOT
 from src.filings.corpus import ACTIVE_FILINGS
 from src.generation import prompts
-from src.indexing.qdrant_index import load_artifact_bundle
+from src.indexing.qdrant_index import alias_target, load_artifact_bundle, make_client
 from src.orchestration import routing
 from src.retrieval import scope_aware
 from src.tools.web_search import TRUSTED_WEB_SOURCES
@@ -139,6 +139,27 @@ def _qdrant_server_version(url: str, timeout: int) -> str:
     return version_value
 
 
+def _live_qdrant_state(settings: ApplicationSettings) -> dict[str, Any]:
+    pipeline = settings.pipeline
+    client = make_client(
+        url=pipeline.qdrant_url,
+        api_key=pipeline.qdrant_api_key,
+        timeout=pipeline.qdrant_timeout_seconds,
+    )
+    target = alias_target(client, pipeline.qdrant_collection_alias)
+    if target is None:
+        raise ValueError("Frozen Qdrant alias is unavailable.")
+    return {
+        "server_version": _qdrant_server_version(
+            pipeline.qdrant_url, pipeline.qdrant_timeout_seconds
+        ),
+        "client_version": version("qdrant-client"),
+        "alias": pipeline.qdrant_collection_alias,
+        "physical_collection": target,
+        "point_count": int(client.count(collection_name=target, exact=True).count),
+    }
+
+
 def create_manifest(
     path: Path = DEFAULT_MANIFEST, *, project_root: Path = PROJECT_ROOT
 ) -> dict[str, Any]:
@@ -149,6 +170,9 @@ def create_manifest(
     settings = ApplicationSettings.from_environment(project_root)
     import_path = project_root / "data/indexes/qdrant" / f"{bundle.collection_name}.import.json"
     qdrant_import = json.loads(import_path.read_text(encoding="utf-8"))
+    live_qdrant = _live_qdrant_state(settings)
+    if live_qdrant["physical_collection"] != bundle.collection_name:
+        raise ValueError("Live Qdrant alias does not target the frozen corpus.")
     migration_paths = sorted((project_root / "src").glob("**/migrations/*.sql"))
     frontend_lock = project_root / "src/frontend/package-lock.json"
     manifest = {
@@ -159,7 +183,7 @@ def create_manifest(
         "runtime": {"python": sys.version.split()[0], "python_requirements": _sha256_file(project_root / "requirements.txt"), "frontend_lockfile": _sha256_file(frontend_lock)},
         "corpus": {"active_filings": ACTIVE_FILINGS, "input_hashes": _input_hashes(project_root), "chunking_config": _sha256_file(project_root / "data/chunks/chunking-config.json"), "artifact_version": bundle.artifact_version, "point_count": bundle.point_count},
         "embeddings": _embedding_configuration(project_root),
-        "qdrant": {"client_version": version("qdrant-client"), "server_version": _qdrant_server_version(settings.pipeline.qdrant_url, settings.pipeline.qdrant_timeout_seconds), "import_manifest": str(import_path.relative_to(project_root)), "import_manifest_sha256": _sha256_file(import_path), "physical_collection": qdrant_import["physical_collection"], "alias": qdrant_import["read_alias"], "point_count": qdrant_import["audit"]["point_count"], "payload_schema": "keyword: " + ", ".join(("chunk_id", "ticker", "cik", "accession_number", "content_type", "artifact_version")), "audit": qdrant_import["audit"]},
+        "qdrant": {**live_qdrant, "import_manifest": str(import_path.relative_to(project_root)), "import_manifest_sha256": _sha256_file(import_path), "payload_schema": "keyword: " + ", ".join(("chunk_id", "ticker", "cik", "accession_number", "content_type", "artifact_version")), "audit": qdrant_import["audit"]},
         "retrieval": {"rrf_k": scope_aware.DEFAULT_RRF_K, "candidate_k": scope_aware.DEFAULT_CANDIDATE_K, "final_evidence_k": scope_aware.DEFAULT_FINAL_EVIDENCE_K, "min_chunks_per_subquery": scope_aware.DEFAULT_MIN_CHUNKS_PER_SUBQUERY, "multi_subquery_bonus": scope_aware.DEFAULT_MULTI_SUBQUERY_BONUS},
         "prompts": {"filing_version": prompts.FILING_PROMPT_VERSION, "hashes": _prompt_hashes()},
         "trusted_source_registry_sha256": _sha256_json(TRUSTED_WEB_SOURCES),
@@ -183,6 +207,16 @@ def _is_ancestor(project_root: Path, ancestor: str) -> bool:
         capture_output=True,
         check=False,
     ).returncode == 0
+
+
+def _validate_runtime(manifest: dict[str, Any], project_root: Path) -> None:
+    settings = ApplicationSettings.from_environment(project_root)
+    if _safe_settings(settings) != manifest["effective_configuration"]:
+        raise ValueError("Freeze manifest effective configuration does not match.")
+    live_qdrant = _live_qdrant_state(settings)
+    expected = manifest["qdrant"]
+    if any(live_qdrant[key] != expected[key] for key in live_qdrant):
+        raise ValueError("Freeze manifest live Qdrant state does not match.")
 
 
 def validate_manifest(
@@ -213,6 +247,7 @@ def validate_manifest(
         raise ValueError("Freeze manifest prompt hashes do not match.")
     if _sha256_json(TRUSTED_WEB_SOURCES) != manifest["trusted_source_registry_sha256"]:
         raise ValueError("Freeze manifest trusted-source registry changed.")
+    _validate_runtime(manifest, project_root)
     return {"status": "passed", "source_commit": source_commit, "artifact_version": bundle.artifact_version}
 
 
