@@ -80,6 +80,7 @@ class RequestRoutingTests(unittest.TestCase):
             "What is 25 percent of 80?",
             "Add 10 and 20.",
             "What is 100 minus 40?",
+            "What is 12 multiplied by 4?",
             "Calculate the growth rate from 80 to 100.",
         ):
             with self.subTest(query=query):

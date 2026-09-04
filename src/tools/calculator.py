@@ -305,6 +305,13 @@ def _expression_from_query(query: str) -> tuple[str, str, str | None]:
             ),
         ),
         (
+            "multiply",
+            re.compile(
+                rf"^\D*?({_SIGNED_NUMBER})\s+multiplied\s+by\s+({_SIGNED_NUMBER})$",
+                re.I,
+            ),
+        ),
+        (
             "divide",
             re.compile(
                 rf"^\D*?divide\s+({_SIGNED_NUMBER})\s+by\s+({_SIGNED_NUMBER})$",

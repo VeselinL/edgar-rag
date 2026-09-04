@@ -207,7 +207,7 @@ _FILING_CUES = re.compile(
 )
 _ARITHMETIC_REQUEST_CUES = re.compile(
     r"\b(?:calculate|compute|total(?:\s+of)?|difference|ratio|percentage|"
-    r"percent|growth\s+rate|add|subtract|multiply|divide|plus|minus|"
+    r"percent|growth\s+rate|add|subtract|multiply|multiplied|divide|plus|minus|"
     r"divided\s+by)\b",
     re.IGNORECASE,
 )

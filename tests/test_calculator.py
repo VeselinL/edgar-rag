@@ -40,6 +40,7 @@ class CalculatorToolTests(unittest.TestCase):
             "What is 100 minus 40?": ("60", None),
             "What is 100 plus 40?": ("140", None),
             "What is 20 times 5?": ("100", None),
+            "What is 12 multiplied by 4?": ("48", None),
             "What is 100 divided by 4?": ("25", None),
             "Calculate the growth rate from 80 to 100.": ("25", "%"),
             "What is the percentage change from 80 to 100?": ("25", "%"),
