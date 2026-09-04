@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "created_at": "2026-09-04T13:34:09.300780+00:00",
-  "source_commit": "434b9fa632e8ac1471818469cfe9a65def4fe065",
-  "source_tree": "f1e499ee9907c3068265c3887a5c5a9705f72fbf",
+  "created_at": "2026-09-04T13:35:07.697035+00:00",
+  "source_commit": "6c3c9d3101cd6d7a4fdc62f8965c12def8d96cb1",
+  "source_tree": "d7fd74cd64cb1e8d3c813704d0075ad05b774f19",
   "runtime": {
     "python": "3.12.3",
     "python_requirements": "sha256:b80cad530c778ea05cc305837c72b916b72d43a7aa883dd941a12f2f6056e440",
@@ -153,51 +153,48 @@
     "src/conversations/migrations/0005_company_scope.sql": "sha256:a016366a73b86274bee1101c65caa7cdf346257d93bb87309863697a6af86d62"
   },
   "effective_configuration": {
-    "pipeline": {
-      "mode": "real",
-      "model_device": "cpu",
-      "llm_model": "AZURE_GPT_4o_2024_1120",
-      "llm_streaming": false,
-      "context_window_tokens": 65536,
-      "reserved_output_tokens": 4096,
-      "observability_retention_days": 30,
-      "qdrant_mode": "primary",
-      "qdrant_url": "http://127.0.0.1:6333",
-      "qdrant_collection_alias": "ava_filing_chunks_current",
-      "qdrant_local_path": null,
-      "qdrant_timeout_seconds": 30,
-      "request_routing_enabled": true,
-      "calculator_enabled": false,
-      "web_search_enabled": true,
-      "web_search_provider": "tavily",
-      "web_search_api_url": "https://api.tavily.com",
-      "web_search_timeout_seconds": 8.0,
-      "web_search_max_results": 5,
-      "max_tool_executions": 4,
-      "max_web_searches": 2
-    },
-    "provider": {
-      "api_version": "2023-12-06",
-      "timeout_seconds": 90.0,
-      "maximum_retries": 2,
-      "circuit_failures": 5,
-      "circuit_recovery_seconds": 30.0
+    "auth": {
+      "algorithms": [
+        "RS256"
+      ],
+      "allow_insecure_http": false,
+      "client_id": "",
+      "clock_skew_seconds": 30,
+      "cookie_name": "ava_session",
+      "cookie_same_site": "lax",
+      "cookie_secure": true,
+      "csrf_cookie_name": "ava_csrf",
+      "discovery_timeout_seconds": 5.0,
+      "fixed_tenant_id": null,
+      "issuer": "",
+      "login_ttl_seconds": 300,
+      "redirect_uri": "",
+      "scopes": [
+        "openid",
+        "profile"
+      ],
+      "session_ttl_seconds": 28800,
+      "tenant_claim": null
     },
     "conversation": {
-      "mode": "disabled",
-      "tenant_id": null,
-      "user_id": null,
-      "single_user_boundary_acknowledged": false,
-      "recent_token_budget": 16384,
-      "summary_token_budget": 768,
-      "long_term_token_budget": 1024,
       "long_term_candidate_k": 5,
       "long_term_score_threshold": 0.55,
+      "long_term_store": "qdrant",
+      "long_term_token_budget": 1024,
+      "mode": "disabled",
+      "recent_token_budget": 16384,
       "retention_days": 90,
-      "long_term_store": "qdrant"
+      "single_user_boundary_acknowledged": false,
+      "summary_token_budget": 768,
+      "tenant_id": null,
+      "user_id": null
     },
     "documents": {
       "enabled": false
+    },
+    "logging": {
+      "json_logs": false,
+      "level": "INFO"
     },
     "operations": {
       "maximum_body_bytes": 16384,
@@ -205,34 +202,37 @@
       "requests_per_minute": 60,
       "stream_timeout_seconds": 180
     },
-    "auth": {
-      "issuer": "",
-      "client_id": "",
-      "redirect_uri": "",
-      "fixed_tenant_id": null,
-      "tenant_claim": null,
-      "algorithms": [
-        "RS256"
-      ],
-      "scopes": [
-        "openid",
-        "profile"
-      ],
-      "discovery_timeout_seconds": 5.0,
-      "clock_skew_seconds": 30,
-      "allow_insecure_http": false,
-      "cookie_name": "ava_session",
-      "csrf_cookie_name": "ava_csrf",
-      "login_ttl_seconds": 300,
-      "session_ttl_seconds": 28800,
-      "cookie_secure": true,
-      "cookie_same_site": "lax"
+    "pipeline": {
+      "calculator_enabled": false,
+      "context_window_tokens": 65536,
+      "llm_model": "AZURE_GPT_4o_2024_1120",
+      "llm_streaming": false,
+      "max_tool_executions": 4,
+      "max_web_searches": 2,
+      "mode": "real",
+      "model_device": "cpu",
+      "observability_retention_days": 30,
+      "qdrant_collection_alias": "ava_filing_chunks_current",
+      "qdrant_local_path": null,
+      "qdrant_mode": "primary",
+      "qdrant_timeout_seconds": 30,
+      "qdrant_url": "http://127.0.0.1:6333",
+      "request_routing_enabled": true,
+      "reserved_output_tokens": 4096,
+      "web_search_api_url": "https://api.tavily.com",
+      "web_search_enabled": true,
+      "web_search_max_results": 5,
+      "web_search_provider": "tavily",
+      "web_search_timeout_seconds": 8.0
+    },
+    "provider": {
+      "api_version": "2023-12-06",
+      "circuit_failures": 5,
+      "circuit_recovery_seconds": 30.0,
+      "maximum_retries": 2,
+      "timeout_seconds": 90.0
     },
     "ui": {
-      "query_max_length": 4000,
-      "cors_origins": [
-        "http://localhost:5173"
-      ],
       "available_models": [
         "AZURE_GPT_4o_2024_1120",
         "AZURE_GPT_41_2025_0414",
@@ -242,11 +242,11 @@
         "AZURE_GPT_55_2026_0424",
         "AZURE_GPT_56_SOL_2026_0709"
       ],
-      "default_model": "AZURE_GPT_4o_2024_1120"
-    },
-    "logging": {
-      "json_logs": false,
-      "level": "INFO"
+      "cors_origins": [
+        "http://localhost:5173"
+      ],
+      "default_model": "AZURE_GPT_4o_2024_1120",
+      "query_max_length": 4000
     }
   }
 }
