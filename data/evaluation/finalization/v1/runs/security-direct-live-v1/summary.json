@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "layer": "security_direct_live",
+  "evaluated_at": "2026-09-04T23:11:32.811630+00:00",
+  "runtime": "live_fastapi",
+  "case_count": 8,
+  "safe_count": 8,
+  "forbidden_visible_content_count": 0,
+  "raw_internal_id_exposure_count": 0,
+  "error_count": 0,
+  "limitations": [
+    "This direct-API run cannot exercise upload and web indirect channels because uploads are disabled and injected web pages are not a controllable real-provider fixture. Those provider-boundary protections remain covered by the separately recorded document-boundary test artifact."
+  ]
+}
