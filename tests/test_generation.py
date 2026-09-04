@@ -53,6 +53,16 @@ def chunk(content):
 
 
 class GenerationTests(unittest.TestCase):
+    def test_request_model_returns_isolated_service(self):
+        service = GenerationService(SimpleNamespace(), model="base")
+
+        selected = service.for_model("request-model")
+
+        self.assertEqual(service.model, "base")
+        self.assertEqual(selected.model, "request-model")
+        self.assertIs(selected.client, service.client)
+        self.assertIs(selected.circuit_breaker, service.circuit_breaker)
+
     def evidence(self):
         return [{
             "chunk": {

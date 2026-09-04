@@ -1,3 +1,4 @@
+import asyncio
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -118,6 +119,24 @@ class FakeGenerator:
         self.answer_called = True
         self.answer_arguments = (query, evidence)
         return self.answer_text
+
+
+class ModelAwareGenerator(FakeGenerator):
+    def __init__(self, model="base", calls=None):
+        super().__init__()
+        self.model = model
+        self.calls = calls if calls is not None else []
+
+    def for_model(self, model):
+        return type(self)(model=model, calls=self.calls)
+
+    def plan_retrieval(self, query, deterministic_resolution=None):
+        self.calls.append(("plan", self.model))
+        return super().plan_retrieval(query, deterministic_resolution)
+
+    def answer(self, query, evidence):
+        self.calls.append(("answer", self.model))
+        return super().answer(query, evidence)
 
 
 class FordTypoGenerator(FakeGenerator):
@@ -600,6 +619,33 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(pipeline.qdrant_health["status"], "unavailable")
         self.assertEqual(
             pipeline.qdrant_health["safe_error_class"], "provider_transport_error"
+        )
+
+    async def test_concurrent_request_models_do_not_mutate_shared_generator(self):
+        generator = ModelAwareGenerator()
+        pipeline = RealPipeline(FakeRetriever(), generator, llm_streaming=False)
+
+        async def connected():
+            return False
+
+        async def run(model):
+            return [
+                event
+                async for event in pipeline.stream(
+                    "Original query", connected, model=model
+                )
+            ]
+
+        models = ("AZURE_GPT_4o_2024_1120", "AZURE_GPT_41_2025_0414")
+        results = await asyncio.gather(*(run(model) for model in models))
+
+        self.assertEqual(generator.model, "base")
+        self.assertEqual(
+            sorted(generator.calls),
+            sorted((stage, model) for model in models for stage in ("plan", "answer")),
+        )
+        self.assertTrue(
+            all([event.event for event in result] == ["delta", "sources", "done"] for result in results)
         )
 
     async def test_planner_subqueries_drive_shared_retrieval_before_streaming(self):

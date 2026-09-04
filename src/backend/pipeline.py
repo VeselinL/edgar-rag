@@ -323,6 +323,7 @@ class RealPipeline:
         route: RequestRoute,
         disconnected: Callable[[], Awaitable[bool]],
         trace: RequestTrace,
+        generator: Any,
     ) -> AsyncIterator[PipelineEvent]:
         if self.emit_activity:
             yield activity_event(
@@ -421,7 +422,7 @@ class RealPipeline:
             else:
                 with trace.stage("calculation_operand_extraction"):
                     calculation_plan = await asyncio.to_thread(
-                        self.generator.plan_evidence_calculation,
+                        generator.plan_evidence_calculation,
                         query,
                         evidence,
                         operation,
@@ -494,7 +495,7 @@ class RealPipeline:
         elif self.llm_streaming:
             generation_started = time.perf_counter()
             with trace.stage("generation_start"):
-                provider_stream = self.generator.stream_web_answer_with_metadata(
+                provider_stream = generator.stream_web_answer_with_metadata(
                     query, evidence
                 )
             sentinel = object()
@@ -533,7 +534,7 @@ class RealPipeline:
         else:
             with trace.stage("generation"):
                 result = await asyncio.to_thread(
-                    self.generator.web_answer_with_metadata, query, evidence
+                    generator.web_answer_with_metadata, query, evidence
                 )
             trace.provider_usage = result.usage
             if result.text:
@@ -579,6 +580,7 @@ class RealPipeline:
         disconnected: Callable[[], Awaitable[bool]],
         trace: RequestTrace,
         document_service: Any,
+        generator: Any,
         prefetched_results: Sequence[Any] | None = None,
     ) -> AsyncIterator[PipelineEvent]:
         if prefetched_results is None:
@@ -636,7 +638,7 @@ class RealPipeline:
             else:
                 with trace.stage("calculation_operand_extraction"):
                     calculation_plan = await asyncio.to_thread(
-                        self.generator.plan_evidence_calculation,
+                        generator.plan_evidence_calculation,
                         query,
                         evidence,
                         operation,
@@ -709,7 +711,7 @@ class RealPipeline:
         elif self.llm_streaming:
             generation_started = time.perf_counter()
             with trace.stage("generation_start"):
-                provider_stream = self.generator.stream_upload_answer_with_metadata(
+                provider_stream = generator.stream_upload_answer_with_metadata(
                     query, evidence
                 )
             sentinel = object()
@@ -748,7 +750,7 @@ class RealPipeline:
         else:
             with trace.stage("generation"):
                 generated = await asyncio.to_thread(
-                    self.generator.upload_answer_with_metadata, query, evidence
+                    generator.upload_answer_with_metadata, query, evidence
                 )
             trace.provider_usage = generated.usage
             if generated.text:
@@ -970,6 +972,13 @@ class RealPipeline:
         company_scope: list[str] | tuple[str, ...] | None = None,
         model: str | None = None,
     ) -> AsyncIterator[PipelineEvent]:
+        if model is not None and model not in ALLOWED_MODELS:
+            raise ValueError("That model is not available.")
+        request_generator = (
+            self.generator.for_model(model)
+            if model is not None
+            else self.generator
+        )
         trace = RequestTrace(
             original_query=query,
             request_id=request_id or str(uuid4()),
@@ -982,7 +991,7 @@ class RealPipeline:
         try:
             async for event in self._stream_traced(
                 query, is_disconnected, trace, conversation_context, document_service,
-                company_scope, model,
+                company_scope, request_generator,
             ):
                 yield event
         except asyncio.CancelledError:
@@ -1005,7 +1014,7 @@ class RealPipeline:
         conversation_context: Any | None = None,
         document_service: Any | None = None,
         company_scope: list[str] | tuple[str, ...] | None = None,
-        model: str | None = None,
+        generator: Any | None = None,
     ) -> AsyncIterator[PipelineEvent]:
         async def disconnected() -> bool:
             value = await is_disconnected()
@@ -1013,10 +1022,7 @@ class RealPipeline:
                 trace.cancelled = True
             return value
 
-        if model is not None:
-            if model not in ALLOWED_MODELS:
-                raise ValueError("That model is not available.")
-            self.generator.model = model
+        generator = generator or self.generator
         prompt_context = (
             conversation_context.prompt_text()
             if conversation_context is not None
@@ -1126,10 +1132,10 @@ class RealPipeline:
                     RouteReason.FILING_EVIDENCE,
                     decided_by="filing_only_kill_switch",
                 )
-            elif hasattr(self.generator, "route_request"):
+            elif hasattr(generator, "route_request"):
                 if prompt_context or uploaded_source_names:
                     route = await asyncio.to_thread(
-                        self.generator.route_request,
+                        generator.route_request,
                         query,
                         deterministic_resolution,
                         prompt_context,
@@ -1137,7 +1143,7 @@ class RealPipeline:
                     )
                 else:
                     route = await asyncio.to_thread(
-                        self.generator.route_request,
+                        generator.route_request,
                         query,
                         deterministic_resolution,
                     )
@@ -1252,7 +1258,7 @@ class RealPipeline:
 
         if route.uses_web_search:
             async for event in self._stream_web_route(
-                query, route, disconnected, trace
+                query, route, disconnected, trace, generator
             ):
                 yield event
             return
@@ -1283,6 +1289,7 @@ class RealPipeline:
                 disconnected,
                 trace,
                 document_service,
+                generator,
                 upload_candidates if upload_candidates else None,
             ):
                 yield event
@@ -1336,7 +1343,7 @@ class RealPipeline:
             return
         with trace.stage("planning"):
             planner_supports_scope = "selected_tickers" in inspect.signature(
-                self.generator.plan_retrieval
+                generator.plan_retrieval
             ).parameters
             planner_scope_kwargs = (
                 {"selected_tickers": selected_scope}
@@ -1345,7 +1352,7 @@ class RealPipeline:
             )
             if prompt_context:
                 plan = await asyncio.to_thread(
-                    self.generator.plan_retrieval,
+                    generator.plan_retrieval,
                     query,
                     deterministic_resolution,
                     prompt_context,
@@ -1353,7 +1360,7 @@ class RealPipeline:
                 )
             else:
                 plan = await asyncio.to_thread(
-                    self.generator.plan_retrieval,
+                    generator.plan_retrieval,
                     query,
                     deterministic_resolution,
                     **planner_scope_kwargs,
@@ -1491,7 +1498,7 @@ class RealPipeline:
                     decided_by="unresolved_company_fallback",
                 )
                 async for event in self._stream_web_route(
-                    query, fallback_route, disconnected, trace
+                    query, fallback_route, disconnected, trace, generator
                 ):
                     yield event
                 return
@@ -1680,11 +1687,11 @@ class RealPipeline:
         allowed_ids = list(outcome.chunk_ids)
 
         if route.uses_calculator:
-            if not hasattr(self.generator, "plan_evidence_calculation"):
+            if not hasattr(generator, "plan_evidence_calculation"):
                 raise RuntimeError("The generator does not support evidence calculations.")
             with trace.stage("calculation_operand_extraction"):
                 calculation_plan = await asyncio.to_thread(
-                    self.generator.plan_evidence_calculation,
+                    generator.plan_evidence_calculation,
                     query,
                     evidence,
                     plan["operation"],
@@ -1765,22 +1772,22 @@ class RealPipeline:
             if self.emit_activity:
                 yield activity_event(random.choice(GENERATION_ACTIVITIES))
             with trace.stage("generation_start"):
-                if hasattr(self.generator, "stream_answer_with_metadata"):
+                if hasattr(generator, "stream_answer_with_metadata"):
                     if prompt_context:
-                        provider_stream = self.generator.stream_answer_with_metadata(
+                        provider_stream = generator.stream_answer_with_metadata(
                             query, evidence, conversation_context=prompt_context
                         )
                     else:
-                        provider_stream = self.generator.stream_answer_with_metadata(
+                        provider_stream = generator.stream_answer_with_metadata(
                             query, evidence
                         )
                 else:
                     if prompt_context:
-                        provider_stream = self.generator.stream_answer(
+                        provider_stream = generator.stream_answer(
                             query, evidence, conversation_context=prompt_context
                         )
                     else:
-                        provider_stream = self.generator.stream_answer(query, evidence)
+                        provider_stream = generator.stream_answer(query, evidence)
             sentinel = object()
             citation_filter = CitationVisibilityFilter(allowed_ids)
 
@@ -1818,29 +1825,29 @@ class RealPipeline:
             if self.emit_activity:
                 yield activity_event(random.choice(GENERATION_ACTIVITIES))
             with trace.stage("generation"):
-                if hasattr(self.generator, "answer_with_metadata"):
+                if hasattr(generator, "answer_with_metadata"):
                     if prompt_context:
                         result = await asyncio.to_thread(
-                            self.generator.answer_with_metadata,
+                            generator.answer_with_metadata,
                             query,
                             evidence,
                             conversation_context=prompt_context,
                         )
                     else:
                         result = await asyncio.to_thread(
-                            self.generator.answer_with_metadata, query, evidence
+                            generator.answer_with_metadata, query, evidence
                         )
                 else:
                     if prompt_context:
                         answer_text = await asyncio.to_thread(
-                            self.generator.answer,
+                            generator.answer,
                             query,
                             evidence,
                             conversation_context=prompt_context,
                         )
                     else:
                         answer_text = await asyncio.to_thread(
-                            self.generator.answer, query, evidence
+                            generator.answer, query, evidence
                         )
                     result = GenerationResult(answer_text, {})
             answer = result.text

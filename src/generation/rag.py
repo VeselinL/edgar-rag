@@ -824,6 +824,17 @@ class GenerationService:
             else LEGACY_FILING_PROMPT_VERSION
         )
 
+    def for_model(self, model: str) -> "GenerationService":
+        """Return a request-scoped service without mutating shared state."""
+        return type(self)(
+            self.client,
+            model=model,
+            temperature=self.temperature,
+            max_output_tokens=self.max_output_tokens,
+            circuit_breaker=self.circuit_breaker,
+            strict_absence_grounding=self.strict_absence_grounding,
+        )
+
     def _create(self, *, streaming: bool = False, **arguments: Any) -> Any:
         self.circuit_breaker.before_request()
         try:
