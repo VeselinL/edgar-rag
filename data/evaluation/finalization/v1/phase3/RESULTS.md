@@ -29,6 +29,9 @@
 ## Exit gate
 
 - Focused freeze tests: 6 passed.
+- Full backend suite: completed without failures after the freeze implementation;
+  explicit external-service integration cases remain skipped when their endpoints
+  are not configured.
 - `python -m src.evaluation.freeze validate`: passed twice from a clean
   worktree, including live Qdrant alias/collection/point-count verification.
 - The live stack launched by `start_app.sh` is ready. Its health response reports
