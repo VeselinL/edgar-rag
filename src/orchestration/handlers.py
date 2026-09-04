@@ -45,7 +45,7 @@ class RouteHandlerMixin:
     ) -> AsyncIterator[PipelineEvent]:
         if self.emit_activity:
             yield activity_event(
-                f'Searching web (SEC.gov, Robinhood.com, Reuters.com, Nasdaq.com) for "{query[:160]}"'
+                f'Searching trusted web sources for "{query[:160]}"'
             )
         if not self.web_search_enabled:
             answer = (

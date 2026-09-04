@@ -831,6 +831,20 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(events[1].data["sources"][0]["publisher"], "example.com")
         self.assertEqual(records[0]["tool_executions"][0]["tool"], "web_search")
 
+    async def test_web_activity_does_not_name_a_stale_provider_allowlist(self):
+        pipeline = RealPipeline(
+            FakeRetriever(), WebGenerator(), llm_streaming=False,
+            web_search=FakeWebSearch(), web_search_enabled=True, emit_activity=True,
+        )
+
+        async def connected():
+            return False
+
+        events = [event async for event in pipeline.stream("What happened today?", connected)]
+        self.assertEqual(events[0].event, "status")
+        self.assertIn("trusted web sources", events[0].data["text"])
+        self.assertNotIn("Robinhood", events[0].data["text"])
+
     async def test_web_calculation_searches_then_executes_calculator(self):
         route = RequestRoute(
             RouteKind.WEB_AND_CALCULATOR,
