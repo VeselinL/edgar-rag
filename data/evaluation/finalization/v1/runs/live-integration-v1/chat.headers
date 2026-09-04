@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+date: Fri, 04 Sep 2026 19:31:45 GMT
+server: uvicorn
+cache-control: no-cache
+x-accel-buffering: no
+content-type: text/event-stream; charset=utf-8
+x-request-id: 788076b6-61cb-4feb-9e8f-8af58b82ab86
+x-content-type-options: nosniff
+referrer-policy: no-referrer
+x-frame-options: DENY
+Transfer-Encoding: chunked
+
