@@ -43,6 +43,8 @@ class RouteHandlerMixin:
         trace: RequestTrace,
         generator: Any,
     ) -> AsyncIterator[PipelineEvent]:
+        if await disconnected():
+            return
         if self.emit_activity:
             yield activity_event(
                 f'Searching trusted web sources for "{query[:160]}"'

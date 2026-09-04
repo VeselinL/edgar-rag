@@ -831,6 +831,22 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(events[1].data["sources"][0]["publisher"], "example.com")
         self.assertEqual(records[0]["tool_executions"][0]["tool"], "web_search")
 
+    async def test_web_disconnect_prevents_tool_execution(self):
+        web_search = FakeWebSearch()
+        records = []
+        pipeline = RealPipeline(
+            FakeRetriever(), WebGenerator(), llm_streaming=False,
+            web_search=web_search, web_search_enabled=True, telemetry_sink=records.append,
+        )
+
+        async def disconnected():
+            return True
+
+        events = [event async for event in pipeline.stream("What happened today?", disconnected)]
+        self.assertEqual(events, [])
+        self.assertIsNone(web_search.query)
+        self.assertTrue(records[0]["cancelled"])
+
     async def test_web_activity_does_not_name_a_stale_provider_allowlist(self):
         pipeline = RealPipeline(
             FakeRetriever(), WebGenerator(), llm_streaming=False,
