@@ -962,21 +962,6 @@ class RealPipeline(RouteHandlerMixin):
         }
 
         if resolution.needs_clarification:
-            # An unresolved product/company is the one case where a bounded
-            # external lookup is useful. Keep filing-first behavior for every
-            # resolved request; only fall back when the planner cannot map the
-            # target and web search is explicitly enabled.
-            if self.web_search_enabled:
-                fallback_route = RequestRoute(
-                    RouteKind.WEB_SEARCH,
-                    RouteReason.CURRENT_OR_EXTERNAL,
-                    decided_by="unresolved_company_fallback",
-                )
-                async for event in self._stream_web_route(
-                    query, fallback_route, disconnected, trace, generator
-                ):
-                    yield event
-                return
             trace.generated_answer = self.company_resolver.clarification_message(resolution)
             trace.source_status = "none_cited"
             trace.mark_first_token()

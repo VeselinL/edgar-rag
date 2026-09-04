@@ -1204,6 +1204,32 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Toyota", events[0].data["text"])
         self.assertEqual(events[1].data["sources"], [])
 
+    async def test_ambiguous_company_never_uses_unbounded_web_fallback(self):
+        retriever = FakeRetriever()
+        generator = AmbiguousGenerator()
+        web_search = FakeWebSearch()
+        pipeline = RealPipeline(
+            retriever,
+            generator,
+            web_search=web_search,
+            web_search_enabled=True,
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "What is Toyota's autonomous vehicle strategy?", connected
+            )
+        ]
+
+        self.assertIsNone(retriever.arguments)
+        self.assertIsNone(web_search.query)
+        self.assertIn("Toyota", events[0].data["text"])
+        self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
+
     async def test_policy_failure_returns_clear_no_source_response(self):
         pipeline = RealPipeline(PolicyErrorRetriever(), FakeGenerator())
 
