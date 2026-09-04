@@ -774,6 +774,34 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("web search is disabled", events[0].data["text"])
         self.assertEqual(events[1].data["sources"], [])
 
+    async def test_selected_scope_does_not_override_explicit_current_web_route(self):
+        retriever = FakeRetriever()
+        web_search = FakeWebSearch()
+        records = []
+        pipeline = RealPipeline(
+            retriever,
+            WebGenerator(),
+            llm_streaming=False,
+            web_search=web_search,
+            web_search_enabled=True,
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Who is Tesla's CEO right now?", connected, company_scope=["TSLA"]
+            )
+        ]
+
+        self.assertIsNone(retriever.arguments)
+        self.assertEqual(web_search.query, "Who is Tesla's CEO right now?")
+        self.assertEqual(records[0]["route"]["route"], "web")
+        self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
+
     async def test_out_of_scope_programming_route_runs_no_retrieval_or_tools(self):
         retriever = FakeRetriever()
         generator = RoutedGenerator(
