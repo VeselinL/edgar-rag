@@ -68,6 +68,12 @@ class CompanyResolverTests(unittest.TestCase):
         self.assertEqual(self.resolver.resolve("Compare ticker F with GM.").resolved_tickers, ("GM", "F"))
         self.assertEqual(self.resolver.resolve("Compare ticker f with GM.").resolved_tickers, ("GM", "F"))
 
+    def test_ticker_possessive_resolves_as_the_ticker(self):
+        result = self.resolver.resolve("What is AUR's stock price today?")
+
+        self.assertEqual(result.resolved_tickers, ("AUR",))
+        self.assertEqual(result.mentions[0].method, "exact_ticker")
+
     def test_stop_words_are_not_fuzzy_company_matches(self):
         result = self.resolver.resolve("Could you write that for me?")
         self.assertNotIn("F", result.resolved_tickers)

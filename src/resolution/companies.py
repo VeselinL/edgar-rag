@@ -296,7 +296,10 @@ class CompanyResolver:
                     break
 
         raw_tokens = re.findall(r"\$?[A-Za-z][A-Za-z0-9'’]*", query)
-        ticker_tokens = {token.lstrip("$").upper() for token in raw_tokens}
+        ticker_tokens = {
+            token.lstrip("$").removesuffix("'s").removesuffix("’s").upper()
+            for token in raw_tokens
+        }
         for ticker in ACTIVE_FILINGS:
             explicit = ticker in ticker_tokens
             if ticker == "F":
