@@ -749,9 +749,12 @@ Evaluate at atomic-claim level, following the diagnostic principle used by
 relevance, faithfulness, and answer quality. AVA uses reviewed gold chunks and
 claims where available rather than relying only on reference-free scores.
 
-Use exact checks first, then one blinded human rubric, then an LLM judge for
-scale. Calibrate the judge on at least 20 double-reviewed answer pairs and report
-agreement and Cohen's kappa. Never let the same generation call grade itself.
+Use exact checks first, then one blinded human rubric, then an independent LLM
+judge for scale. Calibrate the judge on at least 20 blinded answer pairs reviewed
+by one human and the diagnostic LLM. Report agreement and Cohen's kappa, and
+explicitly report prevalence limitations when labels are highly imbalanced. The
+human review remains authoritative; the LLM judge is diagnostic. Never let the
+same generation call grade itself.
 
 ### 9.6 Agent and tool metrics
 
