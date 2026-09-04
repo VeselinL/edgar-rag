@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "candidate_commits": [
+    "1a0d049",
+    "906fea8",
+    "6f69c7d"
+  ],
+  "event_names": [
+    "delta",
+    "sources",
+    "done"
+  ],
+  "source_status": "cited",
+  "source_count": 2,
+  "source_content_types": [
+    "web"
+  ],
+  "answer_has_visible_internal_chunk_id": false,
+  "web_route_observed_via_source": true,
+  "error_event": null
+}
