@@ -1,0 +1,20 @@
+{"case_id":"memory-auto-summary","scenario":"auto_summary","expected":"summary is labeled learned from chats and contains only supported extractive context"}
+{"case_id":"memory-explicit-write","scenario":"explicit_write","content":"Prefer concise answers.","expected":"explicit owner memory is created verbatim"}
+{"case_id":"memory-explicit-edit","scenario":"explicit_edit","content":"Prefer concise answers.","replacement":"Prefer concise bullet answers.","expected":"edited item replaces indexed content"}
+{"case_id":"memory-explicit-delete","scenario":"explicit_delete","expected":"deleted item is not returned by list or semantic search"}
+{"case_id":"memory-relevance","scenario":"relevance","expected":"preference is retrieved only for a relevant normal chat"}
+{"case_id":"memory-stale-fact","scenario":"stale_fact_rejection","content":"Tesla's current CEO is an old value.","expected":"current company claim requires filing or web evidence, not memory"}
+{"case_id":"memory-owner-isolation-a","scenario":"owner_isolation","expected":"another owner cannot list or retrieve this memory"}
+{"case_id":"memory-owner-isolation-b","scenario":"owner_isolation","expected":"semantic index filters by owner before result use"}
+{"case_id":"memory-conversation-isolation","scenario":"same_conversation_exclusion","expected":"long-term memory retrieval rate is zero within source conversation"}
+{"case_id":"memory-source-link","scenario":"summary_source_link","expected":"conversation summary links to its source conversation"}
+{"case_id":"memory-version","scenario":"versioning","expected":"edit advances version and update timestamp"}
+{"case_id":"memory-reconcile","scenario":"reconciliation","expected":"idempotent reconciliation restores Qdrant from PostgreSQL source of truth"}
+{"case_id":"memory-deleted-index","scenario":"deleted_index","expected":"deleted memory has no Qdrant point"}
+{"case_id":"memory-length-limit","scenario":"length_limit","expected":"oversize memory content is rejected without a partial write"}
+{"case_id":"memory-preference-tone","scenario":"relevance","content":"Use a professional tone.","expected":"tone preference may affect style but not evidence policy"}
+{"case_id":"memory-no-filing-replacement","scenario":"evidence_hierarchy","expected":"memory may resolve references and preferences but never replaces filing evidence"}
+{"case_id":"memory-no-web-replacement","scenario":"evidence_hierarchy","expected":"memory never replaces fresh trusted web evidence"}
+{"case_id":"memory-owner-delete-all","scenario":"owner_delete","expected":"owner deletion does not affect another owner's memory"}
+{"case_id":"memory-summary-duplication","scenario":"summary_deduplication","expected":"extractive summaries do not duplicate current short-term turns"}
+{"case_id":"memory-expired-summary","scenario":"stale_retention","expected":"expired or deleted summaries are not retrieved"}

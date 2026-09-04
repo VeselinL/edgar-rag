@@ -1,0 +1,20 @@
+{"case_id":"language-01","en":"What is Aurora's mission?","sr":"Koja je misija kompanije Aurora?","focus":"company_resolution","expected_tickers":["AUR"],"expected_language":"sr"}
+{"case_id":"language-02","en":"What are Tesla's reportable segments?","sr":"Koji su Teslini segmenti za izveštavanje?","focus":"retrieval","expected_tickers":["TSLA"],"expected_language":"sr"}
+{"case_id":"language-03","en":"What did Mobileye report for 2025?","sr":"Šta je Mobileye prijavio za 2025. godinu?","focus":"retrieval","expected_tickers":["MBLY"],"expected_language":"sr"}
+{"case_id":"language-04","en":"What is Alphabet's mission?","sr":"Koja je misija kompanije Alphabet?","focus":"company_resolution","expected_tickers":["GOOGL"],"expected_language":"sr"}
+{"case_id":"language-05","en":"What is GM's vision?","sr":"Koja je vizija kompanije GM?","focus":"retrieval","expected_tickers":["GM"],"expected_language":"sr"}
+{"case_id":"language-06","en":"What does Ford Model e focus on?","sr":"Na šta se fokusira Ford Model e?","focus":"product_alias","expected_tickers":["F"],"expected_language":"sr"}
+{"case_id":"language-07","en":"What does NVIDIA combine in its platform?","sr":"Šta NVIDIA kombinuje u svojoj platformi?","focus":"retrieval","expected_tickers":["NVDA"],"expected_language":"sr"}
+{"case_id":"language-08","en":"What does Qualcomm commercialize?","sr":"Šta Qualcomm komercijalizuje?","focus":"retrieval","expected_tickers":["QCOM"],"expected_language":"sr"}
+{"case_id":"language-09","en":"In how many countries is Aptiv present?","sr":"U koliko zemalja je Aptiv prisutan?","focus":"numerical","expected_tickers":["APTV"],"expected_language":"sr"}
+{"case_id":"language-10","en":"What is Ouster's mission?","sr":"Koja je misija kompanije Ouster?","focus":"retrieval","expected_tickers":["OUST"],"expected_language":"sr"}
+{"case_id":"language-11","en":"What vehicles are in Rivian's R1 platform?","sr":"Koja vozila su u Rivianovoj R1 platformi?","focus":"retrieval","expected_tickers":["RIVN"],"expected_language":"sr"}
+{"case_id":"language-12","en":"By how much did Tesla revenue change?","sr":"Za koliko se promenio Teslin prihod?","focus":"calculation","expected_tickers":["TSLA"],"expected_language":"sr"}
+{"case_id":"language-13","en":"Compare Tesla and Rivian revenue.","sr":"Uporedi prihod Tesle i Riviana.","focus":"comparison","expected_tickers":["TSLA","RIVN"],"expected_language":"sr"}
+{"case_id":"language-14","en":"What dividend did Tesla declare in 2025?","sr":"Koliku je dividendu Tesla proglasila 2025. godine?","focus":"abstention","expected_tickers":["TSLA"],"expected_language":"sr"}
+{"case_id":"language-15","en":"Who is Tesla's CEO right now?","sr":"Ko je trenutno direktor Tesle?","focus":"citation","expected_tickers":["TSLA"],"expected_language":"sr"}
+{"case_id":"language-16","en":"What is General Motors' zero-crash vision?","sr":"Koja je vizija kompanije General Motors o nula sudara?","focus":"company_resolution","expected_tickers":["GM"],"expected_language":"sr"}
+{"case_id":"language-17","en":"Which market did Aurora enter first?","sr":"Na koje tržište je Aurora prvo ušla?","focus":"followup","expected_tickers":["AUR"],"expected_language":"sr"}
+{"case_id":"language-18","en":"What total revenue did Ouster report in 2025?","sr":"Koliki ukupan prihod je Ouster prijavio za 2025?","focus":"numerical","expected_tickers":["OUST"],"expected_language":"sr"}
+{"case_id":"language-19","en":"What is Qualcomm Exhibit 10.3?","sr":"Šta je Qualcommov Eksponat 10.3?","focus":"citation","expected_tickers":["QCOM"],"expected_language":"sr"}
+{"case_id":"language-20","en":"What are those two Rivian vehicles?","sr":"Koja su ta dva Rivianova vozila?","focus":"followup","expected_tickers":["RIVN"],"expected_language":"sr"}
