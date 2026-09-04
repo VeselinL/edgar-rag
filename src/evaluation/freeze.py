@@ -93,7 +93,7 @@ def _safe_settings(settings: ApplicationSettings) -> dict[str, Any]:
     conversation.pop("postgres_dsn", None)
     auth = asdict(settings.auth)
     auth.pop("client_secret", None)
-    return {
+    value = {
         "pipeline": pipeline,
         "provider": provider,
         "conversation": conversation,
@@ -103,6 +103,7 @@ def _safe_settings(settings: ApplicationSettings) -> dict[str, Any]:
         "ui": asdict(settings.ui),
         "logging": asdict(settings.logging),
     }
+    return json.loads(json.dumps(value, sort_keys=True))
 
 
 def _input_hashes(project_root: Path) -> dict[str, dict[str, str]]:

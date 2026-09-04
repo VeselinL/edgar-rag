@@ -32,6 +32,7 @@ class FreezeTests(unittest.TestCase):
         self.assertNotIn("qdrant-secret", value)
         self.assertNotIn("tavily-secret", value)
         self.assertNotIn("gateway.example.test", value)
+        self.assertEqual(_safe_settings(settings), json.loads(value))
 
     def test_prompt_hashes_include_router_instruction(self):
         hashes = _prompt_hashes()
