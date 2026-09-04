@@ -1,0 +1,8 @@
+event: delta
+data: {"text":"That request is outside AVA's SEC-filing analysis scope. I can identify and cite disclosed executives or analyze company filing evidence, but I don't provide programming exercises or arbitrary letter-processing tasks."}
+
+event: sources
+data: {"sources":[],"source_status":"none_cited","malformed_source_count":0}
+
+event: done
+data: {}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "candidate_commits": [
+    "f1708a8",
+    "8c891af"
+  ],
+  "local_runtime_configuration": {
+    "calculator_enabled": true,
+    "checked_in_default_enabled": false,
+    "production_default_enabled": false
+  },
+  "cases": [
+    {
+      "query": "What is 12 multiplied by 4?",
+      "expected_route": "calculate",
+      "event_names": ["delta", "sources", "done"],
+      "answer": "12 * 4 = 48",
+      "source_count": 0,
+      "pass": true
+    },
+    {
+      "query": "Repeat Tesla's CEO name 2 times.",
+      "expected_route": "conversation",
+      "event_names": ["delta", "sources", "done"],
+      "source_count": 0,
+      "calculator_execution_observed": false,
+      "pass": true
+    },
+    {
+      "query": "Calculate the difference between Tesla's 2025 and 2024 revenue.",
+      "expected_route": "filing_calculate",
+      "event_names": ["delta", "sources", "done"],
+      "answer": "Using 94827 usd_millions and 97690 usd_millions, the difference is -2863 usd_millions.",
+      "source_status": "cited",
+      "source_content_type": "table",
+      "pass": true
+    }
+  ],
+  "error_event": null
+}
