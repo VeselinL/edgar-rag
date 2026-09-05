@@ -175,6 +175,10 @@ BOUNDARY EXAMPLES
   conversation/out_of_scope.
 - `Should I buy TSLA?` -> conversation/out_of_scope.
 - `What does Tesla's 10-K disclose about vehicle algorithms?` -> filing.
+- With saved context `My preferred company is Rivian`, `What cars does my
+  preferred company make?` -> filing with resolved_tickers `RIVN`.
+- With saved context `My preferred company is Rivian`, `What is my preferred
+  company?` -> conversation; answer only from the saved user context.
 """
 
 ROUTER_JSON_FORMAT = """Return a JSON object with exactly these keys: route,

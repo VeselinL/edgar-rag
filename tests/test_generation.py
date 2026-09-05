@@ -498,6 +498,10 @@ class GenerationTests(unittest.TestCase):
     def test_router_includes_short_revenue_change_calculation_example(self):
         self.assertIn("By how much did Tesla revenue change?` -> filing_calculate", ROUTER_INSTRUCTION)
 
+    def test_router_distinguishes_memory_recall_from_memory_resolved_filing_scope(self):
+        self.assertIn("What cars does my\n  preferred company make?` -> filing", ROUTER_INSTRUCTION)
+        self.assertIn("What is my preferred\n  company?` -> conversation", ROUTER_INSTRUCTION)
+
     def test_freshness_routing_distinguishes_filing_terms_from_live_facts(self):
         service = GenerationService(
             SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(None))),
