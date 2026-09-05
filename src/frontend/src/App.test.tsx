@@ -330,6 +330,8 @@ describe('App', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Open conversation sidebar' }))
     expect(settings).toHaveClass('settings-trigger--sidebar-open')
+    await userEvent.keyboard('{Escape}')
+    expect(screen.getByRole('button', { name: 'Close conversation sidebar' })).toBeInTheDocument()
   })
 
   it('localizes AVA controls from the saved Serbian preference', async () => {

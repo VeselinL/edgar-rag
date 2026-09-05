@@ -27,7 +27,6 @@ function renderSidebar() {
       onDelete={() => {}}
       onDeleteAll={() => {}}
       onExport={() => {}}
-      onClose={() => {}}
     />,
   )
 }

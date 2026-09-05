@@ -455,7 +455,6 @@ export default function App() {
                 })
                 .catch(() => window.alert(copy.exportFailed))
             }}
-            onClose={() => setSidebarOpen(false)}
           />
         )}
         {historyEnabled && sourcesOpen && (

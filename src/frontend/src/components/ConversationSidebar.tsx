@@ -16,7 +16,6 @@ interface Props {
   onDelete: (conversation: ConversationSummary) => void
   onDeleteAll: () => void
   onExport: () => void
-  onClose: () => void
 }
 
 const COMPANIES = [
@@ -140,7 +139,6 @@ export function ConversationSidebar({
   onDelete,
   onDeleteAll,
   onExport,
-  onClose,
 }: Props) {
   const [menuId, setMenuId] = useState<string | null>(null)
   const [scopeExpanded, setScopeExpanded] = useState(false)
@@ -152,16 +150,6 @@ export function ConversationSidebar({
   const scopeSummary = companyScope.length === 0
     ? t(language, 'allCompanies')
     : `${selectedCompanyNames.slice(0, 3).join(', ')}${selectedCompanyNames.length > 3 ? '…' : ''}`
-
-  useEffect(() => {
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      if (menuId) setMenuId(null)
-      else onClose()
-    }
-    window.addEventListener('keydown', closeOnEscape)
-    return () => window.removeEventListener('keydown', closeOnEscape)
-  }, [menuId, onClose])
 
   const rows = (items: ConversationSummary[]) => items.map((conversation) => (
     <ConversationRow
