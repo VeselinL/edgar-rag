@@ -85,6 +85,23 @@ class GenerationTests(unittest.TestCase):
         self.assertTrue(completions.arguments["stream"])
         self.assertEqual(completions.arguments["max_tokens"], 4096)
 
+    def test_personal_context_stream_uses_the_baseline_gateway_shape(self):
+        stream = FakeStream([chunk("Your preferred metric is revenue.")])
+        completions = FakeCompletions(stream)
+        service = GenerationService(
+            SimpleNamespace(chat=SimpleNamespace(completions=completions)), model="test"
+        )
+
+        self.assertEqual(
+            list(service.stream_conversation_context_answer(
+                "What is my preferred metric?",
+                conversation_context="Saved long-term user memory: My preferred metric is revenue.",
+            )),
+            ["Your preferred metric is revenue."],
+        )
+        self.assertTrue(completions.arguments["stream"])
+        self.assertNotIn("stream_options", completions.arguments)
+
     def test_non_streaming_gateway_response_fails_instead_of_simulating(self):
         stream = FakeStream([], content_type="application/json; charset=utf-8")
         client = SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(stream)))

@@ -689,7 +689,6 @@ class GenerationService:
             temperature=self.temperature,
             max_tokens=self.max_output_tokens,
             stream=True,
-            stream_options={"include_usage": True},
         )
         try:
             require_streaming_response(response)
