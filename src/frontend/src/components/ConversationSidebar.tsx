@@ -37,6 +37,15 @@ function DotsIcon() {
   )
 }
 
+function SidebarIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M9 4v16" />
+    </svg>
+  )
+}
+
 function ConversationRow({
   conversation,
   language,
@@ -182,8 +191,10 @@ export function ConversationSidebar({
   return (
     <aside className="conversation-sidebar" aria-label={t(language, 'conversationHistory')}>
       <div className="conversation-sidebar__heading">
+        <button type="button" className="sidebar-toggle" onClick={onClose} aria-label={t(language, 'closeSidebar')}>
+          <SidebarIcon />
+        </button>
         <strong>AVA</strong>
-        <button type="button" className="header-button" onClick={onClose}>{t(language, 'close')}</button>
       </div>
       <button type="button" className="sidebar-primary-action" onClick={onNew}>{t(language, 'newChat')}</button>
       <nav aria-label={t(language, 'savedChats')} className="conversation-sidebar__history">
@@ -201,6 +212,11 @@ export function ConversationSidebar({
               {recent.length > RECENT_CHAT_LIMIT && !historyExpanded && (
                 <button type="button" className="sidebar-show-more" onClick={() => setHistoryExpanded(true)}>
                   {t(language, 'showMoreChats')}
+                </button>
+              )}
+              {recent.length > RECENT_CHAT_LIMIT && historyExpanded && (
+                <button type="button" className="sidebar-show-more" onClick={() => setHistoryExpanded(false)}>
+                  {t(language, 'showFewerChats')}
                 </button>
               )}
             </>

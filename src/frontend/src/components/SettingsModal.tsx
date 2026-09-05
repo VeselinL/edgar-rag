@@ -13,6 +13,12 @@ const MODELS = [
 ] as const
 
 type Page = 'general' | 'memory' | 'personalization'
+type PersonalizationDraft = Pick<UserPreferences, 'nickname' | 'warmth' | 'enthusiasm' | 'emoji_use' | 'custom_instructions'>
+
+function toPersonalizationDraft(preferences: UserPreferences): PersonalizationDraft {
+  const { nickname, warmth, enthusiasm, emoji_use, custom_instructions } = preferences
+  return { nickname, warmth, enthusiasm, emoji_use, custom_instructions }
+}
 
 interface Props {
   preferences: UserPreferences
@@ -30,18 +36,26 @@ export function SettingsModal({
 }: Props) {
   const label = (key: Parameters<typeof t>[1]) => t(preferences.language, key)
   const dialog = useRef<HTMLDivElement>(null)
+  const memoryEditor = useRef<HTMLDivElement>(null)
   const [page, setPage] = useState<Page>('general')
   const [error, setError] = useState('')
   const [draftMemory, setDraftMemory] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingContent, setEditingContent] = useState('')
+  const [personalization, setPersonalization] = useState<PersonalizationDraft>(() => toPersonalizationDraft(preferences))
+
+  useEffect(() => setPersonalization(toPersonalizationDraft(preferences)), [preferences])
 
   useEffect(() => {
     dialog.current?.querySelector<HTMLElement>('button, select, textarea, input')?.focus()
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
-      if (event.key !== 'Tab' || !dialog.current) return
-      const elements = [...dialog.current.querySelectorAll<HTMLElement>('button:not(:disabled), select:not(:disabled), textarea:not(:disabled), input:not(:disabled)')]
+      if (event.key === 'Escape') {
+        if (editingId) setEditingId(null)
+        else onClose()
+      }
+      const activeDialog = memoryEditor.current ?? dialog.current
+      if (event.key !== 'Tab' || !activeDialog) return
+      const elements = [...activeDialog.querySelectorAll<HTMLElement>('button:not(:disabled), select:not(:disabled), textarea:not(:disabled), input:not(:disabled)')]
       if (!elements.length) return
       const first = elements[0]
       const last = elements[elements.length - 1]
@@ -50,7 +64,11 @@ export function SettingsModal({
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [onClose])
+  }, [editingId, onClose])
+
+  useEffect(() => {
+    if (editingId) memoryEditor.current?.querySelector<HTMLTextAreaElement>('textarea')?.focus()
+  }, [editingId])
 
   const save = async (values: Partial<UserPreferences>) => {
     setError('')
@@ -66,13 +84,18 @@ export function SettingsModal({
     setError('')
     try { await onUpdateMemory(editingId, editingContent); setEditingId(null); setEditingContent('') } catch { setError(preferences.language === 'sr' ? 'Memorija nije izmenjena. Pokušajte ponovo.' : 'Memory could not be updated. Please retry.') }
   }
+  const savePersonalization = async () => {
+    await save(personalization)
+  }
 
   return (
     <div className="settings-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
       <div ref={dialog} className="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-heading">
         <header className="settings-modal__header">
           <h1 id="settings-heading">{label('settings')}</h1>
-          <button type="button" className="header-button" onClick={onClose}>{label('close')}</button>
+          <button type="button" className="settings-close" onClick={onClose} aria-label={label('close')}>
+            <span aria-hidden="true">×</span>
+          </button>
         </header>
         <div className="settings-modal__body">
           <nav className="settings-nav" aria-label={label('settings')}>
@@ -109,28 +132,37 @@ export function SettingsModal({
               <button type="button" className="settings-primary" onClick={() => void addMemory()}>{label('addMemory')}</button>
               {loadingMemory ? <p>{label('loadingMemory')}</p> : <ul className="memory-list">
                 {memory.map((item) => <li key={item.id}>
-                  {editingId === item.id ? <>
-                    <textarea value={editingContent} maxLength={1500} onChange={(event) => setEditingContent(event.target.value)} />
-                    <button type="button" onClick={() => void saveMemory()}>{label('save')}</button>
-                    <button type="button" onClick={() => setEditingId(null)}>{label('cancel')}</button>
-                  </> : <>
-                    <p>{item.content}</p><small>{item.type === 'explicit' ? label('savedByYou') : label('learnedChats')}</small>
-                    <div><button type="button" onClick={() => { setEditingId(item.id); setEditingContent(item.content) }}>{label('edit')}</button><button type="button" onClick={() => void onDeleteMemory(item.id)}>{label('delete')}</button></div>
-                  </>}
+                  <p>{item.content}</p><small>{item.type === 'explicit' ? label('savedByYou') : label('learnedChats')}</small>
+                  <div className="memory-list__actions"><button type="button" onClick={() => { setEditingId(item.id); setEditingContent(item.content) }}>{label('edit')}</button><button type="button" onClick={() => void onDeleteMemory(item.id)}>{label('delete')}</button></div>
                 </li>)}
               </ul>}
             </>}
             {page === 'personalization' && <>
               <h2>{label('personalization')}</h2>
-              <label>{label('nickname')} <input value={preferences.nickname} maxLength={50} onChange={(event) => void save({ nickname: event.target.value })} /></label>
-              <label>{label('warmth')} <select value={preferences.warmth} onChange={(event) => void save({ warmth: event.target.value as UserPreferences['warmth'] })}><option value="cold">{label('cold')}</option><option value="balanced">{label('balanced')}</option><option value="warm">{label('warm')}</option></select></label>
-              <label>{label('enthusiasm')} <select value={preferences.enthusiasm} onChange={(event) => void save({ enthusiasm: event.target.value as UserPreferences['enthusiasm'] })}><option value="low">{label('low')}</option><option value="balanced">{label('balanced')}</option><option value="high">{label('high')}</option></select></label>
-              <label>{label('emojiUse')} <select value={preferences.emoji_use} onChange={(event) => void save({ emoji_use: event.target.value as UserPreferences['emoji_use'] })}><option value="off">{label('off')}</option><option value="light">{label('light')}</option></select></label>
-              <label>{label('customInstructions')} <textarea value={preferences.custom_instructions} maxLength={1500} onChange={(event) => void save({ custom_instructions: event.target.value })} /></label>
+              <label>{label('nickname')} <input value={personalization.nickname} maxLength={50} onChange={(event) => setPersonalization((values) => ({ ...values, nickname: event.target.value }))} /></label>
+              <label>{label('warmth')} <select value={personalization.warmth} onChange={(event) => setPersonalization((values) => ({ ...values, warmth: event.target.value as UserPreferences['warmth'] }))}><option value="cold">{label('cold')}</option><option value="balanced">{label('balanced')}</option><option value="warm">{label('warm')}</option></select></label>
+              <label>{label('enthusiasm')} <select value={personalization.enthusiasm} onChange={(event) => setPersonalization((values) => ({ ...values, enthusiasm: event.target.value as UserPreferences['enthusiasm'] }))}><option value="low">{label('low')}</option><option value="balanced">{label('balanced')}</option><option value="high">{label('high')}</option></select></label>
+              <label>{label('emojiUse')} <select value={personalization.emoji_use} onChange={(event) => setPersonalization((values) => ({ ...values, emoji_use: event.target.value as UserPreferences['emoji_use'] }))}><option value="off">{label('off')}</option><option value="light">{label('light')}</option></select></label>
+              <label>{label('customInstructions')} <textarea value={personalization.custom_instructions} maxLength={1500} onChange={(event) => setPersonalization((values) => ({ ...values, custom_instructions: event.target.value }))} /></label>
+              <button type="button" className="settings-primary" onClick={() => void savePersonalization()}>{label('savePersonalization')}</button>
               <p>{label('preferenceNotice')}</p>
             </>}
           </section>
         </div>
+        {editingId && (
+          <div className="settings-editor-backdrop">
+            <div ref={memoryEditor} className="settings-memory-editor" role="dialog" aria-modal="true" aria-labelledby="memory-editor-heading">
+              <h2 id="memory-editor-heading">{label('editMemory')}</h2>
+              <label htmlFor="memory-editor-content">{label('editMemory')}
+                <textarea id="memory-editor-content" value={editingContent} maxLength={1500} onChange={(event) => setEditingContent(event.target.value)} />
+              </label>
+              <div className="settings-editor__actions">
+                <button type="button" className="settings-primary" onClick={() => void saveMemory()}>{label('save')}</button>
+                <button type="button" className="header-button" onClick={() => setEditingId(null)}>{label('cancel')}</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

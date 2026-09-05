@@ -44,6 +44,9 @@ describe('ConversationSidebar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Show more chats' }))
     expect(screen.getByText('Chat 8')).toBeInTheDocument()
 
+    await userEvent.click(screen.getByRole('button', { name: 'Show fewer chats' }))
+    expect(screen.queryByText('Chat 8')).not.toBeInTheDocument()
+
     await userEvent.click(screen.getByRole('button', { name: 'Company scope' }))
     expect(screen.getByLabelText('All companies')).toBeInTheDocument()
   })

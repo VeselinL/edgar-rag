@@ -268,6 +268,23 @@ describe('App', () => {
     expect(screen.getByAltText('AVA').getAttribute('src')).toContain('ava-dark.png')
   })
 
+  it('keeps personalization edits local until explicitly saved', async () => {
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValue([])
+    mockedListMessages.mockResolvedValue([])
+    mockedUpdatePreferences.mockResolvedValue({ ...defaultPreferences, nickname: 'Veselin' })
+    render(<App />)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Settings' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Personalization' }))
+    await userEvent.type(screen.getByLabelText('Nickname'), 'Veselin')
+    expect(mockedUpdatePreferences).not.toHaveBeenCalled()
+    expect(screen.getByLabelText('Nickname')).toHaveValue('Veselin')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save personalization' }))
+    expect(mockedUpdatePreferences).toHaveBeenCalledWith(expect.objectContaining({ nickname: 'Veselin' }))
+  })
+
   it('uses a lower-right gear Settings trigger that shifts for the open sidebar', async () => {
     mockedHistoryEnabled.mockResolvedValue(true)
     mockedListConversations.mockResolvedValue([])
@@ -366,6 +383,28 @@ describe('App', () => {
 
     expect(mockedCreateMemory).toHaveBeenCalledWith('Use concise answers.')
     expect(await screen.findByText('Saved by you')).toBeInTheDocument()
+  })
+
+  it('opens memory editing in a separate dialog', async () => {
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValue([])
+    mockedListMessages.mockResolvedValue([])
+    mockedListMemory.mockResolvedValue([{
+      id: 'memory-1', content: 'Compare future goals and plans.', type: 'explicit',
+      source_conversation_id: null, source_message_id: null, version: 1,
+      created_at: '2026-09-01T00:00:00Z', updated_at: '2026-09-01T00:00:00Z',
+    }])
+    render(<App />)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Settings' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Memory' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Edit' }))
+
+    const editor = screen.getByRole('dialog', { name: 'Edit memory' })
+    expect(editor).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Edit memory' })).toHaveValue('Compare future goals and plans.')
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument()
   })
 
   it('downloads the authenticated conversation export from history', async () => {
