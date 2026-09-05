@@ -10,8 +10,6 @@ from typing import Any, Sequence
 from .context import (
     ConversationContext,
     ConversationContextBuilder,
-    preferred_company_from_memories,
-    references_preferred_company,
 )
 from .memory import MemoryStore, NullMemoryStore
 from .models import Conversation, MemoryItem, Message, StoredTurn, UserPreferences
@@ -65,11 +63,23 @@ class ConversationService:
 
     _MAX_MEMORY_CONTENT_LENGTH = 1500
     _EXPLICIT_MEMORY_PREFIX = re.compile(
-        r"^\s*(?:remember(?:\s+this)?|zapamti(?:\s+ovo)?)\s*[:,-]?\s*",
+        r"^\s*(?:remember|save|zapamti|sačuvaj)(?:\s+(?:this|ovo|to))?"
+        r"(?:\s+(?:in|to|u))?(?:\s+(?:long[- ]term\s+)?memory|memoriju)?\s*[:,-]?\s*",
         re.IGNORECASE,
     )
-    _EXPLICIT_MEMORY_STATEMENT = re.compile(
-        r"^(?:my\s+(?:preferred|preference)|moja\s+(?:preferirana|preferenca))\b",
+    _PREFERENCE_MEMORY_STATEMENT = re.compile(
+        r"\b(?:i\s+(?:prefer|like|dislike|want|work|live)|my\s+(?:preferred|preference|name|"
+        r"role|language)|call\s+me|answer\s+(?:in|with)|use\s+(?:a|an|the)|"
+        r"prefer|avoid|keep\s+(?:answers?|responses?)|"
+        r"ja\s+(?:preferiram|volim|ne\s+volim|želim|radim|živim)|moja?\s+(?:preferirana|"
+        r"preferenca|ime|uloga|jezik)|zovi\s+me|odgovaraj\s+(?:na|sa)|koristi)\b",
+        re.IGNORECASE,
+    )
+    _MEMORY_INSTRUCTION_PATTERN = re.compile(
+        r"\b(?:ignore|disregard|override|system\s+prompt|developer(?:\s+message)?|"
+        r"instructions?|tool|function|api\s*key|secret|execute|call\s+(?:a|the)\s+tool|"
+        r"ignoriši|zanemari|zaobiđi|sistemski\s+(?:prompt|upit)|instrukcije?|"
+        r"alat|funkcij\w*|api\s*(?:ključ|key)|tajna?)\b",
         re.IGNORECASE,
     )
 
@@ -160,24 +170,33 @@ class ConversationService:
 
     @classmethod
     def _explicit_memory_content(cls, user_text: str) -> str | None:
-        content = cls._EXPLICIT_MEMORY_PREFIX.sub("", user_text.strip())
-        if not cls._EXPLICIT_MEMORY_STATEMENT.match(content):
+        if not cls._EXPLICIT_MEMORY_PREFIX.match(user_text):
             return None
-        return cls._clean_memory_content(content)
+        content = cls._EXPLICIT_MEMORY_PREFIX.sub("", user_text.strip())
+        return cls._validate_preference_memory(content)
+
+    @classmethod
+    def _validate_preference_memory(cls, content: str) -> str:
+        value = cls._clean_memory_content(content)
+        if cls._MEMORY_INSTRUCTION_PATTERN.search(value):
+            raise ValueError("Memory cannot contain instructions, tools, secrets, or policy text.")
+        if not cls._PREFERENCE_MEMORY_STATEMENT.search(value):
+            raise ValueError("Memory must be a stable first-person preference or profile detail.")
+        return value
 
     def list_memory(self) -> list[MemoryItem]:
         return self.repository.list_memory_items(self.tenant_id, self.user_id)
 
     def create_memory(self, content: str) -> MemoryItem:
         item = self.repository.create_memory_item(
-            self.tenant_id, self.user_id, self._clean_memory_content(content), "explicit"
+            self.tenant_id, self.user_id, self._validate_preference_memory(content), "explicit"
         )
         self.memory_store.upsert(item)
         return item
 
     def update_memory(self, memory_id: str, content: str) -> MemoryItem:
         item = self.repository.update_memory_item(
-            self.tenant_id, self.user_id, memory_id, self._clean_memory_content(content)
+            self.tenant_id, self.user_id, memory_id, self._validate_preference_memory(content)
         )
         self.memory_store.upsert(item)
         return item
@@ -220,12 +239,27 @@ class ConversationService:
         """Render only server-validated, lower-priority preference fields."""
         parts = [
             "Answer language: Serbian." if preferences.language == "sr" else "Answer language: English.",
-            f"Tone warmth: {preferences.warmth}.",
-            f"Enthusiasm: {preferences.enthusiasm}.",
-            f"Emoji use: {preferences.emoji_use}.",
+            {
+                "cold": "Use a concise, neutral professional tone.",
+                "balanced": "Use a clear, measured professional tone.",
+                "warm": "Use a friendly, considerate professional tone without becoming chatty.",
+            }[preferences.warmth],
+            {
+                "low": "Use restrained language; avoid exclamation marks.",
+                "balanced": "Use measured, matter-of-fact emphasis.",
+                "high": "Use positive but financially professional emphasis; do not overstate evidence.",
+            }[preferences.enthusiasm],
+            (
+                "A single restrained emoji is allowed only in a casual, non-factual response."
+                if preferences.emoji_use == "light"
+                else "Do not use emoji."
+            ),
         ]
         if preferences.nickname:
-            parts.append(f"Address the user as: {preferences.nickname}.")
+            parts.append(
+                f"Use the nickname {preferences.nickname} only when a direct address is natural; "
+                "never repeat it in a response."
+            )
         if preferences.custom_instructions:
             parts.extend([
                 "[BEGIN USER CUSTOMIZATION]",
@@ -307,7 +341,6 @@ class ConversationService:
                 self._bound_derived_memory_content(summary.content),
             )
             self.memory_store.upsert(item)
-        memories = ()
         candidates = self.memory_store.search(
             query,
             self.tenant_id,
@@ -317,29 +350,22 @@ class ConversationService:
             exclude_conversation_id=conversation_id,
         )
         selected: list[MemoryItem] = []
-        if references_preferred_company(query):
-            available_memory = self.list_memory()
-            preferred = preferred_company_from_memories(available_memory)
-            if preferred:
-                selected.extend(
-                    item for item in available_memory
-                    if item.content.rstrip(".!? ").casefold()
-                    == f"my preferred company is {preferred}".casefold()
-                    or item.content.rstrip(".!? ").casefold()
-                    == f"moja preferirana kompanija je {preferred}".casefold()
-                )
         used_words = 0
-        used_ids = {item.id for item in selected}
-        used_words = sum(max(1, len(item.content.split()) * 4 // 3) for item in selected)
-        # Conservative deterministic approximation; prompt-level token
-        # accounting still uses the exact formatter before evidence packing.
-        for item in candidates:
-            if item.id in used_ids:
+        explicit_items = [
+            item for item in self.list_memory()
+            if item.memory_type == "explicit"
+        ]
+        # Explicit, owner-authored preferences are always considered first;
+        # semantic search adds only relevant learned summaries afterward.
+        selected_ids: set[str] = set()
+        for item in [*explicit_items, *candidates]:
+            if item.id in selected_ids:
                 continue
             estimated = max(1, len(item.content.split()) * 4 // 3)
             if used_words + estimated > self.long_term_token_budget:
                 continue
             selected.append(item)
+            selected_ids.add(item.id)
             used_words += estimated
         memories = tuple(selected)
         preferences = self.preferences()
@@ -361,7 +387,10 @@ class ConversationService:
             None,
         )
         if user_message is not None:
-            content = self._explicit_memory_content(user_message.content)
+            try:
+                content = self._explicit_memory_content(user_message.content)
+            except ValueError:
+                content = None
             existing = {item.content.casefold() for item in self.list_memory()}
             if content is not None and content.casefold() not in existing:
                 item = self.repository.create_memory_item(

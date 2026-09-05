@@ -1406,63 +1406,6 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(traces[0]["long_term_memory_ids"], ["memory-1"])
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
 
-    async def test_saved_preferred_company_answers_from_memory_without_retrieval(self):
-        retriever = FakeRetriever()
-        generator = FakeGenerator()
-        traces = []
-        pipeline = RealPipeline(
-            retriever, generator, llm_streaming=False, telemetry_sink=traces.append
-        )
-        context = SimpleNamespace(
-            prompt_text=lambda: "Relevant user memory (not filing evidence):\n- My preferred company is Rivian.",
-            short_term_ids=(),
-            long_term_ids=("memory-1",),
-            long_term_memories=(SimpleNamespace(content="My preferred company is Rivian."),),
-            language="sr",
-        )
-
-        async def connected():
-            return False
-
-        events = [
-            event
-            async for event in pipeline.stream(
-                "Koja je moja preferirana kompanija?", connected,
-                conversation_context=context,
-            )
-        ]
-
-        self.assertIsNone(retriever.arguments)
-        self.assertIsNone(generator.planned_query)
-        self.assertEqual(events[0].data["text"], "Vaša sačuvana preferirana kompanija je Rivian.")
-        self.assertEqual(traces[0]["route"]["decided_by"], "saved_company_preference")
-
-    async def test_saved_preferred_company_resolves_filing_scope(self):
-        retriever = ContextAwareRetriever()
-        generator = FakeGenerator()
-        pipeline = RealPipeline(retriever, generator, llm_streaming=False)
-        context = SimpleNamespace(
-            prompt_text=lambda: "Relevant user memory (not filing evidence):\n- My preferred company is Rivian.",
-            short_term_ids=(),
-            long_term_ids=("memory-1",),
-            long_term_memories=(SimpleNamespace(content="My preferred company is Rivian."),),
-            language="sr",
-        )
-
-        async def connected():
-            return False
-
-        events = [
-            event
-            async for event in pipeline.stream(
-                "Koje aute proizvodi moja preferirana kompanija?", connected,
-                conversation_context=context,
-            )
-        ]
-
-        self.assertEqual(generator.deterministic_resolution.resolved_tickers, ("RIVN",))
-        self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
-
     async def test_buffered_mode_emits_completed_answer_as_one_delta(self):
         retriever = FakeRetriever()
         generator = FakeGenerator()
