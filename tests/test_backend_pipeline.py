@@ -818,6 +818,32 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(records[0]["route"]["route"], "web")
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
 
+    async def test_selected_scope_does_not_override_filing_calculation_route(self):
+        retriever = FakeRetriever()
+        records = []
+        pipeline = RealPipeline(
+            retriever,
+            FilingCalculationGenerator(),
+            calculator_enabled=True,
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "By how much did Tesla revenue change?",
+                connected,
+                company_scope=["TSLA"],
+            )
+        ]
+
+        self.assertEqual(records[0]["route"]["route"], "filing_calculate")
+        self.assertEqual(records[0]["tool_executions"][0]["status"], "succeeded")
+        self.assertIn("difference is 20 USD millions", events[0].data["text"])
+
     async def test_out_of_scope_programming_route_runs_no_retrieval_or_tools(self):
         retriever = FakeRetriever()
         generator = RoutedGenerator(

@@ -593,7 +593,10 @@ class RealPipeline(RouteHandlerMixin):
                     RouteReason.UPLOADED_EVIDENCE,
                     decided_by="chat_upload_content_match",
                 )
-            elif preliminary_route is not None and preliminary_route.uses_web_search:
+            elif preliminary_route is not None and (
+                preliminary_route.uses_web_search
+                or (selected_scope and preliminary_route.uses_calculator)
+            ):
                 route = preliminary_route
             elif selected_scope and infer_filing_scope_query(query):
                 route = RequestRoute(
