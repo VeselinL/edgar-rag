@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import App from './App'
 import { getAuthSession, signOut } from './api/auth'
 import { streamChat } from './api/chatStream'
+import { createMemory, deleteMemory, getPreferences, listMemory, updateMemory, updatePreferences } from './api/settings'
 import { deleteDocument, listDocuments, uploadDocument } from './api/documents'
 import {
   conversationHistoryEnabled,
@@ -44,6 +45,11 @@ vi.mock('./api/conversations', () => ({
   updateConversation: vi.fn(),
 }))
 
+vi.mock('./api/settings', () => ({
+  createMemory: vi.fn(), deleteMemory: vi.fn(), getPreferences: vi.fn(),
+  listMemory: vi.fn(), updateMemory: vi.fn(), updatePreferences: vi.fn(),
+}))
+
 const mockedStream = vi.mocked(streamChat)
 const mockedDeleteDocument = vi.mocked(deleteDocument)
 const mockedListDocuments = vi.mocked(listDocuments)
@@ -57,6 +63,16 @@ const mockedListConversations = vi.mocked(listConversations)
 const mockedListMessages = vi.mocked(listMessages)
 const mockedSubmitFeedback = vi.mocked(submitFeedback)
 const mockedUpdateConversation = vi.mocked(updateConversation)
+const mockedCreateMemory = vi.mocked(createMemory)
+const mockedDeleteMemory = vi.mocked(deleteMemory)
+const mockedGetPreferences = vi.mocked(getPreferences)
+const mockedListMemory = vi.mocked(listMemory)
+const mockedUpdateMemory = vi.mocked(updateMemory)
+const mockedUpdatePreferences = vi.mocked(updatePreferences)
+const defaultPreferences = {
+  nickname: '', warmth: 'balanced' as const, enthusiasm: 'balanced' as const, emoji_use: 'off' as const,
+  custom_instructions: '', language: 'en' as const, model: 'AZURE_GPT_4o_2024_1120', theme: 'system' as const,
+}
 type Handlers = Parameters<typeof streamChat>[1]
 
 describe('App', () => {
@@ -81,6 +97,15 @@ describe('App', () => {
     mockedSubmitFeedback.mockReset()
     mockedSubmitFeedback.mockResolvedValue(undefined)
     mockedUpdateConversation.mockReset()
+    mockedCreateMemory.mockReset()
+    mockedDeleteMemory.mockReset()
+    mockedGetPreferences.mockReset()
+    mockedGetPreferences.mockResolvedValue(defaultPreferences)
+    mockedListMemory.mockReset()
+    mockedListMemory.mockResolvedValue([])
+    mockedUpdateMemory.mockReset()
+    mockedUpdatePreferences.mockReset()
+    mockedUpdatePreferences.mockResolvedValue(defaultPreferences)
     localStorage.clear()
     document.documentElement.dataset.theme = 'light'
   })
@@ -226,13 +251,20 @@ describe('App', () => {
     expect(mockedStream).toHaveBeenCalledTimes(1)
   })
 
-  it('persists explicit theme selection', async () => {
+  it('persists appearance selection through Settings', async () => {
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValue([])
+    mockedListMessages.mockResolvedValue([])
+    mockedCreateConversation.mockResolvedValue({
+      id: 'conversation-1', title: 'New conversation', memory_enabled: true, pinned: false,
+      pinned_at: null, created_at: '2026-09-01T00:00:00Z', updated_at: '2026-09-01T00:00:00Z', company_scope: [],
+    })
+    mockedUpdatePreferences.mockResolvedValue({ ...defaultPreferences, theme: 'dark' })
     render(<App />)
-    const toggle = screen.getByRole('button', { name: 'Switch to dark theme' })
-    await userEvent.click(toggle)
+    await userEvent.click(await screen.findByRole('button', { name: 'Settings' }))
+    await userEvent.selectOptions(screen.getByLabelText('Appearance'), 'dark')
     expect(document.documentElement.dataset.theme).toBe('dark')
-    expect(localStorage.getItem('ava-theme')).toBe('dark')
-    expect(screen.getByRole('button', { name: 'Switch to light theme' })).toBeInTheDocument()
+    expect(mockedUpdatePreferences).toHaveBeenCalledWith({ theme: 'dark' })
     expect(screen.getByAltText('AVA').getAttribute('src')).toContain('ava-dark.png')
   })
 
@@ -282,7 +314,7 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Open conversation sidebar' })).toBeInTheDocument()
   })
 
-  it('keeps long-term memory opt-in and exposes an explicit toggle', async () => {
+  it('edits long-term memory from Settings instead of a per-chat toggle', async () => {
     const conversation = {
       id: 'conversation-1', title: 'New conversation', memory_enabled: false,
       pinned: false, pinned_at: null,
@@ -291,15 +323,19 @@ describe('App', () => {
     mockedHistoryEnabled.mockResolvedValue(true)
     mockedListConversations.mockResolvedValue([conversation])
     mockedListMessages.mockResolvedValue([])
-    mockedUpdateConversation.mockResolvedValue({ ...conversation, memory_enabled: true })
+    mockedCreateMemory.mockResolvedValue({
+      id: 'memory-1', content: 'Use concise answers.', type: 'explicit', source_conversation_id: null,
+      source_message_id: null, version: 1, created_at: '2026-09-01T00:00:00Z', updated_at: '2026-09-01T00:00:00Z',
+    })
     render(<App />)
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Open conversation sidebar' }))
-    const toggle = await screen.findByRole('button', { name: 'Long-term memory Off' })
-    await userEvent.click(toggle)
+    await userEvent.click(await screen.findByRole('button', { name: 'Settings' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Memory' }))
+    await userEvent.type(screen.getByLabelText('Add a memory'), 'Use concise answers.')
+    await userEvent.click(screen.getByRole('button', { name: 'Add memory' }))
 
-    expect(mockedUpdateConversation).toHaveBeenCalledWith('conversation-1', { memory_enabled: true })
-    expect(await screen.findByRole('button', { name: 'Long-term memory On' })).toHaveAttribute('aria-pressed', 'true')
+    expect(mockedCreateMemory).toHaveBeenCalledWith('Use concise answers.')
+    expect(await screen.findByText('Saved by you')).toBeInTheDocument()
   })
 
   it('downloads the authenticated conversation export from history', async () => {

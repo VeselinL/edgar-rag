@@ -19,16 +19,21 @@ import { ConversationSidebar } from './components/ConversationSidebar'
 import { Conversation } from './components/Conversation'
 import { EmptyState } from './components/EmptyState'
 import { Header } from './components/Header'
+import { SettingsModal } from './components/SettingsModal'
 import { useTheme } from './hooks/useTheme'
-import type { AssistantMessage, ChatDocument, ChatMessage, ConversationSummary, PersistedMessage } from './types'
+import { createMemory, deleteMemory, getPreferences, listMemory, updateMemory, updatePreferences } from './api/settings'
+import type { AssistantMessage, ChatDocument, ChatMessage, ConversationSummary, MemoryItem, PersistedMessage, UserPreferences } from './types'
 
 const PRE_TOKEN_ERROR = 'The filing-analysis service is temporarily unavailable. Please retry shortly.'
 const MID_STREAM_ERROR = 'The response was interrupted. Please try again.'
-const DEFAULT_MODEL = 'AZURE_GPT_4o_2024_1120'
 const GENERATION_ACTIVITIES = ['Thinking', 'Reasoning', 'Cogitating', 'Cerebrating', 'Contemplating', 'Pondering', 'Ruminating', 'Sleuthing'] as const
+const DEFAULT_PREFERENCES: UserPreferences = {
+  nickname: '', warmth: 'balanced', enthusiasm: 'balanced', emoji_use: 'off',
+  custom_instructions: '', language: 'en', model: 'AZURE_GPT_4o_2024_1120', theme: 'system',
+}
 
 export default function App() {
-  const { theme, toggleTheme } = useTheme()
+  const { theme, setThemePreference } = useTheme()
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [draft, setDraft] = useState('')
   const [active, setActive] = useState(false)
@@ -47,7 +52,11 @@ export default function App() {
   const [sourcesError, setSourcesError] = useState('')
   const [uploadStatus, setUploadStatus] = useState('')
   const [deletingDocumentId, setDeletingDocumentId] = useState<string | null>(null)
-  const [selectedModel, setSelectedModel] = useState(() => window.localStorage.getItem('ava-model') ?? DEFAULT_MODEL)
+  const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_PREFERENCES)
+  const [memory, setMemory] = useState<MemoryItem[]>([])
+  const [memoryLoading, setMemoryLoading] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const settingsButton = useRef<HTMLButtonElement>(null)
   const controller = useRef<AbortController | null>(null)
   const idSequence = useRef(0)
 
@@ -62,9 +71,13 @@ export default function App() {
         if (!auth.authenticated) return
         if (!await conversationHistoryEnabled() || cancelled) return
         setHistoryEnabled(true)
+        const savedPreferences = await getPreferences()
+        if (cancelled) return
+        setPreferences(savedPreferences)
+        setThemePreference(savedPreferences.theme)
         const saved = await listConversations()
         if (cancelled) return
-        const selected = saved[0] ?? await createConversation(false)
+        const selected = saved[0] ?? await createConversation()
         const next = saved.length ? saved : [selected]
         const stored = await listMessages(selected.id)
         if (cancelled) return
@@ -83,7 +96,39 @@ export default function App() {
       cancelled = true
       controller.current?.abort()
     }
-  }, [])
+  }, [setThemePreference])
+
+  const savePreferences = async (values: Partial<UserPreferences>) => {
+    const saved = await updatePreferences(values)
+    setPreferences(saved)
+    if (values.theme) setThemePreference(saved.theme)
+  }
+
+  const openSettings = async () => {
+    setSettingsOpen(true)
+    setMemoryLoading(true)
+    try { setMemory(await listMemory()) } finally { setMemoryLoading(false) }
+  }
+
+  const closeSettings = () => {
+    setSettingsOpen(false)
+    window.setTimeout(() => settingsButton.current?.focus(), 0)
+  }
+
+  const addMemory = async (content: string) => {
+    const created = await createMemory(content)
+    setMemory((items) => [created, ...items])
+  }
+
+  const saveMemory = async (id: string, content: string) => {
+    const updated = await updateMemory(id, content)
+    setMemory((items) => items.map((item) => item.id === id ? updated : item))
+  }
+
+  const removeMemory = async (id: string) => {
+    await deleteMemory(id)
+    setMemory((items) => items.filter((item) => item.id !== id))
+  }
 
   const storedMessages = (stored: PersistedMessage[]): ChatMessage[] => stored
     .filter((message) => message.role === 'user' || message.status !== 'in_progress')
@@ -119,7 +164,7 @@ export default function App() {
 
   const newConversation = async () => {
     if (!historyEnabled || active) return
-    const created = await createConversation(false)
+    const created = await createConversation()
     setCurrentConversation(created)
     setConversations((current) => [created, ...current])
     setMessages([])
@@ -250,9 +295,9 @@ export default function App() {
           conversationId: currentConversation.id,
           clientTurnId,
         }
-        await streamChat(query, handlers, conversation, selectedModel)
+        await streamChat(query, handlers, conversation, preferences.model)
       } else {
-        await streamChat(query, handlers, undefined, selectedModel)
+        await streamChat(query, handlers, undefined, preferences.model)
       }
       if (currentConversation) {
         setMessages(storedMessages(await listMessages(currentConversation.id)))
@@ -279,7 +324,6 @@ export default function App() {
     <div className="app-shell">
       <Header
         theme={theme}
-        onToggleTheme={toggleTheme}
         historyEnabled={historyEnabled}
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen((value) => !value)}
@@ -301,7 +345,6 @@ export default function App() {
           <ConversationSidebar
             conversations={conversations}
             activeId={currentConversation?.id}
-            memoryEnabled={currentConversation?.memory_enabled ?? false}
             companyScope={currentConversation?.company_scope ?? []}
             onToggleCompany={(ticker) => {
               if (!currentConversation) return
@@ -316,20 +359,7 @@ export default function App() {
                 setConversations((items) => items.map((item) => item.id === updated.id ? updated : item))
               })
             }}
-            model={selectedModel}
-            onModelChange={(model) => {
-              setSelectedModel(model)
-              window.localStorage.setItem('ava-model', model)
-            }}
             onNew={() => void newConversation()}
-            onToggleMemory={() => {
-              if (!currentConversation) return
-              void updateConversation(currentConversation.id, { memory_enabled: !currentConversation.memory_enabled })
-                .then((updated) => {
-                  setCurrentConversation(updated)
-                  setConversations((items) => items.map((item) => item.id === updated.id ? updated : item))
-                })
-            }}
             onSelect={(conversation) => void selectConversation(conversation)}
             onPin={(conversation) => {
               void updateConversation(conversation.id, { pinned: !conversation.pinned }).then(async (updated) => {
@@ -358,7 +388,7 @@ export default function App() {
             onDeleteAll={() => {
               if (!window.confirm('Delete all saved conversations? This cannot be undone.')) return
               void deleteAllConversations().then(async () => {
-                const created = await createConversation(false)
+                const created = await createConversation()
                 setConversations([created])
                 setCurrentConversation(created)
                 setMessages([])
@@ -440,6 +470,28 @@ export default function App() {
           )}
         </main>
       </div>
+      {historyEnabled && authenticated && (
+        <button
+          ref={settingsButton}
+          type="button"
+          className={`settings-trigger ${sidebarOpen ? 'settings-trigger--sidebar-open' : ''}`}
+          onClick={() => void openSettings()}
+        >
+          Settings
+        </button>
+      )}
+      {settingsOpen && (
+        <SettingsModal
+          preferences={preferences}
+          memory={memory}
+          loadingMemory={memoryLoading}
+          onClose={closeSettings}
+          onPreferences={savePreferences}
+          onCreateMemory={addMemory}
+          onUpdateMemory={saveMemory}
+          onDeleteMemory={removeMemory}
+        />
+      )}
     </div>
   )
 }

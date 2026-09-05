@@ -38,10 +38,10 @@ export async function exportConversations(): Promise<Blob> {
   return response.blob()
 }
 
-export function createConversation(memoryEnabled = false): Promise<ConversationSummary> {
+export function createConversation(): Promise<ConversationSummary> {
   return api('/api/conversations', {
     method: 'POST',
-    body: JSON.stringify({ title: 'New conversation', memory_enabled: memoryEnabled }),
+    body: JSON.stringify({ title: 'New conversation' }),
   })
 }
 
@@ -54,7 +54,7 @@ export async function listMessages(conversationId: string): Promise<PersistedMes
 
 export function updateConversation(
   conversationId: string,
-  update: { title?: string; memory_enabled?: boolean; pinned?: boolean; company_scope?: string[] },
+  update: { title?: string; pinned?: boolean; company_scope?: string[] },
 ): Promise<ConversationSummary> {
   return api(`/api/conversations/${encodeURIComponent(conversationId)}`, {
     method: 'PATCH',

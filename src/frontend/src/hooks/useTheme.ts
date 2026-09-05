@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import type { PreferenceTheme } from '../types'
 
 export type Theme = 'light' | 'dark'
 
@@ -8,14 +9,14 @@ function appliedTheme(): Theme {
 
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(appliedTheme)
-  const toggleTheme = useCallback(() => {
-    setTheme((current) => {
-      const next = current === 'light' ? 'dark' : 'light'
-      document.documentElement.dataset.theme = next
-      document.documentElement.style.colorScheme = next
-      localStorage.setItem('ava-theme', next)
-      return next
-    })
+  const apply = useCallback((preference: PreferenceTheme) => {
+    const next: Theme = preference === 'system'
+      ? window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      : preference
+    document.documentElement.dataset.theme = next
+    document.documentElement.style.colorScheme = next
+    setTheme(next)
   }, [])
-  return { theme, toggleTheme }
+  const setThemePreference = useCallback((preference: PreferenceTheme) => apply(preference), [apply])
+  return { theme, setThemePreference }
 }

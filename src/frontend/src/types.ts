@@ -82,6 +82,30 @@ export interface ConversationSummary {
   company_scope?: string[]
 }
 
+export type PreferenceTheme = 'light' | 'dark' | 'system'
+
+export interface UserPreferences {
+  nickname: string
+  warmth: 'cold' | 'balanced' | 'warm'
+  enthusiasm: 'low' | 'balanced' | 'high'
+  emoji_use: 'off' | 'light'
+  custom_instructions: string
+  language: 'en' | 'sr'
+  model: string
+  theme: PreferenceTheme
+}
+
+export interface MemoryItem {
+  id: string
+  content: string
+  type: 'explicit' | 'conversation_summary'
+  source_conversation_id: string | null
+  source_message_id: string | null
+  version: number
+  created_at: string
+  updated_at: string
+}
+
 export interface ChatDocument {
   id: string
   conversation_id: string
