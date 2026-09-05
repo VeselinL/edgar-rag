@@ -12,10 +12,12 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+import re
 from typing import Any
 
 from src.config.settings import DEFAULT_LLM_MODEL
 from src.generation.provider import make_llm_client, provider_usage
+from src.generation.service import GenerationService
 
 
 FIELDS = (
@@ -68,8 +70,7 @@ SEEDS = (
 )
 
 
-def _load_chunks() -> dict[str, str]:
-    wanted = {seed["chunk_id"] for seed in SEEDS}
+def _load_chunks(wanted: set[str]) -> dict[str, str]:
     found: dict[str, str] = {}
     for path in CHUNK_FILES.rglob("*.chunks.jsonl"):
         for line in path.open(encoding="utf-8"):
@@ -87,7 +88,7 @@ def _rubric(**fails: bool) -> dict[str, str]:
 
 
 def build_packet() -> dict[str, Any]:
-    chunks = _load_chunks()
+    chunks = _load_chunks({seed["chunk_id"] for seed in SEEDS})
     pairs: list[dict[str, Any]] = []
     for seed in SEEDS:
         evidence = [{"chunk_id": seed["chunk_id"], "text": chunks[seed["chunk_id"]]}]
@@ -115,6 +116,43 @@ def build_packet() -> dict[str, Any]:
     return {
         "schema_version": 1,
         "review_method": "controlled perturbations labeled before diagnostic LLM evaluation",
+        "fields": list(FIELDS),
+        "pair_count": len(pairs),
+        "pairs": pairs,
+    }
+
+
+def build_reviewed_packet(path: Path) -> dict[str, Any]:
+    source = json.loads(path.read_text(encoding="utf-8"))
+    reviewed = source.get("pairs")
+    if not isinstance(reviewed, list):
+        raise ValueError("Reviewed packet must contain a pairs list.")
+    citations_by_pair = {
+        pair["pair_id"]: set(re.findall(r"\[([A-Z]+-\d{4}-CHUNK-\d+)\]", pair["answer_a"] + pair["answer_b"]))
+        for pair in reviewed
+    }
+    chunks = _load_chunks(set().union(*citations_by_pair.values()))
+    pairs = []
+    for pair in reviewed:
+        rubric = pair.get("rubric")
+        if not isinstance(rubric, dict) or any(rubric.get(field) not in {"pass", "fail"} for field in FIELDS):
+            raise ValueError(f"Reviewed pair {pair.get('pair_id')} has no complete rubric.")
+        pairs.append({
+            "pair_id": pair["pair_id"],
+            "seed": pair.get("category", "reviewed"),
+            "variant": "human_reviewed",
+            "question": pair["question"],
+            "evidence": [
+                {"chunk_id": chunk_id, "text": chunks[chunk_id]}
+                for chunk_id in sorted(citations_by_pair[pair["pair_id"]])
+            ],
+            "answer_a": pair["answer_a"],
+            "answer_b": pair["answer_b"],
+            "authoritative_rubric": {field: rubric[field] for field in FIELDS},
+        })
+    return {
+        "schema_version": 1,
+        "review_method": "one human pair rubric compared with an independent diagnostic LLM",
         "fields": list(FIELDS),
         "pair_count": len(pairs),
         "pairs": pairs,
@@ -165,10 +203,11 @@ def _cohen_kappa(left: list[str], right: list[str]) -> float | None:
 
 def judge_packet(packet: dict[str, Any], model: str) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     client = make_llm_client()
+    service = GenerationService(client, model=model, max_output_tokens=180)
     records: list[dict[str, Any]] = []
     for pair in packet["pairs"]:
         try:
-            response = client.chat.completions.create(
+            response = service._create(
                 model=model, messages=_judge_prompt(pair), temperature=0, max_tokens=180,
             )
             content = response.choices[0].message.content or ""
@@ -241,8 +280,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--model", default=DEFAULT_LLM_MODEL)
+    parser.add_argument("--reviewed-pairs", type=Path)
     args = parser.parse_args()
-    packet = build_packet()
+    packet = build_reviewed_packet(args.reviewed_pairs) if args.reviewed_pairs else build_packet()
     packet["packet_sha256"] = hashlib.sha256(
         json.dumps(packet["pairs"], sort_keys=True).encode("utf-8")
     ).hexdigest()

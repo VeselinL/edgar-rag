@@ -1,0 +1,448 @@
+{
+  "schema_version": 1,
+  "review_method": "one human pair rubric compared with an independent diagnostic LLM",
+  "fields": [
+    "claim_correctness",
+    "faithfulness",
+    "citation_support",
+    "abstention",
+    "answer_relevance",
+    "conciseness"
+  ],
+  "pair_count": 20,
+  "pairs": [
+    {
+      "pair_id": "blind-01",
+      "seed": "absent_abstention",
+      "variant": "human_reviewed",
+      "question": "How much cash dividend did Tesla declare in 2025?",
+      "evidence": [],
+      "answer_a": "The retrieved excerpt does not provide any information about a cash dividend declared by Tesla in 2025.",
+      "answer_b": "The retrieved excerpt does not provide any information about a cash dividend declared by Tesla in 2025.",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-02",
+      "seed": "absent_abstention",
+      "variant": "human_reviewed",
+      "question": "What cash dividend per share did Aurora declare in 2025?",
+      "evidence": [],
+      "answer_a": "No qualifying evidence was found. The retrieved excerpts do not provide information about a cash dividend per share declared by Aurora in 2025.",
+      "answer_b": "No qualifying evidence was found. The retrieved excerpts do not provide information about a cash dividend per share declared by Aurora in 2025.",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-03",
+      "seed": "ambiguous_followup",
+      "variant": "human_reviewed",
+      "question": "What are its reportable segments?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 BUSINESS\nSegment Information\n\nWe operate as two reportable segments: (i) automotive and (ii) energy generation and storage.\n\nThe automotive segment includes the design, development, manufacturing, sales and leasing of high-performance fully electric vehicles as well as sales of automotive regulatory credits. Additionally, the automotive segment also includes services and other, which includes sales of used vehicles, non-warranty maintenance services and collision, paid Supercharging sessions, automotive insurance business revenue, part sales and retail merchandise sales. The energy generation and storage segment includes sales, leasing, and financing of energy generation and storage products, services related to such products and sales of energy generation incentives."
+        }
+      ],
+      "answer_a": "Tesla, Inc. reports two segments: (i) automotive and (ii) energy generation and storage [TSLA-2025-CHUNK-000002].",
+      "answer_b": "Tesla, Inc. reports two segments: (i) automotive and (ii) energy generation and storage [TSLA-2025-CHUNK-000002].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-04",
+      "seed": "ambiguous_followup",
+      "variant": "human_reviewed",
+      "question": "Which market did it enter first?",
+      "evidence": [
+        {
+          "chunk_id": "AUR-2025-CHUNK-000003",
+          "text": "Item 1 \u2014 Business\nCompany Overview\n\nWe launched trucking as our first driverless product, as we believe its massive scale, significant structural need, attractive unit economics, and self-similar operating environment will allow us to rapidly deploy and profitably scale on high-volume, highway-focused routes. Drafting on the revenue and technical capability we expect this trucking product to generate, we plan to leverage the extensibility of the Aurora Driver to deploy and scale into the passenger mobility and local goods delivery markets. We have operated our self-driving test vehicles in diverse weather and operating environments, including in Arizona, California, New Mexico, Pennsylvania, and Texas, allowing us to create a more robust self-driving system.\n\nOur first-principles approach underpins our technology development strategy for the Aurora Driver. We made foundational investments early on, based on our prior experience in the self-driving industry, that allow us to accelerate development and position our platform for long-term scalability. Some of these foundational investments include developing the Aurora Driver with what we believe to be the optimal combination of artificial intelligence and machine-learning with rule-based approaches. We have used a \u201cVerifiable AI\u201d approach, intended to leverage advancements in artificial intelligence and machine learning to deliver a practical, verifiable, and commercially scalable solution. We have also built a proprietary Virtual Testing Suite, which makes our development more efficient and faster than traditional approaches that rely heavily on on-road vehicle fleets. While many companies in the self-driving industry tout miles driven as a metric, our Virtual Testing Suite allows us to iterate faster and more efficiently, while reducing our reliance on on-road testing."
+        }
+      ],
+      "answer_a": "Aurora Innovation, Inc. entered the trucking market first with its driverless product, focusing on high-volume, highway-focused routes due to the market's scale, structural need, and attractive unit economics [AUR-2025-CHUNK-000003].",
+      "answer_b": "Aurora Innovation, Inc. entered the trucking market first with its driverless product, focusing on high-volume, highway-focused routes [AUR-2025-CHUNK-000003].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "fail"
+      }
+    },
+    {
+      "pair_id": "blind-05",
+      "seed": "cross_company_comparison",
+      "variant": "human_reviewed",
+      "question": "Compare Tesla's autonomous service strategy with Ford Model e's technology focus.",
+      "evidence": [
+        {
+          "chunk_id": "F-2025-CHUNK-000005",
+          "text": "Item 1 \u2014 Business\nFORD MODEL E SEGMENT\n\nFord Model e primarily includes the sale of our EVs (including EREVs), service parts, accessories, and digital services for retail customers, together with the associated costs of development, manufacture, and distribution of the vehicles, parts, accessories, and services. This segment focuses on developing EV and digital vehicle technologies, as well as software development. Additionally, Ford Model e provides software and connected vehicle technologies on behalf of the enterprise, and manufactures certain EVs, including for Ford Pro. Ford Model e operates in North America, Europe, and China. Ford Model e also includes EV and related sales not considered core to Ford Pro to commercial, government, and rental customers in Europe, China, and Mexico."
+        },
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000003",
+          "text": "Item 1 \u2014 BUSINESS\nAutomotive\n\nWe currently manufacture five different consumer vehicles \u2013 the Model 3, Y, S, X and Cybertruck. Model 3 is a four-door mid-size sedan that we designed for manufacturability with a base price for mass-market appeal. Model Y is a compact sport utility vehicle (\u201cSUV\u201d) built on the Model 3 platform with seating for up to seven adults. Model S is a four-door full-size sedan and Model X is a mid-size SUV with seating for up to seven adults. Model S and Model X feature the highest performance characteristics and longest ranges that we offer in a sedan and SUV, respectively. The Cybertruck is a full-size electric pickup truck with a stainless steel exterior that has the utility and strength of a truck while featuring the speed of a sports car. In 2022, we also began early production and deliveries of a commercial electric vehicle, the Tesla Semi.\n\nWe have planned electric vehicles to address additional vehicle markets, and will continue leveraging developments in our proprietary Full Self-Driving (\u201cFSD\u201d) (Supervised) features, battery cell and other technologies. For purposes of this filing, use of the term \u201cFSD (Supervised)\u201d includes the equivalent naming convention, \u201cFSD (Capability)\u201d that is used in the European, Middle East and Asia-Pacific regions. In June 2025, we launched our Robotaxi service, an autonomous ride-hailing platform that harnesses our technology and vehicles. We expect this service will open access to an expanded customer base as modes of transportation evolve, and, along with products such as FSD (Supervised) subscriptions, unlock the potential to advance a service-driven business model based on AI, software and fleet-based profits. Our Robotaxi business currently operates with Model Y vehicles but, in time, will include Cybercab, our purpose-built autonomous vehicle."
+        }
+      ],
+      "answer_a": "Tesla's autonomous service strategy focuses on its Robotaxi service, an autonomous ride-hailing platform launched in June 2025. This service leverages Tesla's proprietary Full Self-Driving (FSD) technology and currently operates with Model Y vehicles, with plans to include a purpose-built autonomous vehicle called Cybercab. Tesla aims to evolve into a service-driven business model emphasizing AI, software, and fleet-based profits [TSLA-2025-CHUNK-000003].\n\nFord Model e, on the other hand, emphasizes the development of EV and digital vehicle technologies, including software and connected vehicle technologies. While it supports EV manufacturing and sales across various customer segments, there is no explicit mention of autonomous services or ride-hailing platforms in the retrieved evidence [F-2025-CHUNK-000005].\n\nThus, Tesla's strategy is centered on autonomous ride-hailing services, while Ford Model e focuses on EV and digital technology development without a specific emphasis on autonomous services.",
+      "answer_b": "Tesla's autonomous service strategy focuses on its Robotaxi service, an autonomous ride-hailing platform launched in June 2025. This service leverages Tesla's proprietary Full Self-Driving (FSD) technology and currently operates with Model Y vehicles, with plans to include a purpose-built autonomous vehicle called Cybercab. Tesla aims to evolve into a service-driven business model emphasizing AI, software, and fleet-based profits [TSLA-2025-CHUNK-000003].\n\nFord Model e, on the other hand, emphasizes the development of EV and digital vehicle technologies, including software and connected vehicle technologies. While it supports EV manufacturing and sales across various customer segments, there is no explicit mention of autonomous services or ride-hailing platforms in the retrieved evidence [F-2025-CHUNK-000005].\n\nThus, Tesla's strategy is centered on autonomous ride-hailing services, while Ford Model e focuses on EV and digital technology development without specific evidence of autonomous service offerings.",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "fail"
+      }
+    },
+    {
+      "pair_id": "blind-06",
+      "seed": "cross_company_comparison",
+      "variant": "human_reviewed",
+      "question": "Compare Aurora's and Ouster's stated missions.",
+      "evidence": [
+        {
+          "chunk_id": "AUR-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 Business\nCompany Overview\n\nOur mission is to deliver the benefits of self-driving technology safely, quickly, and broadly.\n\nAurora was founded in 2017 by Chris Urmson, Sterling Anderson, and Drew Bagnell, three of the most prominent leaders in the self-driving space. Led by a team with deep experience, including Chris and Drew, we have launched and are continuing to develop the Aurora Driver based on what we believe to be the most advanced and scalable suite of self-driving hardware, software, and data services in the world to fundamentally transform the global transportation market. The Aurora Driver is designed as a platform to adapt and interoperate amongst a multitude of vehicle types and applications. To date, we have successfully integrated the Aurora Driver into numerous different vehicle platforms designed to meet its requirements: from passenger vehicles to light commercial vehicles to Class 8 trucks. By creating a common driver platform for multiple vehicle types and use cases, the capabilities we develop in one market reinforce and strengthen our competitive advantages in other areas. For example, highway driving capabilities developed for trucking will carry over to highway segments driven by passenger vehicles in ride hailing applications. We believe this is the right approach to bring self-driving to market and will enable us to target and transform multiple massive markets, including trucking, passenger mobility, and local goods delivery.\n\nBeyond the economic opportunity, we believe we have a unique opportunity to have a material positive impact on the lives of millions of people, while also improving business productivity. First and foremost, we are focused on the opportunity to greatly improve road safety. In trucking, we can enable logistics networks to move goods more efficiently, and also help fill the shortage of truck drivers by providing a self-driving option. We can expand access to transportation, improving the lives of the millions of people with a disability in the U.S. who have difficulty traveling outside of the home. And we will give people back their time that can be made more productive and enjoyable."
+        },
+        {
+          "chunk_id": "OUST-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 Business\nOverview\n\nWe believe these markets present a significant growth opportunity for us.\n\nWe envision a future where our technology that combines sensing, compute, applications and artificial intelligence will become universal for empowering 3D perception capabilities within robots, cars, trucks, and drones, as well as factories, warehouses, roads, sidewalks, public spaces, retail stores, stadiums, docks, and airport terminals. We believe our patents and ongoing development of perception, analytics, mapping, and localization software will better position us in this evolutionary environment.\n\nWe believe the simplicity of our digital lidar design gives us meaningful cost advantages in manufacturing, supply chain, and production yields. Our main manufacturing partners are Benchmark Electronics, Inc. (\u201cBenchmark\u201d) and Fabrinet. Benchmark and Fabrinet manufacture the majority of our products, which we expect will reduce our product costs and allow us to rapidly scale production to meet our anticipated product demand. Based on cost quotes for our products in mass production, we anticipate our manufacturing costs per unit will decrease as production volumes increase.\n\nOuster's mission is to make the physical world safer and more efficient. As a leader in sensing and perception we bring Physical AI to life, with a foundational end-to-end sensing and perception platform and delivering intelligent digital lidar and camera solutions that improve quality of life in the physical world."
+        }
+      ],
+      "answer_a": "Aurora's mission is \"to deliver the benefits of self-driving technology safely, quickly, and broadly\" [AUR-2025-CHUNK-000002]. Ouster's mission is \"to make the physical world safer and more efficient\" by providing sensing and perception solutions, including digital lidar and camera technologies, to improve quality of life in the physical world [OUST-2025-CHUNK-000002].",
+      "answer_b": "Aurora's mission is \"to deliver the benefits of self-driving technology safely, quickly, and broadly\" [AUR-2025-CHUNK-000002]. Ouster's mission is \"to make the physical world safer and more efficient\" by providing \"intelligent digital lidar and camera solutions\" as part of an end-to-end sensing and perception platform [OUST-2025-CHUNK-000002]. \n\nAurora focuses on self-driving technology and its applications across transportation markets, while Ouster emphasizes enhancing safety and efficiency in the physical world through sensing and perception technologies.",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-07",
+      "seed": "cross_section_synthesis",
+      "variant": "human_reviewed",
+      "question": "Who were Ford's CEO and COO, and when did each begin the role?",
+      "evidence": [
+        {
+          "chunk_id": "F-2025-CHUNK-000123",
+          "text": "Item 4A \u2014 Information About Our Executive Officers\n\n| Name | Position | Position Held Since | Age |\n| :--- | :--- | :--- | ---: |\n| William Clay Ford, Jr. (a) | Executive Chair and Chair of the Board | September 2006 | 68 |\n| James D. Farley, Jr. (b) | President and Chief Executive Officer | October 2020 | 63 |\n| John Lawler | Vice Chair | June 2024 | 59 |\n| Sherry House | Chief Financial Officer | February 2025 | 54 |\n| Ashwani (\u201cKumar\u201d) Galhotra | Chief Operating Officer | October 2023 | 60 |\n| Michael Amend | Chief Enterprise Technology Officer | March 2022 | 48 |\n| Michael Aragon | President, Ford Integrated Services | March 2025 | 52 |\n| Steven P. Croley | Chief Policy Officer and General Counsel | July 2021 | 60 |\n| Alicia Boler Davis | President, Ford Pro | September 2025 | 56 |\n| J. Doug Field | Chief EV, Digital, and Design Officer | October 2023 | 60 |\n| Andrew Frick | President, Ford Blue and Model e | February 2025 | 52 |\n| Jennifer Waldo | Chief People and Employee Experience Officer | May 2022 | 49 |\n| Shengpo (\u201cSam\u201d) Wu | President and Chief Executive Officer, Ford China and IMG | February 2025 | 59 |\n| Kyle Crockett | Chief Accounting Officer | July 2025 | 52 |"
+        }
+      ],
+      "answer_a": "Ford's CEO is James D. Farley, Jr., who began the role in October 2020. The COO is Ashwani (\"Kumar\") Galhotra, who started in October 2023 [F-2025-CHUNK-000123].",
+      "answer_b": "Ford's CEO is James D. Farley, Jr., who began the role in October 2020. The COO is Ashwani (\"Kumar\") Galhotra, who started in this position in October 2023 [F-2025-CHUNK-000123].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-08",
+      "seed": "cross_section_synthesis",
+      "variant": "human_reviewed",
+      "question": "Which market is Aurora pursuing first, and which exhibit identifies its amended 2021 Equity Incentive Plan?",
+      "evidence": [
+        {
+          "chunk_id": "AUR-2025-CHUNK-000003",
+          "text": "Item 1 \u2014 Business\nCompany Overview\n\nWe launched trucking as our first driverless product, as we believe its massive scale, significant structural need, attractive unit economics, and self-similar operating environment will allow us to rapidly deploy and profitably scale on high-volume, highway-focused routes. Drafting on the revenue and technical capability we expect this trucking product to generate, we plan to leverage the extensibility of the Aurora Driver to deploy and scale into the passenger mobility and local goods delivery markets. We have operated our self-driving test vehicles in diverse weather and operating environments, including in Arizona, California, New Mexico, Pennsylvania, and Texas, allowing us to create a more robust self-driving system.\n\nOur first-principles approach underpins our technology development strategy for the Aurora Driver. We made foundational investments early on, based on our prior experience in the self-driving industry, that allow us to accelerate development and position our platform for long-term scalability. Some of these foundational investments include developing the Aurora Driver with what we believe to be the optimal combination of artificial intelligence and machine-learning with rule-based approaches. We have used a \u201cVerifiable AI\u201d approach, intended to leverage advancements in artificial intelligence and machine learning to deliver a practical, verifiable, and commercially scalable solution. We have also built a proprietary Virtual Testing Suite, which makes our development more efficient and faster than traditional approaches that rely heavily on on-road vehicle fleets. While many companies in the self-driving industry tout miles driven as a metric, our Virtual Testing Suite allows us to iterate faster and more efficiently, while reducing our reliance on on-road testing."
+        },
+        {
+          "chunk_id": "AUR-2025-CHUNK-000254",
+          "text": "Item 15 \u2014 Exhibit and Financial Statement Schedules\nExhibits\n\nUnits: date\n\n| Exhibit No. | Description | Incorporated by reference \u2014 Form | Incorporated by reference \u2014 File No. | Incorporated by reference \u2014 Exhibit No. | Incorporated by reference \u2014 Filing Date |\n| :--- | :--- | :--- | :--- | ---: | ---: |\n| 10.2 | Sponsor Agreement, dated as of July 14, 2021, between Sponsor, Reinvent Technology Partners Y, and Aurora Innovation, Inc. | 8\u2011K | 001-40216 | 10.3 | July 15, 2021 |\n| 10.3 | Form of Company Holders Support Agreement (Voting and Support Agreement) | 8\u2011K | 001-40216 | 10.4 | July 15, 2021 |\n| 10.4 | Form of PIPE Subscription Agreement (Subscription Agreement) | 8\u2011K | 001-40216 | 10.1 | July 15, 2021 |\n| 10.5 | Amended and Restated Registration Rights Agreement, dated as of November 3, 2021, by and among Aurora Innovation, Inc. and the other parties thereto | 8\u2011K | 001-40216 | 10.4 | November 4, 2021 |\n| 10.6 | Letter Agreement, dated as of March 15, 2021, by and among Reinvent Technology Partners Y, Reinvent Sponsor Y LLC and the other parties thereto | 8-K | 001-40216 | 10.1 | March 18, 2021 |\n| 10.7# | Employee Incentive Compensation Plan | S\u20114/A | 333-257912 | 10.22 | September 29, 2021 |\n| 10.8# | OURS Technology, Inc. 2017 Stock Incentive Plan | S\u20114/A | 333-257912 | 10.23 | September 29, 2021 |\n| 10.9# | Aurora Innovation, Inc. 2021 Equity Incentive Plan, as amended and restated on May 26, 2023 | S-8 | 333-272272 | 99.1 | May 30, 2023 |\n| 10.10# | Aurora Innovation, Inc. 2017 Equity Incentive Plan | S-4/A | 333-257912 | 10.21 | September 29, 2021 |\n| 10.11# | Blackmore Sensors & Analytics, Inc. 2016 Equity Incentive Plan | S-4/A | 333-257912 | 10.24 | September 29, 2021 |\n| 10.12# | Aurora Innovation, Inc. form of Indemnification Agreement | S-4/A | 333-257912 | 10.19 | September 29, 2021 |\n| 10.13# | Outside Director Compensation Policy, as amended on July 14, 2025 | 10-Q | 001-40216 | 10.1 | July 30, 2025 |\n| 10.14# | Confirmatory Employment Letter between the Registrant and Chris Urmson, dated March 15, 2022 | 8-K | 001-40216 | 10.1 | March 17, 2022 |\n| 10.15# | Confirmatory Employment Letter between the Registrant and Nolan Shenai, dated December 13, 2022 | 10-K | 001-40216 | 10.18 | February 21, 2023 |\n| 10.16# | Employment Letter between the Registrant and Ossa F. Fisher, dated December 29, 2022 | 8-K | 001-40216 | 10.1 | January 30, 2023 |\n| 10.17# | Form of Stock Option Agreement under the Aurora Innovation, Inc. 2021 Equity Incentive Plan | 8-K | 001-40216 | 10.12 | November 4, 2021 |\n| 10.18# | Form of Restricted Stock Unit Agreement under the Aurora Innovation, Inc. 2021 Equity Incentive Plan | 8-K | 001-40216 | 10.12 | November 4, 2021 |\n| 10.19# | Employment Letter between the Registrant and David Maday, dated June 5, 2023 | 10-Q | 001-40216 | 10.2 | August 3, 2023 |\n| 10.20# | Amendment to Stock Option Agreement entered into between Aurora Innovation, Inc. and David Maday | 8-K | 001-40216 | 10.1 | June 15, 2023 |\n| 10.21# | Aurora Innovation, Inc. Change in Control and Severance Policy | 8-K | 001-40216 | 10.1 | August 18, 2023 |\n| 10.22# | Form of Addendum to Stock Option Agreement for Executive Officers under the Aurora Innovation, Inc. 2021 Equity Incentive Plan | 10-K | 001-40216 | 10.31 | February 15, 2024 |\n| 10.23# | Employment Letter between the Registrant and Shelley Webb, dated January 30, 2025 | 10-K | 001-40216 | 10.30 | February 14, 2025 |"
+        }
+      ],
+      "answer_a": "Aurora is pursuing the trucking market first, as it views it as having massive scale, significant structural need, attractive unit economics, and a self-similar operating environment conducive to rapid deployment and profitable scaling on high-volume, highway-focused routes [AUR-2025-CHUNK-000003].\n\nThe amended 2021 Equity Incentive Plan is identified in Exhibit 10.9, titled \"Aurora Innovation, Inc. 2021 Equity Incentive Plan, as amended and restated on May 26, 2023\" [AUR-2025-CHUNK-000254].",
+      "answer_b": "Aurora is pursuing the trucking market first, as it views this market's massive scale, structural need, attractive unit economics, and highway-focused routes as conducive to rapid deployment and profitable scaling [AUR-2025-CHUNK-000003].\n\nThe amended 2021 Equity Incentive Plan is identified in Exhibit 10.9, titled \"Aurora Innovation, Inc. 2021 Equity Incentive Plan, as amended and restated on May 26, 2023\" [AUR-2025-CHUNK-000254].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-09",
+      "seed": "current_web",
+      "variant": "human_reviewed",
+      "question": "Who is Tesla's CEO right now?",
+      "evidence": [],
+      "answer_a": "No qualifying evidence was found. The retrieved excerpts do not provide information about Tesla's current CEO.",
+      "answer_b": "No qualifying evidence was found. The retrieved excerpts do not provide information about Tesla's current CEO.",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-10",
+      "seed": "current_web",
+      "variant": "human_reviewed",
+      "question": "What is GM trading at right now?",
+      "evidence": [],
+      "answer_a": "The retrieved excerpts do not provide information about GM's current trading price. Stock prices are not typically included in SEC filings like 10-Ks, as they are subject to real-time market fluctuations. You would need to check a financial news platform or stock market service for the latest trading price.",
+      "answer_b": "The retrieved excerpts do not provide information about GM's current trading price. Stock prices are not typically included in SEC filings like 10-Ks, as they are subject to real-time market fluctuations. You would need to check a financial news platform or stock market service for the most up-to-date trading price.",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-11",
+      "seed": "direct_factual",
+      "variant": "human_reviewed",
+      "question": "What is Aurora's mission for delivering self-driving technology?",
+      "evidence": [
+        {
+          "chunk_id": "AUR-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 Business\nCompany Overview\n\nOur mission is to deliver the benefits of self-driving technology safely, quickly, and broadly.\n\nAurora was founded in 2017 by Chris Urmson, Sterling Anderson, and Drew Bagnell, three of the most prominent leaders in the self-driving space. Led by a team with deep experience, including Chris and Drew, we have launched and are continuing to develop the Aurora Driver based on what we believe to be the most advanced and scalable suite of self-driving hardware, software, and data services in the world to fundamentally transform the global transportation market. The Aurora Driver is designed as a platform to adapt and interoperate amongst a multitude of vehicle types and applications. To date, we have successfully integrated the Aurora Driver into numerous different vehicle platforms designed to meet its requirements: from passenger vehicles to light commercial vehicles to Class 8 trucks. By creating a common driver platform for multiple vehicle types and use cases, the capabilities we develop in one market reinforce and strengthen our competitive advantages in other areas. For example, highway driving capabilities developed for trucking will carry over to highway segments driven by passenger vehicles in ride hailing applications. We believe this is the right approach to bring self-driving to market and will enable us to target and transform multiple massive markets, including trucking, passenger mobility, and local goods delivery.\n\nBeyond the economic opportunity, we believe we have a unique opportunity to have a material positive impact on the lives of millions of people, while also improving business productivity. First and foremost, we are focused on the opportunity to greatly improve road safety. In trucking, we can enable logistics networks to move goods more efficiently, and also help fill the shortage of truck drivers by providing a self-driving option. We can expand access to transportation, improving the lives of the millions of people with a disability in the U.S. who have difficulty traveling outside of the home. And we will give people back their time that can be made more productive and enjoyable."
+        }
+      ],
+      "answer_a": "Aurora's mission is to deliver the benefits of self-driving technology safely, quickly, and broadly [AUR-2025-CHUNK-000002].",
+      "answer_b": "Aurora's mission is to deliver the benefits of self-driving technology safely, quickly, and broadly [AUR-2025-CHUNK-000002].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-12",
+      "seed": "direct_factual",
+      "variant": "human_reviewed",
+      "question": "What real-world AI products does Tesla identify as central to its business strategy?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000001",
+          "text": "Item 1 \u2014 BUSINESS\nOverview\n\nWe are focused on bringing artificial intelligence (\u201cAI\u201d) into the real world, through products and services like Full Self-Driving (\u201cFSD\u201d) (Supervised) and Robotaxi, as well as working to develop and commercialize AI robots (\u201cBots\u201d) (including Optimus). We intend to leverage our current operations, in which we design, develop, manufacture, sell and lease high-performance fully electric vehicles and energy generation and storage systems that increasingly deliver AI-related and enhanced software and services to our customers, to achieve that objective. We generally sell our products directly to customers, and continue to grow our global retail, service and charging footprint to accelerate the widespread adoption of our products. We emphasize performance, attractive styling and the safety of our users and workforce in the design and manufacture of our products and are continuing to develop full self-driving technology for improved safety. We also strive to lower the cost of ownership for our customers through continuous efforts to reduce manufacturing costs and by offering financial and other services tailored to our products.\n\nOur mission is building a world of amazing abundance. We believe that this mission, along with our engineering expertise, advancements in real-world AI, vertically integrated business model, and focus on user experience differentiate us from other companies."
+        }
+      ],
+      "answer_a": "Tesla identifies the following real-world AI products as central to its business strategy:\n\n1. **Full Self-Driving (FSD) (Supervised)** [TSLA-2025-CHUNK-000001].\n2. **Robotaxi** [TSLA-2025-CHUNK-000001].\n3. **AI robots, including Optimus** [TSLA-2025-CHUNK-000001].",
+      "answer_b": "Tesla identifies the following real-world AI products as central to its business strategy: Full Self-Driving (FSD) (Supervised), Robotaxi, and AI robots (including Optimus) [TSLA-2025-CHUNK-000001].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-13",
+      "seed": "evidence_calculation",
+      "variant": "human_reviewed",
+      "question": "By how much did Tesla's total revenues change from 2024 to 2025?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000121",
+          "text": "Item 7 \u2014 MANAGEMENT\u2019S DISCUSSION AND ANALYSIS OF FINANCIAL CONDITION AND RESULTS OF OPERATIONS\nRevenues\n\nRevenues\nUnits: mixed\n\n| Line item | Year Ended December 31, \u2014 2025 | Year Ended December 31, \u2014 2024 | Year Ended December 31, \u2014 2023 | 2025 vs. 2024 Change \u2014 $ | 2025 vs. 2024 Change \u2014 % | 2024 vs. 2023 Change \u2014 $ | 2024 vs. 2023 Change \u2014 % |\n| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| Automotive sales | $65,821 | $72,480 | $78,509 | $(6,659) | (9)% | $(6,029) | (8)% |\n| Automotive regulatory credits | 1,993 | 2,763 | 1,790 | (770) | (28)% | 973 | 54% |\n| Automotive leasing | 1,712 | 1,827 | 2,120 | (115) | (6)% | (293) | (14)% |\n| Total automotive revenues | 69,526 | 77,070 | 82,419 | (7,544) | (10)% | (5,349) | (6)% |\n| Services and other | 12,530 | 10,534 | 8,319 | 1,996 | 19% | 2,215 | 27% |\n| Total automotive & services and other segment revenue | 82,056 | 87,604 | 90,738 | (5,548) | (6)% | (3,134) | (3)% |\n| Energy generation and storage segment revenue | 12,771 | 10,086 | 6,035 | 2,685 | 27% | 4,051 | 67% |\n| Total revenues | $94,827 | $97,690 | $96,773 | $(2,863) | (3)% | $917 | 1% |"
+        }
+      ],
+      "answer_a": "Tesla's total revenues decreased by $2,863 million (or 3%) from 2024 to 2025 [TSLA-2025-CHUNK-000121].",
+      "answer_b": "Tesla's total revenues decreased by $2,863 million (or 3%) from 2024 to 2025 [TSLA-2025-CHUNK-000121].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-14",
+      "seed": "evidence_calculation",
+      "variant": "human_reviewed",
+      "question": "By how much did Tesla's total revenues change from 2023 to 2025?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000121",
+          "text": "Item 7 \u2014 MANAGEMENT\u2019S DISCUSSION AND ANALYSIS OF FINANCIAL CONDITION AND RESULTS OF OPERATIONS\nRevenues\n\nRevenues\nUnits: mixed\n\n| Line item | Year Ended December 31, \u2014 2025 | Year Ended December 31, \u2014 2024 | Year Ended December 31, \u2014 2023 | 2025 vs. 2024 Change \u2014 $ | 2025 vs. 2024 Change \u2014 % | 2024 vs. 2023 Change \u2014 $ | 2024 vs. 2023 Change \u2014 % |\n| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| Automotive sales | $65,821 | $72,480 | $78,509 | $(6,659) | (9)% | $(6,029) | (8)% |\n| Automotive regulatory credits | 1,993 | 2,763 | 1,790 | (770) | (28)% | 973 | 54% |\n| Automotive leasing | 1,712 | 1,827 | 2,120 | (115) | (6)% | (293) | (14)% |\n| Total automotive revenues | 69,526 | 77,070 | 82,419 | (7,544) | (10)% | (5,349) | (6)% |\n| Services and other | 12,530 | 10,534 | 8,319 | 1,996 | 19% | 2,215 | 27% |\n| Total automotive & services and other segment revenue | 82,056 | 87,604 | 90,738 | (5,548) | (6)% | (3,134) | (3)% |\n| Energy generation and storage segment revenue | 12,771 | 10,086 | 6,035 | 2,685 | 27% | 4,051 | 67% |\n| Total revenues | $94,827 | $97,690 | $96,773 | $(2,863) | (3)% | $917 | 1% |"
+        }
+      ],
+      "answer_a": "Tesla's total revenues decreased by $1,946 million from 2023 to 2025. This is calculated as $94,827 million in 2025 minus $96,773 million in 2023 [TSLA-2025-CHUNK-000121].",
+      "answer_b": "Tesla's total revenues decreased by $1,946 million from 2023 to 2025. This is calculated as follows:\n\n- Total revenues in 2025: $94,827 million  \n- Total revenues in 2023: $96,773 million  \n- Change: $94,827 - $96,773 = **$(1,946)** [TSLA-2025-CHUNK-000121].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-15",
+      "seed": "numerical_table",
+      "variant": "human_reviewed",
+      "question": "What were Tesla's total revenues in 2025, 2024, and 2023?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000121",
+          "text": "Item 7 \u2014 MANAGEMENT\u2019S DISCUSSION AND ANALYSIS OF FINANCIAL CONDITION AND RESULTS OF OPERATIONS\nRevenues\n\nRevenues\nUnits: mixed\n\n| Line item | Year Ended December 31, \u2014 2025 | Year Ended December 31, \u2014 2024 | Year Ended December 31, \u2014 2023 | 2025 vs. 2024 Change \u2014 $ | 2025 vs. 2024 Change \u2014 % | 2024 vs. 2023 Change \u2014 $ | 2024 vs. 2023 Change \u2014 % |\n| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| Automotive sales | $65,821 | $72,480 | $78,509 | $(6,659) | (9)% | $(6,029) | (8)% |\n| Automotive regulatory credits | 1,993 | 2,763 | 1,790 | (770) | (28)% | 973 | 54% |\n| Automotive leasing | 1,712 | 1,827 | 2,120 | (115) | (6)% | (293) | (14)% |\n| Total automotive revenues | 69,526 | 77,070 | 82,419 | (7,544) | (10)% | (5,349) | (6)% |\n| Services and other | 12,530 | 10,534 | 8,319 | 1,996 | 19% | 2,215 | 27% |\n| Total automotive & services and other segment revenue | 82,056 | 87,604 | 90,738 | (5,548) | (6)% | (3,134) | (3)% |\n| Energy generation and storage segment revenue | 12,771 | 10,086 | 6,035 | 2,685 | 27% | 4,051 | 67% |\n| Total revenues | $94,827 | $97,690 | $96,773 | $(2,863) | (3)% | $917 | 1% |"
+        }
+      ],
+      "answer_a": "Tesla's total revenues were as follows:\n\n- **2025**: $94,827 million  \n- **2024**: $97,690 million  \n- **2023**: $96,773 million  \n\nThese figures are directly stated in the retrieved table [TSLA-2025-CHUNK-000121].",
+      "answer_b": "Tesla's total revenues were as follows:\n\n- **2025**: $94,827 million  \n- **2024**: $97,690 million  \n- **2023**: $96,773 million  \n\nThese figures are directly stated in the table under \"Total revenues\" for the respective years [TSLA-2025-CHUNK-000121].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-16",
+      "seed": "numerical_table",
+      "variant": "human_reviewed",
+      "question": "What total amortization expense did Mobileye report for 2025, 2024, and 2023?",
+      "evidence": [
+        {
+          "chunk_id": "MBLY-2025-CHUNK-000410",
+          "text": "Item 8 \u2014 Financial Statements\nNOTES TO CONSOLIDATED FINANCIAL STATEMENTS\nFinancial statement notes\n\nThe following table presents the amortization expenses recorded for these identified intangible assets and their weighted average useful lives\nUnits: mixed\n\n| Line item | Year ended \u2014 December 27, 2025 | Year ended \u2014 December 28, 2024 | Year ended \u2014 December 30, 2023 | Weighted Average \u2014 Useful Life |\n| :--- | ---: | ---: | ---: | ---: |\n| Developed technology | $377 | $376 | $406 | 10 |\n| Customer relationships & brands | 66 | 68 | 68 | 12 |\n| Total amortization expenses | $443 | $444 | $474 |  |"
+        }
+      ],
+      "answer_a": "Mobileye reported total amortization expenses of $443 million for 2025, $444 million for 2024, and $474 million for 2023 [MBLY-2025-CHUNK-000410].",
+      "answer_b": "Mobileye reported total amortization expenses of $443 million for 2025, $444 million for 2024, and $474 million for 2023 [MBLY-2025-CHUNK-000410].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-17",
+      "seed": "product_alias",
+      "variant": "human_reviewed",
+      "question": "What is General Motors' zero-crash vision?",
+      "evidence": [
+        {
+          "chunk_id": "GM-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 Business\n\nOur strong product portfolio exemplifies our deep design and engineering expertise, iconic brands, award winning vehicles, and clear outlook for the future, leading the U.S. auto industry in sales. We continue to push the industry forward, with a vision to create the right vehicle for every driver and a world with zero crashes, zero emissions, and zero congestion. Building on a century of innovation, we are leveraging software, hardware, artificial intelligence (AI), and sensors to produce safer, smarter, and more fuel efficient vehicles. We are developing advanced driver assistance and autonomous vehicle (AV) technology to help eliminate human driving error, save lives, and improve mobility for everyone.\n\nVehicle Portfolio Our internal combustion engine (ICE) portfolio is a key driver of financial and market performance and customer loyalty led by our full-size trucks and sport utility vehicles (SUVs). We maintain a strong presence in both the mainstream and luxury categories of the auto industry. We serve the mainstream market with Chevrolet and GMC trucks, SUVs, and crossover utility vehicles, which are driving volume growth in premium-priced market segments. Our Cadillac brand, which continues to grow, services the global luxury segment, while also maintaining strong market presence in North America.\n\nGM has made significant investments to build a broad portfolio of electric vehicles (EVs) including establishing manufacturing and supply chain capacity for EVs, batteries, and components, in North America. Our EV portfolio has achieved significant market growth with strong positioning in the U.S. market. Our New Energy Vehicles (NEVs) in China have contributed to the turnaround in sales and business performance in China. EVs like the Chevrolet Equinox EV, Cadillac LYRIQ, Cadillac ESCALADE IQ, and the GMC Sierra EV have brought new customers to our brands and helped increase our EV market share.\n\nDespite our recent EV sales growth, U.S. regulatory and economic policy changes have impacted our expectations regarding the pace of EV growth and consumer demand. We have taken actions to strategically realign our EV capacity and manufacturing footprint with the slowing in customer demand for EVs. Due to our broad and diversified portfolio of both ICE and electric vehicles, we believe we are well positioned to respond to changes in demand given our strong market position with ICE vehicles in the U.S. and the success of our Chevrolet, Cadillac, and GMC EVs with customers."
+        }
+      ],
+      "answer_a": "General Motors' zero-crash vision is part of its broader goal to create a world with zero crashes, zero emissions, and zero congestion. The company aims to achieve this by leveraging advanced technologies such as artificial intelligence, sensors, advanced driver assistance systems, and autonomous vehicle technology to eliminate human driving errors, save lives, and improve mobility [GM-2025-CHUNK-000002].",
+      "answer_b": "General Motors' zero-crash vision is part of its broader goal to create \"a world with zero crashes, zero emissions, and zero congestion.\" The company aims to achieve this by leveraging advanced technologies such as software, hardware, artificial intelligence (AI), and sensors to produce safer and smarter vehicles. GM is also developing advanced driver assistance and autonomous vehicle technology to help eliminate human driving errors and save lives [GM-2025-CHUNK-000002].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-18",
+      "seed": "product_alias",
+      "variant": "human_reviewed",
+      "question": "What mission does Google describe?",
+      "evidence": [
+        {
+          "chunk_id": "GOOGL-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 BUSINESS\nAccess and Technology for Everyone\n\nThe Internet is one of the world\u2019s most powerful equalizers; it propels ideas, people, and businesses large and small. Our mission to organize the world\u2019s information and make it universally accessible and useful is as relevant today as it was when we were founded in 1998. Since then, we have evolved from a company that helps people find answers to a company that also helps people get things done.\n\nWe are focused on building an even more helpful Google for everyone, and we aspire to give everyone the tools they need to increase their knowledge, health, happiness, and success. Google Search helps people find information and make sense of the world in more natural and intuitive ways, with trillions of searches on Google every year. YouTube provides people with entertainment, information, and opportunities to learn something new and helps support the creator economy through the YouTube Partner Program. Google Cloud helps customers build for the future, improve productivity, reduce costs, and unlock new growth engines. We continually innovate and build new products and features to help our users, partners, customers, and communities and have invested more than $200 billion in research and development in the last five years in support of these efforts.\n\n3."
+        }
+      ],
+      "answer_a": "Google describes its mission as \"to organize the world\u2019s information and make it universally accessible and useful\" [GOOGL-2025-CHUNK-000002].",
+      "answer_b": "Google describes its mission as \"to organize the world\u2019s information and make it universally accessible and useful\" [GOOGL-2025-CHUNK-000002].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-19",
+      "seed": "direct_factual",
+      "variant": "human_reviewed",
+      "question": "How does Mobileye define its fiscal year?",
+      "evidence": [
+        {
+          "chunk_id": "MBLY-2025-CHUNK-000001",
+          "text": "Item 1 \u2014 Business\n\nIn this Annual Report on Form 10-K, references to \u201cwe,\u201d \u201cus,\u201d \u201cour,\u201d our \u201ccompany,\u201d \u201cMobileye,\u201d the \u201cCompany,\u201d and similar terms refer to Mobileye Global Inc. and, unless the context requires otherwise, its consolidated subsidiaries, except with respect to our historical business, operations, financial performance, and financial condition prior to our initial public offering, where such terms refer to Mobileye Group, which combines the operations of Cyclops Holdings Corporation, Mobileye B.V., GG Acquisition Ltd., Moovit App Global Ltd., and their respective subsidiaries, along with certain Intel employees mainly in research and development. References to \u201cMoovit\u201d refer to GG Acquisition Ltd., Moovit App Global Ltd. and their consolidated subsidiaries.\n\nWe have a 52- or 53-week fiscal year that ends on the last Saturday in December. Fiscal years 2024 and 2023 were 52-week fiscal years; fiscal year 2025 was also a 52-week fiscal year. Any references to our performance for the years 2025, 2024 and 2023 are references to our fiscal years ended December 27, 2025, December 28, 2024 and December 30, 2023, respectively, and all references to our financial condition as of the end of 2025 and 2024 are references to the end of such fiscal years. Certain amounts, percentages, and other figures presented in this report have been subject to rounding adjustments. Accordingly, figures shown as totals, dollars, or percentage amounts of changes may not represent the arithmetic summation or calculation of the figures that precede them."
+        }
+      ],
+      "answer_a": "Mobileye defines its fiscal year as a 52- or 53-week period that ends on the last Saturday in December. For example, fiscal years 2025, 2024, and 2023 were 52-week fiscal years ending on December 27, 2025, December 28, 2024, and December 30, 2023, respectively [MBLY-2025-CHUNK-000001].",
+      "answer_b": "Mobileye defines its fiscal year as a 52- or 53-week period that ends on the last Saturday in December. For example, fiscal years 2025, 2024, and 2023 were 52-week fiscal years ending on December 27, 2025, December 28, 2024, and December 30, 2023, respectively [MBLY-2025-CHUNK-000001].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "blind-20",
+      "seed": "direct_factual",
+      "variant": "human_reviewed",
+      "question": "Since what year does Alphabet say Google has operated as an AI-first company?",
+      "evidence": [
+        {
+          "chunk_id": "GOOGL-2025-CHUNK-000001",
+          "text": "Item 1 \u2014 BUSINESS\nOverview\n\nAs our founders Larry and Sergey wrote in the original founders' letter, \"Google is not a conventional company. We do not intend to become one.\" That unconventional spirit has been a driving force throughout our history, inspiring us to tackle big problems and invest in moonshots. It led us to be a pioneer in the development of artificial intelligence (AI) and, since 2016, be an AI-first company. We continue this work under the leadership of Alphabet and Google CEO, Sundar Pichai.\n\nAlphabet is a collection of businesses \u2014 the largest of which is Google. We report Google in two segments, Google Services and Google Cloud, and all non-Google businesses collectively as Other Bets. Supporting these businesses, we have centralized certain AI-related research and development focused on advanced research in AI and developing the frontier models that serve our businesses, which is reported in Alphabet-level activities. Alphabet's structure is about helping each of our businesses prosper through strong leaders and independence."
+        }
+      ],
+      "answer_a": "Alphabet states that Google has operated as an AI-first company since 2016 [GOOGL-2025-CHUNK-000001].",
+      "answer_b": "Alphabet states that Google has operated as an AI-first company since 2016 [GOOGL-2025-CHUNK-000001].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    }
+  ],
+  "packet_sha256": "b0bb5ba0fcc9a5913703e667f20e0ad34585b164962b8ce91252924f4adf436e"
+}

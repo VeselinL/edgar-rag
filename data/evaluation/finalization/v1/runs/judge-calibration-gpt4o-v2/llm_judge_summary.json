@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "review_method": "one human pair rubric compared with an independent diagnostic LLM",
+  "model": "AZURE_GPT_4o_2024_1120",
+  "temperature": 0.0,
+  "evaluated_at": "2026-09-05T09:30:57.668562+00:00",
+  "pair_count": 20,
+  "completed_count": 20,
+  "error_count": 0,
+  "aggregate_agreement": 0.9833333333333333,
+  "per_field": {
+    "claim_correctness": {
+      "agreement": 1.0,
+      "cohen_kappa": null,
+      "authoritative": {
+        "pass": 20
+      },
+      "llm": {
+        "pass": 20
+      },
+      "confusion": {
+        "true_pass": 20,
+        "true_fail": 0,
+        "false_pass": 0,
+        "false_fail": 0
+      },
+      "failure_recall": null,
+      "false_pass_rate": null
+    },
+    "faithfulness": {
+      "agreement": 1.0,
+      "cohen_kappa": null,
+      "authoritative": {
+        "pass": 20
+      },
+      "llm": {
+        "pass": 20
+      },
+      "confusion": {
+        "true_pass": 20,
+        "true_fail": 0,
+        "false_pass": 0,
+        "false_fail": 0
+      },
+      "failure_recall": null,
+      "false_pass_rate": null
+    },
+    "citation_support": {
+      "agreement": 1.0,
+      "cohen_kappa": null,
+      "authoritative": {
+        "pass": 20
+      },
+      "llm": {
+        "pass": 20
+      },
+      "confusion": {
+        "true_pass": 20,
+        "true_fail": 0,
+        "false_pass": 0,
+        "false_fail": 0
+      },
+      "failure_recall": null,
+      "false_pass_rate": null
+    },
+    "abstention": {
+      "agreement": 1.0,
+      "cohen_kappa": null,
+      "authoritative": {
+        "pass": 20
+      },
+      "llm": {
+        "pass": 20
+      },
+      "confusion": {
+        "true_pass": 20,
+        "true_fail": 0,
+        "false_pass": 0,
+        "false_fail": 0
+      },
+      "failure_recall": null,
+      "false_pass_rate": null
+    },
+    "answer_relevance": {
+      "agreement": 1.0,
+      "cohen_kappa": null,
+      "authoritative": {
+        "pass": 20
+      },
+      "llm": {
+        "pass": 20
+      },
+      "confusion": {
+        "true_pass": 20,
+        "true_fail": 0,
+        "false_pass": 0,
+        "false_fail": 0
+      },
+      "failure_recall": null,
+      "false_pass_rate": null
+    },
+    "conciseness": {
+      "agreement": 0.9,
+      "cohen_kappa": 0.0,
+      "authoritative": {
+        "pass": 18,
+        "fail": 2
+      },
+      "llm": {
+        "pass": 20
+      },
+      "confusion": {
+        "true_pass": 18,
+        "true_fail": 0,
+        "false_pass": 2,
+        "false_fail": 0
+      },
+      "failure_recall": 0.0,
+      "false_pass_rate": 1.0
+    }
+  },
+  "limitations": [
+    "The authoritative labels are controlled perturbation labels recorded by the evaluator, not an independent second-human review.",
+    "This tests obvious, source-bounded failures; it does not certify nuanced financial interpretation, multi-hop synthesis, or production-answer quality.",
+    "The diagnostic LLM remains non-authoritative and must not grade its own generated answer."
+  ]
+}
