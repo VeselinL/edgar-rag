@@ -100,6 +100,26 @@ class ConversationServiceTests(unittest.TestCase):
         self.assertEqual(len(summaries), 1)
         self.assertEqual(summaries[0].conversation_id, conversation.id)
 
+    def test_completed_turn_bounds_derived_memory_to_database_limit(self):
+        self.service.context_builder = ConversationContextBuilder(
+            self.repository, recent_token_budget=2_000, summary_token_budget=80
+        )
+        conversation = self.service.create()
+
+        self._complete(
+            conversation.id,
+            str(uuid4()),
+            "What are Tesla's plans?",
+            "Tesla disclosure. " * 200,
+        )
+
+        summaries = [
+            item for item in self.memory.items.values()
+            if item.memory_type == "conversation_summary"
+        ]
+        self.assertEqual(len(summaries), 1)
+        self.assertLessEqual(len(summaries[0].content), 1500)
+
     def test_owner_isolation_and_complete_deletion_include_memory(self):
         conversation = self.service.create(memory_enabled=True)
         self.memory.upsert_summary(

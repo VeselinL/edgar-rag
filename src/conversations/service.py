@@ -57,6 +57,8 @@ class ConversationServiceFactory:
 class ConversationService:
     """Own idempotent turns, context construction, memory, and deletion."""
 
+    _MAX_MEMORY_CONTENT_LENGTH = 1500
+
     def __init__(
         self,
         repository: ConversationRepository,
@@ -130,9 +132,17 @@ class ConversationService:
         value = content.strip()
         if not value:
             raise ValueError("Memory content cannot be empty.")
-        if len(value) > 1500:
+        if len(value) > ConversationService._MAX_MEMORY_CONTENT_LENGTH:
             raise ValueError("Memory content must be 1,500 characters or fewer.")
         return value
+
+    @classmethod
+    def _bound_derived_memory_content(cls, content: str) -> str:
+        value = content.strip()
+        if len(value) <= cls._MAX_MEMORY_CONTENT_LENGTH:
+            return value
+        cutoff = value[:cls._MAX_MEMORY_CONTENT_LENGTH - 1].rsplit(" ", 1)[0].rstrip()
+        return f"{cutoff or value[:cls._MAX_MEMORY_CONTENT_LENGTH - 1]}…"
 
     def list_memory(self) -> list[MemoryItem]:
         return self.repository.list_memory_items(self.tenant_id, self.user_id)
@@ -312,7 +322,7 @@ class ConversationService:
             f"{message.role.title()}: {message.content}"
             for message in context.recent_messages
         )
-        content = "\n".join(values).strip()
+        content = self._bound_derived_memory_content("\n".join(values))
         if not content:
             return
         source_message_id = None if summary is not None else context.recent_messages[-1].id
