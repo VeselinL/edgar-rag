@@ -844,6 +844,35 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(records[0]["tool_executions"][0]["status"], "succeeded")
         self.assertIn("difference is 20 USD millions", events[0].data["text"])
 
+    async def test_deterministic_filing_calculation_bypasses_model_router(self):
+        class NoRouteCalculationGenerator(FilingCalculationGenerator):
+            def route_request(self, *args, **kwargs):
+                raise AssertionError(
+                    "A deterministic filing calculation must not be re-routed by the model."
+                )
+
+        records = []
+        pipeline = RealPipeline(
+            FakeRetriever(),
+            NoRouteCalculationGenerator(),
+            calculator_enabled=True,
+            telemetry_sink=records.append,
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "By how much did Tesla revenue change?", connected
+            )
+        ]
+
+        self.assertEqual(records[0]["route"]["route"], "filing_calculate")
+        self.assertEqual(records[0]["tool_executions"][0]["status"], "succeeded")
+        self.assertIn("difference is 20 USD millions", events[0].data["text"])
+
     async def test_out_of_scope_programming_route_runs_no_retrieval_or_tools(self):
         retriever = FakeRetriever()
         generator = RoutedGenerator(
