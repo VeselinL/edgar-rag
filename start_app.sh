@@ -127,7 +127,7 @@ done
 [[ "$api_ready" == "true" ]] || fail "The API did not become ready within three minutes."
 
 log "Starting the AVA frontend..."
-npm --prefix src/frontend run dev -- --host 127.0.0.1 &
+(cd src/frontend && exec ./node_modules/.bin/vite --host 127.0.0.1) &
 FRONTEND_PID=$!
 
 frontend_ready=false

@@ -502,6 +502,15 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             ),
         )
 
+    def test_start_script_tracks_the_actual_frontend_process(self):
+        project_root = Path(__file__).resolve().parents[1]
+        script = (project_root / "start_app.sh").read_text(encoding="utf-8")
+
+        self.assertIn(
+            "(cd src/frontend && exec ./node_modules/.bin/vite --host 127.0.0.1) &",
+            script,
+        )
+
     def test_settings_expose_routing_kill_switch_and_finite_tool_limits(self):
         settings = PipelineSettings.from_mapping(
             {
