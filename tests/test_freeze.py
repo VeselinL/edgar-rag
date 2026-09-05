@@ -25,6 +25,9 @@ class FreezeTests(unittest.TestCase):
 
         self.assertTrue(_is_permitted_post_freeze_path("data/evaluation/finalization/v1/runs/run/raw.jsonl", manifest))
         self.assertTrue(_is_permitted_post_freeze_path("data/evaluation/finalization/v1/reports/baseline.md", manifest))
+        v2_manifest = Path("data/evaluation/finalization/v2/freeze_manifest.json")
+        self.assertTrue(_is_permitted_post_freeze_path("data/evaluation/finalization/v2/runs/run/raw.jsonl", v2_manifest))
+        self.assertFalse(_is_permitted_post_freeze_path("data/evaluation/finalization/v1/runs/run/raw.jsonl", v2_manifest))
         self.assertFalse(_is_permitted_post_freeze_path("src/generation/rag.py", manifest))
 
     def test_input_hashes_cover_finalization_evaluation_manifests(self):

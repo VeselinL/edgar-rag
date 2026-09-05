@@ -205,9 +205,14 @@ def create_manifest(
 
 
 def _is_permitted_post_freeze_path(path: str, manifest_path: Path) -> bool:
-    return path in {
-        str(manifest_path), "data/evaluation/finalization/v1/phase3/RESULTS.md",
-    } or path.startswith("data/evaluation/finalization/v1/runs/") or path == "data/evaluation/finalization/v1/reports/baseline.md"
+    root = manifest_path.parent
+    return (
+        path == str(manifest_path)
+        or path.startswith(str(root / "runs") + "/")
+        or path.startswith(str(root / "reports") + "/")
+        or path.startswith(str(root / "phase3") + "/")
+        or path.startswith(str(root / "phase6") + "/")
+    )
 
 
 def _is_ancestor(project_root: Path, ancestor: str) -> bool:
