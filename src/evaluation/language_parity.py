@@ -78,6 +78,11 @@ def _substantive_numbers(text: str) -> list[str]:
     return sorted(values)
 
 
+def _reviewed_numbers(answer_numbers: Sequence[str], expected_numbers: Sequence[str]) -> list[str]:
+    expected = set(expected_numbers)
+    return sorted({value.lstrip("+-") for value in answer_numbers if value.lstrip("+-") in expected})
+
+
 async def _execute(pipeline: RealPipeline, query: str, language: str, scope: Sequence[str]) -> dict[str, Any]:
     traces: list[dict[str, Any]] = []
     pipeline.telemetry_sink = traces.append
@@ -132,11 +137,8 @@ async def evaluate_pairs(pairs: Sequence[dict[str, Any]], pipeline: RealPipeline
             "route_match": english["route"] == serbian["route"] == gold_case["expected_route"],
             "gold_chunk_recall_match": bool(gold_ids & set(english["final_evidence_ids"])) == bool(gold_ids & set(serbian["final_evidence_ids"])),
             "numerical_values_match": (
-                not expected_numbers
-                or (
-                    set(expected_numbers).issubset(english["numbers"])
-                    and set(expected_numbers).issubset(serbian["numbers"])
-                )
+                _reviewed_numbers(english["numbers"], expected_numbers)
+                == _reviewed_numbers(serbian["numbers"], expected_numbers)
             ),
             "citation_ids_match": set(english["citation_ids"]) == set(serbian["citation_ids"]),
             "wording_review": "pending_human_or_diagnostic_review",

@@ -68,6 +68,22 @@ class LanguageParityTests(unittest.TestCase):
 
         self.assertEqual(result["summary"]["numerical_values_match"], 1.0)
 
+    def test_pair_scoring_accepts_the_same_signed_reviewed_difference(self):
+        pair = next(pair for pair in load_pairs() if pair["case_id"] == "language-12")
+
+        async def execute(_pipeline, _query, _language, scope):
+            return {
+                "answer": "answer", "route": "filing_calculate", "resolved_tickers": list(scope),
+                "final_evidence_ids": ["TSLA-2025-CHUNK-000121"],
+                "citation_ids": ["TSLA-2025-CHUNK-000121"], "numbers": ["-2863"],
+                "safe_error_class": None,
+            }
+
+        with patch("src.evaluation.language_parity._execute", execute):
+            result = asyncio.run(evaluate_pairs([pair], object()))
+
+        self.assertEqual(result["summary"]["numerical_values_match"], 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()
