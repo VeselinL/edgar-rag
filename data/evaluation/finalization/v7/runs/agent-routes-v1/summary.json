@@ -1,0 +1,1423 @@
+{
+  "schema_version": 1,
+  "evaluated_at": "2026-09-05T11:13:04.710760+00:00",
+  "summary": {
+    "case_count": 60,
+    "passed_count": 60,
+    "route_accuracy": 1.0,
+    "web_required_recall": 1.0,
+    "unnecessary_web_call_rate": 0.0,
+    "calculator_false_positives": 0,
+    "gate_pass": true
+  },
+  "records": [
+    {
+      "case_id": "filing-tsla-products",
+      "category": "filing_no_tool",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "TSLA"
+      ],
+      "actual_tickers": [
+        "TSLA"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 15.704,
+      "error": null
+    },
+    {
+      "case_id": "filing-gm-super-cruise",
+      "category": "filing_no_tool",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "GM"
+      ],
+      "actual_tickers": [
+        "GM"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 5.525,
+      "error": null
+    },
+    {
+      "case_id": "filing-aptiv-risks",
+      "category": "filing_no_tool",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "APTV"
+      ],
+      "actual_tickers": [
+        "APTV"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 9.517,
+      "error": null
+    },
+    {
+      "case_id": "filing-aurora-business",
+      "category": "filing_no_tool",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "AUR"
+      ],
+      "actual_tickers": [
+        "AUR"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 5.224,
+      "error": null
+    },
+    {
+      "case_id": "filing-ford-employees",
+      "category": "filing_no_tool",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "F"
+      ],
+      "actual_tickers": [
+        "F"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 19.277,
+      "error": null
+    },
+    {
+      "case_id": "filing-alphabet-waymo",
+      "category": "filing_no_tool",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "GOOGL"
+      ],
+      "actual_tickers": [
+        "GOOGL"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 20.109,
+      "error": null
+    },
+    {
+      "case_id": "filing-mobileye-eyeq",
+      "category": "filing_no_tool",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "MBLY"
+      ],
+      "actual_tickers": [
+        "MBLY"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 1.504,
+      "error": null
+    },
+    {
+      "case_id": "filing-nvidia-business",
+      "category": "filing_no_tool",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "NVDA"
+      ],
+      "actual_tickers": [
+        "NVDA"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 5.538,
+      "error": null
+    },
+    {
+      "case_id": "filing-ouster-products",
+      "category": "filing_no_tool",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "OUST"
+      ],
+      "actual_tickers": [
+        "OUST"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 15.928,
+      "error": null
+    },
+    {
+      "case_id": "filing-qualcomm-strategy",
+      "category": "filing_no_tool",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "QCOM"
+      ],
+      "actual_tickers": [
+        "QCOM"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 10.554,
+      "error": null
+    },
+    {
+      "case_id": "web-tsla-ceo",
+      "category": "web_required",
+      "expected_route": "web",
+      "actual_route": "web",
+      "expected_tickers": [
+        "TSLA"
+      ],
+      "actual_tickers": [
+        "TSLA"
+      ],
+      "expected_tool_sequence": [
+        "web_search"
+      ],
+      "actual_tool_sequence": [
+        "web_search"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 12.864,
+      "error": null
+    },
+    {
+      "case_id": "web-gm-price",
+      "category": "web_required",
+      "expected_route": "web",
+      "actual_route": "web",
+      "expected_tickers": [
+        "GM"
+      ],
+      "actual_tickers": [
+        "GM"
+      ],
+      "expected_tool_sequence": [
+        "web_search"
+      ],
+      "actual_tool_sequence": [
+        "web_search"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 8.091,
+      "error": null
+    },
+    {
+      "case_id": "web-rivn-news",
+      "category": "web_required",
+      "expected_route": "web",
+      "actual_route": "web",
+      "expected_tickers": [
+        "RIVN"
+      ],
+      "actual_tickers": [
+        "RIVN"
+      ],
+      "expected_tool_sequence": [
+        "web_search"
+      ],
+      "actual_tool_sequence": [
+        "web_search"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 8.102,
+      "error": null
+    },
+    {
+      "case_id": "web-ford-recalls",
+      "category": "web_required",
+      "expected_route": "web",
+      "actual_route": "web",
+      "expected_tickers": [
+        "F"
+      ],
+      "actual_tickers": [
+        "F"
+      ],
+      "expected_tool_sequence": [
+        "web_search"
+      ],
+      "actual_tool_sequence": [
+        "web_search"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 14.122,
+      "error": null
+    },
+    {
+      "case_id": "web-nvda-ceo",
+      "category": "web_required",
+      "expected_route": "web",
+      "actual_route": "web",
+      "expected_tickers": [
+        "NVDA"
+      ],
+      "actual_tickers": [
+        "NVDA"
+      ],
+      "expected_tool_sequence": [
+        "web_search"
+      ],
+      "actual_tool_sequence": [
+        "web_search"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 12.041,
+      "error": null
+    },
+    {
+      "case_id": "web-aur-price",
+      "category": "web_required",
+      "expected_route": "web",
+      "actual_route": "web",
+      "expected_tickers": [
+        "AUR"
+      ],
+      "actual_tickers": [
+        "AUR"
+      ],
+      "expected_tool_sequence": [
+        "web_search"
+      ],
+      "actual_tool_sequence": [
+        "web_search"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 11.995,
+      "error": null
+    },
+    {
+      "case_id": "web-tesla-news",
+      "category": "web_required",
+      "expected_route": "web",
+      "actual_route": "web",
+      "expected_tickers": [
+        "TSLA"
+      ],
+      "actual_tickers": [
+        "TSLA"
+      ],
+      "expected_tool_sequence": [
+        "web_search"
+      ],
+      "actual_tool_sequence": [
+        "web_search"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 22.13,
+      "error": null
+    },
+    {
+      "case_id": "web-gm-ceo",
+      "category": "web_required",
+      "expected_route": "web",
+      "actual_route": "web",
+      "expected_tickers": [
+        "GM"
+      ],
+      "actual_tickers": [
+        "GM"
+      ],
+      "expected_tool_sequence": [
+        "web_search"
+      ],
+      "actual_tool_sequence": [
+        "web_search"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 6.694,
+      "error": null
+    },
+    {
+      "case_id": "web-rivn-price",
+      "category": "web_required",
+      "expected_route": "web",
+      "actual_route": "web",
+      "expected_tickers": [
+        "RIVN"
+      ],
+      "actual_tickers": [
+        "RIVN"
+      ],
+      "expected_tool_sequence": [
+        "web_search"
+      ],
+      "actual_tool_sequence": [
+        "web_search"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 16.824,
+      "error": null
+    },
+    {
+      "case_id": "web-tsla-recall",
+      "category": "web_required",
+      "expected_route": "web",
+      "actual_route": "web",
+      "expected_tickers": [
+        "TSLA"
+      ],
+      "actual_tickers": [
+        "TSLA"
+      ],
+      "expected_tool_sequence": [
+        "web_search"
+      ],
+      "actual_tool_sequence": [
+        "web_search"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 28.774,
+      "error": null
+    },
+    {
+      "case_id": "trap-gm-current-assets",
+      "category": "web_false_positive",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "GM"
+      ],
+      "actual_tickers": [
+        "GM"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 20.547,
+      "error": null
+    },
+    {
+      "case_id": "trap-tsla-current-liabilities",
+      "category": "web_false_positive",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "TSLA"
+      ],
+      "actual_tickers": [
+        "TSLA"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 23.038,
+      "error": null
+    },
+    {
+      "case_id": "trap-ford-current-filing",
+      "category": "web_false_positive",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "F"
+      ],
+      "actual_tickers": [
+        "F"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 18.043,
+      "error": null
+    },
+    {
+      "case_id": "trap-nvda-current-assets",
+      "category": "web_false_positive",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "NVDA"
+      ],
+      "actual_tickers": [
+        "NVDA"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 18.633,
+      "error": null
+    },
+    {
+      "case_id": "trap-rivn-current-liabilities",
+      "category": "web_false_positive",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "RIVN"
+      ],
+      "actual_tickers": [
+        "RIVN"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 21.657,
+      "error": null
+    },
+    {
+      "case_id": "trap-qcom-current-filing",
+      "category": "web_false_positive",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "QCOM"
+      ],
+      "actual_tickers": [
+        "QCOM"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 10.69,
+      "error": null
+    },
+    {
+      "case_id": "trap-aur-current-assets",
+      "category": "web_false_positive",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "AUR"
+      ],
+      "actual_tickers": [
+        "AUR"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 16.311,
+      "error": null
+    },
+    {
+      "case_id": "trap-mobileye-current-liabilities",
+      "category": "web_false_positive",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "MBLY"
+      ],
+      "actual_tickers": [
+        "MBLY"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 20.711,
+      "error": null
+    },
+    {
+      "case_id": "trap-ouster-current-filing",
+      "category": "web_false_positive",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "OUST"
+      ],
+      "actual_tickers": [
+        "OUST"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 13.197,
+      "error": null
+    },
+    {
+      "case_id": "trap-aptiv-current-assets",
+      "category": "web_false_positive",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "APTV"
+      ],
+      "actual_tickers": [
+        "APTV"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 18.191,
+      "error": null
+    },
+    {
+      "case_id": "calc-add",
+      "category": "calculator_required",
+      "expected_route": "calculate",
+      "actual_route": "calculate",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "calculator"
+      ],
+      "actual_tool_sequence": [
+        "calculator"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 5.018,
+      "error": null
+    },
+    {
+      "case_id": "calc-subtract",
+      "category": "calculator_required",
+      "expected_route": "calculate",
+      "actual_route": "calculate",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "calculator"
+      ],
+      "actual_tool_sequence": [
+        "calculator"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 8.474,
+      "error": null
+    },
+    {
+      "case_id": "calc-multiply",
+      "category": "calculator_required",
+      "expected_route": "calculate",
+      "actual_route": "calculate",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "calculator"
+      ],
+      "actual_tool_sequence": [
+        "calculator"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 6.945,
+      "error": null
+    },
+    {
+      "case_id": "calc-divide",
+      "category": "calculator_required",
+      "expected_route": "calculate",
+      "actual_route": "calculate",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "calculator"
+      ],
+      "actual_tool_sequence": [
+        "calculator"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 12.086,
+      "error": null
+    },
+    {
+      "case_id": "calc-percent",
+      "category": "calculator_required",
+      "expected_route": "calculate",
+      "actual_route": "calculate",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "calculator"
+      ],
+      "actual_tool_sequence": [
+        "calculator"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 11.954,
+      "error": null
+    },
+    {
+      "case_id": "calc-growth",
+      "category": "calculator_required",
+      "expected_route": "calculate",
+      "actual_route": "calculate",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "calculator"
+      ],
+      "actual_tool_sequence": [
+        "calculator"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 22.42,
+      "error": null
+    },
+    {
+      "case_id": "calc-ratio",
+      "category": "calculator_required",
+      "expected_route": "calculate",
+      "actual_route": "calculate",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "calculator"
+      ],
+      "actual_tool_sequence": [
+        "calculator"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 15.287,
+      "error": null
+    },
+    {
+      "case_id": "calc-difference",
+      "category": "calculator_required",
+      "expected_route": "calculate",
+      "actual_route": "calculate",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "calculator"
+      ],
+      "actual_tool_sequence": [
+        "calculator"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 25.102,
+      "error": null
+    },
+    {
+      "case_id": "calc-sum",
+      "category": "calculator_required",
+      "expected_route": "calculate",
+      "actual_route": "calculate",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "calculator"
+      ],
+      "actual_tool_sequence": [
+        "calculator"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 16.156,
+      "error": null
+    },
+    {
+      "case_id": "calc-percentage-decrease",
+      "category": "calculator_required",
+      "expected_route": "calculate",
+      "actual_route": "calculate",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "calculator"
+      ],
+      "actual_tool_sequence": [
+        "calculator"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 29.938,
+      "error": null
+    },
+    {
+      "case_id": "calc-trap-repeat",
+      "category": "calculator_false_positive",
+      "expected_route": "conversation",
+      "actual_route": "conversation",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [],
+      "actual_tool_sequence": [],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 12.646,
+      "error": null
+    },
+    {
+      "case_id": "calc-trap-letters",
+      "category": "calculator_false_positive",
+      "expected_route": "conversation",
+      "actual_route": "conversation",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [],
+      "actual_tool_sequence": [],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 18.886,
+      "error": null
+    },
+    {
+      "case_id": "calc-trap-list",
+      "category": "calculator_false_positive",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "TSLA"
+      ],
+      "actual_tickers": [
+        "TSLA"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 12.63,
+      "error": null
+    },
+    {
+      "case_id": "calc-trap-enumerate",
+      "category": "calculator_false_positive",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "TSLA"
+      ],
+      "actual_tickers": [
+        "TSLA"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 10.395,
+      "error": null
+    },
+    {
+      "case_id": "calc-trap-name",
+      "category": "calculator_false_positive",
+      "expected_route": "conversation",
+      "actual_route": "conversation",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [],
+      "actual_tool_sequence": [],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 14.821,
+      "error": null
+    },
+    {
+      "case_id": "calc-trap-write",
+      "category": "calculator_false_positive",
+      "expected_route": "conversation",
+      "actual_route": "conversation",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [],
+      "actual_tool_sequence": [],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 8.105,
+      "error": null
+    },
+    {
+      "case_id": "calc-trap-compare",
+      "category": "calculator_false_positive",
+      "expected_route": "filing",
+      "actual_route": "filing",
+      "expected_tickers": [
+        "TSLA",
+        "GM"
+      ],
+      "actual_tickers": [
+        "TSLA",
+        "GM"
+      ],
+      "expected_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "filing_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 12.743,
+      "error": null
+    },
+    {
+      "case_id": "calc-trap-string",
+      "category": "calculator_false_positive",
+      "expected_route": "conversation",
+      "actual_route": "conversation",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [],
+      "actual_tool_sequence": [],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 9.873,
+      "error": null
+    },
+    {
+      "case_id": "calc-trap-poem",
+      "category": "calculator_false_positive",
+      "expected_route": "conversation",
+      "actual_route": "conversation",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [],
+      "actual_tool_sequence": [],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 19.971,
+      "error": null
+    },
+    {
+      "case_id": "calc-trap-code",
+      "category": "calculator_false_positive",
+      "expected_route": "conversation",
+      "actual_route": "conversation",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [],
+      "actual_tool_sequence": [],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 15.679,
+      "error": null
+    },
+    {
+      "case_id": "upload-summary",
+      "category": "upload",
+      "expected_route": "upload",
+      "actual_route": "upload",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "upload_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "upload_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 10.529,
+      "error": null
+    },
+    {
+      "case_id": "upload-question",
+      "category": "upload",
+      "expected_route": "upload",
+      "actual_route": "upload",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "upload_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "upload_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 25.485,
+      "error": null
+    },
+    {
+      "case_id": "upload-pdf",
+      "category": "upload",
+      "expected_route": "upload",
+      "actual_route": "upload",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "upload_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "upload_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 2.854,
+      "error": null
+    },
+    {
+      "case_id": "upload-source",
+      "category": "upload",
+      "expected_route": "upload",
+      "actual_route": "upload",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "upload_retrieval"
+      ],
+      "actual_tool_sequence": [
+        "upload_retrieval"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 14.813,
+      "error": null
+    },
+    {
+      "case_id": "upload-calc",
+      "category": "upload",
+      "expected_route": "upload_calculate",
+      "actual_route": "upload_calculate",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [
+        "upload_retrieval",
+        "calculator"
+      ],
+      "actual_tool_sequence": [
+        "upload_retrieval",
+        "calculator"
+      ],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 26.625,
+      "error": null
+    },
+    {
+      "case_id": "conversation-hello",
+      "category": "conversation_memory",
+      "expected_route": "conversation",
+      "actual_route": "conversation",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [],
+      "actual_tool_sequence": [],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 0.672,
+      "error": null
+    },
+    {
+      "case_id": "conversation-help",
+      "category": "conversation_memory",
+      "expected_route": "conversation",
+      "actual_route": "conversation",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [],
+      "actual_tool_sequence": [],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 5.622,
+      "error": null
+    },
+    {
+      "case_id": "conversation-thanks",
+      "category": "conversation_memory",
+      "expected_route": "conversation",
+      "actual_route": "conversation",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [],
+      "actual_tool_sequence": [],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 0.738,
+      "error": null
+    },
+    {
+      "case_id": "conversation-programming",
+      "category": "conversation_memory",
+      "expected_route": "conversation",
+      "actual_route": "conversation",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [],
+      "actual_tool_sequence": [],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 16.134,
+      "error": null
+    },
+    {
+      "case_id": "conversation-invest",
+      "category": "conversation_memory",
+      "expected_route": "conversation",
+      "actual_route": "conversation",
+      "expected_tickers": [],
+      "actual_tickers": [],
+      "expected_tool_sequence": [],
+      "actual_tool_sequence": [],
+      "route_match": true,
+      "ticker_match": true,
+      "tool_match": true,
+      "freshness_match": true,
+      "source_key_match": true,
+      "pass": true,
+      "latency_ms": 6.188,
+      "error": null
+    }
+  ]
+}
