@@ -95,6 +95,22 @@ class RequestRoutingTests(unittest.TestCase):
         self.assertTrue(route.uses_filing_retrieval)
         self.assertTrue(route.uses_calculator)
 
+    def test_disclosed_total_is_a_filing_value_not_an_arithmetic_request(self):
+        for query in (
+            "Tell me the total revenue of Tesla.",
+            "What total revenue did Tesla report?",
+        ):
+            with self.subTest(query=query):
+                route = deterministic_route(query, self.resolution(query))
+                self.assertEqual(route.route, RouteKind.FILING_RAG)
+                self.assertFalse(route.uses_calculator)
+
+        calculation = deterministic_route(
+            "Calculate the total of 12 and 4.",
+            self.resolution("Calculate the total of 12 and 4."),
+        )
+        self.assertEqual(calculation.route, RouteKind.CALCULATOR)
+
     def test_explicit_filing_calculation_keeps_both_required_paths(self):
         query = "Calculate the ratio disclosed in Tesla's 10-K."
         route = deterministic_route(query, self.resolution(query))
