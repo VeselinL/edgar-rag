@@ -41,6 +41,15 @@ function SettingsIcon() {
   )
 }
 
+function SidebarIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M9 4v16" />
+    </svg>
+  )
+}
+
 export default function App() {
   const { theme, setThemePreference } = useTheme()
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -86,11 +95,10 @@ export default function App() {
         setThemePreference(savedPreferences.theme)
         const saved = await listConversations()
         if (cancelled) return
-        const selected = saved[0] ?? await createConversation()
-        const next = saved.length ? saved : [selected]
-        const stored = await listMessages(selected.id)
+        const selected = saved[0] ?? null
+        const stored = selected ? await listMessages(selected.id) : []
         if (cancelled) return
-        setConversations(next)
+        setConversations(saved)
         setCurrentConversation(selected)
         setMessages(storedMessages(stored))
       } catch {
@@ -173,9 +181,7 @@ export default function App() {
 
   const newConversation = async () => {
     if (!historyEnabled || active) return
-    const created = await createConversation()
-    setCurrentConversation(created)
-    setConversations((current) => [created, ...current])
+    setCurrentConversation(null)
     setMessages([])
     setDocuments([])
     setSourcesOpen(false)
@@ -269,7 +275,13 @@ export default function App() {
     controller.current = abortController
     let opened = false
     let receivedText = false
+    let conversationForTurn = currentConversation
     try {
+      if (historyEnabled && !conversationForTurn) {
+        conversationForTurn = await createConversation()
+        setCurrentConversation(conversationForTurn)
+        setConversations((current) => [conversationForTurn!, ...current])
+      }
       const handlers: Parameters<typeof streamChat>[1] = {
         signal: abortController.signal,
         onOpen: () => {
@@ -299,17 +311,17 @@ export default function App() {
           updateAssistant(assistantId, (message) => ({ ...message, state: 'completed' }))
         },
       }
-      if (currentConversation) {
+      if (conversationForTurn) {
         const conversation = {
-          conversationId: currentConversation.id,
+          conversationId: conversationForTurn.id,
           clientTurnId,
         }
         await streamChat(query, handlers, conversation, preferences.model)
       } else {
         await streamChat(query, handlers, undefined, preferences.model)
       }
-      if (currentConversation) {
-        setMessages(storedMessages(await listMessages(currentConversation.id)))
+      if (conversationForTurn) {
+        setMessages(storedMessages(await listMessages(conversationForTurn.id)))
       }
       await refreshConversations()
     } catch (error) {
@@ -334,9 +346,6 @@ export default function App() {
       <Header
         theme={theme}
         language={preferences.language}
-        historyEnabled={historyEnabled}
-        sidebarOpen={sidebarOpen}
-        onToggleSidebar={() => setSidebarOpen((value) => !value)}
         authenticationRequired={authenticationRequired}
         authenticated={authenticated}
         onSignIn={() => window.location.assign(signInUrl())}
@@ -484,6 +493,19 @@ export default function App() {
           )}
         </main>
       </div>
+      {historyEnabled && authenticated && (
+        <button
+          type="button"
+          className={`sidebar-toggle ${sidebarOpen ? 'sidebar-toggle--open' : ''}`}
+          onClick={() => setSidebarOpen((value) => !value)}
+          aria-label={preferences.language === 'sr'
+            ? (sidebarOpen ? 'Zatvori bočnu traku razgovora' : 'Otvori bočnu traku razgovora')
+            : (sidebarOpen ? 'Close conversation sidebar' : 'Open conversation sidebar')}
+          aria-expanded={sidebarOpen}
+        >
+          <SidebarIcon />
+        </button>
+      )}
       {historyEnabled && authenticated && (
         <button
           ref={settingsButton}

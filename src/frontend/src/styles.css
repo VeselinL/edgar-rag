@@ -199,9 +199,10 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
 }
 .conversation-sidebar__heading { display: flex; min-height: 40px; padding: 0 5px; align-items: center; gap: 12px; }
 .conversation-sidebar__heading > strong { letter-spacing: 0.03em; }
-.conversation-sidebar .sidebar-toggle { display: inline-grid; width: 42px; height: 42px; padding: 0; place-items: center; border: 0; border-radius: 50%; color: var(--text); background: transparent; cursor: pointer; }
-.conversation-sidebar .sidebar-toggle:hover { background: var(--surface); }
-.conversation-sidebar .sidebar-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+.sidebar-toggle { position: fixed; z-index: 24; top: 8px; left: 8px; display: inline-grid; width: 42px; height: 42px; padding: 0; place-items: center; border: 0; border-radius: 50%; color: var(--text); background: var(--surface); box-shadow: 0 3px 12px rgb(0 0 0 / 10%); cursor: pointer; transition: left 160ms ease; }
+.sidebar-toggle:hover { background: var(--surface-subtle); }
+.sidebar-toggle--open { left: calc(min(300px, 88vw) - 50px); }
+.sidebar-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
 .sidebar-primary-action {
   width: 100%;
   min-height: 42px;
@@ -524,6 +525,7 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
   .source-card { padding: 13px; }
   .table-scroll th, .table-scroll td { padding: 8px 9px; }
   .conversation-sidebar { box-shadow: 8px 0 24px rgb(0 0 0 / 18%); }
+  .sidebar-toggle--open { left: calc(min(300px, 88vw) - 50px); }
   .chat-sources-panel { top: 56px; }
   .settings-trigger { bottom: 14px; left: 14px; }
   .settings-trigger--sidebar-open { left: min(calc(88vw + 8px), calc(100vw - 56px)); }

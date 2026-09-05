@@ -37,15 +37,6 @@ function DotsIcon() {
   )
 }
 
-function SidebarIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3" y="4" width="18" height="16" rx="2" />
-      <path d="M9 4v16" />
-    </svg>
-  )
-}
-
 function ConversationRow({
   conversation,
   language,
@@ -191,9 +182,6 @@ export function ConversationSidebar({
   return (
     <aside className="conversation-sidebar" aria-label={t(language, 'conversationHistory')}>
       <div className="conversation-sidebar__heading">
-        <button type="button" className="sidebar-toggle" onClick={onClose} aria-label={t(language, 'closeSidebar')}>
-          <SidebarIcon />
-        </button>
         <strong>AVA</strong>
       </div>
       <button type="button" className="sidebar-primary-action" onClick={onNew}>{t(language, 'newChat')}</button>

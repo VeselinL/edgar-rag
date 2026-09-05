@@ -268,6 +268,39 @@ describe('App', () => {
     expect(screen.getByAltText('AVA').getAttribute('src')).toContain('ava-dark.png')
   })
 
+  it('does not persist an empty new chat before the first question', async () => {
+    const created = {
+      id: 'conversation-1', title: 'New conversation', memory_enabled: true, pinned: false,
+      pinned_at: null, created_at: '2026-09-01T00:00:00Z', updated_at: '2026-09-01T00:00:00Z', company_scope: [],
+    }
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValue([])
+    mockedListMessages.mockResolvedValue([])
+    mockedCreateConversation.mockResolvedValue(created)
+    mockedStream.mockImplementation(async (_query, handlers) => {
+      handlers.onOpen()
+      handlers.onDelta('Saved answer.')
+      handlers.onSources([], 'none_cited', 0)
+      handlers.onDone()
+    })
+    render(<App />)
+
+    const input = await screen.findByLabelText('Ask AVA about the SEC filings')
+    expect(mockedCreateConversation).not.toHaveBeenCalled()
+    await userEvent.click(screen.getByRole('button', { name: 'Open conversation sidebar' }))
+    await userEvent.click(screen.getByRole('button', { name: '+ New chat' }))
+    expect(mockedCreateConversation).not.toHaveBeenCalled()
+
+    await userEvent.type(input, 'What does Rivian make?{enter}')
+
+    await waitFor(() => expect(mockedCreateConversation).toHaveBeenCalledOnce())
+    expect(mockedStream).toHaveBeenCalledWith(
+      'What does Rivian make?', expect.any(Object),
+      { conversationId: 'conversation-1', clientTurnId: expect.any(String) },
+      'AZURE_GPT_4o_2024_1120',
+    )
+  })
+
   it('keeps personalization edits local until explicitly saved', async () => {
     mockedHistoryEnabled.mockResolvedValue(true)
     mockedListConversations.mockResolvedValue([])
