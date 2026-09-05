@@ -278,7 +278,8 @@ class ConversationServiceTests(unittest.TestCase):
         self.assertIn("friendly, considerate professional tone", prompt)
         self.assertIn("restrained language", prompt)
         self.assertIn("single restrained emoji", prompt)
-        self.assertIn("never repeat it", prompt)
+        self.assertIn("User's name is Veselin", prompt)
+        self.assertIn("not a company-resolution input", prompt)
 
         other = ConversationService(
             self.repository, tenant_id="tenant-a", user_id="user-b", memory_store=self.memory

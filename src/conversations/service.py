@@ -261,8 +261,8 @@ class ConversationService:
         ]
         if preferences.nickname:
             parts.append(
-                f"Use the nickname {preferences.nickname} only when a direct address is natural; "
-                "never repeat it in a response."
+                f"User's name is {preferences.nickname}. Address the user by this name once, "
+                "and no more than once, in every answer. It is not a company-resolution input."
             )
         if preferences.custom_instructions:
             parts.extend([
