@@ -23,6 +23,7 @@ class ConversationContext:
     recent_messages: tuple[Message, ...] = ()
     long_term_memories: tuple[MemoryItem, ...] = ()
     preference_text: str = ""
+    language: str = "en"
 
     @property
     def short_term_ids(self) -> tuple[str, ...]:

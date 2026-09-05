@@ -128,7 +128,7 @@ def generation_messages(
 
 
 def web_generation_messages(
-    query: str, evidence: Sequence[dict[str, Any]]
+    query: str, evidence: Sequence[dict[str, Any]], *, conversation_context: str = ""
 ) -> list[dict[str, str]]:
     blocks = []
     for result in evidence:
@@ -146,7 +146,9 @@ def web_generation_messages(
         {
             "role": "user",
             "content": (
-                f"Current question:\n{query}\n\n"
+                f"Current question:\n{query}"
+                + ("\n\nConversation context (not web evidence; may affect language and tone only):\n" + conversation_context if conversation_context else "")
+                + "\n\n"
                 "Web-search snippets:\n" + "\n\n".join(blocks)
             ),
         },
@@ -176,7 +178,7 @@ def quarantine_uploaded_instructions(text: str) -> str:
 
 
 def upload_generation_messages(
-    query: str, evidence: Sequence[dict[str, Any]]
+    query: str, evidence: Sequence[dict[str, Any]], *, conversation_context: str = ""
 ) -> list[dict[str, str]]:
     blocks = []
     for result in evidence:
@@ -193,7 +195,9 @@ def upload_generation_messages(
         {
             "role": "user",
             "content": (
-                f"Current question:\n{query}\n\n"
+                f"Current question:\n{query}"
+                + ("\n\nConversation context (not uploaded evidence; may affect language and tone only):\n" + conversation_context if conversation_context else "")
+                + "\n\n"
                 "Attached-file excerpts:\n" + "\n\n".join(blocks)
             ),
         },
@@ -665,11 +669,13 @@ class GenerationService:
         self,
         query: str,
         evidence: Sequence[dict[str, Any]],
+        *,
+        conversation_context: str = "",
     ) -> GenerationStream:
         response = self._create(
             streaming=True,
             model=self.model,
-            messages=web_generation_messages(query, evidence),
+            messages=web_generation_messages(query, evidence, conversation_context=conversation_context),
             temperature=self.temperature,
             max_tokens=self.max_output_tokens,
             stream=True,
@@ -689,10 +695,12 @@ class GenerationService:
         self,
         query: str,
         evidence: Sequence[dict[str, Any]],
+        *,
+        conversation_context: str = "",
     ) -> GenerationResult:
         response = self._create(
             model=self.model,
-            messages=web_generation_messages(query, evidence),
+            messages=web_generation_messages(query, evidence, conversation_context=conversation_context),
             temperature=self.temperature,
             max_tokens=self.max_output_tokens,
         )
@@ -705,11 +713,13 @@ class GenerationService:
         self,
         query: str,
         evidence: Sequence[dict[str, Any]],
+        *,
+        conversation_context: str = "",
     ) -> GenerationStream:
         response = self._create(
             streaming=True,
             model=self.model,
-            messages=upload_generation_messages(query, evidence),
+            messages=upload_generation_messages(query, evidence, conversation_context=conversation_context),
             temperature=self.temperature,
             max_tokens=self.max_output_tokens,
             stream=True,
@@ -729,10 +739,12 @@ class GenerationService:
         self,
         query: str,
         evidence: Sequence[dict[str, Any]],
+        *,
+        conversation_context: str = "",
     ) -> GenerationResult:
         response = self._create(
             model=self.model,
-            messages=upload_generation_messages(query, evidence),
+            messages=upload_generation_messages(query, evidence, conversation_context=conversation_context),
             temperature=self.temperature,
             max_tokens=self.max_output_tokens,
         )

@@ -166,6 +166,23 @@ class GenerationTests(unittest.TestCase):
             ["upload answer"],
         )
 
+    def test_web_and_upload_context_keeps_language_preference_separate_from_evidence(self):
+        preference = "Answer language: Serbian."
+        web = web_generation_messages("Pitanje", [{"chunk": {
+            "chunk_id": "web-1", "title": "Release", "publisher": "Example",
+            "retrieved_at": "2026-09-04T08:00:00Z", "source_url": "https://example.com",
+            "text": "Web evidence.",
+        }}], conversation_context=preference)
+        upload = upload_generation_messages("Pitanje", [{"chunk": {
+            "chunk_id": "upload-1", "filename": "brief.txt", "media_type": "text/plain",
+            "page_number": None, "text": "Upload evidence.",
+        }}], conversation_context=preference)
+
+        self.assertIn(preference, web[-1]["content"])
+        self.assertIn("not web evidence", web[-1]["content"])
+        self.assertIn(preference, upload[-1]["content"])
+        self.assertIn("not uploaded evidence", upload[-1]["content"])
+
     def test_provider_usage_ignores_non_numeric_and_unknown_fields(self):
         self.assertEqual(
             provider_usage({"prompt_tokens": 5, "secret": "never", "total_tokens": "5"}),

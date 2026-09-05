@@ -292,10 +292,12 @@ class ConversationService:
             selected.append(item)
             used_words += estimated
         memories = tuple(selected)
+        preferences = self.preferences()
         return replace(
             context,
             long_term_memories=memories,
-            preference_text=self.preference_prompt_fragment(self.preferences()),
+            preference_text=self.preference_prompt_fragment(preferences),
+            language=preferences.language,
         )
 
     def _sync_conversation_memory(self, conversation_id: str) -> None:

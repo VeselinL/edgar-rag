@@ -43,6 +43,7 @@ class RouteHandlerMixin:
         disconnected: Callable[[], Awaitable[bool]],
         trace: RequestTrace,
         generator: Any,
+        conversation_context: str = "",
     ) -> AsyncIterator[PipelineEvent]:
         if await disconnected():
             return
@@ -224,8 +225,12 @@ class RouteHandlerMixin:
         elif self.llm_streaming:
             generation_started = time.perf_counter()
             with trace.stage("generation_start"):
-                provider_stream = generator.stream_web_answer_with_metadata(
-                    query, evidence
+                provider_stream = (
+                    generator.stream_web_answer_with_metadata(
+                        query, evidence, conversation_context=conversation_context
+                    )
+                    if conversation_context
+                    else generator.stream_web_answer_with_metadata(query, evidence)
                 )
             sentinel = object()
             citation_filter = CitationVisibilityFilter(allowed_ids)
@@ -263,7 +268,10 @@ class RouteHandlerMixin:
         else:
             with trace.stage("generation"):
                 result = await asyncio.to_thread(
-                    generator.web_answer_with_metadata, query, evidence
+                    generator.web_answer_with_metadata,
+                    query,
+                    evidence,
+                    **({"conversation_context": conversation_context} if conversation_context else {}),
                 )
             trace.provider_usage = result.usage
             if result.text:
@@ -310,6 +318,7 @@ class RouteHandlerMixin:
         document_service: Any,
         generator: Any,
         prefetched_results: Sequence[Any] | None = None,
+        conversation_context: str = "",
     ) -> AsyncIterator[PipelineEvent]:
         if prefetched_results is None:
             if self.emit_activity:
@@ -439,8 +448,12 @@ class RouteHandlerMixin:
         elif self.llm_streaming:
             generation_started = time.perf_counter()
             with trace.stage("generation_start"):
-                provider_stream = generator.stream_upload_answer_with_metadata(
-                    query, evidence
+                provider_stream = (
+                    generator.stream_upload_answer_with_metadata(
+                        query, evidence, conversation_context=conversation_context
+                    )
+                    if conversation_context
+                    else generator.stream_upload_answer_with_metadata(query, evidence)
                 )
             sentinel = object()
             citation_filter = CitationVisibilityFilter(allowed_ids)
@@ -478,7 +491,10 @@ class RouteHandlerMixin:
         else:
             with trace.stage("generation"):
                 generated = await asyncio.to_thread(
-                    generator.upload_answer_with_metadata, query, evidence
+                    generator.upload_answer_with_metadata,
+                    query,
+                    evidence,
+                    **({"conversation_context": conversation_context} if conversation_context else {}),
                 )
             trace.provider_usage = generated.usage
             if generated.text:

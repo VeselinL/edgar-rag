@@ -733,7 +733,7 @@ class RealPipeline(RouteHandlerMixin):
 
         if route.uses_web_search:
             async for event in self._stream_web_route(
-                query, route, disconnected, trace, generator
+                query, route, disconnected, trace, generator, prompt_context
             ):
                 yield event
             return
@@ -766,6 +766,7 @@ class RealPipeline(RouteHandlerMixin):
                 document_service,
                 generator,
                 upload_candidates if upload_candidates else None,
+                prompt_context,
             ):
                 yield event
             return

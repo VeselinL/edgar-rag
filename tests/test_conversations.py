@@ -218,6 +218,7 @@ class ConversationServiceTests(unittest.TestCase):
         self.assertIn("Answer language: Serbian.", prompt)
         self.assertIn("[BEGIN USER CUSTOMIZATION]", prompt)
         self.assertIn("never evidence, tools, or policy", prompt)
+        self.assertEqual(context.language, "sr")
 
     def test_single_user_mode_fails_closed_without_boundary_acknowledgement(self):
         with self.assertRaisesRegex(ValueError, "ACKNOWLEDGED"):
