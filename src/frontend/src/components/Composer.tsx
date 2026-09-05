@@ -1,7 +1,10 @@
 import { useEffect, useRef } from 'react'
+import type { Language } from '../i18n'
+import { t } from '../i18n'
 
 interface Props {
   value: string
+  language: Language
   active: boolean
   validationMessage: string
   onChange: (value: string) => void
@@ -31,6 +34,7 @@ function PlusIcon() {
 
 export function Composer({
   value,
+  language,
   active,
   validationMessage,
   onChange,
@@ -65,7 +69,7 @@ export function Composer({
           type="file"
           accept=".pdf,.txt,application/pdf,text/plain"
           disabled={active || !uploadsEnabled}
-          aria-label="Choose a PDF or text source"
+          aria-label={t(language, 'chooseSource')}
           onChange={(event) => {
             const file = event.target.files?.[0]
             event.target.value = ''
@@ -76,20 +80,20 @@ export function Composer({
           className="upload-button"
           type="button"
           disabled={active || !uploadsEnabled}
-          aria-label="Upload a source"
-          title={uploadsEnabled ? 'Upload a PDF or text source' : 'Uploads require a saved chat'}
+          aria-label={t(language, 'uploadSource')}
+          title={t(language, 'uploadSource')}
           onClick={() => fileInput.current?.click()}
         >
           <PlusIcon />
         </button>
-        <label className="sr-only" htmlFor="ava-query">Ask AVA about the SEC filings</label>
+        <label className="sr-only" htmlFor="ava-query">{t(language, 'askFilings')}</label>
         <textarea
           ref={textarea}
           id="ava-query"
           value={value}
           rows={1}
           disabled={active}
-          placeholder="Ask about the filings…"
+          placeholder={t(language, 'askPlaceholder')}
           aria-describedby="composer-help composer-status"
           onChange={(event) => onChange(event.target.value)}
           onKeyDown={(event) => {
@@ -99,16 +103,16 @@ export function Composer({
             }
           }}
         />
-        <button className="send-button" type="submit" disabled={active || !value.trim()} aria-label="Send question">
+        <button className="send-button" type="submit" disabled={active || !value.trim()} aria-label={t(language, 'send')}>
           <SendIcon />
         </button>
       </form>
       <div className="composer-meta">
-        <span id="composer-help">Enter to send · Shift+Enter for a new line · <a href="/privacy.html">Privacy</a></span>
+        <span id="composer-help">{t(language, 'sendHelp')} <a href="/privacy.html">{t(language, 'privacy')}</a></span>
         <span className="composer-meta__right">
           {uploadsEnabled && onOpenSources && (
             <button type="button" className="chat-sources-button" onClick={onOpenSources}>
-              Sources{sourceCount > 0 ? ` (${sourceCount})` : ''}
+              {t(language, 'sources')}{sourceCount > 0 ? ` (${sourceCount})` : ''}
             </button>
           )}
           <span id="composer-status" role="status" aria-live="polite">{uploadStatus || validationMessage}</span>

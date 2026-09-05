@@ -1,5 +1,7 @@
 import { useId, useState } from 'react'
 import type { NarrativeSource as NarrativeSourceType, Source, SourceStatus, TableSource as TableSourceType, UploadedSource as UploadedSourceType, WebSource as WebSourceType } from '../types'
+import type { Language } from '../i18n'
+import { t } from '../i18n'
 
 type FilingSource = NarrativeSourceType | TableSourceType
 
@@ -12,42 +14,42 @@ function SourceHeading({ source }: { source: FilingSource }) {
   )
 }
 
-function SourceLink({ source }: { source: FilingSource }) {
+function SourceLink({ source, language }: { source: FilingSource; language: Language }) {
   if (!source.source_url) return null
-  return <a href={source.source_url} target="_blank" rel="noreferrer">Open SEC filing</a>
+  return <a href={source.source_url} target="_blank" rel="noreferrer">{t(language, 'openSecFiling')}</a>
 }
 
-export function WebSource({ source }: { source: WebSourceType }) {
+export function WebSource({ source, language }: { source: WebSourceType; language: Language }) {
   return (
     <article className="source-card">
       <div className="source-heading">
         <strong>{source.title}</strong>
-        <span>{source.publisher} · Retrieved {new Date(source.retrieved_at).toLocaleString()}</span>
+        <span>{source.publisher} · {t(language, 'retrieved')} {new Date(source.retrieved_at).toLocaleString(language === 'sr' ? 'sr-RS' : 'en-US')}</span>
       </div>
       <p className="source-text">{source.excerpt}</p>
-      <a href={source.source_url} target="_blank" rel="noreferrer">Open web source</a>
+      <a href={source.source_url} target="_blank" rel="noreferrer">{t(language, 'openWebSource')}</a>
     </article>
   )
 }
 
-export function UploadedSource({ source }: { source: UploadedSourceType }) {
+export function UploadedSource({ source, language }: { source: UploadedSourceType; language: Language }) {
   return (
     <article className="source-card">
       <div className="source-heading">
         <strong>{source.filename}</strong>
-        <span>Chat upload{source.page_number ? ` · Page ${source.page_number}` : ''}</span>
+        <span>{t(language, 'chatUpload')}{source.page_number ? ` · ${t(language, 'page')} ${source.page_number}` : ''}</span>
       </div>
       <p className="source-text">{source.excerpt}</p>
     </article>
   )
 }
 
-export function NarrativeSource({ source }: { source: NarrativeSourceType }) {
+export function NarrativeSource({ source, language }: { source: NarrativeSourceType; language: Language }) {
   return (
     <article className="source-card">
       <SourceHeading source={source} />
       <p className="source-text">{source.text}</p>
-      <SourceLink source={source} />
+      <SourceLink source={source} language={language} />
     </article>
   )
 }
@@ -57,15 +59,15 @@ function isNumericColumn(unit: string | undefined): boolean {
   return unit !== 'text' && unit !== 'date' && unit !== 'identifier'
 }
 
-export function TableSource({ source }: { source: TableSourceType }) {
+export function TableSource({ source, language }: { source: TableSourceType; language: Language }) {
   const rectangular = source.headers.length > 0 && source.rows.every((row) => row.length === source.headers.length)
   return (
     <article className="source-card">
       <SourceHeading source={source} />
       {source.title && <h4>{source.title}</h4>}
-      {source.units && <p className="table-units">Units: {source.units}</p>}
+      {source.units && <p className="table-units">{t(language, 'units')}: {source.units}</p>}
       {rectangular ? (
-        <div className="table-scroll" tabIndex={0} role="region" aria-label={`Scrollable table: ${source.title ?? source.section}`}>
+        <div className="table-scroll" tabIndex={0} role="region" aria-label={`${t(language, 'scrollableTable')}: ${source.title ?? source.section}`}>
           <table>
             <thead>
               <tr>
@@ -85,21 +87,21 @@ export function TableSource({ source }: { source: TableSourceType }) {
             </tbody>
           </table>
         </div>
-      ) : <p className="source-warning">This table source could not be displayed.</p>}
-      <SourceLink source={source} />
+      ) : <p className="source-warning">{t(language, 'tableUnavailable')}</p>}
+      <SourceLink source={source} language={language} />
     </article>
   )
 }
 
-export function Sources({ sources, sourceStatus, malformedCount }: { sources: Source[]; sourceStatus: SourceStatus; malformedCount: number }) {
+export function Sources({ sources, sourceStatus, malformedCount, language }: { sources: Source[]; sourceStatus: SourceStatus; malformedCount: number; language: Language }) {
   const [open, setOpen] = useState(false)
   const panelId = useId()
   if (sources.length === 0) {
     return (
       <div>
-        <p className="source-empty">No source references were available for this answer.</p>
+        <p className="source-empty">{t(language, 'noReferences')}</p>
         {sourceStatus === 'cited_with_unrenderable_items' && malformedCount > 0 && (
-          <p className="source-warning">The cited source could not be displayed.</p>
+          <p className="source-warning">{t(language, 'citedSourceUnavailable')}</p>
         )}
       </div>
     )
@@ -107,18 +109,18 @@ export function Sources({ sources, sourceStatus, malformedCount }: { sources: So
   return (
     <div className="sources">
       <button className="sources-button" type="button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen((value) => !value)}>
-        {open ? 'Hide' : 'View'} sources ({sources.length})
+        {open ? t(language, 'hide') : t(language, 'view')} {t(language, 'sources').toLowerCase()} ({sources.length})
       </button>
       {open && (
         <div className="sources-panel" id={panelId}>
           {sources.map((source, index) => source.content_type === 'web'
-            ? <WebSource key={`${source.source_url}-${index}`} source={source} />
+            ? <WebSource key={`${source.source_url}-${index}`} source={source} language={language} />
             : source.content_type === 'upload'
-              ? <UploadedSource key={`${source.document_id}-${source.page_number ?? 0}-${index}`} source={source} />
+              ? <UploadedSource key={`${source.document_id}-${source.page_number ?? 0}-${index}`} source={source} language={language} />
             : source.content_type === 'table'
-              ? <TableSource key={`${source.ticker}-${source.section}-${index}`} source={source} />
-              : <NarrativeSource key={`${source.ticker}-${source.section}-${index}`} source={source} />)}
-          {malformedCount > 0 && <p className="source-warning">{malformedCount === 1 ? 'One source could not be displayed.' : `${malformedCount} sources could not be displayed.`}</p>}
+              ? <TableSource key={`${source.ticker}-${source.section}-${index}`} source={source} language={language} />
+              : <NarrativeSource key={`${source.ticker}-${source.section}-${index}`} source={source} language={language} />)}
+          {malformedCount > 0 && <p className="source-warning">{malformedCount === 1 ? t(language, 'oneSourceUnavailable') : `${malformedCount} ${t(language, 'sourcesUnavailable')}`}</p>}
         </div>
       )}
     </div>

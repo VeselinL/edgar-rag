@@ -268,6 +268,22 @@ describe('App', () => {
     expect(screen.getByAltText('AVA').getAttribute('src')).toContain('ava-dark.png')
   })
 
+  it('localizes AVA controls from the saved Serbian preference', async () => {
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValue([])
+    mockedListMessages.mockResolvedValue([])
+    mockedCreateConversation.mockResolvedValue({
+      id: 'conversation-1', title: 'New conversation', memory_enabled: true, pinned: false,
+      pinned_at: null, created_at: '2026-09-01T00:00:00Z', updated_at: '2026-09-01T00:00:00Z', company_scope: [],
+    })
+    mockedGetPreferences.mockResolvedValue({ ...defaultPreferences, language: 'sr' })
+
+    render(<App />)
+
+    expect(await screen.findByLabelText('Pitajte AVA o SEC izveštajima')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Podešavanja' })).toBeInTheDocument()
+  })
+
   it('resumes saved messages and sends idempotent conversation turn IDs', async () => {
     const conversation = {
       id: 'conversation-1',
@@ -331,7 +347,7 @@ describe('App', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: 'Settings' }))
     await userEvent.click(screen.getByRole('button', { name: 'Memory' }))
-    await userEvent.type(screen.getByLabelText('Add a memory'), 'Use concise answers.')
+    await userEvent.type(screen.getByRole('textbox', { name: /add memory/i }), 'Use concise answers.')
     await userEvent.click(screen.getByRole('button', { name: 'Add memory' }))
 
     expect(mockedCreateMemory).toHaveBeenCalledWith('Use concise answers.')

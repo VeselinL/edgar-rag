@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ConversationSummary } from '../types'
+import type { Language } from '../i18n'
+import { t } from '../i18n'
 
 interface Props {
   conversations: ConversationSummary[]
   activeId?: string
+  language: Language
   onNew: () => void
   companyScope: string[]
   onToggleCompany: (ticker: string) => void
@@ -28,6 +31,7 @@ function DotsIcon() {
 
 function ConversationRow({
   conversation,
+  language,
   active,
   menuOpen,
   onSelect,
@@ -38,6 +42,7 @@ function ConversationRow({
   onDelete,
 }: {
   conversation: ConversationSummary
+  language: Language
   active: boolean
   menuOpen: boolean
   onSelect: () => void
@@ -83,7 +88,7 @@ function ConversationRow({
       <button
         type="button"
         className="sidebar-chat__menu-button"
-        aria-label={`Actions for ${conversation.title}`}
+        aria-label={`${t(language, 'actionsFor')} ${conversation.title}`}
         aria-haspopup="menu"
         aria-expanded={menuOpen}
         onClick={() => menuOpen ? restoreFocus() : onOpenMenu()}
@@ -95,7 +100,7 @@ function ConversationRow({
           ref={menu}
           className="sidebar-chat__menu"
           role="menu"
-          aria-label={`Actions for ${conversation.title}`}
+          aria-label={`${t(language, 'actionsFor')} ${conversation.title}`}
           onKeyDown={(event) => {
             if (event.key === 'Escape') {
               event.stopPropagation()
@@ -104,10 +109,10 @@ function ConversationRow({
           }}
         >
           <button type="button" role="menuitem" onClick={() => action(onPin)}>
-            {conversation.pinned ? 'Unpin' : 'Pin'}
+            {conversation.pinned ? t(language, 'unpin') : t(language, 'pin')}
           </button>
-          <button type="button" role="menuitem" onClick={() => action(onRename)}>Rename</button>
-          <button type="button" role="menuitem" className="sidebar-chat__delete" onClick={() => action(onDelete)}>Delete</button>
+          <button type="button" role="menuitem" onClick={() => action(onRename)}>{t(language, 'rename')}</button>
+          <button type="button" role="menuitem" className="sidebar-chat__delete" onClick={() => action(onDelete)}>{t(language, 'delete')}</button>
         </div>
       )}
     </li>
@@ -117,6 +122,7 @@ function ConversationRow({
 export function ConversationSidebar({
   conversations,
   activeId,
+  language,
   onNew,
   companyScope,
   onToggleCompany,
@@ -146,6 +152,7 @@ export function ConversationSidebar({
     <ConversationRow
       key={conversation.id}
       conversation={conversation}
+      language={language}
       active={conversation.id === activeId}
       menuOpen={conversation.id === menuId}
       onSelect={() => onSelect(conversation)}
@@ -158,27 +165,27 @@ export function ConversationSidebar({
   ))
 
   return (
-    <aside className="conversation-sidebar" aria-label="Conversation history">
+    <aside className="conversation-sidebar" aria-label={t(language, 'conversationHistory')}>
       <div className="conversation-sidebar__heading">
         <strong>AVA</strong>
-        <button type="button" className="header-button" onClick={onClose}>Close</button>
+        <button type="button" className="header-button" onClick={onClose}>{t(language, 'close')}</button>
       </div>
-      <button type="button" className="sidebar-primary-action" onClick={onNew}>+ New chat</button>
-      <nav aria-label="Saved chats" className="conversation-sidebar__history">
+      <button type="button" className="sidebar-primary-action" onClick={onNew}>{t(language, 'newChat')}</button>
+      <nav aria-label={t(language, 'savedChats')} className="conversation-sidebar__history">
         {pinned.length > 0 && (
           <section aria-labelledby="pinned-chats-heading">
-            <h2 id="pinned-chats-heading">Pinned</h2>
+            <h2 id="pinned-chats-heading">{t(language, 'pinned')}</h2>
             <ul>{rows(pinned)}</ul>
           </section>
         )}
         <section aria-labelledby="recent-chats-heading">
-          <h2 id="recent-chats-heading">Chats</h2>
-          {recent.length > 0 ? <ul>{rows(recent)}</ul> : <p className="history-empty">No other chats.</p>}
+          <h2 id="recent-chats-heading">{t(language, 'chats')}</h2>
+          {recent.length > 0 ? <ul>{rows(recent)}</ul> : <p className="history-empty">{t(language, 'noOtherChats')}</p>}
         </section>
       </nav>
       <fieldset className="sidebar-companies">
-        <legend>Company scope</legend>
-        <label><input type="checkbox" checked={companyScope.length === 0} onChange={() => companyScope.length && onToggleCompany('ALL')} /> All companies</label>
+        <legend>{t(language, 'companyScope')}</legend>
+        <label><input type="checkbox" checked={companyScope.length === 0} onChange={() => companyScope.length && onToggleCompany('ALL')} /> {t(language, 'allCompanies')}</label>
         {[
           ['APTV', 'Aptiv'], ['AUR', 'Aurora'], ['F', 'Ford'], ['GM', 'General Motors'],
           ['GOOGL', 'Alphabet'], ['MBLY', 'Mobileye'], ['NVDA', 'NVIDIA'], ['OUST', 'Ouster'],
@@ -188,8 +195,8 @@ export function ConversationSidebar({
         ))}
       </fieldset>
       <div className="conversation-sidebar__footer">
-        <button type="button" onClick={onExport}>Export my data</button>
-        {conversations.length > 0 && <button type="button" className="danger" onClick={onDeleteAll}>Delete all chats</button>}
+        <button type="button" onClick={onExport}>{t(language, 'exportData')}</button>
+        {conversations.length > 0 && <button type="button" className="danger" onClick={onDeleteAll}>{t(language, 'deleteAll')}</button>}
       </div>
     </aside>
   )

@@ -324,6 +324,7 @@ export default function App() {
     <div className="app-shell">
       <Header
         theme={theme}
+        language={preferences.language}
         historyEnabled={historyEnabled}
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen((value) => !value)}
@@ -345,6 +346,7 @@ export default function App() {
           <ConversationSidebar
             conversations={conversations}
             activeId={currentConversation?.id}
+            language={preferences.language}
             companyScope={currentConversation?.company_scope ?? []}
             onToggleCompany={(ticker) => {
               if (!currentConversation) return
@@ -412,6 +414,7 @@ export default function App() {
         {historyEnabled && sourcesOpen && (
           <ChatSourcesPanel
             documents={documents}
+            language={preferences.language}
             loading={sourcesLoading}
             error={sourcesError}
             deletingId={deletingDocumentId}
@@ -438,10 +441,11 @@ export default function App() {
             </section>
           ) : (
             <>
-              {isEmpty ? <EmptyState theme={theme} /> : (
+              {isEmpty ? <EmptyState theme={theme} language={preferences.language} /> : (
                 <Conversation
                   messages={messages}
                   theme={theme}
+                  language={preferences.language}
                   onFeedback={(messageId, value) => {
                     if (!currentConversation) return
                     updateAssistant(messageId, (message) => ({ ...message, feedback: 'submitting' }))
@@ -453,6 +457,7 @@ export default function App() {
               )}
               <Composer
                 value={draft}
+                language={preferences.language}
                 active={active || historyInitializing}
                 validationMessage={validation}
                 onChange={(value) => {
@@ -477,7 +482,7 @@ export default function App() {
           className={`settings-trigger ${sidebarOpen ? 'settings-trigger--sidebar-open' : ''}`}
           onClick={() => void openSettings()}
         >
-          Settings
+          {preferences.language === 'sr' ? 'Podešavanja' : 'Settings'}
         </button>
       )}
       {settingsOpen && (

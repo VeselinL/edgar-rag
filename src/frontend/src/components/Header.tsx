@@ -1,5 +1,7 @@
 import type { Theme } from '../hooks/useTheme'
 import { AvaAvatar } from './AvaAvatar'
+import type { Language } from '../i18n'
+import { t } from '../i18n'
 
 function SidebarIcon() {
   return (
@@ -12,6 +14,7 @@ function SidebarIcon() {
 
 interface HeaderProps {
   theme: Theme
+  language: Language
   historyEnabled?: boolean
   sidebarOpen?: boolean
   onToggleSidebar?: () => void
@@ -23,6 +26,7 @@ interface HeaderProps {
 
 export function Header({
   theme,
+  language,
   historyEnabled = false,
   sidebarOpen = false,
   onToggleSidebar,
@@ -40,7 +44,7 @@ export function Header({
               className="icon-button sidebar-toggle"
               type="button"
               onClick={onToggleSidebar}
-              aria-label={sidebarOpen ? 'Close conversation sidebar' : 'Open conversation sidebar'}
+              aria-label={sidebarOpen ? t(language, 'closeSidebar') : t(language, 'openSidebar')}
               aria-expanded={sidebarOpen}
             >
               <SidebarIcon />
@@ -56,10 +60,10 @@ export function Header({
         </div>
         <div className="header-actions">
           {authenticationRequired && !authenticated && (
-            <button className="header-button" type="button" onClick={onSignIn}>Sign in</button>
+            <button className="header-button" type="button" onClick={onSignIn}>{t(language, 'signIn')}</button>
           )}
           {authenticationRequired && authenticated && (
-            <button className="header-button" type="button" onClick={onSignOut}>Sign out</button>
+            <button className="header-button" type="button" onClick={onSignOut}>{t(language, 'signOut')}</button>
           )}
         </div>
       </div>

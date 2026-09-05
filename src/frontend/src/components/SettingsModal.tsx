@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { MemoryItem, PreferenceTheme, UserPreferences } from '../types'
+import { t } from '../i18n'
 
 const MODELS = [
   ['AZURE_GPT_4o_2024_1120', 'GPT-4o (2024-11-20)'],
@@ -27,6 +28,7 @@ interface Props {
 export function SettingsModal({
   preferences, memory, loadingMemory, onClose, onPreferences, onCreateMemory, onUpdateMemory, onDeleteMemory,
 }: Props) {
+  const label = (key: Parameters<typeof t>[1]) => t(preferences.language, key)
   const dialog = useRef<HTMLDivElement>(null)
   const [page, setPage] = useState<Page>('general')
   const [error, setError] = useState('')
@@ -52,80 +54,80 @@ export function SettingsModal({
 
   const save = async (values: Partial<UserPreferences>) => {
     setError('')
-    try { await onPreferences(values) } catch { setError('Settings could not be saved. Please retry.') }
+    try { await onPreferences(values) } catch { setError(preferences.language === 'sr' ? 'Podešavanja nisu sačuvana. Pokušajte ponovo.' : 'Settings could not be saved. Please retry.') }
   }
   const addMemory = async () => {
     if (!draftMemory.trim()) return
     setError('')
-    try { await onCreateMemory(draftMemory); setDraftMemory('') } catch { setError('Memory could not be saved. Please retry.') }
+    try { await onCreateMemory(draftMemory); setDraftMemory('') } catch { setError(preferences.language === 'sr' ? 'Memorija nije sačuvana. Pokušajte ponovo.' : 'Memory could not be saved. Please retry.') }
   }
   const saveMemory = async () => {
     if (!editingId || !editingContent.trim()) return
     setError('')
-    try { await onUpdateMemory(editingId, editingContent); setEditingId(null); setEditingContent('') } catch { setError('Memory could not be updated. Please retry.') }
+    try { await onUpdateMemory(editingId, editingContent); setEditingId(null); setEditingContent('') } catch { setError(preferences.language === 'sr' ? 'Memorija nije izmenjena. Pokušajte ponovo.' : 'Memory could not be updated. Please retry.') }
   }
 
   return (
     <div className="settings-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
       <div ref={dialog} className="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-heading">
         <header className="settings-modal__header">
-          <h1 id="settings-heading">Settings</h1>
-          <button type="button" className="header-button" onClick={onClose}>Close</button>
+          <h1 id="settings-heading">{label('settings')}</h1>
+          <button type="button" className="header-button" onClick={onClose}>{label('close')}</button>
         </header>
         <div className="settings-modal__body">
-          <nav className="settings-nav" aria-label="Settings sections">
-            {([['general', 'General'], ['memory', 'Memory'], ['personalization', 'Personalization']] as const).map(([value, label]) => (
-              <button key={value} type="button" className={page === value ? 'settings-nav__active' : ''} onClick={() => setPage(value)}>{label}</button>
+          <nav className="settings-nav" aria-label={label('settings')}>
+            {([['general', 'general'], ['memory', 'memory'], ['personalization', 'personalization']] as const).map(([value, key]) => (
+              <button key={value} type="button" className={page === value ? 'settings-nav__active' : ''} onClick={() => setPage(value)}>{label(key)}</button>
             ))}
           </nav>
           <section className="settings-content" aria-live="polite">
             {error && <p className="settings-error" role="alert">{error}</p>}
             {page === 'general' && <>
-              <h2>General</h2>
-              <label>Appearance
+              <h2>{label('general')}</h2>
+              <label>{label('appearance')}
                 <select value={preferences.theme} onChange={(event) => void save({ theme: event.target.value as PreferenceTheme })}>
-                  <option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option>
+                  <option value="system">{label('system')}</option><option value="light">{label('light')}</option><option value="dark">{label('dark')}</option>
                 </select>
               </label>
-              <label>Language
+              <label>{label('language')}
                 <select value={preferences.language} onChange={(event) => void save({ language: event.target.value as 'en' | 'sr' })}>
                   <option value="en">English</option><option value="sr">Serbian</option>
                 </select>
               </label>
-              <label>Answer model
+              <label>{label('model')}
                 <select value={preferences.model} onChange={(event) => void save({ model: event.target.value })}>
                   {MODELS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                 </select>
               </label>
             </>}
             {page === 'memory' && <>
-              <h2>Memory</h2>
-              <p>AVA uses saved preferences and learned chat summaries only as untrusted context. Filing and web evidence remain authoritative.</p>
-              <label>Add a memory
-                <textarea value={draftMemory} maxLength={1500} onChange={(event) => setDraftMemory(event.target.value)} />
+              <h2>{label('memory')}</h2>
+              <p>{label('memoryNotice')}</p>
+              <label htmlFor="memory-content">{label('addMemory')}
+                <textarea id="memory-content" aria-label={label('addMemory')} value={draftMemory} maxLength={1500} onChange={(event) => setDraftMemory(event.target.value)} />
               </label>
-              <button type="button" className="settings-primary" onClick={() => void addMemory()}>Add memory</button>
-              {loadingMemory ? <p>Loading memory…</p> : <ul className="memory-list">
+              <button type="button" className="settings-primary" onClick={() => void addMemory()}>{label('addMemory')}</button>
+              {loadingMemory ? <p>{label('loadingMemory')}</p> : <ul className="memory-list">
                 {memory.map((item) => <li key={item.id}>
                   {editingId === item.id ? <>
                     <textarea value={editingContent} maxLength={1500} onChange={(event) => setEditingContent(event.target.value)} />
-                    <button type="button" onClick={() => void saveMemory()}>Save</button>
-                    <button type="button" onClick={() => setEditingId(null)}>Cancel</button>
+                    <button type="button" onClick={() => void saveMemory()}>{label('save')}</button>
+                    <button type="button" onClick={() => setEditingId(null)}>{label('cancel')}</button>
                   </> : <>
-                    <p>{item.content}</p><small>{item.type === 'explicit' ? 'Saved by you' : 'Learned from chats'}</small>
-                    <div><button type="button" onClick={() => { setEditingId(item.id); setEditingContent(item.content) }}>Edit</button><button type="button" onClick={() => void onDeleteMemory(item.id)}>Delete</button></div>
+                    <p>{item.content}</p><small>{item.type === 'explicit' ? label('savedByYou') : label('learnedChats')}</small>
+                    <div><button type="button" onClick={() => { setEditingId(item.id); setEditingContent(item.content) }}>{label('edit')}</button><button type="button" onClick={() => void onDeleteMemory(item.id)}>{label('delete')}</button></div>
                   </>}
                 </li>)}
               </ul>}
             </>}
             {page === 'personalization' && <>
-              <h2>Personalization</h2>
-              <label>Nickname <input value={preferences.nickname} maxLength={50} onChange={(event) => void save({ nickname: event.target.value })} /></label>
-              <label>Warmth <select value={preferences.warmth} onChange={(event) => void save({ warmth: event.target.value as UserPreferences['warmth'] })}><option value="cold">Cold</option><option value="balanced">Balanced</option><option value="warm">Warm</option></select></label>
-              <label>Enthusiasm <select value={preferences.enthusiasm} onChange={(event) => void save({ enthusiasm: event.target.value as UserPreferences['enthusiasm'] })}><option value="low">Low</option><option value="balanced">Balanced</option><option value="high">High</option></select></label>
-              <label>Emoji use <select value={preferences.emoji_use} onChange={(event) => void save({ emoji_use: event.target.value as UserPreferences['emoji_use'] })}><option value="off">Off</option><option value="light">Light</option></select></label>
-              <label>Custom instructions <textarea value={preferences.custom_instructions} maxLength={1500} onChange={(event) => void save({ custom_instructions: event.target.value })} /></label>
-              <p>These may affect tone and formatting only. They cannot change AVA’s evidence, citation, security, identity, or tool rules.</p>
+              <h2>{label('personalization')}</h2>
+              <label>{label('nickname')} <input value={preferences.nickname} maxLength={50} onChange={(event) => void save({ nickname: event.target.value })} /></label>
+              <label>{label('warmth')} <select value={preferences.warmth} onChange={(event) => void save({ warmth: event.target.value as UserPreferences['warmth'] })}><option value="cold">{label('cold')}</option><option value="balanced">{label('balanced')}</option><option value="warm">{label('warm')}</option></select></label>
+              <label>{label('enthusiasm')} <select value={preferences.enthusiasm} onChange={(event) => void save({ enthusiasm: event.target.value as UserPreferences['enthusiasm'] })}><option value="low">{label('low')}</option><option value="balanced">{label('balanced')}</option><option value="high">{label('high')}</option></select></label>
+              <label>{label('emojiUse')} <select value={preferences.emoji_use} onChange={(event) => void save({ emoji_use: event.target.value as UserPreferences['emoji_use'] })}><option value="off">{label('off')}</option><option value="light">{label('light')}</option></select></label>
+              <label>{label('customInstructions')} <textarea value={preferences.custom_instructions} maxLength={1500} onChange={(event) => void save({ custom_instructions: event.target.value })} /></label>
+              <p>{label('preferenceNotice')}</p>
             </>}
           </section>
         </div>
