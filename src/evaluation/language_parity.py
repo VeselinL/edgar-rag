@@ -66,8 +66,16 @@ def load_gold() -> dict[str, dict[str, Any]]:
     return {value["case_id"]: value for value in values}
 
 
-def _numbers(answer: str) -> list[str]:
-    return sorted(set(NUMBER.findall(answer.replace(" ", ""))))
+def _substantive_numbers(text: str) -> list[str]:
+    without_list_ordinals = re.sub(r"(?m)^\s*\d+[.)]\s+", "", text)
+    values: set[str] = set()
+    for value in NUMBER.findall(without_list_ordinals):
+        normalized = value.replace(",", "").replace(".", "")
+        bare = normalized.removesuffix("%")
+        if bare.isdigit() and 1900 <= int(bare) <= 2100:
+            continue
+        values.add(normalized)
+    return sorted(values)
 
 
 async def _execute(pipeline: RealPipeline, query: str, language: str, scope: Sequence[str]) -> dict[str, Any]:
@@ -90,7 +98,7 @@ async def _execute(pipeline: RealPipeline, query: str, language: str, scope: Seq
         "resolved_tickers": trace.get("resolver", {}).get("resolved_tickers", list(scope)),
         "final_evidence_ids": trace["final_generation_evidence_ids"],
         "citation_ids": trace["resolved_used_ids"],
-        "numbers": _numbers(answer),
+        "numbers": _substantive_numbers(answer),
         "safe_error_class": trace["safe_error_class"],
     }
 
@@ -112,14 +120,21 @@ async def evaluate_pairs(pairs: Sequence[dict[str, Any]], pipeline: RealPipeline
             })
             continue
         gold_ids = set(gold_case["gold_chunk_ids"])
+        expected_numbers = _substantive_numbers(
+            " ".join(claim["text"] for claim in gold_case["gold_claims"])
+        )
         records.append({
             "case_id": pair["case_id"], "focus": pair["focus"],
             "gold_case_id": gold_case["case_id"], "gold_chunk_ids": sorted(gold_ids),
+            "expected_numbers": expected_numbers,
             "english": english, "serbian": serbian,
             "company_resolution_match": english["resolved_tickers"] == serbian["resolved_tickers"] == pair["expected_tickers"],
             "route_match": english["route"] == serbian["route"] == gold_case["expected_route"],
             "gold_chunk_recall_match": bool(gold_ids & set(english["final_evidence_ids"])) == bool(gold_ids & set(serbian["final_evidence_ids"])),
-            "numerical_values_match": english["numbers"] == serbian["numbers"],
+            "numerical_values_match": (
+                english["numbers"] == serbian["numbers"]
+                and set(expected_numbers).issubset(english["numbers"])
+            ),
             "citation_ids_match": english["citation_ids"] == serbian["citation_ids"],
             "wording_review": "pending_human_or_diagnostic_review",
         })

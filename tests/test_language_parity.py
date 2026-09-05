@@ -2,12 +2,18 @@ import asyncio
 import unittest
 from unittest.mock import patch
 
-from src.evaluation.language_parity import evaluate_pairs, load_pairs
+from src.evaluation.language_parity import _substantive_numbers, evaluate_pairs, load_pairs
 
 
 class LanguageParityTests(unittest.TestCase):
     def test_manifest_selects_ten_reviewed_pairs(self):
         self.assertEqual(len(load_pairs()), 10)
+
+    def test_substantive_numbers_excludes_list_ordinals_and_years(self):
+        self.assertEqual(
+            _substantive_numbers("1. First\n2. Second\nAptiv operates in 50 countries as of 2025."),
+            ["50"],
+        )
 
     def test_pair_scoring_compares_routes_evidence_numbers_and_citations(self):
         pair = load_pairs()[0]
