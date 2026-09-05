@@ -739,12 +739,12 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Dostupne kompanije", events[0].data["text"])
         self.assertNotIn("Hello!", events[0].data["text"])
 
-    async def test_casual_route_streams_only_qdrant_retrieved_memory_context(self):
+    async def test_ava_help_route_streams_qdrant_retrieved_memory_context(self):
         class PersonalContextGenerator(RoutedGenerator):
             def __init__(self):
                 super().__init__(RequestRoute(
                     RouteKind.CONVERSATION_ONLY,
-                    RouteReason.CASUAL_CONVERSATION,
+                    RouteReason.AVA_HELP,
                     decided_by="model",
                 ))
                 self.personal_context = ""

@@ -367,6 +367,7 @@ class ConversationService:
             context,
             long_term_memories=memories,
             preference_text=self.preference_prompt_fragment(preferences),
+            nickname=preferences.nickname,
             language=preferences.language,
         )
 

@@ -21,6 +21,7 @@ class ConversationContext:
     recent_messages: tuple[Message, ...] = ()
     long_term_memories: tuple[MemoryItem, ...] = ()
     preference_text: str = ""
+    nickname: str = ""
     language: str = "en"
 
     @property

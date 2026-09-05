@@ -821,7 +821,15 @@ class RealPipeline(RouteHandlerMixin):
 
         if not route.uses_filing_retrieval:
             if (
-                route.reason_code is RouteReason.CASUAL_CONVERSATION
+                route.route is RouteKind.CONVERSATION_ONLY
+                and route.reason_code in {
+                    RouteReason.CASUAL_CONVERSATION,
+                    RouteReason.AVA_HELP,
+                }
+                and (
+                    getattr(conversation_context, "long_term_memories", ())
+                    or getattr(conversation_context, "nickname", "")
+                )
                 and prompt_context
                 and hasattr(generator, "stream_conversation_context_answer")
             ):
