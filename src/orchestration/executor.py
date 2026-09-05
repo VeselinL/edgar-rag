@@ -1440,7 +1440,9 @@ class RealPipeline(RouteHandlerMixin):
                 )
         else:
             if self.emit_activity:
-                yield activity_event(random.choice(GENERATION_ACTIVITIES))
+                yield activity_event(random.choice(
+                    SERBIAN_GENERATION_ACTIVITIES if language == "sr" else GENERATION_ACTIVITIES
+                ))
             with trace.stage("generation"):
                 if hasattr(generator, "answer_with_metadata"):
                     if prompt_context:

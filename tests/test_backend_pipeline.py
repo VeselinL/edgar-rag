@@ -1522,6 +1522,26 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             ],
         )
 
+    async def test_buffered_generation_activity_uses_serbian_verbs(self):
+        pipeline = RealPipeline(
+            FakeRetriever(), FakeGenerator(), llm_streaming=False, emit_activity=True
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event async for event in pipeline.stream(
+                "Original query", connected, conversation_context=ConversationContext(language="sr")
+            )
+        ]
+
+        self.assertEqual(events[0].event, "status")
+        self.assertIn(
+            events[0].data["text"],
+            {"Razmišljam", "Rezonujem", "Promišljam", "Tumačim", "Razmatram", "Analiziram", "Mozgam"},
+        )
+
     async def test_streaming_hides_split_internal_id_but_trace_resolves_it(self):
         records = []
         pipeline = RealPipeline(
