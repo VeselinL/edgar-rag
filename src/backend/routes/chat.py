@@ -76,6 +76,7 @@ def create_router(
         conversation_context = None
         active_document_service = None
         company_scope: list[str] = []
+        effective_model = body.model
         history_enabled = (
             getattr(request.app.state, "conversation_service", None) is not None
             or getattr(request.app.state, "conversation_factory", None) is not None
@@ -87,6 +88,8 @@ def create_router(
                     detail="conversation_id and client_turn_id are required when history is enabled.",
                 )
             service = await services.conversation_service_for(request, require_csrf=True)
+            if effective_model is None:
+                effective_model = (await asyncio.to_thread(service.preferences)).model
             conversation_id = str(body.conversation_id)
             client_turn_id = str(body.client_turn_id)
             try:
@@ -143,7 +146,7 @@ def create_router(
                     "conversation_id": str(body.conversation_id) if body.conversation_id else None,
                     "turn_id": str(body.client_turn_id) if body.client_turn_id else None,
                     "company_scope": company_scope,
-                    "model": body.model,
+                    "model": effective_model,
                 }
                 if active_document_service is not None:
                     stream_arguments["document_service"] = active_document_service
@@ -168,7 +171,7 @@ def create_router(
                                 "answer_version": {
                                     "corpus_version": getattr(active_pipeline, "corpus_version", "unknown"),
                                     "index_version": getattr(active_pipeline, "index_version", "unknown"),
-                                    "model": getattr(getattr(active_pipeline, "generator", None), "model", "unknown"),
+                                    "model": effective_model or getattr(getattr(active_pipeline, "generator", None), "model", "unknown"),
                                     "prompt_version": getattr(getattr(active_pipeline, "generator", None), "prompt_version", "unknown"),
                                 },
                             }

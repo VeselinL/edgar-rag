@@ -316,6 +316,28 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(messages[1]["role"], "assistant")
         self.assertEqual(len(parse_sse(replay.text)[1][1]["sources"]), 2)
 
+    def test_saved_model_is_used_when_chat_request_omits_model(self):
+        class CapturingPipeline(MockPipeline):
+            async def stream(self, *args, **kwargs):
+                self.received_model = kwargs.get("model")
+                async for event in super().stream(*args, **kwargs):
+                    yield event
+
+        repository = InMemoryConversationRepository()
+        service = ConversationService(repository, tenant_id="tenant", user_id="user")
+        service.update_preferences(model="AZURE_GPT_41_2025_0414")
+        conversation = service.create()
+        pipeline = CapturingPipeline(delay_seconds=0)
+        with TestClient(
+            create_app(application_settings=self.settings, pipeline=pipeline, conversation_service=service)
+        ) as client:
+            response = client.post("/api/chat/stream", json={
+                "query": "What does Tesla do?", "conversation_id": conversation.id,
+                "client_turn_id": str(uuid4()),
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(pipeline.received_model, "AZURE_GPT_41_2025_0414")
+
     def test_conversation_pin_update_is_persisted_and_ordered(self):
         repository = InMemoryConversationRepository()
         service = ConversationService(repository, tenant_id="tenant", user_id="user")
