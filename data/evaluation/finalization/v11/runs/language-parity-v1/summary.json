@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "evaluated_at": "2026-09-05T11:36:56.104313+00:00",
+  "pair_count": 10,
+  "summary": {
+    "error_count": 0,
+    "company_resolution_match": 1.0,
+    "route_match": 1.0,
+    "gold_chunk_recall_match": 1.0,
+    "numerical_values_match": 1.0,
+    "citation_ids_match": 0.6
+  }
+}
