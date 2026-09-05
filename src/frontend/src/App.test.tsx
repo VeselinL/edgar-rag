@@ -287,7 +287,7 @@ describe('App', () => {
 
     const input = await screen.findByLabelText('Ask AVA about the SEC filings')
     expect(mockedCreateConversation).not.toHaveBeenCalled()
-    await userEvent.click(screen.getByRole('button', { name: 'Open conversation sidebar' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Open conversation sidebar' }))
     await userEvent.click(screen.getByRole('button', { name: '+ New chat' }))
     expect(mockedCreateConversation).not.toHaveBeenCalled()
 
@@ -399,7 +399,7 @@ describe('App', () => {
     expect(await screen.findByLabelText('Ask AVA about the SEC filings')).toBeInTheDocument()
     expect(screen.queryByText('Saved answer.')).not.toBeInTheDocument()
     expect(mockedListMessages).not.toHaveBeenCalled()
-    await userEvent.click(screen.getByRole('button', { name: 'Open conversation sidebar' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Open conversation sidebar' }))
     await userEvent.click(screen.getByText('Tesla risks'))
     expect(await screen.findByText('Saved answer.')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Mark answer as helpful' }))
