@@ -705,6 +705,53 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             [event.event for event in events], ["delta", "sources", "done"]
         )
 
+    async def test_semantically_retrieved_memory_scope_targets_follow_up_filing(self):
+        retriever = FakeRetriever()
+        generator = FakeGenerator("Rivian answer [TSLA-2025-CHUNK-000001]")
+        pipeline = RealPipeline(retriever, generator, llm_streaming=False)
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Who is the CEO of my preferred company?",
+                connected,
+                conversation_context=ConversationContext(
+                    memory_company_tickers=("RIVN",),
+                ),
+            )
+        ]
+
+        self.assertEqual(generator.deterministic_resolution.resolved_tickers, ("RIVN",))
+        self.assertEqual(retriever.arguments[2].resolved_tickers, ("RIVN",))
+        self.assertEqual(retriever.arguments[3], [["RIVN"], ["RIVN"]])
+        self.assertEqual(events[-1].event, "done")
+
+    async def test_conflicting_semantic_memory_scopes_clarify_without_retrieval(self):
+        retriever = FakeRetriever()
+        generator = FakeGenerator()
+        pipeline = RealPipeline(retriever, generator, llm_streaming=False)
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Who is the CEO of my preferred company?",
+                connected,
+                conversation_context=ConversationContext(
+                    memory_company_tickers=("TSLA", "RIVN"),
+                ),
+            )
+        ]
+
+        self.assertIsNone(retriever.arguments)
+        self.assertIn("conflicting saved company preferences", events[0].data["text"])
+        self.assertEqual(events[-1].event, "done")
+
     async def test_greeting_route_returns_no_sources_without_retrieval(self):
         retriever = FakeRetriever()
         generator = RoutedGenerator(

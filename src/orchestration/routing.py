@@ -238,7 +238,16 @@ _ARITHMETIC_REQUEST_CUES = re.compile(
 _EXPLICIT_EXTERNAL_CUES = re.compile(
     r"\b(?:today|right\s+now|current(?:ly)?|latest|recent(?:ly)?|this\s+week|"
     r"this\s+month|news|stock\s+price|share\s+price|market\s+cap(?:italization)?|"
-    r"trading\s+at|search\s+(?:the\s+)?web|web\s+search|online|internet|breaking|live)\b",
+    r"trading\s+at|search\s+(?:the\s+)?web|web\s+search|online|internet|breaking|live|"
+    r"trenutno|najnovije|skoro|ove\s+(?:nedelje|sedmice|meseca)|vesti|cena\s+akcija|"
+    r"tržišna\s+kapitalizacija|pretraži\s+(?:web|veb|internet)|pretraga\s+"
+    r"(?:weba|veba|interneta)|na\s+(?:webu|vebu|internetu)|uživo)\b",
+    re.IGNORECASE,
+)
+_EXPLICIT_WEB_SEARCH_CUES = re.compile(
+    r"\b(?:search\s+(?:the\s+)?web|web\s+search|search\s+online|"
+    r"pretraži\s+(?:web|veb|internet)|pretraga\s+(?:weba|veba|interneta)|"
+    r"na\s+(?:webu|vebu|internetu))\b",
     re.IGNORECASE,
 )
 _FILING_CURRENT_TERMS = re.compile(
@@ -362,6 +371,11 @@ def web_policy_for_query(
             TrustedSourceKey.ISSUER_OFFICIAL,
         )
     if _NEWS_FRESHNESS_CUES.search(query):
+        return Freshness.COMPANY_NEWS, (
+            TrustedSourceKey.ISSUER_OFFICIAL,
+            TrustedSourceKey.NEWS_INDEPENDENT,
+        )
+    if _EXPLICIT_WEB_SEARCH_CUES.search(query):
         return Freshness.COMPANY_NEWS, (
             TrustedSourceKey.ISSUER_OFFICIAL,
             TrustedSourceKey.NEWS_INDEPENDENT,

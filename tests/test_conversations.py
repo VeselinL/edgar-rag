@@ -140,6 +140,28 @@ class ConversationServiceTests(unittest.TestCase):
             [("explicit", "My preferred company is Rivian.")],
         )
 
+    def test_explicit_favorite_preference_is_saved_before_routing_can_fail(self):
+        conversation = self.service.create()
+        turn_id = str(uuid4())
+
+        self.service.begin_turn(
+            conversation.id,
+            turn_id,
+            "Could you remember this: Jen Hsun Huang (CEO of NVIDIA) is my favorite CEO.",
+            str(uuid4()),
+        )
+
+        self.assertEqual(
+            [item.content for item in self.service.list_memory()],
+            ["Jen Hsun Huang (CEO of NVIDIA) is my favorite CEO."],
+        )
+        context = self.service.prepare_context(
+            conversation.id,
+            turn_id,
+            "Could you remember this: Jen Hsun Huang (CEO of NVIDIA) is my favorite CEO.",
+        )
+        self.assertEqual(context.explicit_memory_request, "saved")
+
     def test_only_semantically_retrieved_memory_is_in_context_before_short_term_history(self):
         self.service.long_term_score_threshold = 0.55
         self.service.create_memory("My preferred metric is citation support.")
@@ -178,6 +200,7 @@ class ConversationServiceTests(unittest.TestCase):
             [item.content for item in context.long_term_memories],
             ["My preferred company is Rivian."],
         )
+        self.assertEqual(context.memory_company_tickers, ("RIVN",))
 
     def test_instruction_like_memory_is_rejected_and_not_promoted(self):
         conversation = self.service.create()

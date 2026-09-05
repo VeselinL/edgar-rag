@@ -16,6 +16,7 @@ from .models import Conversation, MemoryItem, Message, StoredTurn, UserPreferenc
 from .repository import ConversationNotFoundError, ConversationRepository
 from src.config.settings import ConversationSettings
 from src.filings.corpus import ACTIVE_FILINGS
+from src.resolution.companies import default_company_resolver
 
 
 class ConversationServiceFactory:
@@ -63,7 +64,9 @@ class ConversationService:
 
     _MAX_MEMORY_CONTENT_LENGTH = 1500
     _EXPLICIT_MEMORY_PREFIX = re.compile(
-        r"^\s*(?:remember|save|zapamti|sačuvaj)(?:\s+(?:this|ovo|to))?"
+        r"^\s*(?:(?:please\s+)?(?:could|can|would)\s+you\s+|"
+        r"(?:molim\s+te\s+)?(?:možeš|mozes)\s+li\s+)?(?:please\s+)?"
+        r"(?:remember|save|zapamti|sačuvaj)(?:\s+(?:this|ovo|to))?"
         r"(?:\s+(?:in|to|u))?(?:\s+(?:long[- ]term\s+)?memory|memoriju)?\s*[:,-]?\s*",
         re.IGNORECASE,
     )
@@ -71,6 +74,7 @@ class ConversationService:
         r"\b(?:i\s+(?:prefer|like|dislike|want|work|live)|my\s+(?:preferred|preference|name|"
         r"role|language)|call\s+me|answer\s+(?:in|with)|use\b|"
         r"prefer|avoid|keep\s+(?:answers?|responses?)|"
+        r"(?:my\s+)?favou?rite|omiljen\w*|"
         r"ja\s+(?:preferiram|volim|ne\s+volim|želim|radim|živim)|moja?\s+(?:preferirana|"
         r"preferenca|ime|uloga|jezik)|zovi\s+me|odgovaraj\s+(?:na|sa)|koristi)\b",
         re.IGNORECASE,
@@ -253,8 +257,8 @@ class ConversationService:
         ]
         if preferences.nickname:
             parts.append(
-                f"User's name is {preferences.nickname}. Address the user by this name once, "
-                "and no more than once, in every answer. It is not a company-resolution input."
+                f"User's name is {preferences.nickname}. Use it naturally when helpful; "
+                "it is not a company-resolution input."
             )
         if preferences.custom_instructions:
             parts.extend([
@@ -320,9 +324,12 @@ class ConversationService:
         return self.repository.list_messages(self.tenant_id, self.user_id, conversation_id)
 
     def begin_turn(self, conversation_id: str, client_turn_id: str, query: str, request_id: str) -> StoredTurn:
-        return self.repository.begin_turn(
+        turn = self.repository.begin_turn(
             self.tenant_id, self.user_id, conversation_id, client_turn_id, query, request_id
         )
+        if not turn.replay:
+            self._sync_conversation_memory(conversation_id, client_turn_id)
+        return turn
 
     def prepare_context(
         self,
@@ -352,6 +359,20 @@ class ConversationService:
             selected.append(item)
             used_words += estimated
         memories = tuple(selected)
+        try:
+            explicit_memory_request = (
+                "saved" if self._explicit_memory_content(query) is not None else ""
+            )
+        except ValueError:
+            explicit_memory_request = "rejected"
+        memory_company_tickers = tuple(
+            ticker
+            for ticker in ACTIVE_FILINGS
+            if any(
+                ticker in default_company_resolver.resolve(item.content).resolved_tickers
+                for item in memories
+            )
+        )
         preferences = self.preferences()
         return replace(
             context,
@@ -359,6 +380,8 @@ class ConversationService:
             preference_text=self.preference_prompt_fragment(preferences),
             nickname=preferences.nickname,
             language=preferences.language,
+            memory_company_tickers=memory_company_tickers,
+            explicit_memory_request=explicit_memory_request,
         )
 
     def _sync_conversation_memory(self, conversation_id: str, client_turn_id: str) -> None:

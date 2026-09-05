@@ -75,6 +75,14 @@ class RequestRoutingTests(unittest.TestCase):
                 self.assertEqual(route.route, RouteKind.WEB_SEARCH)
                 self.assertTrue(route.uses_web_search)
 
+    def test_serbian_explicit_web_request_uses_trusted_web_route(self):
+        query = "Pretraži web da proveriš da li je Rivian R2 trenutno u produkciji."
+
+        route = deterministic_route(query, self.resolution(query))
+
+        self.assertEqual(route.route, RouteKind.WEB_SEARCH)
+        self.assertTrue(route.uses_web_search)
+
     def test_natural_language_arithmetic_is_deterministic(self):
         for query in (
             "What is 25 percent of 80?",

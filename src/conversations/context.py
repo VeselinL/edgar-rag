@@ -23,6 +23,8 @@ class ConversationContext:
     preference_text: str = ""
     nickname: str = ""
     language: str = "en"
+    memory_company_tickers: tuple[str, ...] = ()
+    explicit_memory_request: str = ""
 
     @property
     def short_term_ids(self) -> tuple[str, ...]:

@@ -87,6 +87,14 @@ class CompanyResolverTests(unittest.TestCase):
             "consumer vehicles vehicle models currently manufacture", internal
         )
 
+    def test_configured_rivian_product_alias_prevents_false_company_ambiguity(self):
+        result = self.resolver.resolve(
+            "Do a web search to check if Rivian R2 is in production."
+        )
+
+        self.assertEqual(result.resolved_tickers, ("RIVN",))
+        self.assertFalse(result.needs_clarification)
+
     def test_each_company_deterministically_targets_the_complete_corpus(self):
         result = self.resolver.resolve("Who is the CEO of each company?")
 

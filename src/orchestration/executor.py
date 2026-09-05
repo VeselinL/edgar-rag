@@ -525,6 +525,37 @@ class RealPipeline(RouteHandlerMixin):
         if conversation_context is not None:
             trace.short_term_memory_ids = list(conversation_context.short_term_ids)
             trace.long_term_memory_ids = list(conversation_context.long_term_ids)
+        explicit_memory_request = getattr(
+            conversation_context, "explicit_memory_request", ""
+        )
+        if explicit_memory_request:
+            response_text = (
+                "Sačuvao sam tu dugoročnu preferenciju."
+                if explicit_memory_request == "saved" and language == "sr"
+                else "I saved that long-term preference."
+                if explicit_memory_request == "saved"
+                else "Ne mogu da sačuvam to u dugoročnu memoriju. Sačuvajte samo "
+                "stabilnu ličnu preferenciju ili detalj profila, bez instrukcija, alata ili tajni."
+                if language == "sr"
+                else "I can't save that to long-term memory. Save only a stable personal "
+                "preference or profile detail, without instructions, tools, or secrets."
+            )
+            route = RequestRoute(
+                RouteKind.CONVERSATION_ONLY,
+                RouteReason.AVA_HELP,
+                decided_by="explicit_memory_request",
+            )
+            trace.route = route.as_dict()
+            trace.generated_answer = response_text
+            trace.source_status = "none_cited"
+            trace.mark_first_token()
+            yield PipelineEvent("delta", {"text": response_text})
+            yield PipelineEvent(
+                "sources",
+                {"sources": [], "source_status": "none_cited", "malformed_source_count": 0},
+            )
+            yield PipelineEvent("done", {})
+            return
         uploaded_documents = []
         if (
             self.request_routing_enabled
@@ -538,6 +569,39 @@ class RealPipeline(RouteHandlerMixin):
         uploaded_source_names = [item.filename for item in uploaded_documents]
         with trace.stage("deterministic_resolution"):
             deterministic_resolution = self.company_resolver.resolve(query)
+        memory_scope = tuple(
+            getattr(conversation_context, "memory_company_tickers", ())
+        )
+        if not deterministic_resolution.resolved_tickers and len(memory_scope) > 1:
+            response_text = (
+                "Pronašao sam neusaglašene sačuvane preference za kompaniju. "
+                "Navedite koju kompaniju želite da koristim."
+                if language == "sr"
+                else "I found conflicting saved company preferences. Please name the company "
+                "you want me to use."
+            )
+            route = RequestRoute(
+                RouteKind.CLARIFY,
+                RouteReason.AMBIGUOUS_INTENT,
+                decided_by="conflicting_memory_scope",
+            )
+            trace.route = route.as_dict()
+            trace.generated_answer = response_text
+            trace.source_status = "none_cited"
+            trace.mark_first_token()
+            yield PipelineEvent("delta", {"text": response_text})
+            yield PipelineEvent(
+                "sources",
+                {"sources": [], "source_status": "none_cited", "malformed_source_count": 0},
+            )
+            yield PipelineEvent("done", {})
+            return
+        if not deterministic_resolution.resolved_tickers and len(memory_scope) == 1:
+            deterministic_resolution = replace(
+                deterministic_resolution,
+                planner_scope_tickers=memory_scope,
+                scope="single_company",
+            )
         preliminary_route = (
             deterministic_route(
                 query,
@@ -577,6 +641,7 @@ class RealPipeline(RouteHandlerMixin):
                 and uploaded_evidence_matches_query(query, upload_candidates)
             )
         selected_scope = tuple(company_scope or ())
+        effective_scope = selected_scope or memory_scope
         excluded_query_tickers = tuple(
             ticker
             for ticker in deterministic_resolution.resolved_tickers
@@ -959,8 +1024,8 @@ class RealPipeline(RouteHandlerMixin):
                 generator.plan_retrieval
             ).parameters
             planner_scope_kwargs = (
-                {"selected_tickers": selected_scope}
-                if selected_scope and planner_supports_scope
+                {"selected_tickers": effective_scope}
+                if effective_scope and planner_supports_scope
                 else {}
             )
             if prompt_context:
@@ -978,15 +1043,14 @@ class RealPipeline(RouteHandlerMixin):
                     deterministic_resolution,
                     **planner_scope_kwargs,
                 )
-        # A manually selected scope is authoritative for this conversation.
+        # A validated conversation or memory-resolved scope is authoritative.
         # Keep planner intent, but force every retrieval subquery to the
         # validated selected tickers; an empty selection means the full corpus.
-        selected_scope = tuple(company_scope or ())
-        if selected_scope:
-            plan["resolved_tickers"] = list(selected_scope)
+        if effective_scope:
+            plan["resolved_tickers"] = list(effective_scope)
             plan["company_mentions"] = []
             plan["subqueries"] = [
-                {"query": item["query"], "tickers": list(selected_scope)}
+                {"query": item["query"], "tickers": list(effective_scope)}
                 for item in plan["subqueries"]
             ]
         elif deterministic_resolution.explicit_scope_tickers and re.search(
