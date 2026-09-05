@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-09-05T09:30:27+00:00",
+  "runtime": {
+    "pipeline_mode": "real",
+    "answer_delivery": "buffered",
+    "calculator_enabled": true,
+    "web_search_enabled": true,
+    "web_provider": "tavily"
+  },
+  "direct_tavily_adapter": {
+    "query": "Tesla current leadership",
+    "source_keys": ["issuer_official"],
+    "ticker_scope": ["TSLA"],
+    "result_count": 2,
+    "publishers": ["ir.tesla.com", "ir.tesla.com"]
+  },
+  "live_filing_value": {
+    "query": "Tell me the total revenue of Tesla.",
+    "model": "AZURE_GPT_51_2025_1113",
+    "event_names": ["delta", "sources", "done"],
+    "calculator_called": false,
+    "source_status": "cited",
+    "answer_contains": "$94.827 billion"
+  },
+  "live_web": {
+    "query": "Who is Tesla's CEO right now?",
+    "model": "AZURE_GPT_51_2025_1113",
+    "event_names": ["delta", "sources", "done"],
+    "source_status": "cited",
+    "publishers": ["ir.tesla.com", "ir.tesla.com", "sec.gov"],
+    "answer_contains": "Elon Musk"
+  }
+}
