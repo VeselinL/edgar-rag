@@ -944,6 +944,16 @@ class RealPipeline(RouteHandlerMixin):
             )
             yield PipelineEvent("done", {})
             return
+        planning_query = query
+        translator = getattr(generator, "translate_retrieval_query", None)
+        if language == "sr" and callable(translator):
+            try:
+                with trace.stage("retrieval_query_translation"):
+                    translated = await asyncio.to_thread(translator, query)
+                if translated:
+                    planning_query = translated
+            except Exception:
+                LOGGER.info("AVA Serbian retrieval translation unavailable")
         with trace.stage("planning"):
             planner_supports_scope = "selected_tickers" in inspect.signature(
                 generator.plan_retrieval
@@ -956,7 +966,7 @@ class RealPipeline(RouteHandlerMixin):
             if prompt_context:
                 plan = await asyncio.to_thread(
                     generator.plan_retrieval,
-                    query,
+                    planning_query,
                     deterministic_resolution,
                     prompt_context,
                     **planner_scope_kwargs,
@@ -964,7 +974,7 @@ class RealPipeline(RouteHandlerMixin):
             else:
                 plan = await asyncio.to_thread(
                     generator.plan_retrieval,
-                    query,
+                    planning_query,
                     deterministic_resolution,
                     **planner_scope_kwargs,
                 )

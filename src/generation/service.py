@@ -41,6 +41,7 @@ from .prompts import (
     MEMORY_RETRIEVAL_TRANSLATION_PROMPT,
     PLANNER_INSTRUCTION,
     PLANNER_JSON_FORMAT,
+    RETRIEVAL_QUERY_TRANSLATION_PROMPT,
     SYSTEM_PROMPT,
     UPLOAD_SYSTEM_PROMPT,
     WEB_SYSTEM_PROMPT,
@@ -701,18 +702,26 @@ class GenerationService:
             raise
         return GenerationStream(response, breaker=self.circuit_breaker)
 
-    def translate_memory_retrieval_query(self, query: str) -> str:
-        """Translate only a non-English memory-search query for the English embedder."""
+    def _translate_retrieval_query(self, query: str, instruction: str) -> str:
+        """Return bounded source-free translation text for an English retrieval path."""
         response = self._create(
             model=self.model,
             messages=[
-                {"role": "system", "content": MEMORY_RETRIEVAL_TRANSLATION_PROMPT},
+                {"role": "system", "content": instruction},
                 {"role": "user", "content": query},
             ],
             temperature=0.0,
             max_tokens=128,
         )
         return (response.choices[0].message.content or "").strip()
+
+    def translate_memory_retrieval_query(self, query: str) -> str:
+        """Translate only a non-English memory-search query for the English embedder."""
+        return self._translate_retrieval_query(query, MEMORY_RETRIEVAL_TRANSLATION_PROMPT)
+
+    def translate_retrieval_query(self, query: str) -> str:
+        """Translate a non-English filing question before retrieval planning."""
+        return self._translate_retrieval_query(query, RETRIEVAL_QUERY_TRANSLATION_PROMPT)
 
     def stream_web_answer_with_metadata(
         self,

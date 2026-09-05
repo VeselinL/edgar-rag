@@ -121,6 +121,25 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(completions.arguments["max_tokens"], 128)
         self.assertEqual(completions.arguments["temperature"], 0.0)
 
+    def test_filing_retrieval_translation_is_source_free_and_bounded(self):
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(
+                content="Who is Tesla's Chief Executive Officer?"
+            ))]
+        )
+        completions = FakeCompletions(response)
+        service = GenerationService(
+            SimpleNamespace(chat=SimpleNamespace(completions=completions)), model="test"
+        )
+
+        translation = service.translate_retrieval_query(
+            "Ko je Teslin glavni izvršni direktor?"
+        )
+
+        self.assertEqual(translation, "Who is Tesla's Chief Executive Officer?")
+        self.assertEqual(completions.arguments["max_tokens"], 128)
+        self.assertEqual(completions.arguments["temperature"], 0.0)
+
     def test_non_streaming_gateway_response_fails_instead_of_simulating(self):
         stream = FakeStream([], content_type="application/json; charset=utf-8")
         client = SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(stream)))

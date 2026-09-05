@@ -123,6 +123,25 @@ class FakeGenerator:
         return self.answer_text
 
 
+class SerbianPlanningGenerator(FakeGenerator):
+    def translate_retrieval_query(self, query):
+        self.translation_input = query
+        return "Who is Tesla's Chief Executive Officer?"
+
+    def plan_retrieval(self, query, deterministic_resolution=None, conversation_context=""):
+        self.planned_query = query
+        self.deterministic_resolution = deterministic_resolution
+        return {
+            "needs_multiple_retrievals": False,
+            "subqueries": [{"query": query, "tickers": ["TSLA"]}],
+            "operation": None,
+            "resolved_tickers": ["TSLA"],
+            "company_mentions": [],
+            "comparison": False,
+            "ambiguity": False,
+        }
+
+
 class ModelAwareGenerator(FakeGenerator):
     def __init__(self, model="base", calls=None):
         super().__init__()
@@ -1521,6 +1540,25 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
                 ("done", {}),
             ],
         )
+
+    async def test_serbian_planning_uses_english_retrieval_query_but_preserves_user_query(self):
+        generator = SerbianPlanningGenerator()
+        pipeline = RealPipeline(FakeRetriever(), generator, llm_streaming=False)
+        query = "Ko je Teslin glavni izvršni direktor?"
+
+        async def connected():
+            return False
+
+        events = [
+            event async for event in pipeline.stream(
+                query, connected, conversation_context=ConversationContext(language="sr")
+            )
+        ]
+
+        self.assertEqual(generator.translation_input, query)
+        self.assertEqual(generator.planned_query, "Who is Tesla's Chief Executive Officer?")
+        self.assertEqual(generator.answer_arguments[0], query)
+        self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
 
     async def test_buffered_generation_activity_uses_serbian_verbs(self):
         pipeline = RealPipeline(
