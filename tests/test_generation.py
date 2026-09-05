@@ -474,6 +474,10 @@ class GenerationTests(unittest.TestCase):
     def test_router_classifies_supported_arithmetic_in_any_user_language(self):
         self.assertIn("any user language", ROUTER_INSTRUCTION)
 
+    def test_router_includes_serbian_revenue_change_calculation_example(self):
+        self.assertIn("Za koliko se promenio Teslin prihod?", ROUTER_INSTRUCTION)
+        self.assertIn("Za koliko se promenio Teslin prihod?` -> filing_calculate", ROUTER_INSTRUCTION)
+
     def test_freshness_routing_distinguishes_filing_terms_from_live_facts(self):
         service = GenerationService(
             SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(None))),
