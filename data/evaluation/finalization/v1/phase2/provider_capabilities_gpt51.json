@@ -1,23 +1,59 @@
 {
   "schema_version": 1,
-  "probed_at": "2026-09-05T00:03:25.886453+00:00",
+  "probed_at": "2026-09-05T00:21:05.733619+00:00",
   "endpoint_family": "openai_compatible_chat_completions",
   "model": "AZURE_GPT_51_2025_1113",
   "ordinary_chat": {
-    "supported": false,
-    "safe_error_class": "BadRequestError"
+    "supported": true,
+    "response": {
+      "type": "ChatCompletion",
+      "top_level_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "moderation",
+        "object",
+        "prompt_filter_results",
+        "routing",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "choice_count": 1
+    }
   },
   "strict_json": {
     "supported": false,
     "safe_error_class": "BadRequestError"
   },
   "streaming": {
-    "supported": false,
-    "safe_error_class": "BadRequestError"
+    "supported": true,
+    "response": {
+      "type": "Stream",
+      "top_level_keys": [],
+      "choice_count": 0
+    }
   },
   "required_function": {
-    "supported": false,
-    "safe_error_class": "BadRequestError"
+    "supported": true,
+    "response": {
+      "type": "ChatCompletion",
+      "top_level_keys": [
+        "choices",
+        "created",
+        "id",
+        "model",
+        "moderation",
+        "object",
+        "prompt_filter_results",
+        "routing",
+        "service_tier",
+        "system_fingerprint",
+        "usage"
+      ],
+      "choice_count": 1
+    }
   },
-  "native_tools_usable": false
+  "native_tools_usable": true
 }

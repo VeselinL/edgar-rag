@@ -10,6 +10,7 @@ from typing import Any
 
 from src.config.settings import DEFAULT_LLM_MODEL, ProviderSettings
 from src.generation.provider import make_llm_client, require_streaming_response
+from src.generation.service import GenerationService
 
 
 def _shape(value: Any) -> dict[str, Any]:
@@ -31,11 +32,12 @@ def _attempt(call) -> dict[str, Any]:
 def probe(model: str) -> dict[str, Any]:
     settings = ProviderSettings.from_environment()
     client = make_llm_client(settings)
+    service = GenerationService(client, model=model, max_output_tokens=8)
     messages = [{"role": "user", "content": "Reply with OK."}]
-    ordinary = _attempt(lambda: client.chat.completions.create(model=model, messages=messages, max_tokens=8, temperature=0))
-    strict_json = _attempt(lambda: client.chat.completions.create(model=model, messages=messages, max_tokens=8, temperature=0, response_format={"type": "json_object"}))
-    stream = _attempt(lambda: _stream_response(client, model, messages))
-    function = _attempt(lambda: client.chat.completions.create(
+    ordinary = _attempt(lambda: service._create(model=model, messages=messages, max_tokens=8, temperature=0))
+    strict_json = _attempt(lambda: service._create(model=model, messages=messages, max_tokens=8, temperature=0, response_format={"type": "json_object"}))
+    stream = _attempt(lambda: _stream_response(service, messages))
+    function = _attempt(lambda: service._create(
         model=model, messages=messages, max_tokens=8, temperature=0,
         tools=[{"type": "function", "function": {"name": "capability_probe", "description": "Harmless capability probe.", "parameters": {"type": "object", "properties": {}, "additionalProperties": False}}}],
         tool_choice="required",
@@ -53,8 +55,10 @@ def probe(model: str) -> dict[str, Any]:
     }
 
 
-def _stream_response(client: Any, model: str, messages: list[dict[str, str]]) -> Any:
-    response = client.chat.completions.create(model=model, messages=messages, max_tokens=8, temperature=0, stream=True)
+def _stream_response(service: GenerationService, messages: list[dict[str, str]]) -> Any:
+    response = service._create(
+        model=service.model, messages=messages, max_tokens=8, temperature=0, stream=True,
+    )
     try:
         require_streaming_response(response)
         next(iter(response), None)

@@ -56,3 +56,13 @@
 
 None for the Phase 2 gate. Phase 3 must freeze the current candidate from a
 clean worktree before any baseline evaluation proceeds.
+
+## Follow-up capability correction — 5 September 2026
+
+The original probe bypassed AVA's production provider adapter. GPT-5.1 rejects
+the legacy Chat Completions `max_tokens` argument; AVA retries with
+`max_completion_tokens`. The corrected probe therefore records GPT-5.1 ordinary
+chat, streaming, and required native-function support in
+`provider_capabilities_gpt51.json`. Strict JSON remains unsupported. GPT-5
+remains unavailable through this gateway. AVA's bounded Python tool executor is
+unchanged; native function calling is not enabled as a result of this probe.

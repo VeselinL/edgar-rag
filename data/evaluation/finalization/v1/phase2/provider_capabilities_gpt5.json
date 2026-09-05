@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "probed_at": "2026-09-05T00:05:04.701714+00:00",
+  "probed_at": "2026-09-05T00:20:59.081981+00:00",
   "endpoint_family": "openai_compatible_chat_completions",
   "model": "AZURE_GPT_5_2025_0807",
   "ordinary_chat": {
