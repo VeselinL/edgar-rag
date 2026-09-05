@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "model": "AZURE_GPT_4o_2024_1120",
+  "temperature": 0.0,
+  "evaluated_at": "2026-09-05T09:37:42.051655+00:00",
+  "run_count": 3,
+  "record_count": 225,
+  "provider_judged_count": 208,
+  "pipeline_or_judge_error_count": 17,
+  "per_field_pass_rate": {
+    "claim_correctness": 0.8133333333333334,
+    "faithfulness": 0.8,
+    "citation_support": 0.7955555555555556,
+    "abstention": 0.76,
+    "answer_relevance": 0.8355555555555556,
+    "conciseness": 0.8177777777777778
+  },
+  "category_counts": {
+    "absent_abstention": 18,
+    "ambiguous_followup": 15,
+    "cross_company_comparison": 24,
+    "cross_section_synthesis": 24,
+    "current_web": 15,
+    "direct_factual": 66,
+    "evidence_calculation": 15,
+    "numerical_table": 33,
+    "product_alias": 15
+  },
+  "limitations": [
+    "The GPT-4o judge is diagnostic only; the controlled calibration found material false-pass failures.",
+    "This result does not replace reviewed atomic-claim, citation, route, or tool metrics.",
+    "Pipeline errors are recorded as failures without a provider judgment."
+  ]
+}
