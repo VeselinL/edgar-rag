@@ -435,6 +435,7 @@ describe('App', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: 'Settings' }))
     await userEvent.click(screen.getByRole('button', { name: 'Memory' }))
+    expect(screen.getByText(/only when you explicitly ask it to remember or save a preference/i)).toBeInTheDocument()
     await userEvent.type(screen.getByRole('textbox', { name: /add memory/i }), 'Use concise answers.')
     await userEvent.click(screen.getByRole('button', { name: 'Add memory' }))
 
