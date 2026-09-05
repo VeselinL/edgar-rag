@@ -100,8 +100,17 @@ async def evaluate_pairs(pairs: Sequence[dict[str, Any]], pipeline: RealPipeline
     records: list[dict[str, Any]] = []
     for pair in pairs:
         gold_case = gold[GOLD_CASE_IDS[pair["case_id"]]]
-        english = await _execute(pipeline, pair["en"], "en", pair["expected_tickers"])
-        serbian = await _execute(pipeline, pair["sr"], "sr", pair["expected_tickers"])
+        try:
+            english = await _execute(pipeline, pair["en"], "en", pair["expected_tickers"])
+            serbian = await _execute(pipeline, pair["sr"], "sr", pair["expected_tickers"])
+        except Exception as error:
+            records.append({
+                "case_id": pair["case_id"], "focus": pair["focus"],
+                "gold_case_id": gold_case["case_id"], "gold_chunk_ids": gold_case["gold_chunk_ids"],
+                "error": {"type": type(error).__name__},
+                "wording_review": "not_run_due_to_execution_error",
+            })
+            continue
         gold_ids = set(gold_case["gold_chunk_ids"])
         records.append({
             "case_id": pair["case_id"], "focus": pair["focus"],
@@ -115,10 +124,14 @@ async def evaluate_pairs(pairs: Sequence[dict[str, Any]], pipeline: RealPipeline
             "wording_review": "pending_human_or_diagnostic_review",
         })
     gates = ("company_resolution_match", "route_match", "gold_chunk_recall_match", "numerical_values_match", "citation_ids_match")
+    scored = [record for record in records if "error" not in record]
     return {
         "schema_version": 1, "evaluated_at": datetime.now(timezone.utc).isoformat(),
         "pair_count": len(records),
-        "summary": {key: sum(bool(record[key]) for record in records) / len(records) for key in gates},
+        "summary": {
+            "error_count": len(records) - len(scored),
+            **{key: sum(bool(record[key]) for record in scored) / len(scored) if scored else 0.0 for key in gates},
+        },
         "records": records,
     }
 
