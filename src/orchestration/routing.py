@@ -162,6 +162,7 @@ BOUNDARY EXAMPLES
 - `What is the capital of France?` -> conversation/out_of_scope.
 - `Calculate the difference between Tesla's disclosed 2025 and 2024 revenue`
   -> filing_calculate.
+- `By how much did Tesla revenue change?` -> filing_calculate.
 - `Za koliko se promenio Teslin prihod?` -> filing_calculate.
 - `Count the letters in Tesla's CEO name` -> conversation/out_of_scope.
 - `Repeat Tesla's CEO name 10 times` -> conversation/out_of_scope.

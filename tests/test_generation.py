@@ -478,6 +478,9 @@ class GenerationTests(unittest.TestCase):
         self.assertIn("Za koliko se promenio Teslin prihod?", ROUTER_INSTRUCTION)
         self.assertIn("Za koliko se promenio Teslin prihod?` -> filing_calculate", ROUTER_INSTRUCTION)
 
+    def test_router_includes_short_revenue_change_calculation_example(self):
+        self.assertIn("By how much did Tesla revenue change?` -> filing_calculate", ROUTER_INSTRUCTION)
+
     def test_freshness_routing_distinguishes_filing_terms_from_live_facts(self):
         service = GenerationService(
             SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(None))),
