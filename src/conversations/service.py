@@ -184,6 +184,25 @@ class ConversationService:
             **{key: value.strip() if isinstance(value, str) else value for key, value in values.items()},
         )
 
+    @staticmethod
+    def preference_prompt_fragment(preferences: UserPreferences) -> str:
+        """Render only server-validated, lower-priority preference fields."""
+        parts = [
+            "Answer language: Serbian." if preferences.language == "sr" else "Answer language: English.",
+            f"Tone warmth: {preferences.warmth}.",
+            f"Enthusiasm: {preferences.enthusiasm}.",
+            f"Emoji use: {preferences.emoji_use}.",
+        ]
+        if preferences.nickname:
+            parts.append(f"Address the user as: {preferences.nickname}.")
+        if preferences.custom_instructions:
+            parts.extend([
+                "[BEGIN USER CUSTOMIZATION]",
+                preferences.custom_instructions,
+                "[END USER CUSTOMIZATION]",
+            ])
+        return "\n".join(parts)
+
     def delete(self, conversation_id: str) -> None:
         # Verify ownership first. Delete the derived index point before the
         # authoritative rows so a transient PostgreSQL failure remains
@@ -273,7 +292,11 @@ class ConversationService:
             selected.append(item)
             used_words += estimated
         memories = tuple(selected)
-        return replace(context, long_term_memories=memories)
+        return replace(
+            context,
+            long_term_memories=memories,
+            preference_text=self.preference_prompt_fragment(self.preferences()),
+        )
 
     def _sync_conversation_memory(self, conversation_id: str) -> None:
         self.get(conversation_id)

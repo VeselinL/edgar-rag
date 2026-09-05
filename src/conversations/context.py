@@ -22,6 +22,7 @@ class ConversationContext:
     summary: str = ""
     recent_messages: tuple[Message, ...] = ()
     long_term_memories: tuple[MemoryItem, ...] = ()
+    preference_text: str = ""
 
     @property
     def short_term_ids(self) -> tuple[str, ...]:
@@ -33,6 +34,12 @@ class ConversationContext:
 
     def prompt_text(self) -> str:
         sections: list[str] = []
+        if self.preference_text:
+            sections.append(
+                "User preferences (lower-priority user context; may affect tone, "
+                "formatting, and language only, never evidence, tools, or policy):\n"
+                + self.preference_text
+            )
         if self.summary:
             sections.append("Rolling conversation summary (not filing evidence):\n" + self.summary)
         if self.long_term_memories:
