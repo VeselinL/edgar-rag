@@ -1,0 +1,524 @@
+{
+  "schema_version": 1,
+  "review_method": "controlled perturbations labeled before diagnostic LLM evaluation",
+  "fields": [
+    "claim_correctness",
+    "faithfulness",
+    "citation_support",
+    "abstention",
+    "answer_relevance",
+    "conciseness"
+  ],
+  "pair_count": 24,
+  "pairs": [
+    {
+      "pair_id": "controlled-aurora-mission-grounded_control",
+      "seed": "aurora-mission",
+      "variant": "grounded_control",
+      "question": "What is Aurora's mission for delivering self-driving technology?",
+      "evidence": [
+        {
+          "chunk_id": "AUR-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 Business\nCompany Overview\n\nOur mission is to deliver the benefits of self-driving technology safely, quickly, and broadly.\n\nAurora was founded in 2017 by Chris Urmson, Sterling Anderson, and Drew Bagnell, three of the most prominent leaders in the self-driving space. Led by a team with deep experience, including Chris and Drew, we have launched and are continuing to develop the Aurora Driver based on what we believe to be the most advanced and scalable suite of self-driving hardware, software, and data services in the world to fundamentally transform the global transportation market. The Aurora Driver is designed as a platform to adapt and interoperate amongst a multitude of vehicle types and applications. To date, we have successfully integrated the Aurora Driver into numerous different vehicle platforms designed to meet its requirements: from passenger vehicles to light commercial vehicles to Class 8 trucks. By creating a common driver platform for multiple vehicle types and use cases, the capabilities we develop in one market reinforce and strengthen our competitive advantages in other areas. For example, highway driving capabilities developed for trucking will carry over to highway segments driven by passenger vehicles in ride hailing applications. We believe this is the right approach to bring self-driving to market and will enable us to target and transform multiple massive markets, including trucking, passenger mobility, and local goods delivery.\n\nBeyond the economic opportunity, we believe we have a unique opportunity to have a material positive impact on the lives of millions of people, while also improving business productivity. First and foremost, we are focused on the opportunity to greatly improve road safety. In trucking, we can enable logistics networks to move goods more efficiently, and also help fill the shortage of truck drivers by providing a self-driving option. We can expand access to transportation, improving the lives of the millions of people with a disability in the U.S. who have difficulty traveling outside of the home. And we will give people back their time that can be made more productive and enjoyable."
+        }
+      ],
+      "answer_a": "Aurora's mission is to deliver the benefits of self-driving technology safely, quickly, and broadly [AUR-2025-CHUNK-000002].",
+      "answer_b": "Aurora's mission is to deliver the benefits of self-driving technology safely, quickly, and broadly [AUR-2025-CHUNK-000002].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-aurora-mission-incorrect_claim",
+      "seed": "aurora-mission",
+      "variant": "incorrect_claim",
+      "question": "What is Aurora's mission for delivering self-driving technology?",
+      "evidence": [
+        {
+          "chunk_id": "AUR-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 Business\nCompany Overview\n\nOur mission is to deliver the benefits of self-driving technology safely, quickly, and broadly.\n\nAurora was founded in 2017 by Chris Urmson, Sterling Anderson, and Drew Bagnell, three of the most prominent leaders in the self-driving space. Led by a team with deep experience, including Chris and Drew, we have launched and are continuing to develop the Aurora Driver based on what we believe to be the most advanced and scalable suite of self-driving hardware, software, and data services in the world to fundamentally transform the global transportation market. The Aurora Driver is designed as a platform to adapt and interoperate amongst a multitude of vehicle types and applications. To date, we have successfully integrated the Aurora Driver into numerous different vehicle platforms designed to meet its requirements: from passenger vehicles to light commercial vehicles to Class 8 trucks. By creating a common driver platform for multiple vehicle types and use cases, the capabilities we develop in one market reinforce and strengthen our competitive advantages in other areas. For example, highway driving capabilities developed for trucking will carry over to highway segments driven by passenger vehicles in ride hailing applications. We believe this is the right approach to bring self-driving to market and will enable us to target and transform multiple massive markets, including trucking, passenger mobility, and local goods delivery.\n\nBeyond the economic opportunity, we believe we have a unique opportunity to have a material positive impact on the lives of millions of people, while also improving business productivity. First and foremost, we are focused on the opportunity to greatly improve road safety. In trucking, we can enable logistics networks to move goods more efficiently, and also help fill the shortage of truck drivers by providing a self-driving option. We can expand access to transportation, improving the lives of the millions of people with a disability in the U.S. who have difficulty traveling outside of the home. And we will give people back their time that can be made more productive and enjoyable."
+        }
+      ],
+      "answer_a": "Aurora's mission is to deliver the benefits of self-driving technology safely, quickly, and broadly [AUR-2025-CHUNK-000002].",
+      "answer_b": "Aurora's mission is to deliver the benefits of self-driving technology safely, slowly, and narrowly [AUR-2025-CHUNK-000002].",
+      "authoritative_rubric": {
+        "claim_correctness": "fail",
+        "faithfulness": "fail",
+        "citation_support": "fail",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-aurora-mission-false_abstention",
+      "seed": "aurora-mission",
+      "variant": "false_abstention",
+      "question": "What is Aurora's mission for delivering self-driving technology?",
+      "evidence": [
+        {
+          "chunk_id": "AUR-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 Business\nCompany Overview\n\nOur mission is to deliver the benefits of self-driving technology safely, quickly, and broadly.\n\nAurora was founded in 2017 by Chris Urmson, Sterling Anderson, and Drew Bagnell, three of the most prominent leaders in the self-driving space. Led by a team with deep experience, including Chris and Drew, we have launched and are continuing to develop the Aurora Driver based on what we believe to be the most advanced and scalable suite of self-driving hardware, software, and data services in the world to fundamentally transform the global transportation market. The Aurora Driver is designed as a platform to adapt and interoperate amongst a multitude of vehicle types and applications. To date, we have successfully integrated the Aurora Driver into numerous different vehicle platforms designed to meet its requirements: from passenger vehicles to light commercial vehicles to Class 8 trucks. By creating a common driver platform for multiple vehicle types and use cases, the capabilities we develop in one market reinforce and strengthen our competitive advantages in other areas. For example, highway driving capabilities developed for trucking will carry over to highway segments driven by passenger vehicles in ride hailing applications. We believe this is the right approach to bring self-driving to market and will enable us to target and transform multiple massive markets, including trucking, passenger mobility, and local goods delivery.\n\nBeyond the economic opportunity, we believe we have a unique opportunity to have a material positive impact on the lives of millions of people, while also improving business productivity. First and foremost, we are focused on the opportunity to greatly improve road safety. In trucking, we can enable logistics networks to move goods more efficiently, and also help fill the shortage of truck drivers by providing a self-driving option. We can expand access to transportation, improving the lives of the millions of people with a disability in the U.S. who have difficulty traveling outside of the home. And we will give people back their time that can be made more productive and enjoyable."
+        }
+      ],
+      "answer_a": "Aurora's mission is to deliver the benefits of self-driving technology safely, quickly, and broadly [AUR-2025-CHUNK-000002].",
+      "answer_b": "No qualifying evidence was provided. I cannot determine that from the available materials.",
+      "authoritative_rubric": {
+        "claim_correctness": "fail",
+        "faithfulness": "fail",
+        "citation_support": "fail",
+        "abstention": "fail",
+        "answer_relevance": "fail",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-aurora-mission-irrelevant_supported",
+      "seed": "aurora-mission",
+      "variant": "irrelevant_supported",
+      "question": "What is Aurora's mission for delivering self-driving technology?",
+      "evidence": [
+        {
+          "chunk_id": "AUR-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 Business\nCompany Overview\n\nOur mission is to deliver the benefits of self-driving technology safely, quickly, and broadly.\n\nAurora was founded in 2017 by Chris Urmson, Sterling Anderson, and Drew Bagnell, three of the most prominent leaders in the self-driving space. Led by a team with deep experience, including Chris and Drew, we have launched and are continuing to develop the Aurora Driver based on what we believe to be the most advanced and scalable suite of self-driving hardware, software, and data services in the world to fundamentally transform the global transportation market. The Aurora Driver is designed as a platform to adapt and interoperate amongst a multitude of vehicle types and applications. To date, we have successfully integrated the Aurora Driver into numerous different vehicle platforms designed to meet its requirements: from passenger vehicles to light commercial vehicles to Class 8 trucks. By creating a common driver platform for multiple vehicle types and use cases, the capabilities we develop in one market reinforce and strengthen our competitive advantages in other areas. For example, highway driving capabilities developed for trucking will carry over to highway segments driven by passenger vehicles in ride hailing applications. We believe this is the right approach to bring self-driving to market and will enable us to target and transform multiple massive markets, including trucking, passenger mobility, and local goods delivery.\n\nBeyond the economic opportunity, we believe we have a unique opportunity to have a material positive impact on the lives of millions of people, while also improving business productivity. First and foremost, we are focused on the opportunity to greatly improve road safety. In trucking, we can enable logistics networks to move goods more efficiently, and also help fill the shortage of truck drivers by providing a self-driving option. We can expand access to transportation, improving the lives of the millions of people with a disability in the U.S. who have difficulty traveling outside of the home. And we will give people back their time that can be made more productive and enjoyable."
+        }
+      ],
+      "answer_a": "Aurora's mission is to deliver the benefits of self-driving technology safely, quickly, and broadly [AUR-2025-CHUNK-000002].",
+      "answer_b": "Aurora was founded in 2017 by Chris Urmson, Sterling Anderson, and Drew Bagnell [AUR-2025-CHUNK-000002].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "fail",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-aurora-mission-redundant_grounded",
+      "seed": "aurora-mission",
+      "variant": "redundant_grounded",
+      "question": "What is Aurora's mission for delivering self-driving technology?",
+      "evidence": [
+        {
+          "chunk_id": "AUR-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 Business\nCompany Overview\n\nOur mission is to deliver the benefits of self-driving technology safely, quickly, and broadly.\n\nAurora was founded in 2017 by Chris Urmson, Sterling Anderson, and Drew Bagnell, three of the most prominent leaders in the self-driving space. Led by a team with deep experience, including Chris and Drew, we have launched and are continuing to develop the Aurora Driver based on what we believe to be the most advanced and scalable suite of self-driving hardware, software, and data services in the world to fundamentally transform the global transportation market. The Aurora Driver is designed as a platform to adapt and interoperate amongst a multitude of vehicle types and applications. To date, we have successfully integrated the Aurora Driver into numerous different vehicle platforms designed to meet its requirements: from passenger vehicles to light commercial vehicles to Class 8 trucks. By creating a common driver platform for multiple vehicle types and use cases, the capabilities we develop in one market reinforce and strengthen our competitive advantages in other areas. For example, highway driving capabilities developed for trucking will carry over to highway segments driven by passenger vehicles in ride hailing applications. We believe this is the right approach to bring self-driving to market and will enable us to target and transform multiple massive markets, including trucking, passenger mobility, and local goods delivery.\n\nBeyond the economic opportunity, we believe we have a unique opportunity to have a material positive impact on the lives of millions of people, while also improving business productivity. First and foremost, we are focused on the opportunity to greatly improve road safety. In trucking, we can enable logistics networks to move goods more efficiently, and also help fill the shortage of truck drivers by providing a self-driving option. We can expand access to transportation, improving the lives of the millions of people with a disability in the U.S. who have difficulty traveling outside of the home. And we will give people back their time that can be made more productive and enjoyable."
+        }
+      ],
+      "answer_a": "Aurora's mission is to deliver the benefits of self-driving technology safely, quickly, and broadly [AUR-2025-CHUNK-000002].",
+      "answer_b": "Aurora's mission is to deliver the benefits of self-driving technology safely, quickly, and broadly [AUR-2025-CHUNK-000002]. Aurora's mission is to deliver the benefits of self-driving technology safely, quickly, and broadly [AUR-2025-CHUNK-000002]. Aurora's mission is to deliver the benefits of self-driving technology safely, quickly, and broadly [AUR-2025-CHUNK-000002].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "fail"
+      }
+    },
+    {
+      "pair_id": "controlled-aurora-mission-proper_abstention",
+      "seed": "aurora-mission",
+      "variant": "proper_abstention",
+      "question": "What cash dividend per share did Aurora declare in 2025?",
+      "evidence": [],
+      "answer_a": "No qualifying evidence was provided. I cannot determine that from the available materials.",
+      "answer_b": "No qualifying evidence was provided. I cannot determine that from the available materials.",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-tesla-segments-grounded_control",
+      "seed": "tesla-segments",
+      "variant": "grounded_control",
+      "question": "What are Tesla's reportable segments?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 BUSINESS\nSegment Information\n\nWe operate as two reportable segments: (i) automotive and (ii) energy generation and storage.\n\nThe automotive segment includes the design, development, manufacturing, sales and leasing of high-performance fully electric vehicles as well as sales of automotive regulatory credits. Additionally, the automotive segment also includes services and other, which includes sales of used vehicles, non-warranty maintenance services and collision, paid Supercharging sessions, automotive insurance business revenue, part sales and retail merchandise sales. The energy generation and storage segment includes sales, leasing, and financing of energy generation and storage products, services related to such products and sales of energy generation incentives."
+        }
+      ],
+      "answer_a": "Tesla operates two reportable segments: automotive and energy generation and storage [TSLA-2025-CHUNK-000002].",
+      "answer_b": "Tesla operates two reportable segments: automotive and energy generation and storage [TSLA-2025-CHUNK-000002].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-tesla-segments-incorrect_claim",
+      "seed": "tesla-segments",
+      "variant": "incorrect_claim",
+      "question": "What are Tesla's reportable segments?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 BUSINESS\nSegment Information\n\nWe operate as two reportable segments: (i) automotive and (ii) energy generation and storage.\n\nThe automotive segment includes the design, development, manufacturing, sales and leasing of high-performance fully electric vehicles as well as sales of automotive regulatory credits. Additionally, the automotive segment also includes services and other, which includes sales of used vehicles, non-warranty maintenance services and collision, paid Supercharging sessions, automotive insurance business revenue, part sales and retail merchandise sales. The energy generation and storage segment includes sales, leasing, and financing of energy generation and storage products, services related to such products and sales of energy generation incentives."
+        }
+      ],
+      "answer_a": "Tesla operates two reportable segments: automotive and energy generation and storage [TSLA-2025-CHUNK-000002].",
+      "answer_b": "Tesla operates three reportable segments: automotive, energy generation and storage, and insurance [TSLA-2025-CHUNK-000002].",
+      "authoritative_rubric": {
+        "claim_correctness": "fail",
+        "faithfulness": "fail",
+        "citation_support": "fail",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-tesla-segments-false_abstention",
+      "seed": "tesla-segments",
+      "variant": "false_abstention",
+      "question": "What are Tesla's reportable segments?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 BUSINESS\nSegment Information\n\nWe operate as two reportable segments: (i) automotive and (ii) energy generation and storage.\n\nThe automotive segment includes the design, development, manufacturing, sales and leasing of high-performance fully electric vehicles as well as sales of automotive regulatory credits. Additionally, the automotive segment also includes services and other, which includes sales of used vehicles, non-warranty maintenance services and collision, paid Supercharging sessions, automotive insurance business revenue, part sales and retail merchandise sales. The energy generation and storage segment includes sales, leasing, and financing of energy generation and storage products, services related to such products and sales of energy generation incentives."
+        }
+      ],
+      "answer_a": "Tesla operates two reportable segments: automotive and energy generation and storage [TSLA-2025-CHUNK-000002].",
+      "answer_b": "No qualifying evidence was provided. I cannot determine that from the available materials.",
+      "authoritative_rubric": {
+        "claim_correctness": "fail",
+        "faithfulness": "fail",
+        "citation_support": "fail",
+        "abstention": "fail",
+        "answer_relevance": "fail",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-tesla-segments-irrelevant_supported",
+      "seed": "tesla-segments",
+      "variant": "irrelevant_supported",
+      "question": "What are Tesla's reportable segments?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 BUSINESS\nSegment Information\n\nWe operate as two reportable segments: (i) automotive and (ii) energy generation and storage.\n\nThe automotive segment includes the design, development, manufacturing, sales and leasing of high-performance fully electric vehicles as well as sales of automotive regulatory credits. Additionally, the automotive segment also includes services and other, which includes sales of used vehicles, non-warranty maintenance services and collision, paid Supercharging sessions, automotive insurance business revenue, part sales and retail merchandise sales. The energy generation and storage segment includes sales, leasing, and financing of energy generation and storage products, services related to such products and sales of energy generation incentives."
+        }
+      ],
+      "answer_a": "Tesla operates two reportable segments: automotive and energy generation and storage [TSLA-2025-CHUNK-000002].",
+      "answer_b": "Tesla's automotive segment includes vehicle sales and leasing [TSLA-2025-CHUNK-000002].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "fail",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-tesla-segments-redundant_grounded",
+      "seed": "tesla-segments",
+      "variant": "redundant_grounded",
+      "question": "What are Tesla's reportable segments?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000002",
+          "text": "Item 1 \u2014 BUSINESS\nSegment Information\n\nWe operate as two reportable segments: (i) automotive and (ii) energy generation and storage.\n\nThe automotive segment includes the design, development, manufacturing, sales and leasing of high-performance fully electric vehicles as well as sales of automotive regulatory credits. Additionally, the automotive segment also includes services and other, which includes sales of used vehicles, non-warranty maintenance services and collision, paid Supercharging sessions, automotive insurance business revenue, part sales and retail merchandise sales. The energy generation and storage segment includes sales, leasing, and financing of energy generation and storage products, services related to such products and sales of energy generation incentives."
+        }
+      ],
+      "answer_a": "Tesla operates two reportable segments: automotive and energy generation and storage [TSLA-2025-CHUNK-000002].",
+      "answer_b": "Tesla operates two reportable segments: automotive and energy generation and storage [TSLA-2025-CHUNK-000002]. Tesla operates two reportable segments: automotive and energy generation and storage [TSLA-2025-CHUNK-000002]. Tesla operates two reportable segments: automotive and energy generation and storage [TSLA-2025-CHUNK-000002].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "fail"
+      }
+    },
+    {
+      "pair_id": "controlled-tesla-segments-proper_abstention",
+      "seed": "tesla-segments",
+      "variant": "proper_abstention",
+      "question": "What cash dividend per share did Tesla declare in 2025?",
+      "evidence": [],
+      "answer_a": "No qualifying evidence was provided. I cannot determine that from the available materials.",
+      "answer_b": "No qualifying evidence was provided. I cannot determine that from the available materials.",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-ford-officers-grounded_control",
+      "seed": "ford-officers",
+      "variant": "grounded_control",
+      "question": "Who were Ford's CEO and COO, and when did each begin the role?",
+      "evidence": [
+        {
+          "chunk_id": "F-2025-CHUNK-000123",
+          "text": "Item 4A \u2014 Information About Our Executive Officers\n\n| Name | Position | Position Held Since | Age |\n| :--- | :--- | :--- | ---: |\n| William Clay Ford, Jr. (a) | Executive Chair and Chair of the Board | September 2006 | 68 |\n| James D. Farley, Jr. (b) | President and Chief Executive Officer | October 2020 | 63 |\n| John Lawler | Vice Chair | June 2024 | 59 |\n| Sherry House | Chief Financial Officer | February 2025 | 54 |\n| Ashwani (\u201cKumar\u201d) Galhotra | Chief Operating Officer | October 2023 | 60 |\n| Michael Amend | Chief Enterprise Technology Officer | March 2022 | 48 |\n| Michael Aragon | President, Ford Integrated Services | March 2025 | 52 |\n| Steven P. Croley | Chief Policy Officer and General Counsel | July 2021 | 60 |\n| Alicia Boler Davis | President, Ford Pro | September 2025 | 56 |\n| J. Doug Field | Chief EV, Digital, and Design Officer | October 2023 | 60 |\n| Andrew Frick | President, Ford Blue and Model e | February 2025 | 52 |\n| Jennifer Waldo | Chief People and Employee Experience Officer | May 2022 | 49 |\n| Shengpo (\u201cSam\u201d) Wu | President and Chief Executive Officer, Ford China and IMG | February 2025 | 59 |\n| Kyle Crockett | Chief Accounting Officer | July 2025 | 52 |"
+        }
+      ],
+      "answer_a": "Ford's CEO was James D. Farley, Jr. from October 2020, and its COO was Ashwani (Kumar) Galhotra from October 2023 [F-2025-CHUNK-000123].",
+      "answer_b": "Ford's CEO was James D. Farley, Jr. from October 2020, and its COO was Ashwani (Kumar) Galhotra from October 2023 [F-2025-CHUNK-000123].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-ford-officers-incorrect_claim",
+      "seed": "ford-officers",
+      "variant": "incorrect_claim",
+      "question": "Who were Ford's CEO and COO, and when did each begin the role?",
+      "evidence": [
+        {
+          "chunk_id": "F-2025-CHUNK-000123",
+          "text": "Item 4A \u2014 Information About Our Executive Officers\n\n| Name | Position | Position Held Since | Age |\n| :--- | :--- | :--- | ---: |\n| William Clay Ford, Jr. (a) | Executive Chair and Chair of the Board | September 2006 | 68 |\n| James D. Farley, Jr. (b) | President and Chief Executive Officer | October 2020 | 63 |\n| John Lawler | Vice Chair | June 2024 | 59 |\n| Sherry House | Chief Financial Officer | February 2025 | 54 |\n| Ashwani (\u201cKumar\u201d) Galhotra | Chief Operating Officer | October 2023 | 60 |\n| Michael Amend | Chief Enterprise Technology Officer | March 2022 | 48 |\n| Michael Aragon | President, Ford Integrated Services | March 2025 | 52 |\n| Steven P. Croley | Chief Policy Officer and General Counsel | July 2021 | 60 |\n| Alicia Boler Davis | President, Ford Pro | September 2025 | 56 |\n| J. Doug Field | Chief EV, Digital, and Design Officer | October 2023 | 60 |\n| Andrew Frick | President, Ford Blue and Model e | February 2025 | 52 |\n| Jennifer Waldo | Chief People and Employee Experience Officer | May 2022 | 49 |\n| Shengpo (\u201cSam\u201d) Wu | President and Chief Executive Officer, Ford China and IMG | February 2025 | 59 |\n| Kyle Crockett | Chief Accounting Officer | July 2025 | 52 |"
+        }
+      ],
+      "answer_a": "Ford's CEO was James D. Farley, Jr. from October 2020, and its COO was Ashwani (Kumar) Galhotra from October 2023 [F-2025-CHUNK-000123].",
+      "answer_b": "Ford's CEO was James D. Farley, Jr. from October 2022, and its COO was Ashwani (Kumar) Galhotra from October 2023 [F-2025-CHUNK-000123].",
+      "authoritative_rubric": {
+        "claim_correctness": "fail",
+        "faithfulness": "fail",
+        "citation_support": "fail",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-ford-officers-false_abstention",
+      "seed": "ford-officers",
+      "variant": "false_abstention",
+      "question": "Who were Ford's CEO and COO, and when did each begin the role?",
+      "evidence": [
+        {
+          "chunk_id": "F-2025-CHUNK-000123",
+          "text": "Item 4A \u2014 Information About Our Executive Officers\n\n| Name | Position | Position Held Since | Age |\n| :--- | :--- | :--- | ---: |\n| William Clay Ford, Jr. (a) | Executive Chair and Chair of the Board | September 2006 | 68 |\n| James D. Farley, Jr. (b) | President and Chief Executive Officer | October 2020 | 63 |\n| John Lawler | Vice Chair | June 2024 | 59 |\n| Sherry House | Chief Financial Officer | February 2025 | 54 |\n| Ashwani (\u201cKumar\u201d) Galhotra | Chief Operating Officer | October 2023 | 60 |\n| Michael Amend | Chief Enterprise Technology Officer | March 2022 | 48 |\n| Michael Aragon | President, Ford Integrated Services | March 2025 | 52 |\n| Steven P. Croley | Chief Policy Officer and General Counsel | July 2021 | 60 |\n| Alicia Boler Davis | President, Ford Pro | September 2025 | 56 |\n| J. Doug Field | Chief EV, Digital, and Design Officer | October 2023 | 60 |\n| Andrew Frick | President, Ford Blue and Model e | February 2025 | 52 |\n| Jennifer Waldo | Chief People and Employee Experience Officer | May 2022 | 49 |\n| Shengpo (\u201cSam\u201d) Wu | President and Chief Executive Officer, Ford China and IMG | February 2025 | 59 |\n| Kyle Crockett | Chief Accounting Officer | July 2025 | 52 |"
+        }
+      ],
+      "answer_a": "Ford's CEO was James D. Farley, Jr. from October 2020, and its COO was Ashwani (Kumar) Galhotra from October 2023 [F-2025-CHUNK-000123].",
+      "answer_b": "No qualifying evidence was provided. I cannot determine that from the available materials.",
+      "authoritative_rubric": {
+        "claim_correctness": "fail",
+        "faithfulness": "fail",
+        "citation_support": "fail",
+        "abstention": "fail",
+        "answer_relevance": "fail",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-ford-officers-irrelevant_supported",
+      "seed": "ford-officers",
+      "variant": "irrelevant_supported",
+      "question": "Who were Ford's CEO and COO, and when did each begin the role?",
+      "evidence": [
+        {
+          "chunk_id": "F-2025-CHUNK-000123",
+          "text": "Item 4A \u2014 Information About Our Executive Officers\n\n| Name | Position | Position Held Since | Age |\n| :--- | :--- | :--- | ---: |\n| William Clay Ford, Jr. (a) | Executive Chair and Chair of the Board | September 2006 | 68 |\n| James D. Farley, Jr. (b) | President and Chief Executive Officer | October 2020 | 63 |\n| John Lawler | Vice Chair | June 2024 | 59 |\n| Sherry House | Chief Financial Officer | February 2025 | 54 |\n| Ashwani (\u201cKumar\u201d) Galhotra | Chief Operating Officer | October 2023 | 60 |\n| Michael Amend | Chief Enterprise Technology Officer | March 2022 | 48 |\n| Michael Aragon | President, Ford Integrated Services | March 2025 | 52 |\n| Steven P. Croley | Chief Policy Officer and General Counsel | July 2021 | 60 |\n| Alicia Boler Davis | President, Ford Pro | September 2025 | 56 |\n| J. Doug Field | Chief EV, Digital, and Design Officer | October 2023 | 60 |\n| Andrew Frick | President, Ford Blue and Model e | February 2025 | 52 |\n| Jennifer Waldo | Chief People and Employee Experience Officer | May 2022 | 49 |\n| Shengpo (\u201cSam\u201d) Wu | President and Chief Executive Officer, Ford China and IMG | February 2025 | 59 |\n| Kyle Crockett | Chief Accounting Officer | July 2025 | 52 |"
+        }
+      ],
+      "answer_a": "Ford's CEO was James D. Farley, Jr. from October 2020, and its COO was Ashwani (Kumar) Galhotra from October 2023 [F-2025-CHUNK-000123].",
+      "answer_b": "William Clay Ford, Jr. was Ford's Executive Chair and Chair of the Board from September 2006 [F-2025-CHUNK-000123].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "fail",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-ford-officers-redundant_grounded",
+      "seed": "ford-officers",
+      "variant": "redundant_grounded",
+      "question": "Who were Ford's CEO and COO, and when did each begin the role?",
+      "evidence": [
+        {
+          "chunk_id": "F-2025-CHUNK-000123",
+          "text": "Item 4A \u2014 Information About Our Executive Officers\n\n| Name | Position | Position Held Since | Age |\n| :--- | :--- | :--- | ---: |\n| William Clay Ford, Jr. (a) | Executive Chair and Chair of the Board | September 2006 | 68 |\n| James D. Farley, Jr. (b) | President and Chief Executive Officer | October 2020 | 63 |\n| John Lawler | Vice Chair | June 2024 | 59 |\n| Sherry House | Chief Financial Officer | February 2025 | 54 |\n| Ashwani (\u201cKumar\u201d) Galhotra | Chief Operating Officer | October 2023 | 60 |\n| Michael Amend | Chief Enterprise Technology Officer | March 2022 | 48 |\n| Michael Aragon | President, Ford Integrated Services | March 2025 | 52 |\n| Steven P. Croley | Chief Policy Officer and General Counsel | July 2021 | 60 |\n| Alicia Boler Davis | President, Ford Pro | September 2025 | 56 |\n| J. Doug Field | Chief EV, Digital, and Design Officer | October 2023 | 60 |\n| Andrew Frick | President, Ford Blue and Model e | February 2025 | 52 |\n| Jennifer Waldo | Chief People and Employee Experience Officer | May 2022 | 49 |\n| Shengpo (\u201cSam\u201d) Wu | President and Chief Executive Officer, Ford China and IMG | February 2025 | 59 |\n| Kyle Crockett | Chief Accounting Officer | July 2025 | 52 |"
+        }
+      ],
+      "answer_a": "Ford's CEO was James D. Farley, Jr. from October 2020, and its COO was Ashwani (Kumar) Galhotra from October 2023 [F-2025-CHUNK-000123].",
+      "answer_b": "Ford's CEO was James D. Farley, Jr. from October 2020, and its COO was Ashwani (Kumar) Galhotra from October 2023 [F-2025-CHUNK-000123]. Ford's CEO was James D. Farley, Jr. from October 2020, and its COO was Ashwani (Kumar) Galhotra from October 2023 [F-2025-CHUNK-000123]. Ford's CEO was James D. Farley, Jr. from October 2020, and its COO was Ashwani (Kumar) Galhotra from October 2023 [F-2025-CHUNK-000123].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "fail"
+      }
+    },
+    {
+      "pair_id": "controlled-ford-officers-proper_abstention",
+      "seed": "ford-officers",
+      "variant": "proper_abstention",
+      "question": "What cash dividend per share did Ford declare in 2025?",
+      "evidence": [],
+      "answer_a": "No qualifying evidence was provided. I cannot determine that from the available materials.",
+      "answer_b": "No qualifying evidence was provided. I cannot determine that from the available materials.",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-tesla-revenue-grounded_control",
+      "seed": "tesla-revenue",
+      "variant": "grounded_control",
+      "question": "By how much did Tesla's total revenues change from 2024 to 2025?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000121",
+          "text": "Item 7 \u2014 MANAGEMENT\u2019S DISCUSSION AND ANALYSIS OF FINANCIAL CONDITION AND RESULTS OF OPERATIONS\nRevenues\n\nRevenues\nUnits: mixed\n\n| Line item | Year Ended December 31, \u2014 2025 | Year Ended December 31, \u2014 2024 | Year Ended December 31, \u2014 2023 | 2025 vs. 2024 Change \u2014 $ | 2025 vs. 2024 Change \u2014 % | 2024 vs. 2023 Change \u2014 $ | 2024 vs. 2023 Change \u2014 % |\n| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| Automotive sales | $65,821 | $72,480 | $78,509 | $(6,659) | (9)% | $(6,029) | (8)% |\n| Automotive regulatory credits | 1,993 | 2,763 | 1,790 | (770) | (28)% | 973 | 54% |\n| Automotive leasing | 1,712 | 1,827 | 2,120 | (115) | (6)% | (293) | (14)% |\n| Total automotive revenues | 69,526 | 77,070 | 82,419 | (7,544) | (10)% | (5,349) | (6)% |\n| Services and other | 12,530 | 10,534 | 8,319 | 1,996 | 19% | 2,215 | 27% |\n| Total automotive & services and other segment revenue | 82,056 | 87,604 | 90,738 | (5,548) | (6)% | (3,134) | (3)% |\n| Energy generation and storage segment revenue | 12,771 | 10,086 | 6,035 | 2,685 | 27% | 4,051 | 67% |\n| Total revenues | $94,827 | $97,690 | $96,773 | $(2,863) | (3)% | $917 | 1% |"
+        }
+      ],
+      "answer_a": "Tesla's total revenues decreased by $2,863 million, or 3%, from 2024 to 2025 [TSLA-2025-CHUNK-000121].",
+      "answer_b": "Tesla's total revenues decreased by $2,863 million, or 3%, from 2024 to 2025 [TSLA-2025-CHUNK-000121].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-tesla-revenue-incorrect_claim",
+      "seed": "tesla-revenue",
+      "variant": "incorrect_claim",
+      "question": "By how much did Tesla's total revenues change from 2024 to 2025?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000121",
+          "text": "Item 7 \u2014 MANAGEMENT\u2019S DISCUSSION AND ANALYSIS OF FINANCIAL CONDITION AND RESULTS OF OPERATIONS\nRevenues\n\nRevenues\nUnits: mixed\n\n| Line item | Year Ended December 31, \u2014 2025 | Year Ended December 31, \u2014 2024 | Year Ended December 31, \u2014 2023 | 2025 vs. 2024 Change \u2014 $ | 2025 vs. 2024 Change \u2014 % | 2024 vs. 2023 Change \u2014 $ | 2024 vs. 2023 Change \u2014 % |\n| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| Automotive sales | $65,821 | $72,480 | $78,509 | $(6,659) | (9)% | $(6,029) | (8)% |\n| Automotive regulatory credits | 1,993 | 2,763 | 1,790 | (770) | (28)% | 973 | 54% |\n| Automotive leasing | 1,712 | 1,827 | 2,120 | (115) | (6)% | (293) | (14)% |\n| Total automotive revenues | 69,526 | 77,070 | 82,419 | (7,544) | (10)% | (5,349) | (6)% |\n| Services and other | 12,530 | 10,534 | 8,319 | 1,996 | 19% | 2,215 | 27% |\n| Total automotive & services and other segment revenue | 82,056 | 87,604 | 90,738 | (5,548) | (6)% | (3,134) | (3)% |\n| Energy generation and storage segment revenue | 12,771 | 10,086 | 6,035 | 2,685 | 27% | 4,051 | 67% |\n| Total revenues | $94,827 | $97,690 | $96,773 | $(2,863) | (3)% | $917 | 1% |"
+        }
+      ],
+      "answer_a": "Tesla's total revenues decreased by $2,863 million, or 3%, from 2024 to 2025 [TSLA-2025-CHUNK-000121].",
+      "answer_b": "Tesla's total revenues increased by $2,863 million, or 3%, from 2024 to 2025 [TSLA-2025-CHUNK-000121].",
+      "authoritative_rubric": {
+        "claim_correctness": "fail",
+        "faithfulness": "fail",
+        "citation_support": "fail",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-tesla-revenue-false_abstention",
+      "seed": "tesla-revenue",
+      "variant": "false_abstention",
+      "question": "By how much did Tesla's total revenues change from 2024 to 2025?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000121",
+          "text": "Item 7 \u2014 MANAGEMENT\u2019S DISCUSSION AND ANALYSIS OF FINANCIAL CONDITION AND RESULTS OF OPERATIONS\nRevenues\n\nRevenues\nUnits: mixed\n\n| Line item | Year Ended December 31, \u2014 2025 | Year Ended December 31, \u2014 2024 | Year Ended December 31, \u2014 2023 | 2025 vs. 2024 Change \u2014 $ | 2025 vs. 2024 Change \u2014 % | 2024 vs. 2023 Change \u2014 $ | 2024 vs. 2023 Change \u2014 % |\n| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| Automotive sales | $65,821 | $72,480 | $78,509 | $(6,659) | (9)% | $(6,029) | (8)% |\n| Automotive regulatory credits | 1,993 | 2,763 | 1,790 | (770) | (28)% | 973 | 54% |\n| Automotive leasing | 1,712 | 1,827 | 2,120 | (115) | (6)% | (293) | (14)% |\n| Total automotive revenues | 69,526 | 77,070 | 82,419 | (7,544) | (10)% | (5,349) | (6)% |\n| Services and other | 12,530 | 10,534 | 8,319 | 1,996 | 19% | 2,215 | 27% |\n| Total automotive & services and other segment revenue | 82,056 | 87,604 | 90,738 | (5,548) | (6)% | (3,134) | (3)% |\n| Energy generation and storage segment revenue | 12,771 | 10,086 | 6,035 | 2,685 | 27% | 4,051 | 67% |\n| Total revenues | $94,827 | $97,690 | $96,773 | $(2,863) | (3)% | $917 | 1% |"
+        }
+      ],
+      "answer_a": "Tesla's total revenues decreased by $2,863 million, or 3%, from 2024 to 2025 [TSLA-2025-CHUNK-000121].",
+      "answer_b": "No qualifying evidence was provided. I cannot determine that from the available materials.",
+      "authoritative_rubric": {
+        "claim_correctness": "fail",
+        "faithfulness": "fail",
+        "citation_support": "fail",
+        "abstention": "fail",
+        "answer_relevance": "fail",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-tesla-revenue-irrelevant_supported",
+      "seed": "tesla-revenue",
+      "variant": "irrelevant_supported",
+      "question": "By how much did Tesla's total revenues change from 2024 to 2025?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000121",
+          "text": "Item 7 \u2014 MANAGEMENT\u2019S DISCUSSION AND ANALYSIS OF FINANCIAL CONDITION AND RESULTS OF OPERATIONS\nRevenues\n\nRevenues\nUnits: mixed\n\n| Line item | Year Ended December 31, \u2014 2025 | Year Ended December 31, \u2014 2024 | Year Ended December 31, \u2014 2023 | 2025 vs. 2024 Change \u2014 $ | 2025 vs. 2024 Change \u2014 % | 2024 vs. 2023 Change \u2014 $ | 2024 vs. 2023 Change \u2014 % |\n| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| Automotive sales | $65,821 | $72,480 | $78,509 | $(6,659) | (9)% | $(6,029) | (8)% |\n| Automotive regulatory credits | 1,993 | 2,763 | 1,790 | (770) | (28)% | 973 | 54% |\n| Automotive leasing | 1,712 | 1,827 | 2,120 | (115) | (6)% | (293) | (14)% |\n| Total automotive revenues | 69,526 | 77,070 | 82,419 | (7,544) | (10)% | (5,349) | (6)% |\n| Services and other | 12,530 | 10,534 | 8,319 | 1,996 | 19% | 2,215 | 27% |\n| Total automotive & services and other segment revenue | 82,056 | 87,604 | 90,738 | (5,548) | (6)% | (3,134) | (3)% |\n| Energy generation and storage segment revenue | 12,771 | 10,086 | 6,035 | 2,685 | 27% | 4,051 | 67% |\n| Total revenues | $94,827 | $97,690 | $96,773 | $(2,863) | (3)% | $917 | 1% |"
+        }
+      ],
+      "answer_a": "Tesla's total revenues decreased by $2,863 million, or 3%, from 2024 to 2025 [TSLA-2025-CHUNK-000121].",
+      "answer_b": "Tesla's energy generation and storage segment revenue increased by $2,685 million in 2025 versus 2024 [TSLA-2025-CHUNK-000121].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "fail",
+        "conciseness": "pass"
+      }
+    },
+    {
+      "pair_id": "controlled-tesla-revenue-redundant_grounded",
+      "seed": "tesla-revenue",
+      "variant": "redundant_grounded",
+      "question": "By how much did Tesla's total revenues change from 2024 to 2025?",
+      "evidence": [
+        {
+          "chunk_id": "TSLA-2025-CHUNK-000121",
+          "text": "Item 7 \u2014 MANAGEMENT\u2019S DISCUSSION AND ANALYSIS OF FINANCIAL CONDITION AND RESULTS OF OPERATIONS\nRevenues\n\nRevenues\nUnits: mixed\n\n| Line item | Year Ended December 31, \u2014 2025 | Year Ended December 31, \u2014 2024 | Year Ended December 31, \u2014 2023 | 2025 vs. 2024 Change \u2014 $ | 2025 vs. 2024 Change \u2014 % | 2024 vs. 2023 Change \u2014 $ | 2024 vs. 2023 Change \u2014 % |\n| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n| Automotive sales | $65,821 | $72,480 | $78,509 | $(6,659) | (9)% | $(6,029) | (8)% |\n| Automotive regulatory credits | 1,993 | 2,763 | 1,790 | (770) | (28)% | 973 | 54% |\n| Automotive leasing | 1,712 | 1,827 | 2,120 | (115) | (6)% | (293) | (14)% |\n| Total automotive revenues | 69,526 | 77,070 | 82,419 | (7,544) | (10)% | (5,349) | (6)% |\n| Services and other | 12,530 | 10,534 | 8,319 | 1,996 | 19% | 2,215 | 27% |\n| Total automotive & services and other segment revenue | 82,056 | 87,604 | 90,738 | (5,548) | (6)% | (3,134) | (3)% |\n| Energy generation and storage segment revenue | 12,771 | 10,086 | 6,035 | 2,685 | 27% | 4,051 | 67% |\n| Total revenues | $94,827 | $97,690 | $96,773 | $(2,863) | (3)% | $917 | 1% |"
+        }
+      ],
+      "answer_a": "Tesla's total revenues decreased by $2,863 million, or 3%, from 2024 to 2025 [TSLA-2025-CHUNK-000121].",
+      "answer_b": "Tesla's total revenues decreased by $2,863 million, or 3%, from 2024 to 2025 [TSLA-2025-CHUNK-000121]. Tesla's total revenues decreased by $2,863 million, or 3%, from 2024 to 2025 [TSLA-2025-CHUNK-000121]. Tesla's total revenues decreased by $2,863 million, or 3%, from 2024 to 2025 [TSLA-2025-CHUNK-000121].",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "fail"
+      }
+    },
+    {
+      "pair_id": "controlled-tesla-revenue-proper_abstention",
+      "seed": "tesla-revenue",
+      "variant": "proper_abstention",
+      "question": "What cash dividend per share did Tesla declare in 2025?",
+      "evidence": [],
+      "answer_a": "No qualifying evidence was provided. I cannot determine that from the available materials.",
+      "answer_b": "No qualifying evidence was provided. I cannot determine that from the available materials.",
+      "authoritative_rubric": {
+        "claim_correctness": "pass",
+        "faithfulness": "pass",
+        "citation_support": "pass",
+        "abstention": "pass",
+        "answer_relevance": "pass",
+        "conciseness": "pass"
+      }
+    }
+  ],
+  "packet_sha256": "dadb6afe41cc3b62ad2d63717e2fd4d19a8d28b9dd363527958b63fa6d88ad16"
+}
