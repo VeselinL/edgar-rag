@@ -95,6 +95,13 @@ class RequestRoutingTests(unittest.TestCase):
         self.assertTrue(route.uses_filing_retrieval)
         self.assertTrue(route.uses_calculator)
 
+    def test_by_how_much_company_change_uses_filing_before_calculator(self):
+        query = "By how much did Tesla revenue change?"
+        route = deterministic_route(query, self.resolution(query))
+        self.assertEqual(route.route, RouteKind.FILING_AND_CALCULATOR)
+        self.assertTrue(route.uses_filing_retrieval)
+        self.assertTrue(route.uses_calculator)
+
     def test_disclosed_total_is_a_filing_value_not_an_arithmetic_request(self):
         for query in (
             "Tell me the total revenue of Tesla.",
