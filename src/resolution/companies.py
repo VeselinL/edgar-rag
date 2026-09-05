@@ -571,8 +571,15 @@ class CompanyResolver:
         return scoped_query
 
     @staticmethod
-    def clarification_message(resolution: CompanyResolution) -> str:
+    def clarification_message(resolution: CompanyResolution, *, language: str = "en") -> str:
         raw = ", ".join(item.raw_text for item in resolution.unresolved_mentions)
+        if language == "sr":
+            if raw:
+                return (
+                    f"Ne mogu bezbedno da povežem referencu na kompaniju {raw!r} sa "
+                    "AVA korpusom prijava. Navedite naziv kompanije ili ticker koji ste mislili."
+                )
+            return "Pojasnite na koju kompaniju iz AVA korpusa prijava mislite."
         if raw:
             return (
                 f"I couldn't safely resolve the company reference {raw!r} to AVA's "

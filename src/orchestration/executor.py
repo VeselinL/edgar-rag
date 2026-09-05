@@ -92,6 +92,9 @@ GENERATION_ACTIVITIES = (
     "Thinking", "Reasoning", "Cogitating", "Cerebrating", "Contemplating",
     "Pondering", "Ruminating", "Sleuthing",
 )
+SERBIAN_GENERATION_ACTIVITIES = (
+    "Razmišljam", "Rezonujem", "Promišljam", "Tumačim", "Razmatram", "Analiziram", "Mozgam",
+)
 UPLOAD_MATCH_STOP_WORDS = frozenset(
     {
         "about", "after", "also", "answer", "attached", "before", "build",
@@ -166,11 +169,22 @@ def without_calculator_route(route: RequestRoute) -> RequestRoute:
     )
 
 
-def ava_introduction() -> str:
+def ava_introduction(language: str = "en") -> str:
     """Return the deterministic, corpus-aware AVA introduction."""
     available = ", ".join(
         f"{COMPANY_NAMES[ticker]} ({ticker})" for ticker in FILINGS
     )
+    if language == "sr":
+        return (
+            "Zdravo! Ja sam AVA, vaš Autonomous Vehicle Analyst. Pretražujem indeksirane "
+            "godišnje SEC prijave, objašnjavam objave kompanija, upoređujem kompanije i "
+            "navodim dokaze koje koristim.\n\n"
+            f"Dostupne kompanije: {available}.\n\n"
+            "Na primer, pokušajte:\n"
+            "- Koliki je bio ukupan konsolidovani prihod kompanije General Motors?\n"
+            "- Koje buduće planove Aurora objavljuje?\n"
+            "- Ko je bio Tesla CEO u poslednjem indeksiranom 10-K izveštaju?"
+        )
     return (
         "Hello! I'm AVA, your Autonomous Vehicle Analyst. I search the indexed "
         "annual SEC filings, explain company disclosures, compare companies, and "
@@ -184,7 +198,7 @@ def ava_introduction() -> str:
 
 
 def company_scope_mismatch_message(
-    requested_tickers: Sequence[str], selected_tickers: Sequence[str]
+    requested_tickers: Sequence[str], selected_tickers: Sequence[str], language: str = "en"
 ) -> str:
     """Explain an explicit query target excluded by the chat's saved scope."""
     requested = ", ".join(
@@ -193,6 +207,12 @@ def company_scope_mismatch_message(
     selected = ", ".join(
         f"{COMPANY_NAMES[ticker]} ({ticker})" for ticker in selected_tickers
     )
+    if language == "sr":
+        return (
+            f"Vaše pitanje se odnosi na {requested}, ali je opseg ove konverzacije "
+            f"ograničen na {selected}. U bočnoj traci dodajte traženu kompaniju ili "
+            "izaberite Sve kompanije, a zatim pokušajte ponovo."
+        )
     return (
         f"Your question targets {requested}, but this chat's company scope is "
         f"limited to {selected}. In the sidebar, add the requested company or "
@@ -501,6 +521,7 @@ class RealPipeline(RouteHandlerMixin):
             if conversation_context is not None
             else ""
         )
+        language = getattr(conversation_context, "language", "en")
         if conversation_context is not None:
             trace.short_term_memory_ids = list(conversation_context.short_term_ids)
             trace.long_term_memory_ids = list(conversation_context.long_term_ids)
@@ -539,7 +560,11 @@ class RealPipeline(RouteHandlerMixin):
         )
         if should_search_uploads:
             if self.emit_activity:
-                yield activity_event("Searching through uploaded documents")
+                yield activity_event(
+                    "Pretražujem otpremljene dokumente"
+                    if language == "sr"
+                    else "Searching through uploaded documents"
+                )
             with trace.stage("uploaded_document_search"):
                 upload_candidates = await asyncio.to_thread(
                     document_service.search,
@@ -570,7 +595,7 @@ class RealPipeline(RouteHandlerMixin):
                 "excluded_query_tickers": list(excluded_query_tickers),
             }
             response_text = company_scope_mismatch_message(
-                excluded_query_tickers, selected_scope
+                excluded_query_tickers, selected_scope, language
             )
             trace.generated_answer = response_text
             trace.source_status = "none_cited"
@@ -651,7 +676,10 @@ class RealPipeline(RouteHandlerMixin):
             or required_web_searches > self.max_web_searches
         ):
             response_text = (
-                "That request exceeds this deployment's bounded tool-execution "
+                "Ovaj zahtev prelazi ograničenje broja izvršavanja alata u ovoj "
+                "instalaciji, pa nijedan alat nije pokrenut."
+                if language == "sr"
+                else "That request exceeds this deployment's bounded tool-execution "
                 "limit, so no tools were run."
             )
             trace.generated_answer = response_text
@@ -673,7 +701,10 @@ class RealPipeline(RouteHandlerMixin):
             calculation = None
             if not self.calculator_enabled:
                 response_text = (
-                    "That request requires the calculator, but it is disabled in this "
+                    "Za ovaj zahtev je potreban kalkulator, ali je on isključen u ovoj "
+                    "instalaciji. Neću nagađati niti računati u jezičkom modelu."
+                    if language == "sr"
+                    else "That request requires the calculator, but it is disabled in this "
                     "deployment. I won't guess or calculate it in the language model."
                 )
             else:
@@ -693,12 +724,19 @@ class RealPipeline(RouteHandlerMixin):
                         }
                     )
                     response_text = (
-                        "I couldn't safely parse that calculation. Please provide the "
+                        "Ne mogu bezbedno da protumačim taj proračun. Navedite brojčane "
+                        "operande i operaciju izričito."
+                        if language == "sr"
+                        else "I couldn't safely parse that calculation. Please provide the "
                         "numeric operands and operation explicitly."
                     )
             if calculation is not None:
                 if self.emit_activity:
-                    yield activity_event(f"Calculating {calculation.normalized_expression}")
+                    yield activity_event(
+                        f"Izračunavam {calculation.normalized_expression}"
+                        if language == "sr"
+                        else f"Calculating {calculation.normalized_expression}"
+                    )
             trace.generated_answer = response_text
             trace.source_status = "none_cited"
             trace.mark_first_token()
@@ -716,7 +754,10 @@ class RealPipeline(RouteHandlerMixin):
 
         if route.uses_calculator and not self.calculator_enabled:
             response_text = (
-                "That request requires the calculator, but it is disabled in this "
+                "Za ovaj zahtev je potreban kalkulator, ali je on isključen u ovoj "
+                "instalaciji. Neću nagađati niti računati u jezičkom modelu."
+                if language == "sr"
+                else "That request requires the calculator, but it is disabled in this "
                 "deployment. I won't guess or calculate it in the language model."
             )
             trace.generated_answer = response_text
@@ -736,7 +777,7 @@ class RealPipeline(RouteHandlerMixin):
 
         if route.uses_web_search:
             async for event in self._stream_web_route(
-                query, route, disconnected, trace, generator, prompt_context
+                query, route, disconnected, trace, generator, prompt_context, language
             ):
                 yield event
             return
@@ -744,7 +785,10 @@ class RealPipeline(RouteHandlerMixin):
         if route.uses_uploads:
             if document_service is None or trace.conversation_id is None:
                 response_text = (
-                    "That question needs a document attached to this chat, but no "
+                    "Za ovo pitanje je potreban dokument priložen ovom razgovoru, ali "
+                    "nijedan upotrebljiv izvor dokumenta nije dostupan."
+                    if language == "sr"
+                    else "That question needs a document attached to this chat, but no "
                     "usable chat document source is available."
                 )
                 trace.generated_answer = response_text
@@ -770,40 +814,58 @@ class RealPipeline(RouteHandlerMixin):
                 generator,
                 upload_candidates if upload_candidates else None,
                 prompt_context,
+                language,
             ):
                 yield event
             return
 
         if not route.uses_filing_retrieval:
             if route.reason_code is RouteReason.GREETING:
-                response_text = ava_introduction()
+                response_text = ava_introduction(language)
             elif route.reason_code is RouteReason.AVA_HELP:
-                response_text = ava_introduction()
+                response_text = ava_introduction(language)
             elif route.reason_code is RouteReason.OUT_OF_SCOPE:
                 response_text = (
-                    "That request is outside AVA's SEC-filing analysis scope. I can "
+                    "Ovaj zahtev je van AVA opsega analize SEC prijava. Mogu da "
+                    "identifikujem i navedem objavljene rukovodioce ili analiziram "
+                    "dokaze iz prijava kompanija, ali ne pružam programerske vežbe "
+                    "niti proizvoljne zadatke obrade teksta."
+                    if language == "sr"
+                    else "That request is outside AVA's SEC-filing analysis scope. I can "
                     "identify and cite disclosed executives or analyze company filing "
                     "evidence, but I don't provide programming exercises or arbitrary "
                     "letter-processing tasks."
                 )
             elif route.route is RouteKind.CLARIFY:
                 response_text = (
-                    "I need a little more context to choose the right evidence. "
+                    "Potrebno mi je još malo konteksta da izaberem odgovarajuće dokaze. "
+                    "Navedite kompaniju, izvor ili dokument na koji mislite."
+                    if language == "sr"
+                    else "I need a little more context to choose the right evidence. "
                     "Please name the company, source, or document you mean."
                 )
             elif route.uses_web_search:
                 response_text = (
-                    "That question needs information outside the available SEC filings. "
+                    "Za ovo pitanje su potrebne informacije van dostupnih SEC prijava. "
+                    "Pretraga veba još nije omogućena u ovoj instalaciji."
+                    if language == "sr"
+                    else "That question needs information outside the available SEC filings. "
                     "Web search is not enabled in this deployment yet."
                 )
             elif route.uses_uploads:
                 response_text = (
-                    "That question needs a document attached to this chat, but no usable "
+                    "Za ovo pitanje je potreban dokument priložen ovom razgovoru, ali "
+                    "upotrebljiv izvor dokumenta još nije dostupan."
+                    if language == "sr"
+                    else "That question needs a document attached to this chat, but no usable "
                     "chat document source is available yet."
                 )
             else:
                 response_text = (
-                    "I can help with the available SEC filings. Ask about a company, "
+                    "Mogu da pomognem sa dostupnim SEC prijavama. Pitajte o kompaniji, "
+                    "temi prijave ili AVA podržanim mogućnostima."
+                    if language == "sr"
+                    else "I can help with the available SEC filings. Ask about a company, "
                     "filing topic, or AVA's supported capabilities."
                 )
             trace.generated_answer = response_text
@@ -882,7 +944,10 @@ class RealPipeline(RouteHandlerMixin):
         resolution = replace(resolution, comparison=plan["comparison"])
         if route.uses_calculator and plan["operation"] is None:
             response_text = (
-                "I couldn't identify a supported calculation operation from that request. "
+                "Ne mogu da prepoznam podržanu računsku operaciju u tom zahtevu. "
+                "Navedite razliku, odnos, procenat, stopu rasta ili zbir."
+                if language == "sr"
+                else "I couldn't identify a supported calculation operation from that request. "
                 "Please specify a difference, ratio, percentage, growth rate, or sum."
             )
             trace.generated_answer = response_text
@@ -966,7 +1031,9 @@ class RealPipeline(RouteHandlerMixin):
         }
 
         if resolution.needs_clarification:
-            trace.generated_answer = self.company_resolver.clarification_message(resolution)
+            trace.generated_answer = self.company_resolver.clarification_message(
+                resolution, language=language
+            )
             trace.source_status = "none_cited"
             trace.mark_first_token()
             yield PipelineEvent(
@@ -1001,7 +1068,11 @@ class RealPipeline(RouteHandlerMixin):
             ticker for item in plan["subqueries"] for ticker in item["tickers"]
         ):
             if self.emit_activity:
-                yield activity_event(f"Searching through {ticker} filings")
+                yield activity_event(
+                    f"Pretražujem prijave kompanije {ticker}"
+                    if language == "sr"
+                    else f"Searching through {ticker} filings"
+                )
         try:
             with trace.stage("retrieval_selection"):
                 retrieval_arguments = (
@@ -1024,7 +1095,10 @@ class RealPipeline(RouteHandlerMixin):
             trace.safe_error_class = type(error).__name__
             trace.source_status = "none_cited"
             trace.generated_answer = (
-                "AVA could not apply the configured filing-evidence policy. "
+                "AVA ne može da primeni konfigurisano pravilo za dokaze iz prijava. "
+                "Pokušajte ponovo ili se obratite operateru usluge."
+                if language == "sr"
+                else "AVA could not apply the configured filing-evidence policy. "
                 "Please try again or contact the service operator."
             )
             trace.mark_first_token()
@@ -1049,7 +1123,10 @@ class RealPipeline(RouteHandlerMixin):
             trace.safe_error_class = type(error).__name__
             trace.source_status = "none_cited"
             trace.generated_answer = (
-                "AVA could not fit complete filing evidence for that request within "
+                "AVA ne može da smesti potpune dokaze iz prijava za ovaj zahtev u "
+                "konfigurisani budžet modela. Sužite pitanje."
+                if language == "sr"
+                else "AVA could not fit complete filing evidence for that request within "
                 "the configured model budget. Please narrow the question."
             )
             trace.mark_first_token()
@@ -1179,7 +1256,10 @@ class RealPipeline(RouteHandlerMixin):
                         }
                     )
                     answer = (
-                        "The filing operands could not be combined safely, so I did not "
+                        "Operandi iz prijave ne mogu bezbedno da se kombinuju, pa nisam "
+                        "izračunao rezultat."
+                        if language == "sr"
+                        else "The filing operands could not be combined safely, so I did not "
                         "calculate a result."
                     )
                 else:
@@ -1206,13 +1286,19 @@ class RealPipeline(RouteHandlerMixin):
                         else ""
                     )
                     answer = (
-                        "Using "
-                        + " and ".join(cited_operands)
-                        + f", the {calculation.operation.replace('_', ' ')} is "
+                        ("Koristeći " if language == "sr" else "Using ")
+                        + (" i ".join(cited_operands) if language == "sr" else " and ".join(cited_operands))
+                        + (f", rezultat operacije {calculation.operation.replace('_', ' ')} je "
+                           if language == "sr"
+                           else f", the {calculation.operation.replace('_', ' ')} is ")
                         + f"{calculation.result}{result_unit}."
                     )
                     if self.emit_activity:
-                        yield activity_event(f"Calculating {calculation.normalized_expression}")
+                        yield activity_event(
+                            f"Izračunavam {calculation.normalized_expression}"
+                            if language == "sr"
+                            else f"Calculating {calculation.normalized_expression}"
+                        )
             else:
                 trace.tool_executions.append(
                     {
@@ -1222,7 +1308,10 @@ class RealPipeline(RouteHandlerMixin):
                     }
                 )
                 answer = (
-                    "The retrieved filing evidence does not provide unambiguous, "
+                    "Preuzeti dokazi iz prijava ne pružaju jednoznačne operande sa "
+                    "kompatibilnim jedinicama za taj proračun."
+                    if language == "sr"
+                    else "The retrieved filing evidence does not provide unambiguous, "
                     "unit-compatible operands for that calculation."
                 )
             answer_fragments.append(answer)
@@ -1234,7 +1323,9 @@ class RealPipeline(RouteHandlerMixin):
         elif self.llm_streaming:
             streaming_generation_started = time.perf_counter()
             if self.emit_activity:
-                yield activity_event(random.choice(GENERATION_ACTIVITIES))
+                yield activity_event(random.choice(
+                    SERBIAN_GENERATION_ACTIVITIES if language == "sr" else GENERATION_ACTIVITIES
+                ))
             with trace.stage("generation_start"):
                 if hasattr(generator, "stream_answer_with_metadata"):
                     if prompt_context:

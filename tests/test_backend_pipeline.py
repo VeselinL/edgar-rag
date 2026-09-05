@@ -7,6 +7,7 @@ from unittest.mock import patch
 import numpy as np
 
 from src.backend.pipeline import FILINGS, PipelineSettings, RealPipeline
+from src.conversations.context import ConversationContext
 from src.orchestration.models import EvidenceCalculationPlan, EvidenceOperand, Freshness
 from src.orchestration.routing import RequestRoute, RouteKind, RouteReason
 from src.retrieval.evidence_policy import EvidencePolicyError
@@ -711,6 +712,31 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(events[1].data["sources"], [])
         self.assertEqual(records[0]["route"]["route"], "conversation")
         self.assertNotIn("retrieval_selection", records[0]["stage_latency_ms"])
+
+    async def test_greeting_uses_saved_serbian_language_without_retrieval(self):
+        retriever = FakeRetriever()
+        generator = RoutedGenerator(
+            RequestRoute(
+                RouteKind.CONVERSATION_ONLY,
+                RouteReason.GREETING,
+                decided_by="deterministic",
+            )
+        )
+        pipeline = RealPipeline(retriever, generator)
+
+        async def connected():
+            return False
+
+        events = [
+            event async for event in pipeline.stream(
+                "Zdravo", connected, conversation_context=ConversationContext(language="sr")
+            )
+        ]
+
+        self.assertIsNone(retriever.arguments)
+        self.assertIn("Zdravo! Ja sam AVA", events[0].data["text"])
+        self.assertIn("Dostupne kompanije", events[0].data["text"])
+        self.assertNotIn("Hello!", events[0].data["text"])
 
     async def test_explicit_company_outside_saved_scope_guides_user_without_retrieval(self):
         class NoRouteGenerator(FakeGenerator):

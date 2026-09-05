@@ -348,7 +348,24 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Podešavanja' })).toBeInTheDocument()
   })
 
-  it('resumes saved messages and sends idempotent conversation turn IDs', async () => {
+  it('uses Serbian generation activity before the first streamed token', async () => {
+    let finish: (() => void) | undefined
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValue([])
+    mockedGetPreferences.mockResolvedValue({ ...defaultPreferences, language: 'sr' })
+    mockedStream.mockImplementation((_query, handlers) => {
+      handlers.onOpen()
+      return new Promise<void>((resolve) => { finish = resolve })
+    })
+    render(<App />)
+
+    const input = await screen.findByLabelText('Pitajte AVA o SEC izveštajima')
+    await userEvent.type(input, 'Zdravo{enter}')
+    expect(screen.getByRole('status', { name: /^(Razmišljam|Rezonujem|Promišljam|Tumačim|Razmatram|Analiziram|Mozgam) \(u toku\)$/ })).toBeInTheDocument()
+    await act(async () => { finish?.() })
+  })
+
+  it('opens a blank workspace on refresh and loads a saved chat only when selected', async () => {
     const conversation = {
       id: 'conversation-1',
       title: 'Tesla risks',
@@ -379,6 +396,11 @@ describe('App', () => {
     })
     render(<App />)
 
+    expect(await screen.findByLabelText('Ask AVA about the SEC filings')).toBeInTheDocument()
+    expect(screen.queryByText('Saved answer.')).not.toBeInTheDocument()
+    expect(mockedListMessages).not.toHaveBeenCalled()
+    await userEvent.click(screen.getByRole('button', { name: 'Open conversation sidebar' }))
+    await userEvent.click(screen.getByText('Tesla risks'))
     expect(await screen.findByText('Saved answer.')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Mark answer as helpful' }))
     expect(mockedSubmitFeedback).toHaveBeenCalledWith('conversation-1', 'message-2', 'helpful')
@@ -391,7 +413,7 @@ describe('App', () => {
       expect.objectContaining({ conversationId: 'conversation-1', clientTurnId: expect.any(String) }),
       'AZURE_GPT_4o_2024_1120',
     )
-    expect(screen.getByRole('button', { name: 'Open conversation sidebar' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Close conversation sidebar' })).toBeInTheDocument()
   })
 
   it('edits long-term memory from Settings instead of a per-chat toggle', async () => {
@@ -484,6 +506,8 @@ describe('App', () => {
     mockedListDocuments.mockResolvedValue([uploaded])
     render(<App />)
 
+    await userEvent.click(await screen.findByRole('button', { name: 'Open conversation sidebar' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Architecture' }))
     const fileInput = await screen.findByLabelText('Choose a PDF or text source')
     const file = new File(['architecture notes'], 'architecture.txt', { type: 'text/plain' })
     await userEvent.upload(fileInput, file)

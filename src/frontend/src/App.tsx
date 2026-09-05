@@ -24,9 +24,36 @@ import { useTheme } from './hooks/useTheme'
 import { createMemory, deleteMemory, getPreferences, listMemory, updateMemory, updatePreferences } from './api/settings'
 import type { AssistantMessage, ChatDocument, ChatMessage, ConversationSummary, MemoryItem, PersistedMessage, UserPreferences } from './types'
 
-const PRE_TOKEN_ERROR = 'The filing-analysis service is temporarily unavailable. Please retry shortly.'
-const MID_STREAM_ERROR = 'The response was interrupted. Please try again.'
-const GENERATION_ACTIVITIES = ['Thinking', 'Reasoning', 'Cogitating', 'Cerebrating', 'Contemplating', 'Pondering', 'Ruminating', 'Sleuthing'] as const
+const UI_COPY = {
+  en: {
+    preTokenError: 'The filing-analysis service is temporarily unavailable. Please retry shortly.',
+    interrupted: 'The response was interrupted. Please try again.',
+    initialization: 'AVA could not initialize its account and conversation services.',
+    sourcesUnavailable: 'Sources could not be loaded.', sourceUploadFailed: 'The source could not be uploaded.',
+    sourceDeleteFailed: 'The source could not be deleted.', adding: 'Adding', ready: 'is ready in this chat.', removed: 'was removed.',
+    enterQuestion: 'Enter a question to continue.', historyPreparing: 'AVA is preparing conversation history. Please try again shortly.',
+    deleteSource: 'Delete {name} from this chat?', deleteChats: 'Delete all saved conversations? This cannot be undone.',
+    exportFailed: 'Your data could not be exported. Please try again.', conversationName: 'Conversation name',
+    signInTitle: 'Sign in to AVA', signInBody: 'Your filing research and saved conversations stay isolated to your verified account.',
+    signIn: 'Continue to sign in', unavailable: 'AVA is temporarily unavailable', retry: 'Retry', checkConnection: 'Check the connection, then try again.',
+  },
+  sr: {
+    preTokenError: 'Usluga za analizu SEC prijava je privremeno nedostupna. Pokušajte ponovo uskoro.',
+    interrupted: 'Odgovor je prekinut. Pokušajte ponovo.',
+    initialization: 'AVA nije mogao da pokrene usluge naloga i istorije razgovora.',
+    sourcesUnavailable: 'Izvori nisu mogli da se učitaju.', sourceUploadFailed: 'Izvor nije mogao da se otpremi.',
+    sourceDeleteFailed: 'Izvor nije mogao da se obriše.', adding: 'Dodajem', ready: 'je spreman u ovom razgovoru.', removed: 'je uklonjen.',
+    enterQuestion: 'Unesite pitanje da biste nastavili.', historyPreparing: 'AVA priprema istoriju razgovora. Pokušajte ponovo uskoro.',
+    deleteSource: 'Obrisati {name} iz ovog razgovora?', deleteChats: 'Obrisati sve sačuvane razgovore? Ova radnja se ne može poništiti.',
+    exportFailed: 'Vaši podaci nisu mogli da se izvezu. Pokušajte ponovo.', conversationName: 'Naziv razgovora',
+    signInTitle: 'Prijavite se u AVA', signInBody: 'Vaša istraživanja prijava i sačuvani razgovori ostaju izdvojeni u potvrđenom nalogu.',
+    signIn: 'Nastavite sa prijavom', unavailable: 'AVA je privremeno nedostupan', retry: 'Pokušajte ponovo', checkConnection: 'Proverite vezu, a zatim pokušajte ponovo.',
+  },
+} as const
+const GENERATION_ACTIVITIES = {
+  en: ['Thinking', 'Reasoning', 'Cogitating', 'Cerebrating', 'Contemplating', 'Pondering', 'Ruminating', 'Sleuthing'],
+  sr: ['Razmišljam', 'Rezonujem', 'Promišljam', 'Tumačim', 'Razmatram', 'Analiziram', 'Mozgam'],
+} as const
 const DEFAULT_PREFERENCES: UserPreferences = {
   nickname: '', warmth: 'balanced', enthusiasm: 'balanced', emoji_use: 'off',
   custom_instructions: '', language: 'en', model: 'AZURE_GPT_4o_2024_1120', theme: 'system',
@@ -77,6 +104,7 @@ export default function App() {
   const settingsButton = useRef<HTMLButtonElement>(null)
   const controller = useRef<AbortController | null>(null)
   const idSequence = useRef(0)
+  const copy = UI_COPY[preferences.language]
 
   useEffect(() => {
     let cancelled = false
@@ -95,15 +123,13 @@ export default function App() {
         setThemePreference(savedPreferences.theme)
         const saved = await listConversations()
         if (cancelled) return
-        const selected = saved[0] ?? null
-        const stored = selected ? await listMessages(selected.id) : []
         if (cancelled) return
         setConversations(saved)
-        setCurrentConversation(selected)
-        setMessages(storedMessages(stored))
+        setCurrentConversation(null)
+        setMessages([])
       } catch {
         if (!cancelled) {
-          setStartupError('AVA could not initialize its account and conversation services.')
+          setStartupError(UI_COPY.en.initialization)
         }
       } finally {
         if (!cancelled) setHistoryInitializing(false)
@@ -161,7 +187,7 @@ export default function App() {
         sourceStatus: sourceEvent?.source_status ?? 'none_cited',
         malformedSourceCount: sourceEvent?.malformed_source_count ?? 0,
         feedbackEligible: message.status === 'completed',
-        ...(message.status === 'failed' ? { error: MID_STREAM_ERROR } : {}),
+        ...(message.status === 'failed' ? { error: copy.interrupted } : {}),
       }
     })
 
@@ -195,8 +221,8 @@ export default function App() {
     setSourcesError('')
     try {
       setDocuments(await listDocuments(currentConversation.id))
-    } catch (error) {
-      setSourcesError(error instanceof Error ? error.message : 'Sources could not be loaded.')
+    } catch {
+      setSourcesError(copy.sourcesUnavailable)
     } finally {
       setSourcesLoading(false)
     }
@@ -204,28 +230,28 @@ export default function App() {
 
   const addDocument = async (file: File) => {
     if (!currentConversation || active) return
-    setUploadStatus(`Adding ${file.name}…`)
+    setUploadStatus(`${copy.adding} ${file.name}…`)
     setSourcesError('')
     try {
       const uploaded = await uploadDocument(currentConversation.id, file)
       setDocuments((items) => [uploaded, ...items.filter((item) => item.id !== uploaded.id)])
-      setUploadStatus(`${file.name} is ready in this chat.`)
-    } catch (error) {
-      setUploadStatus(error instanceof Error ? error.message : 'The source could not be uploaded.')
+      setUploadStatus(`${file.name} ${copy.ready}`)
+    } catch {
+      setUploadStatus(copy.sourceUploadFailed)
     }
   }
 
   const removeDocument = async (document: ChatDocument) => {
     if (!currentConversation || deletingDocumentId) return
-    if (!window.confirm(`Delete ${document.filename} from this chat?`)) return
+    if (!window.confirm(copy.deleteSource.replace('{name}', document.filename))) return
     setDeletingDocumentId(document.id)
     setSourcesError('')
     try {
       await deleteDocument(currentConversation.id, document.id)
       setDocuments((items) => items.filter((item) => item.id !== document.id))
-      setUploadStatus(`${document.filename} was removed.`)
-    } catch (error) {
-      setSourcesError(error instanceof Error ? error.message : 'The source could not be deleted.')
+      setUploadStatus(`${document.filename} ${copy.removed}`)
+    } catch {
+      setSourcesError(copy.sourceDeleteFailed)
     } finally {
       setDeletingDocumentId(null)
     }
@@ -240,12 +266,12 @@ export default function App() {
   const submit = async () => {
     const query = draft
     if (!query.trim()) {
-      setValidation('Enter a question to continue.')
+      setValidation(copy.enterQuestion)
       return
     }
     if (active) return
     if (historyInitializing) {
-      setValidation('AVA is preparing conversation history. Please try again shortly.')
+      setValidation(copy.historyPreparing)
       return
     }
     setValidation('')
@@ -263,7 +289,9 @@ export default function App() {
       sources: null,
       sourceStatus: 'none_cited',
       malformedSourceCount: 0,
-      activity: GENERATION_ACTIVITIES[Math.floor(Math.random() * GENERATION_ACTIVITIES.length)],
+      activity: GENERATION_ACTIVITIES[preferences.language][Math.floor(
+        Math.random() * GENERATION_ACTIVITIES[preferences.language].length,
+      )],
     }
     setMessages((current) => [
       ...current,
@@ -326,11 +354,13 @@ export default function App() {
       await refreshConversations()
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return
-      const message = error instanceof ChatStreamError ? error.message : PRE_TOKEN_ERROR
+      const message = preferences.language === 'en' && error instanceof ChatStreamError
+        ? error.message
+        : copy.preTokenError
       updateAssistant(assistantId, (assistant) => ({
         ...assistant,
         state: 'error',
-        error: receivedText ? MID_STREAM_ERROR : message,
+        error: receivedText ? copy.interrupted : message,
       }))
       if (!opened) setDraft(query)
     } finally {
@@ -388,7 +418,7 @@ export default function App() {
               })
             }}
             onRename={(conversation) => {
-              const title = window.prompt('Conversation name', conversation.title)
+              const title = window.prompt(copy.conversationName, conversation.title)
               if (!title?.trim()) return
               void updateConversation(conversation.id, { title }).then((updated) => {
                 setConversations((items) => items.map((item) => item.id === updated.id ? updated : item))
@@ -406,11 +436,10 @@ export default function App() {
               })
             }}
             onDeleteAll={() => {
-              if (!window.confirm('Delete all saved conversations? This cannot be undone.')) return
+              if (!window.confirm(copy.deleteChats)) return
               void deleteAllConversations().then(async () => {
-                const created = await createConversation()
-                setConversations([created])
-                setCurrentConversation(created)
+                setConversations([])
+                setCurrentConversation(null)
                 setMessages([])
               })
             }}
@@ -424,7 +453,7 @@ export default function App() {
                   link.click()
                   URL.revokeObjectURL(url)
                 })
-                .catch(() => window.alert('Your data could not be exported. Please try again.'))
+                .catch(() => window.alert(copy.exportFailed))
             }}
             onClose={() => setSidebarOpen(false)}
           />
@@ -443,18 +472,18 @@ export default function App() {
         <main className={`main ${isEmpty ? 'main--empty' : ''}`}>
           {needsSignIn ? (
             <section className="auth-prompt" aria-labelledby="auth-heading">
-              <h1 id="auth-heading">Sign in to AVA</h1>
-              <p>Your filing research and saved conversations stay isolated to your verified account.</p>
+              <h1 id="auth-heading">{copy.signInTitle}</h1>
+              <p>{copy.signInBody}</p>
               <button type="button" className="auth-prompt__button" onClick={() => window.location.assign(signInUrl())}>
-                Continue to sign in
+                {copy.signIn}
               </button>
             </section>
           ) : startupError ? (
             <section className="auth-prompt" aria-labelledby="startup-error-heading">
-              <h1 id="startup-error-heading">AVA is temporarily unavailable</h1>
-              <p>{startupError} Check the connection, then try again.</p>
+              <h1 id="startup-error-heading">{copy.unavailable}</h1>
+              <p>{startupError} {copy.checkConnection}</p>
               <button type="button" className="auth-prompt__button" onClick={() => window.location.reload()}>
-                Retry
+                {copy.retry}
               </button>
             </section>
           ) : (

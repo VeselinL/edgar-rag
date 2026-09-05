@@ -44,16 +44,22 @@ class RouteHandlerMixin:
         trace: RequestTrace,
         generator: Any,
         conversation_context: str = "",
+        language: str = "en",
     ) -> AsyncIterator[PipelineEvent]:
         if await disconnected():
             return
         if self.emit_activity:
             yield activity_event(
-                f'Searching trusted web sources for "{query[:160]}"'
+                f'Pretražujem pouzdane veb izvore za „{query[:160]}“'
+                if language == "sr"
+                else f'Searching trusted web sources for "{query[:160]}"'
             )
         if not self.web_search_enabled:
             answer = (
-                "That question needs current or external information, but web search "
+                "Za ovo pitanje su potrebne aktuelne ili spoljne informacije, ali je "
+                "pretraga veba isključena u ovoj instalaciji."
+                if language == "sr"
+                else "That question needs current or external information, but web search "
                 "is disabled in this deployment."
             )
             trace.generated_answer = answer
@@ -89,7 +95,11 @@ class RouteHandlerMixin:
                     "safe_error_class": "web_search_unavailable",
                 }
             )
-            answer = "Web search is temporarily unavailable, so I can't verify that answer."
+            answer = (
+                "Pretraga veba je privremeno nedostupna, pa ne mogu da proverim taj odgovor."
+                if language == "sr"
+                else "Web search is temporarily unavailable, so I can't verify that answer."
+            )
             trace.generated_answer = answer
             trace.source_status = "none_cited"
             trace.mark_first_token()
@@ -111,7 +121,11 @@ class RouteHandlerMixin:
             }
         )
         if not response.results:
-            answer = "Web search returned no usable public sources for that question."
+            answer = (
+                "Pretraga veba nije vratila upotrebljive javne izvore za to pitanje."
+                if language == "sr"
+                else "Web search returned no usable public sources for that question."
+            )
             trace.generated_answer = answer
             trace.source_status = "none_cited"
             trace.mark_first_token()
@@ -146,7 +160,10 @@ class RouteHandlerMixin:
             operation = infer_calculation_operation(query)
             if operation is None:
                 answer = (
-                    "I couldn't identify one supported calculation operation. Please "
+                    "Ne mogu da prepoznam podržanu računsku operaciju. Navedite razliku, "
+                    "odnos, procenat, stopu rasta ili zbir."
+                    if language == "sr"
+                    else "I couldn't identify one supported calculation operation. Please "
                     "specify a difference, ratio, percentage, growth rate, or sum."
                 )
             else:
@@ -167,7 +184,10 @@ class RouteHandlerMixin:
                         }
                     )
                     answer = (
-                        "The web results do not provide unambiguous, unit-compatible "
+                        "Rezultati sa veba ne pružaju jednoznačne operande sa kompatibilnim "
+                        "jedinicama za taj proračun."
+                        if language == "sr"
+                        else "The web results do not provide unambiguous, unit-compatible "
                         "operands for that calculation."
                     )
                 else:
@@ -188,7 +208,11 @@ class RouteHandlerMixin:
                                 "safe_error_class": "invalid_evidence_calculation",
                             }
                         )
-                        answer = "The web operands could not be combined safely."
+                        answer = (
+                            "Operandi sa veba ne mogu bezbedno da se kombinuju."
+                            if language == "sr"
+                            else "The web operands could not be combined safely."
+                        )
                     else:
                         trace.tool_executions.append(
                             {
@@ -211,9 +235,11 @@ class RouteHandlerMixin:
                             else ""
                         )
                         answer = (
-                            "Using "
-                            + " and ".join(cited_operands)
-                            + f", the {calculation.operation.replace('_', ' ')} is "
+                            ("Koristeći " if language == "sr" else "Using ")
+                            + (" i ".join(cited_operands) if language == "sr" else " and ".join(cited_operands))
+                            + (f", rezultat operacije {calculation.operation.replace('_', ' ')} je "
+                               if language == "sr"
+                               else f", the {calculation.operation.replace('_', ' ')} is ")
                             + f"{calculation.result}{result_unit}."
                         )
             trace.mark_first_token()
@@ -319,10 +345,15 @@ class RouteHandlerMixin:
         generator: Any,
         prefetched_results: Sequence[Any] | None = None,
         conversation_context: str = "",
+        language: str = "en",
     ) -> AsyncIterator[PipelineEvent]:
         if prefetched_results is None:
             if self.emit_activity:
-                yield activity_event("Searching through uploaded documents")
+                yield activity_event(
+                    "Pretražujem otpremljene dokumente"
+                    if language == "sr"
+                    else "Searching through uploaded documents"
+                )
             with trace.stage("uploaded_document_search"):
                 results = await asyncio.to_thread(
                     document_service.search,
@@ -333,7 +364,11 @@ class RouteHandlerMixin:
         else:
             results = list(prefetched_results)
         if not results:
-            answer = "No relevant text was found in the files attached to this chat."
+            answer = (
+                "Nijedan relevantan tekst nije pronađen u datotekama priloženim ovom razgovoru."
+                if language == "sr"
+                else "No relevant text was found in the files attached to this chat."
+            )
             trace.generated_answer = answer
             trace.source_status = "none_cited"
             trace.mark_first_token()
@@ -369,7 +404,10 @@ class RouteHandlerMixin:
             operation = infer_calculation_operation(query)
             if operation is None:
                 answer = (
-                    "I couldn't identify one supported calculation operation. Please "
+                    "Ne mogu da prepoznam podržanu računsku operaciju. Navedite razliku, "
+                    "odnos, procenat, stopu rasta ili zbir."
+                    if language == "sr"
+                    else "I couldn't identify one supported calculation operation. Please "
                     "specify a difference, ratio, percentage, growth rate, or sum."
                 )
             else:
@@ -390,7 +428,10 @@ class RouteHandlerMixin:
                         }
                     )
                     answer = (
-                        "The attached files do not provide unambiguous, unit-compatible "
+                        "Priložene datoteke ne pružaju jednoznačne operande sa kompatibilnim "
+                        "jedinicama za taj proračun."
+                        if language == "sr"
+                        else "The attached files do not provide unambiguous, unit-compatible "
                         "operands for that calculation."
                     )
                 else:
@@ -411,7 +452,11 @@ class RouteHandlerMixin:
                                 "safe_error_class": "invalid_evidence_calculation",
                             }
                         )
-                        answer = "The uploaded-document operands could not be combined safely."
+                        answer = (
+                            "Operandi iz otpremljenih dokumenata ne mogu bezbedno da se kombinuju."
+                            if language == "sr"
+                            else "The uploaded-document operands could not be combined safely."
+                        )
                     else:
                         trace.tool_executions.append(
                             {
@@ -434,9 +479,11 @@ class RouteHandlerMixin:
                             else ""
                         )
                         answer = (
-                            "Using "
-                            + " and ".join(cited_operands)
-                            + f", the {calculation.operation.replace('_', ' ')} is "
+                            ("Koristeći " if language == "sr" else "Using ")
+                            + (" i ".join(cited_operands) if language == "sr" else " and ".join(cited_operands))
+                            + (f", rezultat operacije {calculation.operation.replace('_', ' ')} je "
+                               if language == "sr"
+                               else f", the {calculation.operation.replace('_', ' ')} is ")
                             + f"{calculation.result}{result_unit}."
                         )
             answer_fragments.append(answer)
