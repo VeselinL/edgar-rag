@@ -351,7 +351,7 @@ Do not report only an overall chatbot score.
 - `src/frontend/avatar/ava.png` is the canonical supplied AVA avatar. The owner
   has additionally approved the supplied `ava-light.png` and `ava-dark.png`
   variants for the corresponding light and dark UI themes.
-- `src/frontend/avatar/favicon.png` is the supplied favicon source.
+- `src/frontend/avatar/favicon.png` is the supplied transparent favicon source.
 - Do not regenerate, redraw, recolour, crop destructively, or move supplied
   avatar or favicon images without an explicit request. CSS backing and sizing
   may be used without altering the source files.
