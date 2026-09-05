@@ -757,7 +757,10 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
 
             def stream_conversation_context_answer(self, query, *, conversation_context):
                 self.personal_context = conversation_context
-                return iter(["Your preferred metric is citation support."])
+                class IterableOnly:
+                    def __iter__(self):
+                        return iter(["Your preferred metric is citation support."])
+                return IterableOnly()
 
         retriever = FakeRetriever()
         generator = PersonalContextGenerator()

@@ -844,9 +844,10 @@ class RealPipeline(RouteHandlerMixin):
                     )
                 answer_fragments: list[str] = []
                 sentinel = object()
+                provider_iterator = iter(provider_stream)
 
                 def next_fragment() -> object:
-                    return next(provider_stream, sentinel)
+                    return next(provider_iterator, sentinel)
 
                 try:
                     while True:
