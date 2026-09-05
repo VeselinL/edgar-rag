@@ -186,6 +186,26 @@ class ConversationServiceTests(unittest.TestCase):
         self.service.delete_memory(explicit.id)
         self.assertEqual(self.service.list_memory(), [])
 
+    def test_memory_reconciliation_replaces_derived_owner_index_idempotently(self):
+        explicit = self.service.create_memory("Prefer concise answers.")
+        self.memory.upsert(MemoryItem(
+            id="stale", tenant_id="tenant-a", user_id="user-a", conversation_id=None,
+            source_id=None, memory_type="explicit", content="stale value",
+        ))
+        other = MemoryItem(
+            id="other", tenant_id="tenant-a", user_id="user-b", conversation_id=None,
+            source_id=None, memory_type="explicit", content="keep this",
+        )
+        self.memory.upsert(other)
+        job = MemoryReconciliationJob(self.repository, self.memory)
+
+        first = job.run(tenant_id="tenant-a", user_id="user-a")
+        second = job.run(tenant_id="tenant-a", user_id="user-a")
+
+        self.assertEqual(first.indexed, 1)
+        self.assertEqual(second.indexed, 1)
+        self.assertEqual(set(self.memory.items), {explicit.id, other.id})
+
     def test_preferences_are_delimited_and_never_filing_evidence(self):
         conversation = self.service.create()
         self.service.update_preferences(

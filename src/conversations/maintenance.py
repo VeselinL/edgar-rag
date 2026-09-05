@@ -1,4 +1,4 @@
-"""Dry-run-first retention maintenance for conversations and auth sessions."""
+"""Dry-run-first retention and canonical-memory maintenance for AVA."""
 
 from __future__ import annotations
 
@@ -6,14 +6,18 @@ import argparse
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 import json
+from pathlib import Path
 from typing import Any
 
 from src.auth.repository import PostgresAuthRepository
 from src.config.settings import ApplicationSettings, ConversationSettings
+from src.embeddings.embed_chunks import MODEL_CONFIGS, load_model
 from src.indexing.qdrant_index import make_client
 
 from .memory import NullMemoryStore, QdrantMemoryStore
 from .repository import PostgresConversationRepository
+
+
 @dataclass(frozen=True)
 class RetentionResult:
     cutoff: datetime
@@ -92,6 +96,35 @@ class ConversationRetentionJob:
         )
 
 
+@dataclass(frozen=True)
+class MemoryReconciliationResult:
+    tenant_id: str
+    user_id: str
+    indexed: int
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "tenant_id": self.tenant_id,
+            "user_id": self.user_id,
+            "indexed": self.indexed,
+        }
+
+
+class MemoryReconciliationJob:
+    """Rebuild one owner's derived Qdrant memory index from PostgreSQL."""
+
+    def __init__(self, repository, memory_store) -> None:
+        self.repository = repository
+        self.memory_store = memory_store
+
+    def run(self, *, tenant_id: str, user_id: str) -> MemoryReconciliationResult:
+        items = self.repository.list_memory_items(tenant_id, user_id)
+        self.memory_store.delete_all(tenant_id, user_id)
+        for item in items:
+            self.memory_store.upsert(item)
+        return MemoryReconciliationResult(tenant_id, user_id, len(items))
+
+
 def build_job() -> tuple[ConversationRetentionJob, ConversationSettings]:
     application_settings = ApplicationSettings.from_environment()
     settings = application_settings.conversation
@@ -122,11 +155,53 @@ def build_job() -> tuple[ConversationRetentionJob, ConversationSettings]:
     ), settings
 
 
+def build_reconciliation_job() -> MemoryReconciliationJob:
+    application_settings = ApplicationSettings.from_environment()
+    settings = application_settings.conversation
+    if settings.mode == "disabled" or not settings.postgres_dsn:
+        raise RuntimeError("Conversation persistence is not enabled.")
+    if settings.long_term_store != "qdrant":
+        raise RuntimeError("Qdrant long-term memory is not enabled.")
+    pipeline = application_settings.pipeline
+    local_path = (
+        Path(pipeline.qdrant_local_path).expanduser().resolve()
+        if pipeline.qdrant_local_path
+        else None
+    )
+    client = make_client(
+        url=None if local_path else pipeline.qdrant_url,
+        api_key=pipeline.qdrant_api_key,
+        local_path=local_path,
+        timeout=pipeline.qdrant_timeout_seconds,
+    )
+    memory_store = QdrantMemoryStore(
+        client,
+        load_model("bgebase"),
+        query_prefix=MODEL_CONFIGS["bgebase"]["query_prefix"],
+    )
+    return MemoryReconciliationJob(
+        PostgresConversationRepository(settings.postgres_dsn), memory_store
+    )
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Apply AVA conversation retention.")
+    parser = argparse.ArgumentParser(description="Apply AVA conversation maintenance.")
+    parser.add_argument(
+        "command", choices=("retention", "reconcile"), nargs="?", default="retention"
+    )
     parser.add_argument("--apply", action="store_true", help="Delete eligible records.")
     parser.add_argument("--batch-size", type=int, default=100)
+    parser.add_argument("--tenant-id")
+    parser.add_argument("--user-id")
     args = parser.parse_args()
+    if args.command == "reconcile":
+        if not args.tenant_id or not args.user_id:
+            parser.error("reconcile requires --tenant-id and --user-id")
+        result = build_reconciliation_job().run(
+            tenant_id=args.tenant_id, user_id=args.user_id
+        )
+        print(json.dumps(result.as_dict(), indent=2))
+        return
     job, settings = build_job()
     cutoff = datetime.now(timezone.utc) - timedelta(days=settings.retention_days)
     result = job.run(cutoff=cutoff, batch_size=args.batch_size, apply=args.apply)
