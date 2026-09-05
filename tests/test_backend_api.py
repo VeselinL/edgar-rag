@@ -339,6 +339,43 @@ class BackendApiTests(unittest.TestCase):
         self.assertIsNotNone(response.json()["pinned_at"])
         self.assertEqual([item["id"] for item in conversations], [first.id, second.id])
 
+    def test_memory_and_preferences_api_are_owner_scoped(self):
+        repository = InMemoryConversationRepository()
+        owner = ConversationService(repository, tenant_id="tenant", user_id="owner")
+        other = ConversationService(repository, tenant_id="tenant", user_id="other")
+        with TestClient(
+            create_app(
+                application_settings=self.settings,
+                pipeline=MockPipeline(delay_seconds=0),
+                conversation_service=owner,
+            )
+        ) as client:
+            created = client.post("/api/memory", json={"content": "Use concise answers."})
+            memory_id = created.json()["id"]
+            preferences = client.patch(
+                "/api/preferences",
+                json={"nickname": "Veselin", "language": "sr", "theme": "dark"},
+            )
+            updated = client.patch(
+                f"/api/memory/{memory_id}", json={"content": "Use concise tables."}
+            )
+            listed = client.get("/api/memory")
+
+        with TestClient(
+            create_app(
+                application_settings=self.settings,
+                pipeline=MockPipeline(delay_seconds=0),
+                conversation_service=other,
+            )
+        ) as client:
+            hidden = client.patch(f"/api/memory/{memory_id}", json={"content": "Not allowed"})
+
+        self.assertEqual(created.status_code, 201)
+        self.assertEqual(updated.json()["content"], "Use concise tables.")
+        self.assertEqual([item["id"] for item in listed.json()["memory"]], [memory_id])
+        self.assertEqual(preferences.json()["language"], "sr")
+        self.assertEqual(hidden.status_code, 404)
+
     def test_feedback_is_owner_scoped_to_completed_answer(self):
         repository = InMemoryConversationRepository()
         service = ConversationService(repository, tenant_id="tenant", user_id="user")

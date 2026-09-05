@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any, Sequence
 
 from .context import ConversationContext, ConversationContextBuilder
 from .memory import MemoryStore, NullMemoryStore
-from .models import Conversation, MemoryItem, Message, StoredTurn
+from .models import Conversation, MemoryItem, Message, StoredTurn, UserPreferences
 from .repository import ConversationRepository
 from src.config.settings import ConversationSettings
 from src.filings.corpus import ACTIVE_FILINGS
@@ -80,10 +80,12 @@ class ConversationService:
         self.long_term_token_budget = long_term_token_budget
         self.document_lifecycle = document_lifecycle
 
-    def create(self, *, title: str = "New conversation", memory_enabled: bool = False, company_scope: Sequence[str] = ()) -> Conversation:
+    def create(self, *, title: str = "New conversation", memory_enabled: bool = True, company_scope: Sequence[str] = ()) -> Conversation:
         clean_title = title.strip()[:120] or "New conversation"
         company_scope = self._validate_scope(company_scope)
-        return self.repository.create_conversation(self.tenant_id, self.user_id, clean_title, memory_enabled, company_scope)
+        # Kept as a compatibility argument for pre-Phase-6 callers. Normal
+        # conversations always participate in long-term memory.
+        return self.repository.create_conversation(self.tenant_id, self.user_id, clean_title, True, company_scope)
 
     @staticmethod
     def _validate_scope(company_scope: Sequence[str]) -> tuple[str, ...]:
@@ -114,19 +116,73 @@ class ConversationService:
                 raise ValueError("Conversation title cannot be empty.")
         if company_scope is not None:
             company_scope = self._validate_scope(company_scope)
-        if memory_enabled is False:
-            self.get(conversation_id)
-            self.memory_store.delete_conversation(
-                self.tenant_id, self.user_id, conversation_id
-            )
+        if memory_enabled is not None:
+            raise ValueError("Long-term memory is always enabled for normal chats.")
         updated = self.repository.update_conversation(
             self.tenant_id, self.user_id, conversation_id,
             title=title, memory_enabled=memory_enabled, pinned=pinned,
             company_scope=company_scope,
         )
-        if memory_enabled is True:
-            self._sync_conversation_memory(conversation_id)
         return updated
+
+    @staticmethod
+    def _clean_memory_content(content: str) -> str:
+        value = content.strip()
+        if not value:
+            raise ValueError("Memory content cannot be empty.")
+        if len(value) > 1500:
+            raise ValueError("Memory content must be 1,500 characters or fewer.")
+        return value
+
+    def list_memory(self) -> list[MemoryItem]:
+        return self.repository.list_memory_items(self.tenant_id, self.user_id)
+
+    def create_memory(self, content: str) -> MemoryItem:
+        item = self.repository.create_memory_item(
+            self.tenant_id, self.user_id, self._clean_memory_content(content), "explicit"
+        )
+        self.memory_store.upsert(item)
+        return item
+
+    def update_memory(self, memory_id: str, content: str) -> MemoryItem:
+        item = self.repository.update_memory_item(
+            self.tenant_id, self.user_id, memory_id, self._clean_memory_content(content)
+        )
+        self.memory_store.upsert(item)
+        return item
+
+    def delete_memory(self, memory_id: str) -> None:
+        self.repository.delete_memory_item(self.tenant_id, self.user_id, memory_id)
+        self.memory_store.delete_item(self.tenant_id, self.user_id, memory_id)
+
+    def preferences(self) -> UserPreferences:
+        return self.repository.get_preferences(self.tenant_id, self.user_id)
+
+    def update_preferences(self, **values: str) -> UserPreferences:
+        allowed = {
+            "nickname", "warmth", "enthusiasm", "emoji_use", "custom_instructions",
+            "language", "model", "theme",
+        }
+        if not values or not set(values) <= allowed:
+            raise ValueError("Invalid preference field.")
+        if "nickname" in values and len(values["nickname"].strip()) > 50:
+            raise ValueError("Nickname must be 50 characters or fewer.")
+        if "custom_instructions" in values and len(values["custom_instructions"].strip()) > 1500:
+            raise ValueError("Custom instructions must be 1,500 characters or fewer.")
+        enumerations = {
+            "warmth": {"cold", "balanced", "warm"},
+            "enthusiasm": {"low", "balanced", "high"},
+            "emoji_use": {"off", "light"},
+            "language": {"en", "sr"},
+            "theme": {"light", "dark", "system"},
+        }
+        for name, valid in enumerations.items():
+            if name in values and values[name] not in valid:
+                raise ValueError(f"Invalid {name} preference.")
+        return self.repository.upsert_preferences(
+            self.tenant_id, self.user_id,
+            **{key: value.strip() if isinstance(value, str) else value for key, value in values.items()},
+        )
 
     def delete(self, conversation_id: str) -> None:
         # Verify ownership first. Delete the derived index point before the
@@ -189,52 +245,38 @@ class ConversationService:
         )
 
     def prepare_context(self, conversation_id: str, client_turn_id: str, query: str) -> ConversationContext:
-        conversation = self.get(conversation_id)
         context, summary = self.context_builder.build(
             self.tenant_id, self.user_id, conversation_id, excluded_turn_id=client_turn_id
         )
-        if conversation.memory_enabled and summary is not None:
-            now = datetime.now(timezone.utc)
-            self.memory_store.upsert_summary(
-                MemoryItem(
-                    id=f"summary:{conversation_id}",
-                    tenant_id=self.tenant_id,
-                    user_id=self.user_id,
-                    conversation_id=conversation_id,
-                    source_id=summary.id,
-                    memory_type="summary",
-                    content=summary.content,
-                    created_at=now,
-                    updated_at=summary.updated_at,
-                )
+        if summary is not None:
+            item = self.repository.upsert_conversation_summary_memory(
+                self.tenant_id, self.user_id, conversation_id, None, summary.content
             )
+            self.memory_store.upsert(item)
         memories = ()
-        if conversation.memory_enabled:
-            candidates = self.memory_store.search(
-                query,
-                self.tenant_id,
-                self.user_id,
-                limit=self.long_term_candidate_k,
-                threshold=self.long_term_score_threshold,
-                exclude_conversation_id=conversation_id,
-            )
-            selected: list[MemoryItem] = []
-            used_words = 0
-            # Conservative deterministic approximation; prompt-level token
-            # accounting still uses the exact formatter before evidence packing.
-            for item in candidates:
-                estimated = max(1, len(item.content.split()) * 4 // 3)
-                if used_words + estimated > self.long_term_token_budget:
-                    continue
-                selected.append(item)
-                used_words += estimated
-            memories = tuple(selected)
+        candidates = self.memory_store.search(
+            query,
+            self.tenant_id,
+            self.user_id,
+            limit=self.long_term_candidate_k,
+            threshold=self.long_term_score_threshold,
+            exclude_conversation_id=conversation_id,
+        )
+        selected: list[MemoryItem] = []
+        used_words = 0
+        # Conservative deterministic approximation; prompt-level token
+        # accounting still uses the exact formatter before evidence packing.
+        for item in candidates:
+            estimated = max(1, len(item.content.split()) * 4 // 3)
+            if used_words + estimated > self.long_term_token_budget:
+                continue
+            selected.append(item)
+            used_words += estimated
+        memories = tuple(selected)
         return replace(context, long_term_memories=memories)
 
     def _sync_conversation_memory(self, conversation_id: str) -> None:
-        conversation = self.get(conversation_id)
-        if not conversation.memory_enabled:
-            return
+        self.get(conversation_id)
         context, summary = self.context_builder.build(
             self.tenant_id, self.user_id, conversation_id
         )
@@ -248,21 +290,11 @@ class ConversationService:
         content = "\n".join(values).strip()
         if not content:
             return
-        now = datetime.now(timezone.utc)
-        source_id = summary.id if summary is not None else context.recent_messages[-1].id
-        self.memory_store.upsert_summary(
-            MemoryItem(
-                id=f"summary:{conversation_id}",
-                tenant_id=self.tenant_id,
-                user_id=self.user_id,
-                conversation_id=conversation_id,
-                source_id=source_id,
-                memory_type="summary",
-                content=content,
-                created_at=now,
-                updated_at=now,
-            )
+        source_message_id = None if summary is not None else context.recent_messages[-1].id
+        item = self.repository.upsert_conversation_summary_memory(
+            self.tenant_id, self.user_id, conversation_id, source_message_id, content
         )
+        self.memory_store.upsert(item)
 
     def complete_turn(self, conversation_id: str, client_turn_id: str, answer: str, source_event: dict[str, Any], used_source_ids: Sequence[str]) -> Message:
         metadata = (

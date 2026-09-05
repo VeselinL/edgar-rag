@@ -96,7 +96,9 @@ class ConversationServiceTests(unittest.TestCase):
         self.assertIsNotNone(stored_summary)
         self.assertTrue(context.summary)
         self.assertLess(len(context.recent_messages), 12)
-        self.assertIn(f"summary:{conversation.id}", self.memory.items)
+        summaries = [item for item in self.memory.items.values() if item.memory_type == "conversation_summary"]
+        self.assertEqual(len(summaries), 1)
+        self.assertEqual(summaries[0].conversation_id, conversation.id)
 
     def test_owner_isolation_and_complete_deletion_include_memory(self):
         conversation = self.service.create(memory_enabled=True)
@@ -107,7 +109,7 @@ class ConversationServiceTests(unittest.TestCase):
                 user_id="user-a",
                 conversation_id=conversation.id,
                 source_id="summary-1",
-                memory_type="summary",
+                memory_type="conversation_summary",
                 content="Tesla preference",
             )
         )
@@ -123,9 +125,9 @@ class ConversationServiceTests(unittest.TestCase):
         with self.assertRaises(ConversationNotFoundError):
             self.service.get(conversation.id)
 
-    def test_new_conversation_has_long_term_memory_disabled_by_default(self):
+    def test_new_conversation_has_long_term_memory_enabled_by_default(self):
         created = self.service.create()
-        self.assertFalse(created.memory_enabled)
+        self.assertTrue(created.memory_enabled)
         self.assertFalse(created.pinned)
         self.assertIsNone(created.pinned_at)
 
@@ -143,20 +145,39 @@ class ConversationServiceTests(unittest.TestCase):
         self.assertFalse(self.service.update(second.id, pinned=False).pinned)
         self.assertEqual(self.service.list()[0].id, first.id)
 
-    def test_disabling_memory_removes_existing_derived_summary(self):
-        conversation = self.service.create(memory_enabled=True)
-        self._complete(
-            conversation.id,
-            str(uuid4()),
-            "Remember my Tesla comparison constraint.",
-            "Constraint acknowledged.",
+    def test_normal_chat_memory_cannot_be_disabled(self):
+        conversation = self.service.create()
+        with self.assertRaisesRegex(ValueError, "always enabled"):
+            self.service.update(conversation.id, memory_enabled=False)
+
+    def test_editable_memory_and_preferences_are_owner_scoped(self):
+        explicit = self.service.create_memory("Prefer concise filing comparisons.")
+        self.assertEqual(explicit.memory_type, "explicit")
+        self.assertEqual(
+            [item.content for item in self.service.list_memory()],
+            ["Prefer concise filing comparisons."],
         )
-        self.assertIn(f"summary:{conversation.id}", self.memory.items)
 
-        updated = self.service.update(conversation.id, memory_enabled=False)
+        updated = self.service.update_memory(explicit.id, "Prefer concise answers.")
+        self.assertEqual(updated.content, "Prefer concise answers.")
+        self.service.update_preferences(
+            nickname="Veselin", language="sr", warmth="warm", enthusiasm="low",
+            emoji_use="light", custom_instructions="Use compact tables when useful.",
+            model="AZURE_GPT_4o_2024_1120", theme="dark",
+        )
+        preferences = self.service.preferences()
+        self.assertEqual(preferences.nickname, "Veselin")
+        self.assertEqual(preferences.language, "sr")
 
-        self.assertFalse(updated.memory_enabled)
-        self.assertNotIn(f"summary:{conversation.id}", self.memory.items)
+        other = ConversationService(
+            self.repository, tenant_id="tenant-a", user_id="user-b", memory_store=self.memory
+        )
+        self.assertEqual(other.list_memory(), [])
+        with self.assertRaises(ConversationNotFoundError):
+            other.update_memory(explicit.id, "Not allowed")
+
+        self.service.delete_memory(explicit.id)
+        self.assertEqual(self.service.list_memory(), [])
 
     def test_single_user_mode_fails_closed_without_boundary_acknowledgement(self):
         with self.assertRaisesRegex(ValueError, "ACKNOWLEDGED"):
@@ -248,7 +269,7 @@ class ConversationServiceTests(unittest.TestCase):
             user_id="user-a",
             conversation_id=conversation_id,
             source_id="summary",
-            memory_type="summary",
+            memory_type="conversation_summary",
             content=content,
         )
 
@@ -273,7 +294,7 @@ class QdrantMemoryTests(unittest.TestCase):
             user_id=user,
             conversation_id=conversation,
             source_id=f"source-{item_id}",
-            memory_type="summary",
+            memory_type="conversation_summary",
             content=content,
         )
 

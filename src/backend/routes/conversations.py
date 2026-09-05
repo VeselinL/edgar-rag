@@ -16,13 +16,11 @@ from src.conversations.repository import ConversationNotFoundError
 
 class CreateConversationRequest(BaseModel):
     title: str = "New conversation"
-    memory_enabled: bool = False
     company_scope: list[str] = []
 
 
 class UpdateConversationRequest(BaseModel):
     title: str | None = None
-    memory_enabled: bool | None = None
     pinned: bool | None = None
     company_scope: list[str] | None = None
 
@@ -30,6 +28,21 @@ class UpdateConversationRequest(BaseModel):
 class FeedbackRequest(BaseModel):
     value: Literal["helpful", "not_helpful"]
     comment: str | None = None
+
+
+class MemoryRequest(BaseModel):
+    content: str
+
+
+class PreferencesRequest(BaseModel):
+    nickname: str | None = None
+    warmth: Literal["cold", "balanced", "warm"] | None = None
+    enthusiasm: Literal["low", "balanced", "high"] | None = None
+    emoji_use: Literal["off", "light"] | None = None
+    custom_instructions: str | None = None
+    language: Literal["en", "sr"] | None = None
+    model: str | None = None
+    theme: Literal["light", "dark", "system"] | None = None
 
 
 def conversation_payload(value: Any) -> dict[str, Any]:
@@ -67,6 +80,32 @@ def message_payload(value: Any) -> dict[str, Any]:
     return payload
 
 
+def memory_payload(value: Any) -> dict[str, Any]:
+    return {
+        "id": value.id,
+        "content": value.content,
+        "type": value.memory_type,
+        "source_conversation_id": value.conversation_id,
+        "source_message_id": value.source_message_id,
+        "version": value.version,
+        "created_at": value.created_at.isoformat(),
+        "updated_at": value.updated_at.isoformat(),
+    }
+
+
+def preferences_payload(value: Any) -> dict[str, Any]:
+    return {
+        "nickname": value.nickname,
+        "warmth": value.warmth,
+        "enthusiasm": value.enthusiasm,
+        "emoji_use": value.emoji_use,
+        "custom_instructions": value.custom_instructions,
+        "language": value.language,
+        "model": value.model,
+        "theme": value.theme,
+    }
+
+
 def create_router(services: RequestServices) -> APIRouter:
     router = APIRouter()
 
@@ -75,7 +114,7 @@ def create_router(services: RequestServices) -> APIRouter:
         service = await services.conversation_service_for(request, require_csrf=True)
         try:
             value = await asyncio.to_thread(
-                service.create, title=body.title, memory_enabled=body.memory_enabled,
+                service.create, title=body.title,
                 company_scope=body.company_scope,
             )
         except ValueError as error:
@@ -146,14 +185,13 @@ def create_router(services: RequestServices) -> APIRouter:
     async def update_conversation(
         conversation_id: UUID, body: UpdateConversationRequest, request: Request
     ) -> dict[str, Any]:
-        if body.title is None and body.memory_enabled is None and body.pinned is None and body.company_scope is None:
+        if body.title is None and body.pinned is None and body.company_scope is None:
             raise HTTPException(status_code=422, detail="No conversation change was supplied.")
         try:
             value = await asyncio.to_thread(
                 (await services.conversation_service_for(request, require_csrf=True)).update,
                 str(conversation_id),
                 title=body.title,
-                memory_enabled=body.memory_enabled,
                 pinned=body.pinned,
                 company_scope=body.company_scope,
             )
@@ -162,6 +200,61 @@ def create_router(services: RequestServices) -> APIRouter:
         except ValueError as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
         return conversation_payload(value)
+
+    @router.get("/api/memory")
+    async def list_memory(request: Request) -> dict[str, Any]:
+        service = await services.conversation_service_for(request)
+        values = await asyncio.to_thread(service.list_memory)
+        return {"memory": [memory_payload(value) for value in values]}
+
+    @router.post("/api/memory", status_code=201)
+    async def create_memory(body: MemoryRequest, request: Request) -> dict[str, Any]:
+        service = await services.conversation_service_for(request, require_csrf=True)
+        try:
+            value = await asyncio.to_thread(service.create_memory, body.content)
+        except ValueError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        return memory_payload(value)
+
+    @router.patch("/api/memory/{memory_id}")
+    async def update_memory(memory_id: UUID, body: MemoryRequest, request: Request) -> dict[str, Any]:
+        service = await services.conversation_service_for(request, require_csrf=True)
+        try:
+            value = await asyncio.to_thread(service.update_memory, str(memory_id), body.content)
+        except ConversationNotFoundError as error:
+            raise HTTPException(status_code=404, detail="Memory item was not found.") from error
+        except ValueError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        return memory_payload(value)
+
+    @router.delete("/api/memory/{memory_id}", status_code=204)
+    async def delete_memory(memory_id: UUID, request: Request) -> Response:
+        service = await services.conversation_service_for(request, require_csrf=True)
+        try:
+            await asyncio.to_thread(service.delete_memory, str(memory_id))
+        except ConversationNotFoundError as error:
+            raise HTTPException(status_code=404, detail="Memory item was not found.") from error
+        return Response(status_code=204)
+
+    @router.get("/api/preferences")
+    async def get_preferences(request: Request) -> dict[str, Any]:
+        service = await services.conversation_service_for(request)
+        return preferences_payload(await asyncio.to_thread(service.preferences))
+
+    @router.patch("/api/preferences")
+    async def update_preferences(body: PreferencesRequest, request: Request) -> dict[str, Any]:
+        values = body.model_dump(exclude_none=True)
+        if not values:
+            raise HTTPException(status_code=422, detail="No preference change was supplied.")
+        from src.backend.pipeline import AVAILABLE_MODELS
+        if "model" in values and values["model"] not in AVAILABLE_MODELS:
+            raise HTTPException(status_code=422, detail="That model is not available.")
+        service = await services.conversation_service_for(request, require_csrf=True)
+        try:
+            value = await asyncio.to_thread(service.update_preferences, **values)
+        except ValueError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        return preferences_payload(value)
 
     @router.delete("/api/conversations/{conversation_id}", status_code=204)
     async def delete_conversation(conversation_id: UUID, request: Request) -> Response:

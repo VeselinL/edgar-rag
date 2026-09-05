@@ -11,7 +11,7 @@ from threading import RLock
 from typing import Any, Protocol
 from uuid import uuid4
 
-from .models import Conversation, Message, StoredTurn, Summary, utc_now
+from .models import Conversation, MemoryItem, Message, StoredTurn, Summary, UserPreferences, utc_now
 
 
 class ConversationNotFoundError(LookupError):
@@ -39,6 +39,13 @@ class ConversationRepository(Protocol):
     def list_expired_conversations(self, cutoff: datetime, limit: int) -> list[Conversation]: ...
     def delete_expired_conversation(self, tenant_id: str, user_id: str, conversation_id: str, cutoff: datetime) -> bool: ...
     def submit_feedback(self, tenant_id: str, user_id: str, conversation_id: str, assistant_message_id: str, value: str, comment: str | None, answer_version: dict[str, Any]) -> None: ...
+    def list_memory_items(self, tenant_id: str, user_id: str) -> list[MemoryItem]: ...
+    def create_memory_item(self, tenant_id: str, user_id: str, content: str, memory_type: str, source_conversation_id: str | None = None, source_message_id: str | None = None) -> MemoryItem: ...
+    def update_memory_item(self, tenant_id: str, user_id: str, memory_id: str, content: str) -> MemoryItem: ...
+    def delete_memory_item(self, tenant_id: str, user_id: str, memory_id: str) -> MemoryItem: ...
+    def upsert_conversation_summary_memory(self, tenant_id: str, user_id: str, conversation_id: str, source_message_id: str | None, content: str) -> MemoryItem: ...
+    def get_preferences(self, tenant_id: str, user_id: str) -> UserPreferences: ...
+    def upsert_preferences(self, tenant_id: str, user_id: str, **values: str) -> UserPreferences: ...
 
 
 class InMemoryConversationRepository:
@@ -49,6 +56,8 @@ class InMemoryConversationRepository:
         self._conversations: dict[str, Conversation] = {}
         self._messages: dict[str, list[Message]] = {}
         self._summaries: dict[str, Summary] = {}
+        self._memory_items: dict[str, MemoryItem] = {}
+        self._preferences: dict[tuple[str, str], UserPreferences] = {}
         self.deletion_audit: list[dict[str, Any]] = []
         self.feedback: dict[str, dict[str, Any]] = {}
 
@@ -116,6 +125,10 @@ class InMemoryConversationRepository:
             del self._conversations[conversation_id]
             self._messages.pop(conversation_id, None)
             self._summaries.pop(conversation_id, None)
+            self._memory_items = {
+                key: item for key, item in self._memory_items.items()
+                if item.conversation_id != conversation_id
+            }
             self.deletion_audit.append({
                 "tenant_id": tenant_id,
                 "user_id": user_id,
@@ -131,6 +144,10 @@ class InMemoryConversationRepository:
                 del self._conversations[conversation_id]
                 self._messages.pop(conversation_id, None)
                 self._summaries.pop(conversation_id, None)
+                self._memory_items = {
+                    key: item for key, item in self._memory_items.items()
+                    if item.conversation_id != conversation_id
+                }
             if ids:
                 self.deletion_audit.append({
                     "tenant_id": tenant_id,
@@ -177,6 +194,10 @@ class InMemoryConversationRepository:
             del self._conversations[conversation_id]
             self._messages.pop(conversation_id, None)
             self._summaries.pop(conversation_id, None)
+            self._memory_items = {
+                key: item for key, item in self._memory_items.items()
+                if item.conversation_id != conversation_id
+            }
             self.deletion_audit.append({
                 "tenant_id": tenant_id,
                 "user_id": user_id,
@@ -291,6 +312,85 @@ class InMemoryConversationRepository:
                 ),
             }
 
+    def list_memory_items(self, tenant_id: str, user_id: str) -> list[MemoryItem]:
+        with self._lock:
+            return sorted(
+                [item for item in self._memory_items.values()
+                 if item.tenant_id == tenant_id and item.user_id == user_id and item.deleted_at is None],
+                key=lambda item: (item.updated_at, item.id), reverse=True,
+            )
+
+    def create_memory_item(
+        self, tenant_id: str, user_id: str, content: str, memory_type: str,
+        source_conversation_id: str | None = None, source_message_id: str | None = None,
+    ) -> MemoryItem:
+        if memory_type not in {"explicit", "conversation_summary"}:
+            raise ValueError("Invalid memory type.")
+        now = utc_now()
+        item = MemoryItem(
+            id=str(uuid4()), tenant_id=tenant_id, user_id=user_id,
+            conversation_id=source_conversation_id, source_id=source_message_id,
+            source_message_id=source_message_id, memory_type=memory_type, content=content,
+            created_at=now, updated_at=now,
+        )
+        with self._lock:
+            self._memory_items[item.id] = item
+        return item
+
+    def _owned_memory(self, tenant_id: str, user_id: str, memory_id: str) -> MemoryItem:
+        item = self._memory_items.get(memory_id)
+        if item is None or item.tenant_id != tenant_id or item.user_id != user_id or item.deleted_at is not None:
+            raise ConversationNotFoundError("Memory item was not found.")
+        return item
+
+    def update_memory_item(self, tenant_id: str, user_id: str, memory_id: str, content: str) -> MemoryItem:
+        with self._lock:
+            current = self._owned_memory(tenant_id, user_id, memory_id)
+            item = MemoryItem(**{**current.__dict__, "content": content, "version": current.version + 1, "updated_at": utc_now()})
+            self._memory_items[memory_id] = item
+            return item
+
+    def delete_memory_item(self, tenant_id: str, user_id: str, memory_id: str) -> MemoryItem:
+        with self._lock:
+            current = self._owned_memory(tenant_id, user_id, memory_id)
+            item = MemoryItem(**{**current.__dict__, "deleted_at": utc_now(), "updated_at": utc_now()})
+            self._memory_items[memory_id] = item
+            return item
+
+    def upsert_conversation_summary_memory(
+        self, tenant_id: str, user_id: str, conversation_id: str,
+        source_message_id: str | None, content: str,
+    ) -> MemoryItem:
+        with self._lock:
+            existing = next((item for item in self._memory_items.values() if (
+                item.tenant_id == tenant_id and item.user_id == user_id
+                and item.conversation_id == conversation_id
+                and item.memory_type == "conversation_summary" and item.deleted_at is None
+            )), None)
+            if existing is None:
+                return self.create_memory_item(
+                    tenant_id, user_id, content, "conversation_summary",
+                    conversation_id, source_message_id,
+                )
+            item = MemoryItem(**{
+                **existing.__dict__, "content": content,
+                "source_id": source_message_id, "source_message_id": source_message_id,
+                "version": existing.version + 1, "updated_at": utc_now(),
+            })
+            self._memory_items[item.id] = item
+            return item
+
+    def get_preferences(self, tenant_id: str, user_id: str) -> UserPreferences:
+        with self._lock:
+            return self._preferences.get((tenant_id, user_id), UserPreferences(tenant_id, user_id))
+
+    def upsert_preferences(self, tenant_id: str, user_id: str, **values: str) -> UserPreferences:
+        with self._lock:
+            current = self.get_preferences(tenant_id, user_id)
+            item = UserPreferences(**{**current.__dict__, **values, "updated_at": utc_now()})
+            self._preferences[(tenant_id, user_id)] = item
+            return item
+
 
 class PostgresConversationRepository:
     """PostgreSQL source of truth with owner filtering on every operation."""
@@ -348,6 +448,26 @@ class PostgresConversationRepository:
     @staticmethod
     def _message(row: dict[str, Any]) -> Message:
         return Message(str(row["message_id"]), str(row["conversation_id"]), str(row["client_turn_id"]), row["role"], row["content"], row["status"], row["ordinal"], row["created_at"], str(row["request_id"]) if row["request_id"] else None, row["metadata"] or {})
+
+    @staticmethod
+    def _memory_item(row: dict[str, Any]) -> MemoryItem:
+        return MemoryItem(
+            id=str(row["memory_id"]), tenant_id=row["tenant_id"], user_id=row["user_id"],
+            conversation_id=str(row["source_conversation_id"]) if row["source_conversation_id"] else None,
+            source_id=str(row["source_message_id"]) if row["source_message_id"] else None,
+            source_message_id=str(row["source_message_id"]) if row["source_message_id"] else None,
+            memory_type=row["memory_type"], content=row["content"], version=row["version"],
+            created_at=row["created_at"], updated_at=row["updated_at"], deleted_at=row["deleted_at"],
+        )
+
+    @staticmethod
+    def _preferences(row: dict[str, Any]) -> UserPreferences:
+        return UserPreferences(
+            tenant_id=row["tenant_id"], user_id=row["user_id"], nickname=row["nickname"],
+            warmth=row["warmth"], enthusiasm=row["enthusiasm"], emoji_use=row["emoji_use"],
+            custom_instructions=row["custom_instructions"], language=row["language"],
+            model=row["model"], theme=row["theme"], created_at=row["created_at"], updated_at=row["updated_at"],
+        )
 
     def create_conversation(self, tenant_id: str, user_id: str, title: str, memory_enabled: bool, company_scope: Sequence[str] = ()) -> Conversation:
         self.ensure_identity(tenant_id, user_id)
@@ -584,6 +704,104 @@ class PostgresConversationRepository:
                     json.dumps(metadata),
                 ),
             )
+
+    def list_memory_items(self, tenant_id: str, user_id: str) -> list[MemoryItem]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                """SELECT * FROM ava_memory_items WHERE tenant_id=%s AND user_id=%s
+                   AND deleted_at IS NULL ORDER BY updated_at DESC, memory_id DESC""",
+                (tenant_id, user_id),
+            ).fetchall()
+        return [self._memory_item(row) for row in rows]
+
+    def create_memory_item(
+        self, tenant_id: str, user_id: str, content: str, memory_type: str,
+        source_conversation_id: str | None = None, source_message_id: str | None = None,
+    ) -> MemoryItem:
+        if memory_type not in {"explicit", "conversation_summary"}:
+            raise ValueError("Invalid memory type.")
+        self.ensure_identity(tenant_id, user_id)
+        with self._connect() as connection:
+            row = connection.execute(
+                """INSERT INTO ava_memory_items
+                   (memory_id, tenant_id, user_id, content, memory_type, source_conversation_id, source_message_id)
+                   VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING *""",
+                (str(uuid4()), tenant_id, user_id, content, memory_type, source_conversation_id, source_message_id),
+            ).fetchone()
+        return self._memory_item(row)
+
+    def update_memory_item(self, tenant_id: str, user_id: str, memory_id: str, content: str) -> MemoryItem:
+        with self._connect() as connection:
+            row = connection.execute(
+                """UPDATE ava_memory_items SET content=%s, version=version+1, updated_at=NOW()
+                   WHERE memory_id=%s AND tenant_id=%s AND user_id=%s AND deleted_at IS NULL RETURNING *""",
+                (content, memory_id, tenant_id, user_id),
+            ).fetchone()
+        if row is None:
+            raise ConversationNotFoundError("Memory item was not found.")
+        return self._memory_item(row)
+
+    def delete_memory_item(self, tenant_id: str, user_id: str, memory_id: str) -> MemoryItem:
+        with self._connect() as connection:
+            row = connection.execute(
+                """UPDATE ava_memory_items SET deleted_at=NOW(), updated_at=NOW()
+                   WHERE memory_id=%s AND tenant_id=%s AND user_id=%s AND deleted_at IS NULL RETURNING *""",
+                (memory_id, tenant_id, user_id),
+            ).fetchone()
+        if row is None:
+            raise ConversationNotFoundError("Memory item was not found.")
+        return self._memory_item(row)
+
+    def upsert_conversation_summary_memory(
+        self, tenant_id: str, user_id: str, conversation_id: str,
+        source_message_id: str | None, content: str,
+    ) -> MemoryItem:
+        self.get_conversation(tenant_id, user_id, conversation_id)
+        with self._connect() as connection:
+            row = connection.execute(
+                """UPDATE ava_memory_items SET content=%s, source_message_id=%s,
+                     version=version+1, updated_at=NOW()
+                   WHERE tenant_id=%s AND user_id=%s AND source_conversation_id=%s
+                     AND memory_type='conversation_summary' AND deleted_at IS NULL
+                   RETURNING *""",
+                (content, source_message_id, tenant_id, user_id, conversation_id),
+            ).fetchone()
+        if row is not None:
+            return self._memory_item(row)
+        return self.create_memory_item(
+            tenant_id, user_id, content, "conversation_summary", conversation_id, source_message_id
+        )
+
+    def get_preferences(self, tenant_id: str, user_id: str) -> UserPreferences:
+        self.ensure_identity(tenant_id, user_id)
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT * FROM ava_user_preferences WHERE tenant_id=%s AND user_id=%s",
+                (tenant_id, user_id),
+            ).fetchone()
+            if row is None:
+                row = connection.execute(
+                    """INSERT INTO ava_user_preferences (tenant_id, user_id)
+                       VALUES (%s,%s) RETURNING *""", (tenant_id, user_id)
+                ).fetchone()
+        return self._preferences(row)
+
+    def upsert_preferences(self, tenant_id: str, user_id: str, **values: str) -> UserPreferences:
+        current = self.get_preferences(tenant_id, user_id)
+        allowed = {"nickname", "warmth", "enthusiasm", "emoji_use", "custom_instructions", "language", "model", "theme"}
+        if not set(values) <= allowed:
+            raise ValueError("Invalid preference field.")
+        next_values = {**current.__dict__, **values}
+        with self._connect() as connection:
+            row = connection.execute(
+                """UPDATE ava_user_preferences SET nickname=%s, warmth=%s, enthusiasm=%s,
+                     emoji_use=%s, custom_instructions=%s, language=%s, model=%s, theme=%s, updated_at=NOW()
+                   WHERE tenant_id=%s AND user_id=%s RETURNING *""",
+                (next_values["nickname"], next_values["warmth"], next_values["enthusiasm"],
+                 next_values["emoji_use"], next_values["custom_instructions"], next_values["language"],
+                 next_values["model"], next_values["theme"], tenant_id, user_id),
+            ).fetchone()
+        return self._preferences(row)
 
     def list_expired_conversations(
         self, cutoff: datetime, limit: int

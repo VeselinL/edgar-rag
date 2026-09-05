@@ -63,10 +63,29 @@ class MemoryItem:
     id: str
     tenant_id: str
     user_id: str
-    conversation_id: str
-    source_id: str
-    memory_type: Literal["summary", "preference", "project_context"]
+    conversation_id: str | None
+    source_id: str | None
+    memory_type: Literal["conversation_summary", "explicit"]
     content: str
     score: float = 0.0
+    source_message_id: str | None = None
+    version: int = 1
+    deleted_at: datetime | None = None
+    created_at: datetime = field(default_factory=utc_now)
+    updated_at: datetime = field(default_factory=utc_now)
+
+
+@dataclass(frozen=True)
+class UserPreferences:
+    tenant_id: str
+    user_id: str
+    nickname: str = ""
+    warmth: Literal["cold", "balanced", "warm"] = "balanced"
+    enthusiasm: Literal["low", "balanced", "high"] = "balanced"
+    emoji_use: Literal["off", "light"] = "off"
+    custom_instructions: str = ""
+    language: Literal["en", "sr"] = "en"
+    model: str = "AZURE_GPT_4o_2024_1120"
+    theme: Literal["light", "dark", "system"] = "system"
     created_at: datetime = field(default_factory=utc_now)
     updated_at: datetime = field(default_factory=utc_now)

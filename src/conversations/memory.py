@@ -21,10 +21,12 @@ MEMORY_NAMESPACE = UUID("45f56b4d-f276-46d8-bcae-f580acafca6a")
 
 
 class MemoryStore(Protocol):
+    def upsert(self, item: MemoryItem) -> None: ...
     def upsert_summary(self, item: MemoryItem) -> None: ...
     def search(self, query: str, tenant_id: str, user_id: str, *, limit: int, threshold: float, exclude_conversation_id: str | None = None) -> list[MemoryItem]: ...
     def delete_conversation(self, tenant_id: str, user_id: str, conversation_id: str) -> None: ...
     def delete_all(self, tenant_id: str, user_id: str) -> None: ...
+    def delete_item(self, tenant_id: str, user_id: str, memory_id: str) -> None: ...
 
 
 class NullMemoryStore:
@@ -34,6 +36,9 @@ class NullMemoryStore:
     def upsert_summary(self, item: MemoryItem) -> None:
         return None
 
+    def upsert(self, item: MemoryItem) -> None:
+        return None
+
     def search(self, query: str, tenant_id: str, user_id: str, *, limit: int, threshold: float, exclude_conversation_id: str | None = None) -> list[MemoryItem]:
         return []
 
@@ -41,6 +46,9 @@ class NullMemoryStore:
         return None
 
     def delete_all(self, tenant_id: str, user_id: str) -> None:
+        return None
+
+    def delete_item(self, tenant_id: str, user_id: str, memory_id: str) -> None:
         return None
 
 
@@ -55,6 +63,9 @@ class InMemoryMemoryStore:
         return True
 
     def upsert_summary(self, item: MemoryItem) -> None:
+        self.upsert(item)
+
+    def upsert(self, item: MemoryItem) -> None:
         with self._lock:
             self.items[item.id] = item
 
@@ -86,6 +97,12 @@ class InMemoryMemoryStore:
                 key: item for key, item in self.items.items()
                 if not (item.tenant_id == tenant_id and item.user_id == user_id)
             }
+
+    def delete_item(self, tenant_id: str, user_id: str, memory_id: str) -> None:
+        with self._lock:
+            item = self.items.get(memory_id)
+            if item is not None and item.tenant_id == tenant_id and item.user_id == user_id:
+                del self.items[memory_id]
 
 
 class QdrantMemoryStore:
@@ -154,6 +171,9 @@ class QdrantMemoryStore:
         return str(uuid5(MEMORY_NAMESPACE, memory_id))
 
     def upsert_summary(self, item: MemoryItem) -> None:
+        self.upsert(item)
+
+    def upsert(self, item: MemoryItem) -> None:
         self.client.upsert(
             collection_name=self.collection_name,
             points=[
@@ -166,10 +186,12 @@ class QdrantMemoryStore:
                         "user_id": item.user_id,
                         "conversation_id": item.conversation_id,
                         "source_id": item.source_id,
+                        "source_message_id": item.source_message_id,
                         "memory_type": item.memory_type,
                         "content": item.content,
                         "created_at": item.created_at.isoformat(),
                         "updated_at": item.updated_at.isoformat(),
+                        "version": item.version,
                         "model": "BAAI/bge-base-en-v1.5",
                         "schema_version": 1,
                     },
@@ -214,6 +236,8 @@ class QdrantMemoryStore:
                     memory_type=payload["memory_type"],
                     content=payload["content"],
                     score=float(point.score),
+                    source_message_id=payload.get("source_message_id"),
+                    version=int(payload.get("version", 1)),
                     created_at=datetime.fromisoformat(payload["created_at"]),
                     updated_at=datetime.fromisoformat(payload["updated_at"]),
                 )
@@ -238,3 +262,14 @@ class QdrantMemoryStore:
 
     def delete_all(self, tenant_id: str, user_id: str) -> None:
         self._delete_filter(tenant_id, user_id)
+
+    def delete_item(self, tenant_id: str, user_id: str, memory_id: str) -> None:
+        self.client.delete(
+            collection_name=self.collection_name,
+            points_selector=models.FilterSelector(filter=models.Filter(must=[
+                models.FieldCondition(key="tenant_id", match=models.MatchValue(value=tenant_id)),
+                models.FieldCondition(key="user_id", match=models.MatchValue(value=user_id)),
+                models.FieldCondition(key="memory_id", match=models.MatchValue(value=memory_id)),
+            ])),
+            wait=True,
+        )

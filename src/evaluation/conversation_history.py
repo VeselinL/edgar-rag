@@ -346,7 +346,7 @@ def evaluate_state_cases(cases: Sequence[dict[str, Any]]) -> dict[str, Any]:
                 user_id="user-a",
                 conversation_id=seeded.id,
                 source_id="seed-source",
-                memory_type="summary",
+                memory_type="conversation_summary",
                 content=seed_content,
             )
         )
@@ -360,12 +360,15 @@ def evaluate_state_cases(cases: Sequence[dict[str, Any]]) -> dict[str, Any]:
             )
         else:
             query_service = owner
-        query_conversation = query_service.create(memory_enabled=False)
+        query_conversation = query_service.create()
         context = query_service.prepare_context(
             query_conversation.id, str(uuid4()), seed_content
         ).prompt_text()
         observed = seed_content in context
-        expected = case["expected_seed_content_in_context"]
+        # Phase 6 makes normal-chat long-term memory available across an
+        # owner's chats. Tenant isolation remains strict; same-owner memory is
+        # an intended reference-resolution aid, never factual evidence.
+        expected = category == "conversation_isolation"
         records.append(
             {
                 "case_id": case["id"],
