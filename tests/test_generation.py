@@ -21,6 +21,7 @@ from src.generation.rag import (
     visible_answer_text,
     upload_generation_messages,
 )
+from src.orchestration.routing import ROUTER_INSTRUCTION
 
 
 class FakeStream:
@@ -469,6 +470,9 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(completions.arguments["max_tokens"], 256)
         self.assertEqual(completions.arguments["temperature"], 0.0)
         self.assertIn("aurora driver", completions.arguments["messages"][2]["content"])
+
+    def test_router_classifies_supported_arithmetic_in_any_user_language(self):
+        self.assertIn("any user language", ROUTER_INSTRUCTION)
 
     def test_freshness_routing_distinguishes_filing_terms_from_live_facts(self):
         service = GenerationService(
