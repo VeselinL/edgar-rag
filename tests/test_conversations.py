@@ -100,7 +100,7 @@ class ConversationServiceTests(unittest.TestCase):
         self.assertEqual(len(summaries), 1)
         self.assertEqual(summaries[0].conversation_id, conversation.id)
 
-    def test_completed_turn_bounds_derived_memory_to_database_limit(self):
+    def test_completed_turn_does_not_store_a_raw_transcript_as_long_term_memory(self):
         self.service.context_builder = ConversationContextBuilder(
             self.repository, recent_token_budget=2_000, summary_token_budget=80
         )
@@ -112,6 +112,27 @@ class ConversationServiceTests(unittest.TestCase):
             "What are Tesla's plans?",
             "Tesla disclosure. " * 200,
         )
+
+        summaries = [
+            item for item in self.memory.items.values()
+            if item.memory_type == "conversation_summary"
+        ]
+        self.assertEqual(summaries, [])
+
+    def test_extractively_summarized_memory_is_bounded_to_database_limit(self):
+        self.service.context_builder = ConversationContextBuilder(
+            self.repository, recent_token_budget=80, summary_token_budget=2_000
+        )
+        conversation = self.service.create()
+        for index in range(12):
+            self._complete(
+                conversation.id,
+                str(uuid4()),
+                f"Tesla plan question {index}",
+                "Tesla disclosure. " * 30,
+            )
+
+        self.service.prepare_context(conversation.id, str(uuid4()), "Tesla follow-up")
 
         summaries = [
             item for item in self.memory.items.values()

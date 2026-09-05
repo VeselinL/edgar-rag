@@ -279,7 +279,11 @@ class ConversationService:
         )
         if summary is not None:
             item = self.repository.upsert_conversation_summary_memory(
-                self.tenant_id, self.user_id, conversation_id, None, summary.content
+                self.tenant_id,
+                self.user_id,
+                conversation_id,
+                None,
+                self._bound_derived_memory_content(summary.content),
             )
             self.memory_store.upsert(item)
         memories = ()
@@ -312,22 +316,17 @@ class ConversationService:
 
     def _sync_conversation_memory(self, conversation_id: str) -> None:
         self.get(conversation_id)
-        context, summary = self.context_builder.build(
+        _, summary = self.context_builder.build(
             self.tenant_id, self.user_id, conversation_id
         )
-        values = []
-        if context.summary:
-            values.append(context.summary)
-        values.extend(
-            f"{message.role.title()}: {message.content}"
-            for message in context.recent_messages
-        )
-        content = self._bound_derived_memory_content("\n".join(values))
-        if not content:
+        if summary is None:
             return
-        source_message_id = None if summary is not None else context.recent_messages[-1].id
         item = self.repository.upsert_conversation_summary_memory(
-            self.tenant_id, self.user_id, conversation_id, source_message_id, content
+            self.tenant_id,
+            self.user_id,
+            conversation_id,
+            None,
+            self._bound_derived_memory_content(summary.content),
         )
         self.memory_store.upsert(item)
 
