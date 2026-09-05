@@ -145,7 +145,7 @@ done
 [[ "$frontend_ready" == "true" ]] || fail "The frontend did not become ready."
 
 log "AVA is ready at http://localhost:5173"
-log "Short-term history is active. Long-term memory is available per conversation."
+log "Short-term history and owner-scoped long-term memory are active for normal chats."
 log "Press Ctrl+C to stop the complete stack."
 
 wait -n "$API_PID" "$FRONTEND_PID"
