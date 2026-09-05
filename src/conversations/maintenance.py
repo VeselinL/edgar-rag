@@ -118,7 +118,10 @@ class MemoryReconciliationJob:
         self.memory_store = memory_store
 
     def run(self, *, tenant_id: str, user_id: str) -> MemoryReconciliationResult:
-        items = self.repository.list_memory_items(tenant_id, user_id)
+        items = [
+            item for item in self.repository.list_memory_items(tenant_id, user_id)
+            if item.memory_type == "explicit"
+        ]
         self.memory_store.delete_all(tenant_id, user_id)
         for item in items:
             self.memory_store.upsert(item)

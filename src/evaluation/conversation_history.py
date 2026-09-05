@@ -339,14 +339,14 @@ def evaluate_state_cases(cases: Sequence[dict[str, Any]]) -> dict[str, Any]:
         seeded = owner.create(memory_enabled=True)
         seed_content = "PRIVATE_AURORA_SEED"
         _complete(owner, seeded.id, seed_content)
-        memory.upsert_summary(
+        memory.upsert(
             MemoryItem(
                 id=f"seed:{seeded.id}",
                 tenant_id="tenant-a",
                 user_id="user-a",
                 conversation_id=seeded.id,
                 source_id="seed-source",
-                memory_type="conversation_summary",
+                memory_type="explicit",
                 content=seed_content,
             )
         )

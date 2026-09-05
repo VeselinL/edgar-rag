@@ -161,14 +161,6 @@ class ConversationService:
         return value
 
     @classmethod
-    def _bound_derived_memory_content(cls, content: str) -> str:
-        value = content.strip()
-        if len(value) <= cls._MAX_MEMORY_CONTENT_LENGTH:
-            return value
-        cutoff = value[:cls._MAX_MEMORY_CONTENT_LENGTH - 1].rsplit(" ", 1)[0].rstrip()
-        return f"{cutoff or value[:cls._MAX_MEMORY_CONTENT_LENGTH - 1]}…"
-
-    @classmethod
     def _explicit_memory_content(cls, user_text: str) -> str | None:
         if not cls._EXPLICIT_MEMORY_PREFIX.match(user_text):
             return None
@@ -333,18 +325,9 @@ class ConversationService:
         )
 
     def prepare_context(self, conversation_id: str, client_turn_id: str, query: str) -> ConversationContext:
-        context, summary = self.context_builder.build(
+        context, _ = self.context_builder.build(
             self.tenant_id, self.user_id, conversation_id, excluded_turn_id=client_turn_id
         )
-        if summary is not None:
-            item = self.repository.upsert_conversation_summary_memory(
-                self.tenant_id,
-                self.user_id,
-                conversation_id,
-                None,
-                self._bound_derived_memory_content(summary.content),
-            )
-            self.memory_store.upsert(item)
         candidates = self.memory_store.search(
             query,
             self.tenant_id,
@@ -397,20 +380,6 @@ class ConversationService:
                     user_message.id,
                 )
                 self.memory_store.upsert(item)
-        _, summary = self.context_builder.build(
-            self.tenant_id, self.user_id, conversation_id
-        )
-        if summary is None:
-            return
-        item = self.repository.upsert_conversation_summary_memory(
-            self.tenant_id,
-            self.user_id,
-            conversation_id,
-            None,
-            self._bound_derived_memory_content(summary.content),
-        )
-        self.memory_store.upsert(item)
-
     def complete_turn(self, conversation_id: str, client_turn_id: str, answer: str, source_event: dict[str, Any], used_source_ids: Sequence[str]) -> Message:
         metadata = (
             dict(source_event)

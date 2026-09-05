@@ -97,8 +97,7 @@ class ConversationServiceTests(unittest.TestCase):
         self.assertTrue(context.summary)
         self.assertLess(len(context.recent_messages), 12)
         summaries = [item for item in self.memory.items.values() if item.memory_type == "conversation_summary"]
-        self.assertEqual(len(summaries), 1)
-        self.assertEqual(summaries[0].conversation_id, conversation.id)
+        self.assertEqual(summaries, [])
 
     def test_completed_turn_does_not_store_a_raw_transcript_as_long_term_memory(self):
         self.service.context_builder = ConversationContextBuilder(
@@ -195,8 +194,7 @@ class ConversationServiceTests(unittest.TestCase):
             item for item in self.memory.items.values()
             if item.memory_type == "conversation_summary"
         ]
-        self.assertEqual(len(summaries), 1)
-        self.assertLessEqual(len(summaries[0].content), 1500)
+        self.assertEqual(summaries, [])
 
     def test_owner_isolation_and_complete_deletion_include_memory(self):
         conversation = self.service.create(memory_enabled=True)
@@ -445,8 +443,8 @@ class QdrantMemoryTests(unittest.TestCase):
         )
 
     def test_search_requires_tenant_and_user_filters(self):
-        self.store.upsert_summary(self.item("one", "tenant-a", "user-a", "c1", "Tesla vehicles"))
-        self.store.upsert_summary(self.item("two", "tenant-a", "user-b", "c2", "Tesla private data"))
+        self.store.upsert(self.item("one", "tenant-a", "user-a", "c1", "Tesla vehicles", "explicit"))
+        self.store.upsert(self.item("two", "tenant-a", "user-b", "c2", "Tesla private data", "explicit"))
 
         results = self.store.search(
             "Tesla", "tenant-a", "user-a", limit=5, threshold=0.5
@@ -456,7 +454,7 @@ class QdrantMemoryTests(unittest.TestCase):
 
     def test_delete_conversation_removes_only_owned_points(self):
         self.store.upsert_summary(self.item("one", "tenant-a", "user-a", "c1", "Tesla one"))
-        self.store.upsert_summary(self.item("two", "tenant-a", "user-a", "c2", "Tesla two"))
+        self.store.upsert(self.item("two", "tenant-a", "user-a", "c2", "Tesla two", "explicit"))
         self.store.delete_conversation("tenant-a", "user-a", "c1")
 
         results = self.store.search("Tesla", "tenant-a", "user-a", limit=5, threshold=0.5)
@@ -474,6 +472,20 @@ class QdrantMemoryTests(unittest.TestCase):
         results = self.store.search(
             "Tesla", "tenant-a", "user-a", limit=5, threshold=0.5,
             exclude_conversation_id="c1",
+        )
+
+        self.assertEqual([item.id for item in results], ["explicit"])
+
+    def test_retrieval_excludes_other_conversation_summaries(self):
+        self.store.upsert_summary(self.item(
+            "summary", "tenant-a", "user-a", "c2", "Tesla summary"
+        ))
+        self.store.upsert(self.item(
+            "explicit", "tenant-a", "user-a", "c1", "Tesla preference", "explicit"
+        ))
+
+        results = self.store.search(
+            "Tesla", "tenant-a", "user-a", limit=5, threshold=0.5
         )
 
         self.assertEqual([item.id for item in results], ["explicit"])
