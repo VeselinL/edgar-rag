@@ -170,7 +170,7 @@ def create_router(
                     async for event in active_pipeline.stream(
                         body.query, request.is_disconnected, **stream_arguments
                     ):
-                        if event.event not in {"delta", "sources", "done", "error"}:
+                        if event.event not in {"status", "delta", "sources", "done", "error"}:
                             LOGGER.debug("Dropping non-contract pipeline event", extra={
                                 "event": event.event,
                             })

@@ -212,7 +212,7 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(events[-2][1]["source_status"], "cited")
         self.assertNotIn("citation_fallback", events[-2][1])
 
-    def test_sse_transport_drops_non_contract_events(self):
+    def test_sse_transport_preserves_safe_progress_events(self):
         class StatusPipeline:
             mode = "real"
             ready = True
@@ -238,7 +238,7 @@ class BackendApiTests(unittest.TestCase):
 
         self.assertEqual(
             [event for event, _ in parse_sse(response.text)],
-            ["delta", "sources", "done"],
+            ["status", "delta", "sources", "done"],
         )
 
     def test_pre_token_failure_is_safe(self):
