@@ -18,7 +18,7 @@ class LanguageParityTests(unittest.TestCase):
     def test_pair_scoring_compares_routes_evidence_numbers_and_citations(self):
         pair = load_pairs()[0]
 
-        async def execute(_pipeline, _query, _language, scope):
+        async def execute(_pipeline, _query, language, scope):
             return {
                 "answer": "answer", "route": "filing", "resolved_tickers": list(scope),
                 "final_evidence_ids": ["AUR-2025-CHUNK-000002"],
@@ -32,6 +32,41 @@ class LanguageParityTests(unittest.TestCase):
         self.assertEqual(result["pair_count"], 1)
         self.assertEqual(result["summary"]["company_resolution_match"], 1.0)
         self.assertEqual(result["summary"]["citation_ids_match"], 1.0)
+
+    def test_pair_scoring_ignores_citation_order(self):
+        pair = load_pairs()[0]
+
+        async def execute(_pipeline, _query, language, scope):
+            citations = ["AUR-2025-CHUNK-000002", "AUR-2025-CHUNK-000003"]
+            if language == "sr":
+                citations.reverse()
+            return {
+                "answer": "answer", "route": "filing", "resolved_tickers": list(scope),
+                "final_evidence_ids": ["AUR-2025-CHUNK-000002"],
+                "citation_ids": citations, "numbers": [], "safe_error_class": None,
+            }
+
+        with patch("src.evaluation.language_parity._execute", execute):
+            result = asyncio.run(evaluate_pairs([pair], object()))
+
+        self.assertEqual(result["summary"]["citation_ids_match"], 1.0)
+
+    def test_pair_scoring_requires_only_reviewed_numeric_values(self):
+        pair = next(pair for pair in load_pairs() if pair["case_id"] == "language-09")
+
+        async def execute(_pipeline, _query, language, scope):
+            return {
+                "answer": "answer", "route": "filing", "resolved_tickers": list(scope),
+                "final_evidence_ids": ["APTV-2025-CHUNK-000249"],
+                "citation_ids": ["APTV-2025-CHUNK-000249"],
+                "numbers": ["31", "50"] if language == "en" else ["50"],
+                "safe_error_class": None,
+            }
+
+        with patch("src.evaluation.language_parity._execute", execute):
+            result = asyncio.run(evaluate_pairs([pair], object()))
+
+        self.assertEqual(result["summary"]["numerical_values_match"], 1.0)
 
 
 if __name__ == "__main__":

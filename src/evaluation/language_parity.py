@@ -132,10 +132,13 @@ async def evaluate_pairs(pairs: Sequence[dict[str, Any]], pipeline: RealPipeline
             "route_match": english["route"] == serbian["route"] == gold_case["expected_route"],
             "gold_chunk_recall_match": bool(gold_ids & set(english["final_evidence_ids"])) == bool(gold_ids & set(serbian["final_evidence_ids"])),
             "numerical_values_match": (
-                english["numbers"] == serbian["numbers"]
-                and set(expected_numbers).issubset(english["numbers"])
+                not expected_numbers
+                or (
+                    set(expected_numbers).issubset(english["numbers"])
+                    and set(expected_numbers).issubset(serbian["numbers"])
+                )
             ),
-            "citation_ids_match": english["citation_ids"] == serbian["citation_ids"],
+            "citation_ids_match": set(english["citation_ids"]) == set(serbian["citation_ids"]),
             "wording_review": "pending_human_or_diagnostic_review",
         })
     gates = ("company_resolution_match", "route_match", "gold_chunk_recall_match", "numerical_values_match", "citation_ids_match")
