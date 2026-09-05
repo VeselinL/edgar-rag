@@ -38,6 +38,7 @@ from .prompts import (
     CALCULATION_PLANNER_JSON_FORMAT,
     CONVERSATION_CONTEXT_PROMPT,
     FILING_PROMPT_VERSION,
+    MEMORY_RETRIEVAL_TRANSLATION_PROMPT,
     PLANNER_INSTRUCTION,
     PLANNER_JSON_FORMAT,
     SYSTEM_PROMPT,
@@ -699,6 +700,19 @@ class GenerationService:
             self.circuit_breaker.record_failure()
             raise
         return GenerationStream(response, breaker=self.circuit_breaker)
+
+    def translate_memory_retrieval_query(self, query: str) -> str:
+        """Translate only a non-English memory-search query for the English embedder."""
+        response = self._create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": MEMORY_RETRIEVAL_TRANSLATION_PROMPT},
+                {"role": "user", "content": query},
+            ],
+            temperature=0.0,
+            max_tokens=128,
+        )
+        return (response.choices[0].message.content or "").strip()
 
     def stream_web_answer_with_metadata(
         self,

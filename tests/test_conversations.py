@@ -162,6 +162,23 @@ class ConversationServiceTests(unittest.TestCase):
             context.prompt_text().index("Recent conversation turns"),
         )
 
+    def test_memory_context_can_use_a_translated_retrieval_query(self):
+        self.service.long_term_score_threshold = 0.55
+        self.service.create_memory("My preferred company is Rivian.")
+        conversation = self.service.create()
+
+        context = self.service.prepare_context(
+            conversation.id,
+            str(uuid4()),
+            "Koje aute proizvodi moja preferirana kompanija?",
+            memory_query="preferred company",
+        )
+
+        self.assertEqual(
+            [item.content for item in context.long_term_memories],
+            ["My preferred company is Rivian."],
+        )
+
     def test_instruction_like_memory_is_rejected_and_not_promoted(self):
         conversation = self.service.create()
         self._complete(

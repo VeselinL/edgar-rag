@@ -102,11 +102,27 @@ def create_router(
                     request_id,
                 )
                 if not turn.replay:
+                    preferences = await asyncio.to_thread(service.preferences)
+                    memory_query = body.query
+                    translator = getattr(
+                        getattr(active_pipeline, "generator", None),
+                        "translate_memory_retrieval_query",
+                        None,
+                    )
+                    if preferences.language == "sr" and callable(translator):
+                        try:
+                            request_generator = active_pipeline.generator.for_model(effective_model)
+                            translated = await asyncio.to_thread(
+                                request_generator.translate_memory_retrieval_query,
+                                body.query,
+                            )
+                            if translated:
+                                memory_query = translated
+                        except Exception:
+                            LOGGER.info("AVA Serbian memory retrieval translation unavailable")
                     conversation_context = await asyncio.to_thread(
-                        service.prepare_context,
-                        conversation_id,
-                        client_turn_id,
-                        body.query,
+                        service.prepare_context, conversation_id, client_turn_id, body.query,
+                        memory_query=memory_query,
                     )
                     if document_settings.enabled:
                         active_document_service = getattr(

@@ -102,6 +102,25 @@ class GenerationTests(unittest.TestCase):
         self.assertTrue(completions.arguments["stream"])
         self.assertNotIn("stream_options", completions.arguments)
 
+    def test_memory_retrieval_translation_is_source_free_and_bounded(self):
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(
+                content="What cars does my preferred company produce?"
+            ))]
+        )
+        completions = FakeCompletions(response)
+        service = GenerationService(
+            SimpleNamespace(chat=SimpleNamespace(completions=completions)), model="test"
+        )
+
+        translation = service.translate_memory_retrieval_query(
+            "Koje sve aute proizvodi moja preferirana kompanija?"
+        )
+
+        self.assertEqual(translation, "What cars does my preferred company produce?")
+        self.assertEqual(completions.arguments["max_tokens"], 128)
+        self.assertEqual(completions.arguments["temperature"], 0.0)
+
     def test_non_streaming_gateway_response_fails_instead_of_simulating(self):
         stream = FakeStream([], content_type="application/json; charset=utf-8")
         client = SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(stream)))

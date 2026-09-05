@@ -324,12 +324,19 @@ class ConversationService:
             self.tenant_id, self.user_id, conversation_id, client_turn_id, query, request_id
         )
 
-    def prepare_context(self, conversation_id: str, client_turn_id: str, query: str) -> ConversationContext:
+    def prepare_context(
+        self,
+        conversation_id: str,
+        client_turn_id: str,
+        query: str,
+        *,
+        memory_query: str | None = None,
+    ) -> ConversationContext:
         context, _ = self.context_builder.build(
             self.tenant_id, self.user_id, conversation_id, excluded_turn_id=client_turn_id
         )
         candidates = self.memory_store.search(
-            query,
+            memory_query or query,
             self.tenant_id,
             self.user_id,
             limit=self.long_term_candidate_k,
