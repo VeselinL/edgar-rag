@@ -208,14 +208,18 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
   text-align: left;
 }
 .sidebar-primary-action { border-color: color-mix(in srgb, var(--primary) 50%, var(--border)); font-weight: 700; }
-.sidebar-companies { display: grid; gap: 6px; margin: 10px 0 0; padding: 10px; border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.78rem; }
-.sidebar-companies legend { padding: 0 4px; font-weight: 700; }
+.sidebar-companies { margin: 10px 0 0; border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); font-size: 0.78rem; }
+.sidebar-companies__toggle { width: 100%; padding: 10px 10px 3px; border: 0; color: var(--text); background: transparent; cursor: pointer; font: inherit; font-weight: 700; text-align: left; }
+.sidebar-companies__summary { margin: 0; padding: 0 10px 10px; overflow: hidden; color: var(--text-secondary); text-overflow: ellipsis; white-space: nowrap; }
+.sidebar-companies__options { display: grid; gap: 6px; padding: 10px; border-top: 1px solid var(--border); }
 .sidebar-companies label { display: block; cursor: pointer; }
 .sidebar-companies input { accent-color: var(--primary); margin-right: 6px; }
-.conversation-sidebar__history { min-height: 0; flex: 1; margin-top: 18px; overflow-y: auto; }
+.conversation-sidebar__history { min-height: 0; flex: 1; margin-top: 18px; overflow-y: auto; overscroll-behavior: contain; }
 .conversation-sidebar__history section + section { margin-top: 18px; }
 .conversation-sidebar__history h2 { margin: 0 7px 7px; color: var(--text-secondary); font-size: 0.73rem; letter-spacing: 0.05em; text-transform: uppercase; }
 .conversation-sidebar__history ul { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; }
+.sidebar-show-more { width: 100%; margin-top: 6px; padding: 7px 10px; border: 0; border-radius: 6px; color: var(--primary); background: transparent; cursor: pointer; font: inherit; font-size: 0.8rem; text-align: left; }
+.sidebar-show-more:hover { background: var(--surface-subtle); }
 .sidebar-chat { position: relative; display: flex; min-width: 0; align-items: center; border-radius: 8px; }
 .sidebar-chat:hover, .sidebar-chat:focus-within, .sidebar-chat--active { background: var(--surface); }
 .sidebar-chat--active { box-shadow: inset 3px 0 var(--primary); }

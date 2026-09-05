@@ -19,6 +19,14 @@ interface Props {
   onClose: () => void
 }
 
+const COMPANIES = [
+  ['APTV', 'Aptiv'], ['AUR', 'Aurora'], ['F', 'Ford'], ['GM', 'General Motors'],
+  ['GOOGL', 'Alphabet'], ['MBLY', 'Mobileye'], ['NVDA', 'NVIDIA'], ['OUST', 'Ouster'],
+  ['QCOM', 'Qualcomm'], ['RIVN', 'Rivian'], ['TSLA', 'Tesla'],
+] as const
+const companyNameByTicker = new Map<string, string>(COMPANIES)
+const RECENT_CHAT_LIMIT = 7
+
 function DotsIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -135,8 +143,15 @@ export function ConversationSidebar({
   onClose,
 }: Props) {
   const [menuId, setMenuId] = useState<string | null>(null)
+  const [scopeExpanded, setScopeExpanded] = useState(false)
+  const [historyExpanded, setHistoryExpanded] = useState(false)
   const pinned = conversations.filter((conversation) => conversation.pinned)
   const recent = conversations.filter((conversation) => !conversation.pinned)
+  const visibleRecent = historyExpanded ? recent : recent.slice(0, RECENT_CHAT_LIMIT)
+  const selectedCompanyNames = companyScope.map((ticker) => companyNameByTicker.get(ticker) ?? ticker)
+  const scopeSummary = companyScope.length === 0
+    ? t(language, 'allCompanies')
+    : `${selectedCompanyNames.slice(0, 3).join(', ')}${selectedCompanyNames.length > 3 ? '…' : ''}`
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -180,20 +195,38 @@ export function ConversationSidebar({
         )}
         <section aria-labelledby="recent-chats-heading">
           <h2 id="recent-chats-heading">{t(language, 'chats')}</h2>
-          {recent.length > 0 ? <ul>{rows(recent)}</ul> : <p className="history-empty">{t(language, 'noOtherChats')}</p>}
+          {recent.length > 0 ? (
+            <>
+              <ul>{rows(visibleRecent)}</ul>
+              {recent.length > RECENT_CHAT_LIMIT && !historyExpanded && (
+                <button type="button" className="sidebar-show-more" onClick={() => setHistoryExpanded(true)}>
+                  {t(language, 'showMoreChats')}
+                </button>
+              )}
+            </>
+          ) : <p className="history-empty">{t(language, 'noOtherChats')}</p>}
         </section>
       </nav>
-      <fieldset className="sidebar-companies">
-        <legend>{t(language, 'companyScope')}</legend>
-        <label><input type="checkbox" checked={companyScope.length === 0} onChange={() => companyScope.length && onToggleCompany('ALL')} /> {t(language, 'allCompanies')}</label>
-        {[
-          ['APTV', 'Aptiv'], ['AUR', 'Aurora'], ['F', 'Ford'], ['GM', 'General Motors'],
-          ['GOOGL', 'Alphabet'], ['MBLY', 'Mobileye'], ['NVDA', 'NVIDIA'], ['OUST', 'Ouster'],
-          ['QCOM', 'Qualcomm'], ['RIVN', 'Rivian'], ['TSLA', 'Tesla'],
-        ].map(([ticker, name]) => (
-          <label key={ticker}><input type="checkbox" checked={companyScope.includes(ticker)} onChange={() => onToggleCompany(ticker)} /> {name} ({ticker})</label>
-        ))}
-      </fieldset>
+      <section className="sidebar-companies" aria-labelledby="company-scope-heading">
+        <button
+          id="company-scope-heading"
+          type="button"
+          className="sidebar-companies__toggle"
+          aria-expanded={scopeExpanded}
+          onClick={() => setScopeExpanded((expanded) => !expanded)}
+        >
+          {t(language, 'companyScope')}
+        </button>
+        <p className="sidebar-companies__summary">{scopeSummary}</p>
+        {scopeExpanded && (
+          <div className="sidebar-companies__options">
+            <label><input type="checkbox" checked={companyScope.length === 0} onChange={() => companyScope.length && onToggleCompany('ALL')} /> {t(language, 'allCompanies')}</label>
+            {COMPANIES.map(([ticker, name]) => (
+              <label key={ticker}><input type="checkbox" checked={companyScope.includes(ticker)} onChange={() => onToggleCompany(ticker)} /> {name} ({ticker})</label>
+            ))}
+          </div>
+        )}
+      </section>
       <div className="conversation-sidebar__footer">
         <button type="button" onClick={onExport}>{t(language, 'exportData')}</button>
         {conversations.length > 0 && <button type="button" className="danger" onClick={onDeleteAll}>{t(language, 'deleteAll')}</button>}
