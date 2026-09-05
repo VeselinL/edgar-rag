@@ -237,6 +237,7 @@ class InMemoryConversationRepository:
                 pinned_at=conversation.pinned_at,
                 created_at=conversation.created_at,
                 updated_at=now,
+                company_scope=conversation.company_scope,
             )
             return StoredTurn(user_message, assistant)
 

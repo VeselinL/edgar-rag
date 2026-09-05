@@ -6,7 +6,7 @@ import numpy as np
 from qdrant_client import QdrantClient
 
 from src.conversations.context import ConversationContextBuilder
-from src.conversations.maintenance import ConversationRetentionJob
+from src.conversations.maintenance import ConversationRetentionJob, MemoryReconciliationJob
 from src.conversations.memory import InMemoryMemoryStore, QdrantMemoryStore
 from src.conversations.models import MemoryItem
 from src.conversations.repository import (
@@ -149,6 +149,13 @@ class ConversationServiceTests(unittest.TestCase):
         conversation = self.service.create()
         with self.assertRaisesRegex(ValueError, "always enabled"):
             self.service.update(conversation.id, memory_enabled=False)
+
+    def test_company_scope_survives_a_conversation_turn(self):
+        conversation = self.service.create(company_scope=("TSLA",))
+
+        self.service.begin_turn(conversation.id, str(uuid4()), "Tesla revenue", str(uuid4()))
+
+        self.assertEqual(self.service.get(conversation.id).company_scope, ("TSLA",))
 
     def test_editable_memory_and_preferences_are_owner_scoped(self):
         explicit = self.service.create_memory("Prefer concise filing comparisons.")
