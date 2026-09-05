@@ -820,6 +820,59 @@ class RealPipeline(RouteHandlerMixin):
             return
 
         if not route.uses_filing_retrieval:
+            if (
+                route.reason_code is RouteReason.CASUAL_CONVERSATION
+                and prompt_context
+                and hasattr(generator, "stream_conversation_context_answer")
+            ):
+                if self.emit_activity:
+                    yield activity_event(random.choice(
+                        SERBIAN_GENERATION_ACTIVITIES if language == "sr" else GENERATION_ACTIVITIES
+                    ))
+                generation_started = time.perf_counter()
+                with trace.stage("conversation_generation_start"):
+                    provider_stream = generator.stream_conversation_context_answer(
+                        query, conversation_context=prompt_context
+                    )
+                answer_fragments: list[str] = []
+                sentinel = object()
+
+                def next_fragment() -> object:
+                    return next(provider_stream, sentinel)
+
+                try:
+                    while True:
+                        fragment = await asyncio.to_thread(next_fragment)
+                        if fragment is sentinel:
+                            break
+                        if await disconnected():
+                            return
+                        if isinstance(fragment, str) and fragment:
+                            answer_fragments.append(fragment)
+                            trace.mark_first_token()
+                            yield PipelineEvent("delta", {"text": fragment})
+                finally:
+                    close = getattr(provider_stream, "close", None)
+                    if callable(close):
+                        close()
+                    trace.provider_usage = dict(getattr(provider_stream, "usage", {}))
+                    trace.stage_latency_ms["conversation_generation"] = round(
+                        (time.perf_counter() - generation_started) * 1_000, 3
+                    )
+                if not answer_fragments:
+                    raise RuntimeError("The LLM returned no personal-context answer.")
+                trace.generated_answer = "".join(answer_fragments)
+                trace.source_status = "none_cited"
+                yield PipelineEvent(
+                    "sources",
+                    {
+                        "sources": [],
+                        "source_status": "none_cited",
+                        "malformed_source_count": 0,
+                    },
+                )
+                yield PipelineEvent("done", {})
+                return
             if route.reason_code is RouteReason.GREETING:
                 response_text = ava_introduction(language)
             elif route.reason_code is RouteReason.AVA_HELP:

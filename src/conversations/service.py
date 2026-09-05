@@ -13,7 +13,7 @@ from .context import (
 )
 from .memory import MemoryStore, NullMemoryStore
 from .models import Conversation, MemoryItem, Message, StoredTurn, UserPreferences
-from .repository import ConversationRepository
+from .repository import ConversationNotFoundError, ConversationRepository
 from src.config.settings import ConversationSettings
 from src.filings.corpus import ACTIVE_FILINGS
 
@@ -69,7 +69,7 @@ class ConversationService:
     )
     _PREFERENCE_MEMORY_STATEMENT = re.compile(
         r"\b(?:i\s+(?:prefer|like|dislike|want|work|live)|my\s+(?:preferred|preference|name|"
-        r"role|language)|call\s+me|answer\s+(?:in|with)|use\s+(?:a|an|the)|"
+        r"role|language)|call\s+me|answer\s+(?:in|with)|use\b|"
         r"prefer|avoid|keep\s+(?:answers?|responses?)|"
         r"ja\s+(?:preferiram|volim|ne\s+volim|želim|radim|živim)|moja?\s+(?:preferirana|"
         r"preferenca|ime|uloga|jezik)|zovi\s+me|odgovaraj\s+(?:na|sa)|koristi)\b",
@@ -195,6 +195,10 @@ class ConversationService:
         return item
 
     def update_memory(self, memory_id: str, content: str) -> MemoryItem:
+        # Resolve ownership before content validation so this endpoint cannot
+        # reveal validation behavior for another owner's memory item.
+        if not any(item.id == memory_id for item in self.list_memory()):
+            raise ConversationNotFoundError("Memory item was not found.")
         item = self.repository.update_memory_item(
             self.tenant_id, self.user_id, memory_id, self._validate_preference_memory(content)
         )
@@ -351,21 +355,11 @@ class ConversationService:
         )
         selected: list[MemoryItem] = []
         used_words = 0
-        explicit_items = [
-            item for item in self.list_memory()
-            if item.memory_type == "explicit"
-        ]
-        # Explicit, owner-authored preferences are always considered first;
-        # semantic search adds only relevant learned summaries afterward.
-        selected_ids: set[str] = set()
-        for item in [*explicit_items, *candidates]:
-            if item.id in selected_ids:
-                continue
+        for item in candidates:
             estimated = max(1, len(item.content.split()) * 4 // 3)
             if used_words + estimated > self.long_term_token_budget:
                 continue
             selected.append(item)
-            selected_ids.add(item.id)
             used_words += estimated
         memories = tuple(selected)
         preferences = self.preferences()

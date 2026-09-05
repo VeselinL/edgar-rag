@@ -141,8 +141,9 @@ class ConversationServiceTests(unittest.TestCase):
             [("explicit", "My preferred company is Rivian.")],
         )
 
-    def test_explicit_memory_is_always_in_context_before_short_term_history(self):
-        self.service.create_memory("My preferred company is Rivian.")
+    def test_only_semantically_retrieved_memory_is_in_context_before_short_term_history(self):
+        self.service.long_term_score_threshold = 0.55
+        self.service.create_memory("My preferred metric is citation support.")
         self.service.create_memory("My preferred product is the R1S.")
         conversation = self.service.create()
         self._complete(conversation.id, str(uuid4()), "Tell me about Tesla.", "Tesla evidence.")
@@ -150,12 +151,12 @@ class ConversationServiceTests(unittest.TestCase):
         context = self.service.prepare_context(
             conversation.id,
             str(uuid4()),
-            "What is Tesla's revenue?",
+            "preferred metric",
         )
 
         self.assertEqual(
             [item.content for item in context.long_term_memories],
-            ["My preferred product is the R1S.", "My preferred company is Rivian."],
+            ["My preferred metric is citation support."],
         )
         self.assertLess(
             context.prompt_text().index("Saved long-term user memory"),
@@ -431,14 +432,14 @@ class QdrantMemoryTests(unittest.TestCase):
             QdrantClient(":memory:"), FakeEmbedder(), query_prefix=""
         )
 
-    def item(self, item_id, tenant, user, conversation, content):
+    def item(self, item_id, tenant, user, conversation, content, memory_type="conversation_summary"):
         return MemoryItem(
             id=item_id,
             tenant_id=tenant,
             user_id=user,
             conversation_id=conversation,
             source_id=f"source-{item_id}",
-            memory_type="conversation_summary",
+            memory_type=memory_type,
             content=content,
         )
 
@@ -460,6 +461,21 @@ class QdrantMemoryTests(unittest.TestCase):
         results = self.store.search("Tesla", "tenant-a", "user-a", limit=5, threshold=0.5)
 
         self.assertEqual([item.id for item in results], ["two"])
+
+    def test_current_conversation_excludes_its_summary_but_not_explicit_memory(self):
+        self.store.upsert_summary(self.item(
+            "summary", "tenant-a", "user-a", "c1", "Tesla summary"
+        ))
+        self.store.upsert(self.item(
+            "explicit", "tenant-a", "user-a", "c1", "Tesla preference", "explicit"
+        ))
+
+        results = self.store.search(
+            "Tesla", "tenant-a", "user-a", limit=5, threshold=0.5,
+            exclude_conversation_id="c1",
+        )
+
+        self.assertEqual([item.id for item in results], ["explicit"])
 
 
 if __name__ == "__main__":

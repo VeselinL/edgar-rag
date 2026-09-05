@@ -76,7 +76,11 @@ class InMemoryMemoryStore:
             for item in self.items.values():
                 if item.tenant_id != tenant_id or item.user_id != user_id:
                     continue
-                if exclude_conversation_id and item.conversation_id == exclude_conversation_id:
+                if (
+                    exclude_conversation_id
+                    and item.conversation_id == exclude_conversation_id
+                    and item.memory_type == "conversation_summary"
+                ):
                     continue
                 item_terms = set(item.content.casefold().split())
                 score = len(terms & item_terms) / max(len(terms), 1)
@@ -207,7 +211,14 @@ class QdrantMemoryStore:
         ]
         must_not = []
         if conversation_id:
-            must_not.append(models.FieldCondition(key="conversation_id", match=models.MatchValue(value=conversation_id)))
+            must_not.append(models.Filter(must=[
+                models.FieldCondition(
+                    key="conversation_id", match=models.MatchValue(value=conversation_id)
+                ),
+                models.FieldCondition(
+                    key="memory_type", match=models.MatchValue(value="conversation_summary")
+                ),
+            ]))
         return models.Filter(must=must, must_not=must_not)
 
     def search(self, query: str, tenant_id: str, user_id: str, *, limit: int, threshold: float, exclude_conversation_id: str | None = None) -> list[MemoryItem]:

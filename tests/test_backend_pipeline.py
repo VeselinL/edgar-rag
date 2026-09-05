@@ -8,6 +8,7 @@ import numpy as np
 
 from src.backend.pipeline import FILINGS, PipelineSettings, RealPipeline
 from src.conversations.context import ConversationContext
+from src.conversations.models import MemoryItem
 from src.orchestration.models import EvidenceCalculationPlan, EvidenceOperand, Freshness
 from src.orchestration.routing import RequestRoute, RouteKind, RouteReason
 from src.retrieval.evidence_policy import EvidencePolicyError
@@ -737,6 +738,51 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Zdravo! Ja sam AVA", events[0].data["text"])
         self.assertIn("Dostupne kompanije", events[0].data["text"])
         self.assertNotIn("Hello!", events[0].data["text"])
+
+    async def test_casual_route_streams_only_qdrant_retrieved_memory_context(self):
+        class PersonalContextGenerator(RoutedGenerator):
+            def __init__(self):
+                super().__init__(RequestRoute(
+                    RouteKind.CONVERSATION_ONLY,
+                    RouteReason.CASUAL_CONVERSATION,
+                    decided_by="model",
+                ))
+                self.personal_context = ""
+
+            def route_request(
+                self, query, deterministic_resolution=None, conversation_context="",
+                uploaded_source_names=(),
+            ):
+                return super().route_request(query, deterministic_resolution, conversation_context)
+
+            def stream_conversation_context_answer(self, query, *, conversation_context):
+                self.personal_context = conversation_context
+                return iter(["Your preferred metric is citation support."])
+
+        retriever = FakeRetriever()
+        generator = PersonalContextGenerator()
+        pipeline = RealPipeline(retriever, generator)
+        memory = MemoryItem(
+            id="memory-1", tenant_id="tenant", user_id="user", conversation_id=None,
+            source_id=None, memory_type="explicit",
+            content="My preferred metric is citation support.",
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event async for event in pipeline.stream(
+                "What is my preferred metric?",
+                connected,
+                conversation_context=ConversationContext(long_term_memories=(memory,)),
+            )
+        ]
+
+        self.assertIsNone(retriever.arguments)
+        self.assertIn("My preferred metric is citation support.", generator.personal_context)
+        self.assertEqual(events[0].data["text"], "Your preferred metric is citation support.")
+        self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
 
     async def test_explicit_company_outside_saved_scope_guides_user_without_retrieval(self):
         class NoRouteGenerator(FakeGenerator):

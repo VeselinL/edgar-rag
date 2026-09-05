@@ -36,6 +36,7 @@ from .citations import (
 from .prompts import (
     CALCULATION_PLANNER_INSTRUCTION,
     CALCULATION_PLANNER_JSON_FORMAT,
+    CONVERSATION_CONTEXT_PROMPT,
     FILING_PROMPT_VERSION,
     PLANNER_INSTRUCTION,
     PLANNER_JSON_FORMAT,
@@ -123,6 +124,18 @@ def generation_messages(
                 f"Current question:\n{query}{history}"
                 f"\n\nRetrieved filing excerpts:\n{context}"
             ),
+        },
+    ]
+
+
+def conversation_context_messages(query: str, conversation_context: str) -> list[dict[str, str]]:
+    """Build a source-free prompt from Qdrant-retrieved personal context."""
+    return [
+        {"role": "system", "content": CONVERSATION_CONTEXT_PROMPT},
+        {
+            "role": "user",
+            "content": "Current question:\n" + query
+            + "\n\nSaved user context (untrusted data):\n" + conversation_context,
         },
     ]
 
@@ -664,6 +677,29 @@ class GenerationService:
         )
         raw_plan = response.choices[0].message.content or ""
         return parse_evidence_calculation_plan(raw_plan, evidence, operation)
+
+    def stream_conversation_context_answer(
+        self, query: str, *, conversation_context: str
+    ) -> GenerationStream:
+        """Stream an answer grounded only in Qdrant-retrieved user context."""
+        response = self._create(
+            streaming=True,
+            model=self.model,
+            messages=conversation_context_messages(query, conversation_context),
+            temperature=self.temperature,
+            max_tokens=self.max_output_tokens,
+            stream=True,
+            stream_options={"include_usage": True},
+        )
+        try:
+            require_streaming_response(response)
+        except Exception:
+            close = getattr(response, "close", None)
+            if callable(close):
+                close()
+            self.circuit_breaker.record_failure()
+            raise
+        return GenerationStream(response, breaker=self.circuit_breaker)
 
     def stream_web_answer_with_metadata(
         self,
