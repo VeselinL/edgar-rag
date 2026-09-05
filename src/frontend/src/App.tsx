@@ -32,6 +32,15 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   custom_instructions: '', language: 'en', model: 'AZURE_GPT_4o_2024_1120', theme: 'system',
 }
 
+function SettingsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" />
+      <path d="M19.4 13.5a7.8 7.8 0 0 0 .1-1.5 7.8 7.8 0 0 0-.1-1.5l2-1.5-2-3.4-2.4 1a8.3 8.3 0 0 0-2.5-1.5L14.2 2h-4l-.4 3.1a8.3 8.3 0 0 0-2.5 1.5l-2.4-1-2 3.4 2 1.5a7.8 7.8 0 0 0-.1 1.5c0 .5 0 1 .1 1.5l-2 1.5 2 3.4 2.4-1a8.3 8.3 0 0 0 2.5 1.5l.4 3.1h4l.4-3.1a8.3 8.3 0 0 0 2.5-1.5l2.4 1 2-3.4-2-1.5Z" />
+    </svg>
+  )
+}
+
 export default function App() {
   const { theme, setThemePreference } = useTheme()
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -481,8 +490,9 @@ export default function App() {
           type="button"
           className={`settings-trigger ${sidebarOpen ? 'settings-trigger--sidebar-open' : ''}`}
           onClick={() => void openSettings()}
+          aria-label={preferences.language === 'sr' ? 'Podešavanja' : 'Settings'}
         >
-          {preferences.language === 'sr' ? 'Podešavanja' : 'Settings'}
+          <SettingsIcon />
         </button>
       )}
       {settingsOpen && (

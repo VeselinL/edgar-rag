@@ -268,6 +268,20 @@ describe('App', () => {
     expect(screen.getByAltText('AVA').getAttribute('src')).toContain('ava-dark.png')
   })
 
+  it('uses a lower-right gear Settings trigger that shifts for the open sidebar', async () => {
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValue([])
+    mockedListMessages.mockResolvedValue([])
+    render(<App />)
+
+    const settings = await screen.findByRole('button', { name: 'Settings' })
+    expect(settings.querySelector('svg')).toBeInTheDocument()
+    expect(settings).not.toHaveClass('settings-trigger--sidebar-open')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Open conversation sidebar' }))
+    expect(settings).toHaveClass('settings-trigger--sidebar-open')
+  })
+
   it('localizes AVA controls from the saved Serbian preference', async () => {
     mockedHistoryEnabled.mockResolvedValue(true)
     mockedListConversations.mockResolvedValue([])

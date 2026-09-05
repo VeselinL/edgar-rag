@@ -264,16 +264,21 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
   z-index: 25;
   right: 24px;
   bottom: 24px;
-  min-height: 42px;
-  padding: 9px 15px;
+  display: inline-grid;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  place-items: center;
   border: 1px solid var(--border);
-  border-radius: 9px;
+  border-radius: 50%;
   color: var(--text);
   background: var(--surface);
   box-shadow: 0 5px 18px rgb(0 0 0 / 12%);
   cursor: pointer;
+  transition: left 160ms ease, right 160ms ease;
 }
 .settings-trigger--sidebar-open { left: min(324px, calc(88vw + 24px)); right: auto; }
+.settings-trigger svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
 .settings-backdrop { position: fixed; z-index: 50; inset: 0; display: grid; padding: 20px; place-items: center; background: rgb(7 17 31 / 46%); }
 .settings-modal { display: flex; width: min(900px, 100%); max-height: min(680px, 100%); flex-direction: column; overflow: hidden; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); box-shadow: 0 20px 50px rgb(0 0 0 / 25%); }
 .settings-modal__header { display: flex; padding: 16px 20px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
