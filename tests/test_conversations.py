@@ -119,6 +119,43 @@ class ConversationServiceTests(unittest.TestCase):
         ]
         self.assertEqual(summaries, [])
 
+    def test_explicit_preference_statement_is_saved_without_saving_other_turns(self):
+        conversation = self.service.create()
+        self._complete(
+            conversation.id,
+            str(uuid4()),
+            "Remember this: My preferred company is Rivian.",
+            "I'll use that preference when it is relevant.",
+        )
+        self._complete(
+            conversation.id,
+            str(uuid4()),
+            "What cars does Tesla make?",
+            "Tesla makes vehicles.",
+        )
+
+        memories = self.service.list_memory()
+
+        self.assertEqual(
+            [(item.memory_type, item.content) for item in memories],
+            [("explicit", "My preferred company is Rivian.")],
+        )
+
+    def test_preferred_company_reference_loads_the_saved_preference(self):
+        self.service.create_memory("My preferred company is Rivian.")
+        conversation = self.service.create()
+
+        context = self.service.prepare_context(
+            conversation.id,
+            str(uuid4()),
+            "Koje aute proizvodi moja preferirana kompanija?",
+        )
+
+        self.assertEqual(
+            [item.content for item in context.long_term_memories],
+            ["My preferred company is Rivian."],
+        )
+
     def test_extractively_summarized_memory_is_bounded_to_database_limit(self):
         self.service.context_builder = ConversationContextBuilder(
             self.repository, recent_token_budget=80, summary_token_budget=2_000

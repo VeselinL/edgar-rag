@@ -4,9 +4,15 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import datetime
+import re
 from typing import Any, Sequence
 
-from .context import ConversationContext, ConversationContextBuilder
+from .context import (
+    ConversationContext,
+    ConversationContextBuilder,
+    preferred_company_from_memories,
+    references_preferred_company,
+)
 from .memory import MemoryStore, NullMemoryStore
 from .models import Conversation, MemoryItem, Message, StoredTurn, UserPreferences
 from .repository import ConversationRepository
@@ -58,6 +64,14 @@ class ConversationService:
     """Own idempotent turns, context construction, memory, and deletion."""
 
     _MAX_MEMORY_CONTENT_LENGTH = 1500
+    _EXPLICIT_MEMORY_PREFIX = re.compile(
+        r"^\s*(?:remember(?:\s+this)?|zapamti(?:\s+ovo)?)\s*[:,-]?\s*",
+        re.IGNORECASE,
+    )
+    _EXPLICIT_MEMORY_STATEMENT = re.compile(
+        r"^(?:my\s+(?:preferred|preference)|moja\s+(?:preferirana|preferenca))\b",
+        re.IGNORECASE,
+    )
 
     def __init__(
         self,
@@ -143,6 +157,13 @@ class ConversationService:
             return value
         cutoff = value[:cls._MAX_MEMORY_CONTENT_LENGTH - 1].rsplit(" ", 1)[0].rstrip()
         return f"{cutoff or value[:cls._MAX_MEMORY_CONTENT_LENGTH - 1]}…"
+
+    @classmethod
+    def _explicit_memory_content(cls, user_text: str) -> str | None:
+        content = cls._EXPLICIT_MEMORY_PREFIX.sub("", user_text.strip())
+        if not cls._EXPLICIT_MEMORY_STATEMENT.match(content):
+            return None
+        return cls._clean_memory_content(content)
 
     def list_memory(self) -> list[MemoryItem]:
         return self.repository.list_memory_items(self.tenant_id, self.user_id)
@@ -296,10 +317,25 @@ class ConversationService:
             exclude_conversation_id=conversation_id,
         )
         selected: list[MemoryItem] = []
+        if references_preferred_company(query):
+            available_memory = self.list_memory()
+            preferred = preferred_company_from_memories(available_memory)
+            if preferred:
+                selected.extend(
+                    item for item in available_memory
+                    if item.content.rstrip(".!? ").casefold()
+                    == f"my preferred company is {preferred}".casefold()
+                    or item.content.rstrip(".!? ").casefold()
+                    == f"moja preferirana kompanija je {preferred}".casefold()
+                )
         used_words = 0
+        used_ids = {item.id for item in selected}
+        used_words = sum(max(1, len(item.content.split()) * 4 // 3) for item in selected)
         # Conservative deterministic approximation; prompt-level token
         # accounting still uses the exact formatter before evidence packing.
         for item in candidates:
+            if item.id in used_ids:
+                continue
             estimated = max(1, len(item.content.split()) * 4 // 3)
             if used_words + estimated > self.long_term_token_budget:
                 continue
@@ -314,8 +350,29 @@ class ConversationService:
             language=preferences.language,
         )
 
-    def _sync_conversation_memory(self, conversation_id: str) -> None:
+    def _sync_conversation_memory(self, conversation_id: str, client_turn_id: str) -> None:
         self.get(conversation_id)
+        messages = self.messages(conversation_id)
+        user_message = next(
+            (
+                message for message in messages
+                if message.client_turn_id == client_turn_id and message.role == "user"
+            ),
+            None,
+        )
+        if user_message is not None:
+            content = self._explicit_memory_content(user_message.content)
+            existing = {item.content.casefold() for item in self.list_memory()}
+            if content is not None and content.casefold() not in existing:
+                item = self.repository.create_memory_item(
+                    self.tenant_id,
+                    self.user_id,
+                    content,
+                    "explicit",
+                    conversation_id,
+                    user_message.id,
+                )
+                self.memory_store.upsert(item)
         _, summary = self.context_builder.build(
             self.tenant_id, self.user_id, conversation_id
         )
@@ -346,7 +403,7 @@ class ConversationService:
             metadata,
             used_source_ids,
         )
-        self._sync_conversation_memory(conversation_id)
+        self._sync_conversation_memory(conversation_id, client_turn_id)
         return message
 
     def fail_turn(self, conversation_id: str, client_turn_id: str) -> None:

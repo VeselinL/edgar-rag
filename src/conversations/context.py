@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import re
 from typing import Any, Sequence
 
 import tiktoken
@@ -13,6 +14,35 @@ from .repository import ConversationRepository
 
 SUMMARY_VERSION = 1
 DEFAULT_ENCODING = "o200k_base"
+_PREFERRED_COMPANY_MEMORY = re.compile(
+    r"^(?:my\s+preferred\s+company\s+is|moja\s+preferirana\s+kompanija\s+je)\s+(.+?)[.!?\s]*$",
+    re.IGNORECASE,
+)
+_PREFERRED_COMPANY_REFERENCE = re.compile(
+    r"\b(?:my\s+preferred\s+company|moja\s+preferirana\s+kompanija)\b",
+    re.IGNORECASE,
+)
+_PREFERRED_COMPANY_LOOKUP = re.compile(
+    r"^\s*(?:what|which|koja)\s+(?:is|je)\s+(?:my\s+preferred\s+company|moja\s+preferirana\s+kompanija)\s*[?!\.]*\s*$",
+    re.IGNORECASE,
+)
+
+
+def preferred_company_from_memories(memories: Sequence[MemoryItem]) -> str | None:
+    """Return the explicit company preference, never a factual filing claim."""
+    for item in memories:
+        match = _PREFERRED_COMPANY_MEMORY.fullmatch(item.content.strip())
+        if match:
+            return match.group(1).strip()
+    return None
+
+
+def references_preferred_company(query: str) -> bool:
+    return bool(_PREFERRED_COMPANY_REFERENCE.search(query))
+
+
+def asks_for_preferred_company(query: str) -> bool:
+    return bool(_PREFERRED_COMPANY_LOOKUP.fullmatch(query))
 
 
 @dataclass(frozen=True)

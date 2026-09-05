@@ -25,6 +25,11 @@ from src.config.settings import (
     PipelineSettings,
     ProviderSettings,
 )
+from src.conversations.context import (
+    asks_for_preferred_company,
+    preferred_company_from_memories,
+    references_preferred_company,
+)
 from src.embeddings.embed_chunks import MODEL_CONFIGS
 from src.backend.dependencies import (
     FILINGS,
@@ -171,6 +176,12 @@ def ava_introduction() -> str:
     available = ", ".join(
         f"{COMPANY_NAMES[ticker]} ({ticker})" for ticker in FILINGS
     )
+
+
+def preferred_company_response(company: str, language: str) -> str:
+    if language == "sr":
+        return f"Vaša sačuvana preferirana kompanija je {company}."
+    return f"Your saved preferred company is {company}."
     return (
         "Hello! I'm AVA, your Autonomous Vehicle Analyst. I search the indexed "
         "annual SEC filings, explain company disclosures, compare companies, and "
@@ -517,6 +528,45 @@ class RealPipeline(RouteHandlerMixin):
         uploaded_source_names = [item.filename for item in uploaded_documents]
         with trace.stage("deterministic_resolution"):
             deterministic_resolution = self.company_resolver.resolve(query)
+        remembered_company = (
+            preferred_company_from_memories(
+                getattr(conversation_context, "long_term_memories", ())
+            )
+            if references_preferred_company(query)
+            else None
+        )
+        if remembered_company:
+            memory_resolution = self.company_resolver.resolve(remembered_company)
+            if len(memory_resolution.resolved_tickers) == 1:
+                if asks_for_preferred_company(query):
+                    response_text = preferred_company_response(
+                        remembered_company,
+                        getattr(conversation_context, "language", "en"),
+                    )
+                    route = RequestRoute(
+                        RouteKind.CONVERSATION_ONLY,
+                        RouteReason.CASUAL_CONVERSATION,
+                        decided_by="saved_company_preference",
+                    )
+                    trace.route = route.as_dict()
+                    trace.resolver = {
+                        "resolved_tickers": list(memory_resolution.resolved_tickers),
+                        "memory_preference_ticker": memory_resolution.resolved_tickers[0],
+                    }
+                    trace.generated_answer = response_text
+                    trace.source_status = "none_cited"
+                    trace.mark_first_token()
+                    yield PipelineEvent("delta", {"text": response_text})
+                    yield PipelineEvent(
+                        "sources",
+                        {"sources": [], "source_status": "none_cited", "malformed_source_count": 0},
+                    )
+                    yield PipelineEvent("done", {})
+                    return
+                deterministic_resolution = replace(
+                    deterministic_resolution,
+                    planner_scope_tickers=memory_resolution.resolved_tickers,
+                )
         preliminary_route = (
             deterministic_route(
                 query,
