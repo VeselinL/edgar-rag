@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "probed_at": "2026-09-05T00:03:25.886453+00:00",
+  "endpoint_family": "openai_compatible_chat_completions",
+  "model": "AZURE_GPT_51_2025_1113",
+  "ordinary_chat": {
+    "supported": false,
+    "safe_error_class": "BadRequestError"
+  },
+  "strict_json": {
+    "supported": false,
+    "safe_error_class": "BadRequestError"
+  },
+  "streaming": {
+    "supported": false,
+    "safe_error_class": "BadRequestError"
+  },
+  "required_function": {
+    "supported": false,
+    "safe_error_class": "BadRequestError"
+  },
+  "native_tools_usable": false
+}
