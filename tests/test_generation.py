@@ -564,6 +564,7 @@ class GenerationTests(unittest.TestCase):
         self.assertIn("unresolved_mentions", planner_messages[2]["content"])
         self.assertIn("semantic comparison, not company count", PLANNER_INSTRUCTION)
         self.assertIn("CEO of Tesla", PLANNER_INSTRUCTION)
+        self.assertIn("English retrieval subqueries", PLANNER_INSTRUCTION)
 
     def test_planner_rejects_invalid_contract(self):
         response = SimpleNamespace(

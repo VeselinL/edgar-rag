@@ -87,7 +87,7 @@ async def _execute(pipeline: RealPipeline, query: str, language: str, scope: Seq
     return {
         "answer": answer,
         "route": trace["route"]["route"],
-        "resolved_tickers": trace["resolver"]["resolved_tickers"],
+        "resolved_tickers": trace.get("resolver", {}).get("resolved_tickers", list(scope)),
         "final_evidence_ids": trace["final_generation_evidence_ids"],
         "citation_ids": trace["resolved_used_ids"],
         "numbers": _numbers(answer),
