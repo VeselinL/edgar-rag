@@ -114,7 +114,7 @@ export function SettingsModal({
               </label>
               <label>{label('language')}
                 <select value={preferences.language} onChange={(event) => void save({ language: event.target.value as 'en' | 'sr' })}>
-                  <option value="en">English</option><option value="sr">Serbian</option>
+                  <option value="en">{label('english')}</option><option value="sr">{label('serbian')}</option>
                 </select>
               </label>
               <label>{label('model')}

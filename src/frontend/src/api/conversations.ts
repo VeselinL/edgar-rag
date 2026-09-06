@@ -38,10 +38,10 @@ export async function exportConversations(): Promise<Blob> {
   return response.blob()
 }
 
-export function createConversation(): Promise<ConversationSummary> {
+export function createConversation(companyScope: string[] = []): Promise<ConversationSummary> {
   return api('/api/conversations', {
     method: 'POST',
-    body: JSON.stringify({ title: 'New conversation' }),
+    body: JSON.stringify({ title: 'New conversation', company_scope: companyScope }),
   })
 }
 

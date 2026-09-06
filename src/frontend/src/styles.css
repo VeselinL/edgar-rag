@@ -505,6 +505,14 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
 .composer-meta [role="status"] { color: var(--error); text-align: right; }
 .composer-meta__right { display: flex; min-width: 0; align-items: baseline; justify-content: flex-end; gap: 10px; }
 .chat-sources-button { padding: 0; border: 0; color: var(--primary-strong); background: transparent; cursor: pointer; font-size: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.upload-menu { position: absolute; z-index: 20; bottom: calc(100% - 2px); left: 24px; width: min(430px, calc(100% - 48px)); padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); box-shadow: 0 12px 32px rgb(0 0 0 / 20%); }
+.upload-dialog__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.upload-dialog__form { display: grid; gap: 12px; }
+.upload-dialog__form label { display: grid; gap: 6px; font-size: 0.9rem; font-weight: 650; }
+.upload-dialog__form textarea, .upload-dialog__form input { width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 8px; color: var(--text); background: var(--surface); font: inherit; }
+.upload-dialog__form textarea { min-height: 160px; padding: 9px; resize: vertical; }
+.upload-dialog__form input { padding: 8px 9px; }
+.upload-dialog__form p { margin: -4px 0 0; color: var(--text-secondary); font-size: 0.8rem; }
 
 @media (max-width: 600px) {
   .header { height: 56px; }
@@ -520,6 +528,7 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
   .message--user p { max-width: 88%; }
   .waiting { left: 21px; }
   .composer-wrap { padding: 10px 14px max(12px, env(safe-area-inset-bottom)); }
+  .upload-menu { left: 14px; width: calc(100% - 28px); }
   .composer-meta > :first-child { display: none; }
   .composer-meta { justify-content: flex-end; }
   .source-card { padding: 13px; }

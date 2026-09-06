@@ -8,6 +8,7 @@ import { deleteDocument, listDocuments, uploadDocument } from './api/documents'
 import {
   conversationHistoryEnabled,
   createConversation,
+  deleteConversation,
   exportConversations,
   listConversations,
   listMessages,
@@ -58,6 +59,7 @@ const mockedAuthSession = vi.mocked(getAuthSession)
 const mockedSignOut = vi.mocked(signOut)
 const mockedHistoryEnabled = vi.mocked(conversationHistoryEnabled)
 const mockedCreateConversation = vi.mocked(createConversation)
+const mockedDeleteConversation = vi.mocked(deleteConversation)
 const mockedExportConversations = vi.mocked(exportConversations)
 const mockedListConversations = vi.mocked(listConversations)
 const mockedListMessages = vi.mocked(listMessages)
@@ -90,6 +92,8 @@ describe('App', () => {
     mockedHistoryEnabled.mockReset()
     mockedHistoryEnabled.mockResolvedValue(false)
     mockedCreateConversation.mockReset()
+    mockedDeleteConversation.mockReset()
+    mockedDeleteConversation.mockResolvedValue(undefined)
     mockedExportConversations.mockReset()
     mockedExportConversations.mockResolvedValue(new Blob(['{}'], { type: 'application/json' }))
     mockedListConversations.mockReset()
@@ -290,10 +294,13 @@ describe('App', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Open conversation sidebar' }))
     await userEvent.click(screen.getByRole('button', { name: '+ New chat' }))
     expect(mockedCreateConversation).not.toHaveBeenCalled()
+    await userEvent.click(screen.getByRole('button', { name: 'Company scope' }))
+    await userEvent.click(screen.getByLabelText('Rivian (RIVN)'))
+    expect(mockedCreateConversation).not.toHaveBeenCalled()
 
     await userEvent.type(input, 'What does Rivian make?{enter}')
 
-    await waitFor(() => expect(mockedCreateConversation).toHaveBeenCalledOnce())
+    await waitFor(() => expect(mockedCreateConversation).toHaveBeenCalledWith(['RIVN']))
     expect(mockedStream).toHaveBeenCalledWith(
       'What does Rivian make?', expect.any(Object),
       { conversationId: 'conversation-1', clientTurnId: expect.any(String) },
@@ -348,6 +355,28 @@ describe('App', () => {
 
     expect(await screen.findByLabelText('Pitajte AVA o SEC izveštajima')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Podešavanja' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Podešavanja' }))
+    expect(screen.getByRole('option', { name: 'Engleski' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Srpski' })).toBeInTheDocument()
+  })
+
+  it('uses the Serbian accusative form for the source control', async () => {
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValue([])
+    mockedGetPreferences.mockResolvedValue({ ...defaultPreferences, language: 'sr' })
+    mockedStream.mockImplementation(async (_query, handlers) => {
+      handlers.onOpen()
+      handlers.onDelta('Odgovor.')
+      handlers.onSources([{
+        company: 'Tesla, Inc.', ticker: 'TSLA', filing_year: 2025,
+        section: 'Item 1 — Business', content_type: 'text', text: 'Dokaz.',
+      }], 'cited', 0)
+      handlers.onDone()
+    })
+    render(<App />)
+
+    await userEvent.type(await screen.findByLabelText('Pitajte AVA o SEC izveštajima'), 'Tesla{enter}')
+    expect(await screen.findByRole('button', { name: 'Prikaži izvore (1)' })).toBeInTheDocument()
   })
 
   it('uses Serbian generation activity before the first streamed token', async () => {
@@ -511,6 +540,8 @@ describe('App', () => {
 
     await userEvent.click(await screen.findByRole('button', { name: 'Open conversation sidebar' }))
     await userEvent.click(screen.getByRole('button', { name: 'Architecture' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Upload a source' }))
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Upload from computer' }))
     const fileInput = await screen.findByLabelText('Choose a PDF or text source')
     const file = new File(['architecture notes'], 'architecture.txt', { type: 'text/plain' })
     await userEvent.upload(fileInput, file)
@@ -521,6 +552,61 @@ describe('App', () => {
     expect(await screen.findByRole('dialog', { name: 'Sources' })).toBeInTheDocument()
     expect(screen.getByText('architecture.txt')).toBeInTheDocument()
     expect(mockedListDocuments).toHaveBeenCalledWith('conversation-1')
+  })
+
+  it('initializes a pending chat only after raw text upload succeeds', async () => {
+    const conversation = {
+      id: 'conversation-1', title: 'New conversation', memory_enabled: true,
+      pinned: false, pinned_at: null, created_at: '2026-09-01T00:00:00Z', updated_at: '2026-09-01T00:00:00Z', company_scope: [],
+    }
+    const uploaded = {
+      id: 'document-1', conversation_id: conversation.id, filename: 'source.txt', media_type: 'text/plain' as const,
+      size_bytes: 21, status: 'ready' as const, page_count: null, token_count: 4, chunk_count: 1,
+      created_at: '2026-09-01T00:00:00Z', updated_at: '2026-09-01T00:00:00Z',
+    }
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValue([])
+    mockedCreateConversation.mockResolvedValue(conversation)
+    mockedUploadDocument.mockResolvedValue(uploaded)
+    render(<App />)
+
+    await screen.findByLabelText('Ask AVA about the SEC filings')
+    expect(mockedCreateConversation).not.toHaveBeenCalled()
+    await userEvent.click(screen.getByRole('button', { name: 'Upload a source' }))
+    expect(screen.getByRole('menu', { name: 'Add a source' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Upload raw text' }))
+    await userEvent.type(screen.getByLabelText('Paste text'), 'Owner-scoped text source.')
+    await userEvent.click(screen.getByRole('button', { name: 'Upload text' }))
+
+    await waitFor(() => expect(mockedUploadDocument).toHaveBeenCalledOnce())
+    const uploadedFile = mockedUploadDocument.mock.calls[0][1]
+    expect(mockedCreateConversation).toHaveBeenCalledOnce()
+    expect(mockedUploadDocument).toHaveBeenCalledWith('conversation-1', expect.any(File))
+    expect(uploadedFile).toMatchObject({ name: 'source.txt', type: 'text/plain' })
+    expect(await screen.findByText('source.txt is ready in this chat.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Sources (1)' })).toBeInTheDocument()
+  })
+
+  it('removes an unsuccessful pending upload chat instead of retaining it as empty', async () => {
+    const conversation = {
+      id: 'conversation-1', title: 'New conversation', memory_enabled: true,
+      pinned: false, pinned_at: null, created_at: '2026-09-01T00:00:00Z', updated_at: '2026-09-01T00:00:00Z', company_scope: [],
+    }
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValue([])
+    mockedCreateConversation.mockResolvedValue(conversation)
+    mockedUploadDocument.mockRejectedValue(new Error('upload failed'))
+    render(<App />)
+
+    await screen.findByLabelText('Ask AVA about the SEC filings')
+    await userEvent.click(screen.getByRole('button', { name: 'Upload a source' }))
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Upload raw text' }))
+    await userEvent.type(screen.getByLabelText('Paste text'), 'Will not persist.')
+    await userEvent.click(screen.getByRole('button', { name: 'Upload text' }))
+
+    await waitFor(() => expect(mockedDeleteConversation).toHaveBeenCalledWith('conversation-1'))
+    expect(screen.getByText('The source could not be uploaded.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Sources (1)' })).not.toBeInTheDocument()
   })
 
   it('opens the same chat action menu by button or right-click and persists pinning', async () => {

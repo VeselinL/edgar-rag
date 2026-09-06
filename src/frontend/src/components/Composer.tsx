@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Language } from '../i18n'
 import { t } from '../i18n'
 
@@ -47,12 +47,55 @@ export function Composer({
 }: Props) {
   const textarea = useRef<HTMLTextAreaElement>(null)
   const fileInput = useRef<HTMLInputElement>(null)
+  const uploadButton = useRef<HTMLButtonElement>(null)
+  const uploadMenu = useRef<HTMLDivElement>(null)
+  const [uploadChoiceOpen, setUploadChoiceOpen] = useState(false)
+  const [rawTextMode, setRawTextMode] = useState(false)
+  const [rawText, setRawText] = useState('')
+  const [rawFilename, setRawFilename] = useState('')
+  const [rawTextError, setRawTextError] = useState('')
   useEffect(() => {
     const element = textarea.current
     if (!element) return
     element.style.height = 'auto'
     element.style.height = `${Math.min(element.scrollHeight, 180)}px`
   }, [value])
+
+  useEffect(() => {
+    if (!uploadChoiceOpen) return
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      const target = event.target as Node
+      if (!uploadMenu.current?.contains(target) && !uploadButton.current?.contains(target)) closeUploadChoice()
+    }
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeUploadChoice()
+    }
+    window.addEventListener('mousedown', closeOnOutsideClick)
+    window.addEventListener('keydown', closeOnEscape)
+    return () => {
+      window.removeEventListener('mousedown', closeOnOutsideClick)
+      window.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [uploadChoiceOpen])
+
+  const closeUploadChoice = () => {
+    setUploadChoiceOpen(false)
+    setRawTextMode(false)
+    setRawText('')
+    setRawFilename('')
+    setRawTextError('')
+  }
+
+  const uploadRawText = () => {
+    if (!rawText.trim()) {
+      setRawTextError(t(language, 'rawTextRequired'))
+      return
+    }
+    const baseName = rawFilename.trim() || 'source.txt'
+    const filename = /\.txt$/i.test(baseName) ? baseName : `${baseName}.txt`
+    onUpload?.(new File([rawText], filename, { type: 'text/plain' }))
+    closeUploadChoice()
+  }
 
   return (
     <div className="composer-wrap">
@@ -73,16 +116,20 @@ export function Composer({
           onChange={(event) => {
             const file = event.target.files?.[0]
             event.target.value = ''
-            if (file) onUpload?.(file)
+            if (file) {
+              onUpload?.(file)
+              closeUploadChoice()
+            }
           }}
         />
         <button
+          ref={uploadButton}
           className="upload-button"
           type="button"
           disabled={active || !uploadsEnabled}
           aria-label={t(language, 'uploadSource')}
           title={t(language, 'uploadSource')}
-          onClick={() => fileInput.current?.click()}
+          onClick={() => setUploadChoiceOpen((open) => !open)}
         >
           <PlusIcon />
         </button>
@@ -118,6 +165,39 @@ export function Composer({
           <span id="composer-status" role="status" aria-live="polite">{uploadStatus || validationMessage}</span>
         </span>
       </div>
+      {uploadChoiceOpen && (
+        <div ref={uploadMenu} className="upload-menu" aria-label={t(language, 'addSource')} role={rawTextMode ? undefined : 'menu'}>
+            {!rawTextMode ? (
+              <div className="upload-dialog__actions">
+                <button type="button" role="menuitem" className="settings-primary" onClick={() => fileInput.current?.click()}>
+                  {t(language, 'uploadFromComputer')}
+                </button>
+                <button type="button" role="menuitem" className="header-button" onClick={() => setRawTextMode(true)}>
+                  {t(language, 'uploadRawText')}
+                </button>
+              </div>
+            ) : (
+              <form className="upload-dialog__form" onSubmit={(event) => { event.preventDefault(); uploadRawText() }}>
+                <label htmlFor="raw-source-text">{t(language, 'pasteRawText')}
+                  <textarea id="raw-source-text" value={rawText} onChange={(event) => {
+                    setRawText(event.target.value)
+                    if (rawTextError) setRawTextError('')
+                  }} />
+                </label>
+                <label htmlFor="raw-source-filename">{t(language, 'sourceFilename')}
+                  <input id="raw-source-filename" value={rawFilename} maxLength={251} onChange={(event) => setRawFilename(event.target.value)} />
+                </label>
+                <p>{t(language, 'sourceFilenameHint')}</p>
+                {rawTextError && <p className="settings-error" role="alert">{rawTextError}</p>}
+                <div className="upload-dialog__actions">
+                  <button type="submit" className="settings-primary">{t(language, 'uploadText')}</button>
+                  <button type="button" className="header-button" onClick={() => setRawTextMode(false)}>{t(language, 'back')}</button>
+                  <button type="button" className="header-button" onClick={closeUploadChoice}>{t(language, 'cancel')}</button>
+                </div>
+              </form>
+            )}
+        </div>
+      )}
     </div>
   )
 }

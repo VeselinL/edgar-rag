@@ -91,11 +91,13 @@ export default function App() {
   const [authenticated, setAuthenticated] = useState(true)
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
   const [currentConversation, setCurrentConversation] = useState<ConversationSummary | null>(null)
+  const [pendingCompanyScope, setPendingCompanyScope] = useState<string[]>([])
   const [documents, setDocuments] = useState<ChatDocument[]>([])
   const [sourcesOpen, setSourcesOpen] = useState(false)
   const [sourcesLoading, setSourcesLoading] = useState(false)
   const [sourcesError, setSourcesError] = useState('')
   const [uploadStatus, setUploadStatus] = useState('')
+  const [uploading, setUploading] = useState(false)
   const [deletingDocumentId, setDeletingDocumentId] = useState<string | null>(null)
   const [preferences, setPreferences] = useState<UserPreferences>(DEFAULT_PREFERENCES)
   const [memory, setMemory] = useState<MemoryItem[]>([])
@@ -126,6 +128,7 @@ export default function App() {
         if (cancelled) return
         setConversations(saved)
         setCurrentConversation(null)
+        setPendingCompanyScope([])
         setMessages([])
       } catch {
         if (!cancelled) {
@@ -199,6 +202,7 @@ export default function App() {
   const selectConversation = async (conversation: ConversationSummary) => {
     if (active) return
     setCurrentConversation(conversation)
+    setPendingCompanyScope([])
     setMessages(storedMessages(await listMessages(conversation.id)))
     setDocuments([])
     setSourcesOpen(false)
@@ -208,6 +212,7 @@ export default function App() {
   const newConversation = async () => {
     if (!historyEnabled || active) return
     setCurrentConversation(null)
+    setPendingCompanyScope([])
     setMessages([])
     setDocuments([])
     setSourcesOpen(false)
@@ -229,15 +234,32 @@ export default function App() {
   }
 
   const addDocument = async (file: File) => {
-    if (!currentConversation || active) return
+    if (!historyEnabled || active || uploading) return
     setUploadStatus(`${copy.adding} ${file.name}…`)
     setSourcesError('')
+    setUploading(true)
+    let conversation = currentConversation
+    let pendingConversation = false
     try {
-      const uploaded = await uploadDocument(currentConversation.id, file)
+      if (!conversation) {
+        conversation = await createConversation(pendingCompanyScope)
+        pendingConversation = true
+      }
+      const uploaded = await uploadDocument(conversation.id, file)
+      if (pendingConversation) {
+        setCurrentConversation(conversation)
+        setPendingCompanyScope([])
+        setConversations((items) => [conversation!, ...items])
+      }
       setDocuments((items) => [uploaded, ...items.filter((item) => item.id !== uploaded.id)])
       setUploadStatus(`${file.name} ${copy.ready}`)
     } catch {
+      if (pendingConversation && conversation) {
+        try { await deleteConversation(conversation.id) } catch { /* Best-effort cleanup of an empty pending chat. */ }
+      }
       setUploadStatus(copy.sourceUploadFailed)
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -306,8 +328,9 @@ export default function App() {
     let conversationForTurn = currentConversation
     try {
       if (historyEnabled && !conversationForTurn) {
-        conversationForTurn = await createConversation()
+        conversationForTurn = await createConversation(pendingCompanyScope)
         setCurrentConversation(conversationForTurn)
+        setPendingCompanyScope([])
         setConversations((current) => [conversationForTurn!, ...current])
       }
       const handlers: Parameters<typeof streamChat>[1] = {
@@ -384,6 +407,7 @@ export default function App() {
             setAuthenticated(false)
             setHistoryEnabled(false)
             setCurrentConversation(null)
+            setPendingCompanyScope([])
             setConversations([])
             setMessages([])
           })
@@ -395,15 +419,18 @@ export default function App() {
             conversations={conversations}
             activeId={currentConversation?.id}
             language={preferences.language}
-            companyScope={currentConversation?.company_scope ?? []}
+            companyScope={currentConversation?.company_scope ?? pendingCompanyScope}
             onToggleCompany={(ticker) => {
-              if (!currentConversation) return
-              const currentScope = currentConversation.company_scope ?? []
+              const currentScope = currentConversation?.company_scope ?? pendingCompanyScope
               const nextScope = ticker === 'ALL'
                 ? []
                 : currentScope.includes(ticker)
                   ? currentScope.filter((value) => value !== ticker)
                   : [...currentScope, ticker]
+              if (!currentConversation) {
+                setPendingCompanyScope(nextScope)
+                return
+              }
               void updateConversation(currentConversation.id, { company_scope: nextScope }).then((updated) => {
                 setCurrentConversation(updated)
                 setConversations((items) => items.map((item) => item.id === updated.id ? updated : item))
@@ -504,18 +531,18 @@ export default function App() {
               <Composer
                 value={draft}
                 language={preferences.language}
-                active={active || historyInitializing}
+                active={active || historyInitializing || uploading}
                 validationMessage={validation}
                 onChange={(value) => {
                   setDraft(value)
                   if (validation) setValidation('')
                 }}
                 onSubmit={() => void submit()}
-                uploadsEnabled={historyEnabled && Boolean(currentConversation)}
+                uploadsEnabled={historyEnabled}
                 uploadStatus={uploadStatus}
                 sourceCount={documents.length}
                 onUpload={(file) => void addDocument(file)}
-                onOpenSources={() => void openSources()}
+                onOpenSources={currentConversation ? () => void openSources() : undefined}
               />
             </>
           )}

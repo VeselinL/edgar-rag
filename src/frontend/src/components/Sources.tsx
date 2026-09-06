@@ -109,7 +109,7 @@ export function Sources({ sources, sourceStatus, malformedCount, language }: { s
   return (
     <div className="sources">
       <button className="sources-button" type="button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen((value) => !value)}>
-        {open ? t(language, 'hide') : t(language, 'view')} {t(language, 'sources').toLowerCase()} ({sources.length})
+        {open ? t(language, 'hideSources') : t(language, 'viewSources')} ({sources.length})
       </button>
       {open && (
         <div className="sources-panel" id={panelId}>
