@@ -65,6 +65,9 @@ _OUTER_JSON_FENCE = re.compile(
     r"\A\s*```json[ \t]*\r?\n(?P<body>\{.*\})\s*```\s*\Z",
     re.IGNORECASE | re.DOTALL,
 )
+_SINGLE_COMPANY_FOLLOW_UP = re.compile(
+    r"\b(?:it|its|they|their|that\s+company)\b", re.IGNORECASE
+)
 
 
 def _memory_relationship(value: str) -> str:
@@ -73,6 +76,19 @@ def _memory_relationship(value: str) -> str:
         return ""
     target = match["target"].casefold()
     return f"{match['kind'].casefold()}_{'company' if target in {'company', 'companies'} else target}"
+
+
+def _recent_follow_up_ticker(query: str, context) -> str | None:
+    if not context or not _SINGLE_COMPANY_FOLLOW_UP.search(query):
+        return None
+    if default_company_resolver.resolve(query).resolved_tickers:
+        return None
+    for message in reversed(getattr(context, "recent_messages", ())):
+        if getattr(message, "role", "") != "assistant":
+            continue
+        tickers = default_company_resolver.resolve(message.content).resolved_tickers
+        return tickers[0] if len(tickers) == 1 else None
+    return None
 
 
 def parse_task_plan(payload, *, original_query, memory_candidates=(),
@@ -205,6 +221,10 @@ company', 'its', and 'their' using recent turns, and preferences using only
 applicable explicit memory IDs. If the user answers 'both' to AVA's immediately
 preceding company clarification, use every company named in that clarification.
 If the user asks for all companies in the selected scope, use every selected ticker.
+Never clarify a singular pronoun (`it`, `its`, `they`, `their`, or `that company`)
+when the immediately preceding assistant answer identifies exactly one company:
+resolve it to that company. For example, after an answer about Tesla, “What
+vehicles are they building?” requires a TSLA filing_retrieval task, not clarify.
 Preferred
 company, favorite company, favorite CEO, preferred metric and favorite product are
 different relationships. A conflict requires incompatible values for the SAME
@@ -255,6 +275,7 @@ def planner_messages(query, context=None, uploaded_sources=(), selected_company_
     from src.generation.service import quarantine_uploaded_instructions
 
     memories = getattr(context, "long_term_memories", ())
+    follow_up_ticker = _recent_follow_up_ticker(query, context)
     data = {
         "original_query": query,
         "allowed_companies": {ticker: {"name": COMPANY_NAMES[ticker],
@@ -272,5 +293,12 @@ def planner_messages(query, context=None, uploaded_sources=(), selected_company_
             "calculator": True, "maximum_tasks": 4, "maximum_web_searches": min(2, max_web_searches),
             "maximum_tool_executions": max_tool_executions, "upload_candidate_limit": 10},
     }
-    return [{"role": "system", "content": PLANNER_INSTRUCTION + "\nJSON schema:\n" + json.dumps(TaskPlan.model_json_schema())},
+    if follow_up_ticker:
+        data["server_validated_follow_up_ticker"] = follow_up_ticker
+    follow_up_instruction = (
+        f"\nServer-validated follow-up target: {follow_up_ticker}. The current query "
+        "contains a singular company reference; use this ticker and do not clarify."
+        if follow_up_ticker else ""
+    )
+    return [{"role": "system", "content": PLANNER_INSTRUCTION + follow_up_instruction + "\nJSON schema:\n" + json.dumps(TaskPlan.model_json_schema())},
             {"role": "user", "content": json.dumps(data, ensure_ascii=False)}]

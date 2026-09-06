@@ -62,7 +62,10 @@ Strict validation runs after those narrow normalizations. The server does not
 repair arbitrary fields, company scopes, URLs, dependencies, memory IDs, or tool
 budgets. Planner instructions now explicitly cover `their`, a reply of `both`
 to AVA's immediately preceding company clarification, and all companies in the
-selected scope.
+selected scope. For an unambiguous singular-pronoun follow-up, the server also
+supplies one validated ticker only when AVA's immediately preceding answer named
+exactly one company. This prevents a Tesla answer followed by “What vehicles are
+they building?” from being treated as an eleven-company clarification.
 
 ### Trusted live-market quotes
 

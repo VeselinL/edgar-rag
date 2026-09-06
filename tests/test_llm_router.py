@@ -1,13 +1,14 @@
 """Regression contract for the single bounded JSON planner."""
 
 import copy
+from datetime import datetime, timezone
 import json
 import unittest
 from types import SimpleNamespace
 
 from src.generation.service import GenerationService
 from src.conversations.context import ConversationContext
-from src.conversations.models import MemoryItem
+from src.conversations.models import MemoryItem, Message
 from src.backend.pipeline import RealPipeline
 from src.documents.retrieval import DocumentEvidence
 from src.tools.web_search import WebSearchResponse, WebSearchResult
@@ -17,7 +18,7 @@ from src.conversations.context import ConversationContextBuilder
 from src.conversations.memory import InMemoryMemoryStore
 from unittest.mock import patch
 
-from src.orchestration.planner import parse_task_plan
+from src.orchestration.planner import PLANNER_INSTRUCTION, parse_task_plan
 
 
 def task(kind, task_id="task-1", tickers=(), query="Tesla CEO latest 10-K", **extra):
@@ -118,6 +119,33 @@ class TaskPlanTests(unittest.TestCase):
         self.assertEqual([task.kind for task in result.tasks], [
             "filing_retrieval", "filing_retrieval", "evidence_calculation",
         ])
+
+    def test_planner_requires_single_company_pronoun_follow_up_resolution(self):
+        self.assertIn("Never clarify a singular pronoun", PLANNER_INSTRUCTION)
+        value = plan("What vehicles are they building", [
+            task("filing_retrieval", "tesla-vehicles", ["TSLA"],
+                 "Tesla vehicles currently building latest 10-K"),
+        ])
+
+        result = self.parse(value)
+
+        self.assertEqual(result.tasks[0].ticker_scope, ["TSLA"])
+
+    def test_planner_gets_a_server_validated_single_company_follow_up_hint(self):
+        now = datetime.now(timezone.utc)
+        context = ConversationContext(recent_messages=(
+            Message(
+                "assistant", "conversation", "turn", "assistant",
+                "Tesla (TSLA) stock was quoted at $352.89 per share.",
+                "completed", 1, now,
+            ),
+        ))
+        from src.orchestration.planner import planner_messages
+
+        messages = planner_messages("What vehicles are they building", context)
+
+        self.assertIn("TSLA", messages[0]["content"])
+        self.assertIn("server-validated follow-up target", messages[0]["content"].casefold())
 
     def test_rejects_unknown_fields_ids_cycles_scopes_and_budgets(self):
         base = plan("Tesla CEO", [task("filing_retrieval", tickers=["TSLA"])])

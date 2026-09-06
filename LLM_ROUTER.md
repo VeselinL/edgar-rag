@@ -52,6 +52,8 @@ original_query: exact current user message
 allowed_companies: canonical company/ticker list and supported aliases/products
 selected_company_scope: server-owned chat scope, if any
 short_term_context: bounded recent turns and extractive summary
+single_company_follow_up_ticker: server-validated only when a singular pronoun
+  has no explicit company and AVA's immediately preceding answer identified one
 long_term_memory_candidates: top-k owner-scoped semantic matches with IDs,
   text, similarity band, and explicit-memory type only
 uploaded_sources: filenames and, after server-side search, matching excerpts
@@ -134,6 +136,8 @@ route values only as compatibility adapters while callers migrate.
 2. If the user says `this company`, `its`, `the preferred company`, or a similar
    reference, resolve it using the bounded short-term context and the selected
    long-term memory candidates.
+   A supplied `single_company_follow_up_ticker` resolves that singular reference;
+   it is absent for explicit topic changes and ambiguous prior answers.
 3. A saved preference is typed by its relationship, not merely by a company name:
    `preferred company`, `favorite company`, `favorite CEO`, `preferred metric`,
    `favorite product`, and so on are distinct. Do not merge them.
