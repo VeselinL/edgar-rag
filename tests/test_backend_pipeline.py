@@ -147,11 +147,18 @@ class SerbianGroundedAnswerGenerator(FakeGenerator):
         super().__init__()
         self.answer_language = None
         self.translation_input = None
+        self.answer_query = None
+        self.answer_context = None
+
+    def translate_retrieval_query(self, query):
+        return "Who is Tesla's Chief Executive Officer?"
 
     def answer_with_metadata(
         self, query, evidence, *, conversation_context="", answer_language=None
     ):
         self.answer_language = answer_language
+        self.answer_query = query
+        self.answer_context = conversation_context
         return SimpleNamespace(
             text="English grounded answer [TSLA-2025-CHUNK-000001].", usage={}
         )
@@ -766,7 +773,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(events[-1].event, "done")
 
     async def test_serbian_filing_answer_is_grounded_in_english_then_translated(self):
-        retriever = FakeRetriever()
+        retriever = ContextAwareRetriever()
         generator = SerbianGroundedAnswerGenerator()
         pipeline = RealPipeline(retriever, generator, llm_streaming=False)
 
@@ -778,11 +785,16 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             async for event in pipeline.stream(
                 "Ko je Teslin CEO?",
                 connected,
-                conversation_context=ConversationContext(language="sr"),
+                conversation_context=ConversationContext(
+                    language="sr", preference_text="Answer language: Serbian."
+                ),
             )
         ]
 
         self.assertEqual(generator.answer_language, "en")
+        self.assertEqual(generator.answer_query, "Who is Tesla's Chief Executive Officer?")
+        self.assertIn("Initial grounded draft language: English.", generator.answer_context)
+        self.assertNotIn("Answer language: Serbian.", generator.answer_context)
         self.assertEqual(
             generator.translation_input,
             "English grounded answer [TSLA-2025-CHUNK-000001].",
@@ -1672,7 +1684,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             ],
         )
 
-    async def test_serbian_planning_uses_english_retrieval_query_but_preserves_user_query(self):
+    async def test_serbian_grounding_uses_english_query_but_preserves_user_query(self):
         generator = SerbianPlanningGenerator()
         pipeline = RealPipeline(FakeRetriever(), generator, llm_streaming=False)
         query = "Ko je Teslin glavni izvršni direktor?"
@@ -1688,7 +1700,12 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(generator.translation_input, query)
         self.assertEqual(generator.planned_query, "Who is Tesla's Chief Executive Officer?")
-        self.assertEqual(generator.answer_arguments[0], query)
+        self.assertEqual(
+            generator.answer_arguments[0], "Who is Tesla's Chief Executive Officer?"
+        )
+        self.assertEqual(generator.answer_arguments[0], generator.planned_query)
+        self.assertEqual(generator.planned_query, "Who is Tesla's Chief Executive Officer?")
+        self.assertEqual(generator.deterministic_resolution.original_query, query)
         self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
 
     async def test_buffered_generation_activity_uses_serbian_verbs(self):

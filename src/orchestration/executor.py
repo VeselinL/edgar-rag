@@ -1020,6 +1020,15 @@ class RealPipeline(RouteHandlerMixin):
                     planning_query = translated
             except Exception:
                 LOGGER.info("AVA Serbian retrieval translation unavailable")
+        generation_query = planning_query if language == "sr" else query
+        generation_context = (
+            prompt_context.replace(
+                "Answer language: Serbian.",
+                "Initial grounded draft language: English.",
+            )
+            if language == "sr"
+            else prompt_context
+        )
         with trace.stage("planning"):
             planner_supports_scope = "selected_tickers" in inspect.signature(
                 generator.plan_retrieval
@@ -1468,8 +1477,8 @@ class RealPipeline(RouteHandlerMixin):
             with trace.stage("generation_start"):
                 if hasattr(generator, "stream_answer_with_metadata"):
                     stream_kwargs: dict[str, Any] = {}
-                    if prompt_context:
-                        stream_kwargs["conversation_context"] = prompt_context
+                    if generation_context:
+                        stream_kwargs["conversation_context"] = generation_context
                     if (
                         translate_grounded_answer
                         and "answer_language" in inspect.signature(
@@ -1477,21 +1486,21 @@ class RealPipeline(RouteHandlerMixin):
                         ).parameters
                     ):
                         stream_kwargs["answer_language"] = "en"
-                    if prompt_context:
+                    if generation_context:
                         provider_stream = generator.stream_answer_with_metadata(
-                            query, evidence, **stream_kwargs
+                            generation_query, evidence, **stream_kwargs
                         )
                     else:
                         provider_stream = generator.stream_answer_with_metadata(
-                            query, evidence, **stream_kwargs
+                            generation_query, evidence, **stream_kwargs
                         )
                 else:
-                    if prompt_context:
+                    if generation_context:
                         provider_stream = generator.stream_answer(
-                            query, evidence, conversation_context=prompt_context
+                            generation_query, evidence, conversation_context=generation_context
                         )
                     else:
-                        provider_stream = generator.stream_answer(query, evidence)
+                        provider_stream = generator.stream_answer(generation_query, evidence)
             sentinel = object()
             citation_filter = CitationVisibilityFilter(allowed_ids)
 
@@ -1548,8 +1557,8 @@ class RealPipeline(RouteHandlerMixin):
             with trace.stage("generation"):
                 if hasattr(generator, "answer_with_metadata"):
                     answer_kwargs: dict[str, Any] = {}
-                    if prompt_context:
-                        answer_kwargs["conversation_context"] = prompt_context
+                    if generation_context:
+                        answer_kwargs["conversation_context"] = generation_context
                     if (
                         language == "sr"
                         and "answer_language" in inspect.signature(
@@ -1557,28 +1566,31 @@ class RealPipeline(RouteHandlerMixin):
                         ).parameters
                     ):
                         answer_kwargs["answer_language"] = "en"
-                    if prompt_context:
+                    if generation_context:
                         result = await asyncio.to_thread(
                             generator.answer_with_metadata,
-                            query,
+                            generation_query,
                             evidence,
                             **answer_kwargs,
                         )
                     else:
                         result = await asyncio.to_thread(
-                            generator.answer_with_metadata, query, evidence, **answer_kwargs
+                            generator.answer_with_metadata,
+                            generation_query,
+                            evidence,
+                            **answer_kwargs,
                         )
                 else:
-                    if prompt_context:
+                    if generation_context:
                         answer_text = await asyncio.to_thread(
                             generator.answer,
-                            query,
+                            generation_query,
                             evidence,
-                            conversation_context=prompt_context,
+                            conversation_context=generation_context,
                         )
                     else:
                         answer_text = await asyncio.to_thread(
-                            generator.answer, query, evidence
+                            generator.answer, generation_query, evidence
                         )
                     result = GenerationResult(answer_text, {})
             answer = result.text
