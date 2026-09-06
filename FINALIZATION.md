@@ -379,6 +379,27 @@ not mean an open-ended agent loop.
 
 ### 7.1 Typed plan
 
+Contract extension — 6 September 2026 (`LLM_ROUTER.md`): the active router now
+returns schema-v1 `TaskPlan`, with the unchanged original query, owner-scoped
+memory selection/references, at most four typed tasks (at most two web searches),
+and final-answer task IDs/language. Tasks are the execution authority; the route
+enum below remains a legacy adapter. Mixed filing+web and filing+upload requests
+retain both evidence categories in one grounded answer. Routing, atomic filing
+queries and memory reference resolution use one JSON completion; the existing
+bounded operand extractor may run only for a planned evidence calculation and
+cannot add tasks. Decimal execution and citation validation remain server-owned.
+
+Affected route-manifest cases before the next release measurement:
+`web-gm-price`, `web-aur-price`, `web-rivn-price` require target-aware searches
+and all quote disclosures; `upload-summary`, `upload-question`, `upload-pdf`,
+`upload-source`, `upload-calc` require relevant owner/chat evidence; conversation
+and memory cases must use selected personal context without inferred company
+facts. The ten additional regression cases in `LLM_ROUTER.md` are represented in
+`tests/test_llm_router.py` and `tests/test_llm_router_memory.py`, including mixed
+Tesla filing/market evidence and Ouster/RPLIDAR evidence. Existing frozen manifests
+and measurements are unchanged; these code regressions are not a newly measured
+release candidate.
+
 Replace route-specific implicit branches with one validated record:
 
 ```text

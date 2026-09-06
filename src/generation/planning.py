@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Sequence
 from typing import Any
 
@@ -14,6 +15,8 @@ def parse_evidence_calculation_plan(
     payload: str | dict[str, Any],
     evidence: Sequence[dict[str, Any]],
     expected_operation: str,
+    *,
+    require_periods: bool = False,
 ) -> EvidenceCalculationPlan:
     """Validate source-linked operands before deterministic calculation."""
     if isinstance(payload, str):
@@ -90,13 +93,16 @@ def parse_evidence_calculation_plan(
     }
     operands: list[EvidenceOperand] = []
     for item in raw_operands:
-        if not isinstance(item, dict) or set(item) != {
+        expected_fields = {
             "label",
             "value",
             "verbatim_value",
             "unit",
             "source_ids",
-        }:
+        }
+        if require_periods:
+            expected_fields.add("period")
+        if not isinstance(item, dict) or set(item) != expected_fields:
             raise ValueError("Calculation planner returned an invalid operand object.")
         label = item["label"]
         numeric_value = item["value"]
@@ -141,6 +147,21 @@ def parse_evidence_calculation_plan(
             source = evidence_by_id.get(source_id)
             if source is None or verbatim not in source.get("text", ""):
                 raise ValueError("Calculation operand is not present in its cited evidence.")
+            if require_periods:
+                period = item["period"]
+                source_text = source.get("text", "")
+                if not isinstance(period, str) or not period.strip() or len(period) > 80 or period not in source_text:
+                    raise ValueError("Calculation period is not present in its cited evidence.")
+                if unit is None:
+                    raise ValueError("Evidence calculations require disclosed operand units.")
+                # Currency symbols and ordinary singular/plural scale labels
+                # are equivalent; magnitudes are never converted here.
+                def unit_terms(text):
+                    text = text.lower().replace("$", " usd ").replace("€", " eur ")
+                    return {word.rstrip("s") for word in re.findall(r"[a-z]+", text)}
+
+                if not unit_terms(unit) <= unit_terms(source_text):
+                    raise ValueError("Calculation unit is not present in its cited evidence.")
         operands.append(
             EvidenceOperand(
                 label.strip(),

@@ -57,6 +57,7 @@ from src.orchestration.routing import (
     deterministic_route,
     explicit_filing_source_requested,
 )
+from src.orchestration.models import EvidenceSource
 from src.resolution.companies import (
     CompanyResolver,
     confidence_band,
@@ -84,6 +85,7 @@ from src.tools import (
 
 from src.backend.sources import normalize_sources
 from src.orchestration.handlers import PipelineEvent, RouteHandlerMixin, activity_event
+from src.orchestration.task_execution import TaskExecutionMixin
 
 
 AVAILABLE_MODELS = list(ALLOWED_MODELS)
@@ -133,7 +135,10 @@ def uploaded_evidence_matches_query(query: str, results: Sequence[Any]) -> bool:
         searchable = f"{getattr(result, 'filename', '')} {getattr(result, 'text', '')}"
         evidence_terms = set(re.findall(r"[a-z0-9]+", searchable.casefold()))
         overlap = query_terms & evidence_terms
-        if len(overlap) >= 2 or any(len(term) >= 8 for term in overlap):
+        # A single exact technical identifier (for example, ``RPLIDAR``) is
+        # enough to establish that the owner-provided source is relevant.  Do
+        # not require an arbitrary eight-character spelling threshold.
+        if len(overlap) >= 2 or any(len(term) >= 7 for term in overlap):
             return True
     return False
 
@@ -222,7 +227,7 @@ def company_scope_mismatch_message(
 
 
 
-class RealPipeline(RouteHandlerMixin):
+class RealPipeline(TaskExecutionMixin, RouteHandlerMixin):
     mode = "real"
 
     def __init__(
@@ -557,6 +562,13 @@ class RealPipeline(RouteHandlerMixin):
             )
             yield PipelineEvent("done", {})
             return
+        if self.request_routing_enabled and hasattr(generator, "plan_tasks"):
+            async for event in self._stream_task_plan(
+                query, disconnected, trace, conversation_context, document_service,
+                company_scope, generator,
+            ):
+                yield event
+            return
         uploaded_documents = []
         if (
             self.request_routing_enabled
@@ -651,9 +663,18 @@ class RealPipeline(RouteHandlerMixin):
         with trace.stage("routing"):
             if upload_match:
                 route = RequestRoute(
-                    RouteKind.UPLOADED_DOCUMENT_RAG,
+                    (
+                        RouteKind.FILING_UPLOAD
+                        if deterministic_resolution.resolved_tickers
+                        else RouteKind.UPLOADED_DOCUMENT_RAG
+                    ),
                     RouteReason.UPLOADED_EVIDENCE,
                     decided_by="chat_upload_content_match",
+                    required_sources=(
+                        (EvidenceSource.FILING, EvidenceSource.UPLOAD)
+                        if deterministic_resolution.resolved_tickers
+                        else (EvidenceSource.UPLOAD,)
+                    ),
                 )
             elif preliminary_route is not None and (
                 preliminary_route.uses_web_search
@@ -852,7 +873,7 @@ class RealPipeline(RouteHandlerMixin):
                 yield event
             return
 
-        if route.uses_uploads:
+        if route.uses_uploads and not route.uses_filing_retrieval:
             if document_service is None or trace.conversation_id is None:
                 response_text = (
                     "Za ovo pitanje je potreban dokument priložen ovom razgovoru, ali "
@@ -1373,9 +1394,31 @@ class RealPipeline(RouteHandlerMixin):
         if await disconnected():
             return
         evidence = list(outcome.evidence)
+        if route.route is RouteKind.FILING_UPLOAD:
+            upload_evidence = [
+                {
+                    "chunk": {
+                        "chunk_id": result.source_id,
+                        "content_type": "upload",
+                        "document_id": result.document_id,
+                        "filename": result.filename,
+                        "media_type": result.media_type,
+                        "page_number": result.page_number,
+                        "text": result.text,
+                    }
+                }
+                for result in upload_candidates
+            ]
+            evidence.extend(upload_evidence)
+            trace.final_generation_evidence_ids.extend(
+                item["chunk"]["chunk_id"] for item in upload_evidence
+            )
+            trace.selected_asset_ids = list(dict.fromkeys(
+                item["chunk"]["document_id"] for item in upload_evidence
+            ))
         answer_fragments: list[str] = []
         visible_fragments: list[str] = []
-        allowed_ids = list(outcome.chunk_ids)
+        allowed_ids = list(trace.final_generation_evidence_ids)
 
         if route.uses_calculator:
             if not hasattr(generator, "plan_evidence_calculation"):

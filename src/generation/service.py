@@ -96,9 +96,15 @@ def format_context(retrieved_evidence: Sequence[dict[str, Any]]) -> str:
             f"section={chunk.get('section', 'unknown')}; "
             f"content_type={chunk.get('content_type', 'unknown')}"
         )
-        blocks.append(
-            f'<source id="{citation}" {metadata}>\n{chunk["text"]}\n</source>'
+        if chunk.get("content_type") == "web":
+            metadata += "; " + json.dumps({key: chunk.get(key) for key in
+                ("title", "source_url", "retrieved_at", "publisher")}, ensure_ascii=False)
+        text = (
+            quarantine_uploaded_instructions(chunk["text"])
+            if chunk.get("content_type") == "upload"
+            else chunk["text"]
         )
+        blocks.append(f'<source id="{citation}" {metadata}>\n{text}\n</source>')
     return "\n\n".join(blocks)
 
 
@@ -238,12 +244,13 @@ def count_generation_input_tokens(
     *,
     conversation_context: str = "",
     encoding_name: str = DEFAULT_GENERATION_ENCODING,
+    system_prompt: str = SYSTEM_PROMPT,
 ) -> int:
     """Tokenize the complete formatted input, including chat framing overhead."""
     encoding = _generation_encoding(encoding_name)
     token_count = 3  # assistant reply priming for the current OpenAI chat format
     for message in generation_messages(
-        query, evidence, conversation_context=conversation_context
+        query, evidence, conversation_context=conversation_context, system_prompt=system_prompt
     ):
         token_count += 3
         token_count += len(encoding.encode(message["role"]))
@@ -322,6 +329,37 @@ class GenerationService:
             conversation_context=conversation_context,
             system_prompt=self.system_prompt,
             answer_language=answer_language,
+        )
+
+    def for_task_execution(self, language="en"):
+        """Use mixed-evidence grounding without changing the filing-only baseline."""
+        from copy import copy
+        from src.orchestration.planner import TASK_ANSWER_INSTRUCTION
+
+        generator = copy(self)
+        generator.system_prompt = self.system_prompt + "\n\n" + TASK_ANSWER_INSTRUCTION
+        generator.system_prompt += "\nAnswer in Serbian." if language == "sr" else "\nAnswer in English."
+        return generator
+
+    def plan_tasks(self, original_query, conversation_context=None, uploaded_sources=(),
+                   selected_company_scope=(), max_web_searches=2, max_tool_executions=4):
+        """Resolve routing, atomic queries and references in one JSON completion."""
+        from src.orchestration.planner import parse_task_plan, planner_messages
+
+        response = self._create(
+            model=self.model,
+            messages=planner_messages(original_query, conversation_context, uploaded_sources,
+                                      selected_company_scope, max_web_searches, max_tool_executions),
+            temperature=0.0,
+            max_tokens=2400,
+        )
+        return parse_task_plan(
+            response.choices[0].message.content or "",
+            original_query=original_query,
+            memory_candidates=getattr(conversation_context, "long_term_memories", ()),
+            selected_company_scope=selected_company_scope,
+            max_web_searches=max_web_searches,
+            max_tool_executions=max_tool_executions,
         )
 
     def route_request(
@@ -666,13 +704,20 @@ class GenerationService:
         evidence: Sequence[dict[str, Any]],
         operation: str,
         source_kind: str = "filing",
+        *,
+        require_periods: bool = False,
     ) -> EvidenceCalculationPlan:
         """Extract and validate cited operands without asking the model to calculate."""
         response = self._create(
             model=self.model,
             messages=[
                 {"role": "system", "content": CALCULATION_PLANNER_INSTRUCTION},
-                {"role": "system", "content": CALCULATION_PLANNER_JSON_FORMAT},
+                {"role": "system", "content": CALCULATION_PLANNER_JSON_FORMAT + (
+                    " Each operand must additionally include period: the exact disclosed period "
+                    "text from its cited source. Units must also appear in that source. "
+                    "Return missing for undisclosed or incompatible periods or units."
+                    if require_periods else ""
+                )},
                 {"role": "system", "content": f"Required operation: {operation}"},
                 {"role": "system", "content": f"Evidence source kind: {source_kind}"},
                 {
@@ -688,7 +733,7 @@ class GenerationService:
             max_tokens=1_024,
         )
         raw_plan = response.choices[0].message.content or ""
-        return parse_evidence_calculation_plan(raw_plan, evidence, operation)
+        return parse_evidence_calculation_plan(raw_plan, evidence, operation, require_periods=require_periods)
 
     def stream_conversation_context_answer(
         self, query: str, *, conversation_context: str

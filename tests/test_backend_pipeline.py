@@ -487,6 +487,22 @@ class RoadrunnerDocumentService(FakeDocumentService):
         ]
 
 
+class RplidarDocumentService(FakeDocumentService):
+    def search(self, conversation_id, query, *, limit=10):
+        self.search_arguments = (conversation_id, query, limit)
+        return [
+            DocumentEvidence(
+                "upload:rplidar:0",
+                "document-rplidar",
+                "rplidar-a1.txt",
+                "text/plain",
+                None,
+                "RPLIDAR A1 is a 360-degree two-dimensional laser range scanner.",
+                0.91,
+            )
+        ]
+
+
 class UploadGenerator(RoutedGenerator):
     def __init__(self, route=None):
         super().__init__(
@@ -509,8 +525,9 @@ class UploadGenerator(RoutedGenerator):
 
     def upload_answer_with_metadata(self, query, evidence):
         self.upload_evidence = evidence
+        citation = evidence[0]["chunk"]["chunk_id"]
         return SimpleNamespace(
-            text="Failover uses a passive replica [upload:document-1:0].",
+            text=f"Failover uses a passive replica [{citation}].",
             usage={"total_tokens": 12},
         )
 
@@ -1381,6 +1398,38 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(
             [event.event for event in events], ["delta", "sources", "done"]
         )
+
+    async def test_exact_upload_identifier_precedes_out_of_scope_fallback(self):
+        retriever = FakeRetriever()
+        generator = UploadGenerator(
+            RequestRoute(RouteKind.CONVERSATION_ONLY, RouteReason.OUT_OF_SCOPE)
+        )
+        documents = RplidarDocumentService()
+        pipeline = RealPipeline(retriever, generator, llm_streaming=False)
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Hello AVA, can you tell me what RPLIDAR A1 is?",
+                connected,
+                conversation_id="chat-1",
+                document_service=documents,
+            )
+        ]
+
+        self.assertIsNone(retriever.arguments)
+        self.assertEqual(
+            documents.search_arguments,
+            ("chat-1", "Hello AVA, can you tell me what RPLIDAR A1 is?", 10),
+        )
+        self.assertEqual(
+            generator.upload_evidence[0]["chunk"]["chunk_id"],
+            "upload:rplidar:0",
+        )
+        self.assertEqual(events[1].data["sources"][0]["content_type"], "upload")
 
     async def test_uploaded_document_calculation_must_execute_cited_calculator(self):
         route = RequestRoute(

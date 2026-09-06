@@ -1,6 +1,7 @@
 import json
 import time
 import unittest
+from unittest.mock import Mock
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from urllib.parse import parse_qs, urlparse
@@ -337,6 +338,19 @@ class BackendApiTests(unittest.TestCase):
             })
         self.assertEqual(response.status_code, 200)
         self.assertEqual(pipeline.received_model, "AZURE_GPT_41_2025_0414")
+
+    def test_task_planner_does_not_precede_memory_search_with_another_llm_call(self):
+        repository = InMemoryConversationRepository()
+        service = ConversationService(repository, tenant_id="tenant", user_id="user")
+        conversation = service.create()
+        pipeline = MockPipeline(delay_seconds=0)
+        pipeline.generator = Mock()
+        with TestClient(create_app(application_settings=self.settings, pipeline=pipeline,
+                                   conversation_service=service)) as client:
+            response = client.post("/api/chat/stream", json={"query": "My preferred company?",
+                "conversation_id": conversation.id, "client_turn_id": str(uuid4())})
+        self.assertEqual(response.status_code, 200)
+        pipeline.generator.for_model.assert_not_called()
 
     def test_conversation_pin_update_is_persisted_and_ordered(self):
         repository = InMemoryConversationRepository()
