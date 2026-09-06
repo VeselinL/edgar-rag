@@ -24,6 +24,7 @@ class ConversationContext:
     nickname: str = ""
     language: str = "en"
     memory_company_tickers: tuple[str, ...] = ()
+    memory_reference_kind: str = ""
     explicit_memory_request: str = ""
 
     @property

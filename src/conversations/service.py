@@ -64,9 +64,9 @@ class ConversationService:
 
     _MAX_MEMORY_CONTENT_LENGTH = 1500
     _EXPLICIT_MEMORY_PREFIX = re.compile(
-        r"^\s*(?:(?:please\s+)?(?:could|can|would)\s+you\s+|"
+        r"^\s*(?:(?:ok(?:ay)?|u\s+redu|dobro)[,!]?\s+)?(?:(?:please\s+)?(?:could|can|would)\s+you\s+|"
         r"(?:molim\s+te\s+)?(?:možeš|mozes)\s+li\s+)?(?:please\s+)?"
-        r"(?:remember|save|zapamti|sačuvaj)(?:\s+(?:this|ovo|to))?"
+        r"(?:remember|save|zapamti|sačuvaj|sacuvaj)\b(?:\s+(?:this|ovo|to))?"
         r"(?:\s+(?:in|to|u))?(?:\s+(?:long[- ]term\s+)?memory|memoriju)?\s*[:,-]?\s*",
         re.IGNORECASE,
     )
@@ -81,10 +81,17 @@ class ConversationService:
     )
     _MEMORY_INSTRUCTION_PATTERN = re.compile(
         r"\b(?:ignore|disregard|override|system\s+prompt|developer(?:\s+message)?|"
-        r"instructions?|tool|function|api\s*key|secret|execute|call\s+(?:a|the)\s+tool|"
+        r"instructions?|tool|function|api\s*key|secret|password|passwd|private\s+key|bearer|execute|call\s+(?:a|the)\s+tool|"
         r"ignoriši|zanemari|zaobiđi|sistemski\s+(?:prompt|upit)|instrukcije?|"
         r"alat|funkcij\w*|api\s*(?:ključ|key)|tajna?)\b",
         re.IGNORECASE,
+    )
+
+    _MEMORY_REFERENCE_PATTERNS = (
+        ("preferred_company", re.compile(r"\b(?:my\s+)?preferred\s+(?:autonomous\s+driving\s+)?compan(?:y|ies)\b", re.IGNORECASE)),
+        ("favorite_company", re.compile(r"\b(?:my\s+)?favou?rite\s+(?:autonomous\s+driving\s+)?compan(?:y|ies)\b", re.IGNORECASE)),
+        ("preferred_metric", re.compile(r"\b(?:my\s+)?preferred\s+metric\b", re.IGNORECASE)),
+        ("favorite_ceo", re.compile(r"\b(?:my\s+)?favou?rite\s+ceo\b", re.IGNORECASE)),
     )
 
     def __init__(
@@ -178,7 +185,17 @@ class ConversationService:
             raise ValueError("Memory cannot contain instructions, tools, secrets, or policy text.")
         if not cls._PREFERENCE_MEMORY_STATEMENT.search(value):
             raise ValueError("Memory must be a stable first-person preference or profile detail.")
+        if any(not cls._PREFERENCE_MEMORY_STATEMENT.search(sentence)
+               for sentence in re.split(r"[.!?;]\s+", value) if sentence.strip()):
+            raise ValueError("Every saved statement must be a user preference or profile detail.")
         return value
+
+    @classmethod
+    def _memory_reference_kind(cls, value: str) -> str:
+        return next(
+            (kind for kind, pattern in cls._MEMORY_REFERENCE_PATTERNS if pattern.search(value)),
+            "",
+        )
 
     def list_memory(self) -> list[MemoryItem]:
         return self.repository.list_memory_items(self.tenant_id, self.user_id)
@@ -342,6 +359,13 @@ class ConversationService:
         context, _ = self.context_builder.build(
             self.tenant_id, self.user_id, conversation_id, excluded_turn_id=client_turn_id
         )
+        # A save is acknowledged only after both stores have accepted it.
+        try:
+            explicit_memory_request = "saved" if self._explicit_memory_content(query) is not None else ""
+        except ValueError:
+            explicit_memory_request = "rejected"
+        if explicit_memory_request == "saved":
+            self._sync_conversation_memory(conversation_id, client_turn_id)
         candidates = self.memory_store.search(
             memory_query or query,
             self.tenant_id,
@@ -350,6 +374,10 @@ class ConversationService:
             threshold=self.long_term_score_threshold,
             exclude_conversation_id=conversation_id,
         )
+        # The single planner selects applicable relationships. Semantic matches
+        # are candidates, never an authoritative or merged company scope.
+        candidates = [item for item in candidates if item.memory_type == "explicit"
+                      and item.tenant_id == self.tenant_id and item.user_id == self.user_id]
         selected: list[MemoryItem] = []
         used_words = 0
         for item in candidates:
@@ -359,20 +387,6 @@ class ConversationService:
             selected.append(item)
             used_words += estimated
         memories = tuple(selected)
-        try:
-            explicit_memory_request = (
-                "saved" if self._explicit_memory_content(query) is not None else ""
-            )
-        except ValueError:
-            explicit_memory_request = "rejected"
-        memory_company_tickers = tuple(
-            ticker
-            for ticker in ACTIVE_FILINGS
-            if any(
-                ticker in default_company_resolver.resolve(item.content).resolved_tickers
-                for item in memories
-            )
-        )
         preferences = self.preferences()
         return replace(
             context,
@@ -380,7 +394,8 @@ class ConversationService:
             preference_text=self.preference_prompt_fragment(preferences),
             nickname=preferences.nickname,
             language=preferences.language,
-            memory_company_tickers=memory_company_tickers,
+            memory_company_tickers=(),
+            memory_reference_kind="",
             explicit_memory_request=explicit_memory_request,
         )
 
@@ -399,9 +414,9 @@ class ConversationService:
                 content = self._explicit_memory_content(user_message.content)
             except ValueError:
                 content = None
-            existing = {item.content.casefold() for item in self.list_memory()}
-            if content is not None and content.casefold() not in existing:
-                item = self.repository.create_memory_item(
+            existing = {item.content.casefold(): item for item in self.list_memory()}
+            if content is not None:
+                item = existing.get(content.casefold()) or self.repository.create_memory_item(
                     self.tenant_id,
                     self.user_id,
                     content,

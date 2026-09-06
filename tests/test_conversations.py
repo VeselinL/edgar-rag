@@ -200,7 +200,8 @@ class ConversationServiceTests(unittest.TestCase):
             [item.content for item in context.long_term_memories],
             ["My preferred company is Rivian."],
         )
-        self.assertEqual(context.memory_company_tickers, ("RIVN",))
+        # Semantic memory matches are planner candidates, not company scope.
+        self.assertEqual(context.memory_company_tickers, ())
 
     def test_instruction_like_memory_is_rejected_and_not_promoted(self):
         conversation = self.service.create()
