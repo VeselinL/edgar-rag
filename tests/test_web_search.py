@@ -17,6 +17,43 @@ from src.orchestration.models import TrustedSourceKey
 
 
 class WebSearchToolTests(unittest.TestCase):
+    def test_market_search_enriches_an_approved_robinhood_quote(self):
+        def handler(request: httpx.Request) -> httpx.Response:
+            if request.method == "POST":
+                return httpx.Response(
+                    200,
+                    headers={"content-type": "application/json"},
+                    json={"results": [{
+                        "title": "RIVN Stock Price Quote - Robinhood",
+                        "url": "https://robinhood.com/us/en/stocks/RIVN",
+                        "content": "Rivian (RIVN) stock is priced at $15.69.",
+                    }]},
+                )
+            self.assertEqual(str(request.url), "https://robinhood.com/us/en/stocks/RIVN/")
+            return httpx.Response(
+                200,
+                headers={"content-type": "text/html"},
+                text=(
+                    "Robinhood provides real-time quotes. "
+                    '\"last_non_reg_trade_price\":\"15.690100\",'
+                    '\"venue_last_non_reg_trade_time\":\"2026-09-04T23:58:52.597561Z\"'
+                ),
+            )
+
+        tool = TavilyWebSearchTool(
+            "secret",
+            client=httpx.Client(transport=httpx.MockTransport(handler)),
+            now=lambda: datetime(2026, 9, 6, 17, tzinfo=timezone.utc),
+        )
+        response = tool.search(
+            "RIVN current stock price",
+            source_keys=(TrustedSourceKey.MARKET_SECONDARY,),
+            tickers=("RIVN",),
+        )
+
+        from src.orchestration.task_execution import qualified_market_quote
+        self.assertTrue(qualified_market_quote(response.results[0], ("RIVN",)))
+
     def test_tavily_adapter_returns_bounded_safe_provenance(self):
         def handler(request: httpx.Request) -> httpx.Response:
             self.assertEqual(str(request.url), TAVILY_WEB_SEARCH_URL)

@@ -191,8 +191,13 @@ route values only as compatibility adapters while callers migrate.
 
 ## Server validation and execution
 
-1. Validate JSON schema, task count, task IDs, dependencies, allowed tickers,
-   source-key combinations, and limits before executing anything.
+1. Before validation, normalize only harmless provider presentation: one outer
+   `json` Markdown fence; an implicit `sec_edgar` key on a filing task; and a
+   filing-shaped task that already declares reviewed current-fact web sources
+   and freshness. Then validate JSON schema, task count, task IDs,
+   dependencies, allowed tickers, source-key combinations, and limits before
+   executing anything. Do not repair URLs, tickers, dependencies, tool limits,
+   memory IDs, or arbitrary fields.
 2. Resolve server-authoritative company scope and ownership before retrieval.
 3. Execute independent tasks in bounded parallelism where safe; execute
    calculations only after their evidence dependency completes.

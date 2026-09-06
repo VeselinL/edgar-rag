@@ -21,8 +21,10 @@ from src.orchestration.planner import parse_task_plan
 
 
 def task(kind, task_id="task-1", tickers=(), query="Tesla CEO latest 10-K", **extra):
-    return dict(task_id=task_id, kind=kind, ticker_scope=list(tickers),
-                query=query, depends_on=[], **extra)
+    value = dict(task_id=task_id, kind=kind, ticker_scope=list(tickers),
+                 query=query, depends_on=[])
+    value.update(extra)
+    return value
 
 
 def plan(query, tasks, selected=(), references=()):
@@ -57,6 +59,65 @@ class TaskPlanTests(unittest.TestCase):
         result = self.parse(value)
         self.assertEqual(len(result.tasks), 2)
         self.assertEqual(result.original_query, query)
+
+    def test_accepts_provider_fence_and_implicit_sec_filing_source(self):
+        query = "Who is the CEO of Tesla listed in the 10-K filing, and what is their stock price?"
+        value = plan(query, [
+            task("filing_retrieval", "tesla-ceo", ["TSLA"],
+                 "CEO of Tesla as listed in the latest 10-K filing",
+                 freshness="none", trusted_source_keys=["sec_edgar"]),
+            task("web_search", "tesla-price", ["TSLA"], "current stock price of Tesla",
+                 freshness="market_live", trusted_source_keys=["market_primary", "market_secondary"]),
+        ])
+
+        result = parse_task_plan(
+            "```json\n" + json.dumps(value) + "\n```",
+            original_query=query,
+        )
+
+        self.assertEqual(result.tasks[0].trusted_source_keys, [])
+        self.assertEqual(result.tasks[1].query, "TSLA current stock price")
+
+    def test_rejects_noncanonical_filing_source_key(self):
+        value = plan("Tesla CEO", [task("filing_retrieval", tickers=["TSLA"],
+            trusted_source_keys=["news_independent"])])
+
+        with self.assertRaises(ValueError):
+            self.parse(value)
+
+    def test_promotes_current_leadership_filing_shape_to_trusted_web_task(self):
+        value = plan("both", [
+            task("filing_retrieval", "aurora-ceo", ["AUR"],
+                 "current CEO of Aurora Innovation", freshness="leadership_current",
+                 trusted_source_keys=["issuer_official"]),
+            task("filing_retrieval", "aptiv-ceo", ["APTV"],
+                 "current CEO of Aptiv", freshness="leadership_current",
+                 trusted_source_keys=["issuer_official"]),
+        ])
+
+        result = self.parse(value)
+
+        self.assertEqual([task.kind for task in result.tasks], ["web_search", "web_search"])
+
+    def test_accepts_selected_company_operating_margin_calculation_shape(self):
+        query = "Calculate this company’s operating margin for the latest two fiscal years and report the change in basis points."
+        value = plan(query, [
+            task("filing_retrieval", "latest-margin", ["MBLY"],
+                 "Operating margin for the most recent fiscal year.",
+                 freshness="none", trusted_source_keys=["sec_edgar"]),
+            task("filing_retrieval", "prior-margin", ["MBLY"],
+                 "Operating margin for the fiscal year prior to the most recent.",
+                 freshness="none", trusted_source_keys=["sec_edgar"]),
+            task("evidence_calculation", "margin-change", ["MBLY"],
+                 "Calculate the change in operating margin between the latest two fiscal years in basis points.",
+                 depends_on=["latest-margin", "prior-margin"], operation="difference"),
+        ])
+
+        result = self.parse(value, selected_company_scope=("MBLY",))
+
+        self.assertEqual([task.kind for task in result.tasks], [
+            "filing_retrieval", "filing_retrieval", "evidence_calculation",
+        ])
 
     def test_rejects_unknown_fields_ids_cycles_scopes_and_budgets(self):
         base = plan("Tesla CEO", [task("filing_retrieval", tickers=["TSLA"])])

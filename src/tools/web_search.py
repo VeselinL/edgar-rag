@@ -9,6 +9,7 @@ import ipaddress
 import re
 from typing import Any, Callable, Protocol
 from urllib.parse import urlsplit, urlunsplit
+from zoneinfo import ZoneInfo
 
 import httpx
 
@@ -21,6 +22,8 @@ MAX_QUERY_WORDS = 50
 MAX_RESULTS = 10
 MAX_EXCERPT_CHARACTERS = 1_000
 MAX_RESPONSE_BYTES = 1_048_576
+_ROBINHOOD_QUOTE_PRICE = re.compile(r'"last_non_reg_trade_price":"(?P<price>\d+(?:\.\d+)?)"')
+_ROBINHOOD_QUOTE_TIME = re.compile(r'"venue_last_non_reg_trade_time":"(?P<time>[^"\\]+)"')
 
 
 @dataclass(frozen=True)
@@ -253,6 +256,45 @@ class TavilyWebSearchTool:
         self._now = now or (lambda: datetime.now(timezone.utc))
         self._api_url = api_url.rstrip("/") + "/search" if not api_url.rstrip("/").endswith("/search") else api_url
 
+    @staticmethod
+    def _market_status(now: datetime) -> str:
+        eastern = now.astimezone(ZoneInfo("America/New_York"))
+        if eastern.weekday() >= 5:
+            return "closed"
+        clock = eastern.timetz().replace(tzinfo=None)
+        if clock < datetime.strptime("09:30", "%H:%M").time():
+            return "pre-market"
+        if clock < datetime.strptime("16:00", "%H:%M").time():
+            return "open"
+        return "after-hours"
+
+    def _robinhood_quote_excerpt(self, url: str, ticker: str, excerpt: str) -> str:
+        """Append bounded fields from one reviewed market page, or keep search text."""
+        try:
+            response = self._client.get(
+                url.rstrip("/") + "/", headers={"Accept": "text/html"}
+            )
+        except httpx.HTTPError:
+            return excerpt
+        if (
+            response.status_code != 200
+            or not response.headers.get("content-type", "").casefold().startswith("text/html")
+            or len(response.content) > MAX_RESPONSE_BYTES
+        ):
+            return excerpt
+        page = response.content.decode("utf-8", errors="ignore")
+        if "real-time quote" not in page.casefold():
+            return excerpt
+        price = _ROBINHOOD_QUOTE_PRICE.search(page)
+        quoted_at = _ROBINHOOD_QUOTE_TIME.search(page)
+        if not price or not quoted_at:
+            return excerpt
+        return (
+            f"{excerpt}\n{ticker} price: USD {price['price']}; quote timestamp: "
+            f"{quoted_at['time']}; market status: {self._market_status(self._now())}; "
+            "delay: real time"
+        )
+
     def search(
         self,
         query: str,
@@ -308,6 +350,7 @@ class TavilyWebSearchTool:
         retrieved_at = self._now().astimezone(timezone.utc).isoformat()
         results: list[WebSearchResult] = []
         seen_urls: set[str] = set()
+        market_quote_enriched = False
         for item in raw_results:
             if not isinstance(item, dict):
                 continue
@@ -325,6 +368,17 @@ class TavilyWebSearchTool:
                 for domain in allowed_domains
             ):
                 continue
+            if (
+                not market_quote_enriched
+                and TrustedSourceKey.MARKET_SECONDARY in source_keys
+                and publisher == "robinhood.com"
+                and any(re.search(rf"\b{re.escape(ticker)}\b", f"{title} {excerpt}", re.I) for ticker in tickers)
+            ):
+                ticker = next(ticker for ticker in tickers if re.search(
+                    rf"\b{re.escape(ticker)}\b", f"{title} {excerpt}", re.I
+                ))
+                excerpt = self._robinhood_quote_excerpt(url, ticker, excerpt)
+                market_quote_enriched = excerpt != _clean_text(item.get("content"), maximum=MAX_EXCERPT_CHARACTERS)
             results.append(
                 WebSearchResult(
                     source_id=f"web-{len(results) + 1}",
