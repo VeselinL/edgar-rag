@@ -303,6 +303,16 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
 .settings-nav button:hover, .settings-nav__active { background: var(--surface); color: var(--primary-strong); }
 .settings-content { min-height: 0; padding: 28px 32px; overflow-y: auto; }
 .settings-content h2 { margin: 0 0 8px; font-size: 1.08rem; }
+.settings-switch { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px !important; margin: 18px 0 12px !important; color: var(--text) !important; }
+.settings-switch strong, .settings-switch small { display: block; }
+.settings-switch small { margin-top: 3px; color: var(--text-secondary); font-size: 0.78rem; font-weight: 400; line-height: 1.35; }
+.settings-switch input { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; }
+.settings-switch__track { position: relative; width: 42px; height: 24px; border-radius: 999px; background: var(--border); transition: background 150ms ease; }
+.settings-switch__track::after { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 3px rgb(0 0 0 / 24%); content: ''; transition: transform 150ms ease; }
+.settings-switch input:checked + .settings-switch__track { background: var(--primary-strong); }
+.settings-switch input:checked + .settings-switch__track::after { transform: translateX(18px); }
+.settings-switch input:focus-visible + .settings-switch__track { outline: 3px solid var(--focus); outline-offset: 3px; }
+.settings-content :disabled { cursor: not-allowed; opacity: .55; }
 .settings-content > p, .settings-content label + p { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5; }
 .settings-content label { display: grid; gap: 6px; margin: 14px 0; color: var(--text-secondary); font-size: 0.84rem; font-weight: 700; }
 .settings-content select, .settings-content input, .settings-content textarea { width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 8px; color: var(--text); background: var(--surface); font: inherit; font-weight: 400; }
@@ -555,4 +565,5 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
+  .settings-switch__track, .settings-switch__track::after { transition: none; }
 }

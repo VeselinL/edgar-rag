@@ -74,6 +74,7 @@ const mockedUpdatePreferences = vi.mocked(updatePreferences)
 const defaultPreferences = {
   nickname: '', warmth: 'balanced' as const, enthusiasm: 'balanced' as const, emoji_use: 'off' as const,
   custom_instructions: '', language: 'en' as const, model: 'AZURE_GPT_4o_2024_1120', theme: 'system' as const,
+  memory_enabled: true,
 }
 type Handlers = Parameters<typeof streamChat>[1]
 
@@ -470,6 +471,43 @@ describe('App', () => {
 
     expect(mockedCreateMemory).toHaveBeenCalledWith('Use concise answers.')
     expect(await screen.findByText('Saved by you')).toBeInTheDocument()
+  })
+
+  it('puts the Enable memory switch first in Memory settings and persists it', async () => {
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValue([])
+    mockedListMessages.mockResolvedValue([])
+    mockedUpdatePreferences.mockResolvedValue({ ...defaultPreferences, memory_enabled: false })
+    render(<App />)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Settings' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Memory' }))
+    const heading = screen.getByRole('heading', { name: 'Memory' })
+    const toggle = screen.getByRole('switch', { name: 'Enable memory' })
+
+    expect(heading.nextElementSibling).toContainElement(toggle)
+    expect(toggle).toBeChecked()
+    await userEvent.click(toggle)
+
+    expect(mockedUpdatePreferences).toHaveBeenCalledWith({ memory_enabled: false })
+    expect(screen.getByRole('textbox', { name: 'Add memory' })).toBeDisabled()
+  })
+
+  it('labels chat-saved memory as Saved by AVA', async () => {
+    mockedHistoryEnabled.mockResolvedValue(true)
+    mockedListConversations.mockResolvedValue([])
+    mockedListMessages.mockResolvedValue([])
+    mockedListMemory.mockResolvedValue([{
+      id: 'memory-ava', content: 'My preferred company is Rivian.', type: 'explicit', saved_by: 'ava',
+      source_conversation_id: 'conversation-1', source_message_id: 'message-1', version: 1,
+      created_at: '2026-09-01T00:00:00Z', updated_at: '2026-09-01T00:00:00Z',
+    }])
+    render(<App />)
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Settings' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Memory' }))
+
+    expect(await screen.findByText('Saved by AVA')).toBeInTheDocument()
   })
 
   it('opens memory editing in a separate dialog', async () => {

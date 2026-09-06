@@ -767,6 +767,33 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             [event.event for event in events], ["delta", "sources", "done"]
         )
 
+    async def test_disabled_memory_request_returns_enablement_guidance(self):
+        retriever = FakeRetriever()
+        generator = FakeGenerator("This must not be generated")
+        pipeline = RealPipeline(retriever, generator, llm_streaming=False)
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Remember that I prefer compact answers.",
+                connected,
+                conversation_context=ConversationContext(
+                    explicit_memory_request="disabled",
+                ),
+            )
+        ]
+
+        self.assertEqual(
+            events[0].data["text"],
+            "Long-term memory is disabled. Enable it in Settings to save a preference.",
+        )
+        self.assertEqual([event.event for event in events], ["delta", "sources", "done"])
+        self.assertIsNone(retriever.arguments)
+        self.assertFalse(generator.stream_answer_called)
+
     async def test_semantically_retrieved_memory_scope_targets_follow_up_filing(self):
         retriever = FakeRetriever()
         generator = FakeGenerator("Rivian answer [TSLA-2025-CHUNK-000001]")

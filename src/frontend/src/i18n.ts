@@ -4,7 +4,8 @@ const text = {
   en: {
     settings: 'Settings', close: 'Close', general: 'General', memory: 'Memory', personalization: 'Personalization',
     appearance: 'Appearance', language: 'Language', english: 'English', serbian: 'Serbian', model: 'Answer model', system: 'System', light: 'Light', dark: 'Dark',
-    addMemory: 'Add memory', loadingMemory: 'Loading memory…', savedByYou: 'Saved by you', learnedChats: 'Learned from chats',
+    addMemory: 'Add memory', loadingMemory: 'Loading memory…', savedByYou: 'Saved by you', savedByAva: 'Saved by AVA', learnedChats: 'Learned from chats',
+    enableMemory: 'Enable memory', memoryToggleNotice: 'Let AVA use saved preferences and save explicit memory requests from chats.',
     edit: 'Edit', save: 'Save', cancel: 'Cancel', delete: 'Delete', editMemory: 'Edit memory', savePersonalization: 'Save personalization', nickname: 'Nickname', warmth: 'Warmth', enthusiasm: 'Enthusiasm',
     emojiUse: 'Emoji use', customInstructions: 'Custom instructions', newChat: '+ New chat', pinned: 'Pinned', chats: 'Chats',
     noOtherChats: 'No other chats.', showMoreChats: 'Show more chats', showFewerChats: 'Show fewer chats', companyScope: 'Company scope', allCompanies: 'All companies', exportData: 'Export my data',
@@ -34,7 +35,8 @@ const text = {
   sr: {
     settings: 'Podešavanja', close: 'Zatvori', general: 'Opšte', memory: 'Memorija', personalization: 'Personalizacija',
     appearance: 'Izgled', language: 'Jezik', english: 'Engleski', serbian: 'Srpski', model: 'Model za odgovor', system: 'Sistemski', light: 'Svetla', dark: 'Tamna',
-    addMemory: 'Dodaj memoriju', loadingMemory: 'Učitavanje memorije…', savedByYou: 'Sačuvali ste', learnedChats: 'Naučeno iz razgovora',
+    addMemory: 'Dodaj memoriju', loadingMemory: 'Učitavanje memorije…', savedByYou: 'Sačuvali ste', savedByAva: 'Sačuvao AVA', learnedChats: 'Naučeno iz razgovora',
+    enableMemory: 'Omogući memoriju', memoryToggleNotice: 'Dozvolite AVA da koristi sačuvane preference i čuva izričite zahteve za memoriju iz razgovora.',
     edit: 'Izmeni', save: 'Sačuvaj', cancel: 'Otkaži', delete: 'Obriši', editMemory: 'Izmeni memoriju', savePersonalization: 'Sačuvaj personalizaciju', nickname: 'Nadimak', warmth: 'Toplina', enthusiasm: 'Entuzijazam',
     emojiUse: 'Upotreba emodžija', customInstructions: 'Prilagođena uputstva', newChat: '+ Novi razgovor', pinned: 'Zakačeno', chats: 'Razgovori',
     noOtherChats: 'Nema drugih razgovora.', showMoreChats: 'Prikaži još razgovora', showFewerChats: 'Prikaži manje razgovora', companyScope: 'Opseg kompanija', allCompanies: 'Sve kompanije', exportData: 'Izvezi moje podatke',

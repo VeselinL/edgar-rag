@@ -201,6 +201,8 @@ class ConversationService:
         return self.repository.list_memory_items(self.tenant_id, self.user_id)
 
     def create_memory(self, content: str) -> MemoryItem:
+        if not self.preferences().memory_enabled:
+            raise ValueError("Long-term memory is disabled.")
         item = self.repository.create_memory_item(
             self.tenant_id, self.user_id, self._validate_preference_memory(content), "explicit"
         )
@@ -225,10 +227,10 @@ class ConversationService:
     def preferences(self) -> UserPreferences:
         return self.repository.get_preferences(self.tenant_id, self.user_id)
 
-    def update_preferences(self, **values: str) -> UserPreferences:
+    def update_preferences(self, **values: Any) -> UserPreferences:
         allowed = {
             "nickname", "warmth", "enthusiasm", "emoji_use", "custom_instructions",
-            "language", "model", "theme",
+            "language", "model", "theme", "memory_enabled",
         }
         if not values or not set(values) <= allowed:
             raise ValueError("Invalid preference field.")
@@ -246,6 +248,8 @@ class ConversationService:
         for name, valid in enumerations.items():
             if name in values and values[name] not in valid:
                 raise ValueError(f"Invalid {name} preference.")
+        if "memory_enabled" in values and not isinstance(values["memory_enabled"], bool):
+            raise ValueError("Memory enabled must be a boolean.")
         return self.repository.upsert_preferences(
             self.tenant_id, self.user_id,
             **{key: value.strip() if isinstance(value, str) else value for key, value in values.items()},
@@ -344,7 +348,7 @@ class ConversationService:
         turn = self.repository.begin_turn(
             self.tenant_id, self.user_id, conversation_id, client_turn_id, query, request_id
         )
-        if not turn.replay:
+        if not turn.replay and self.preferences().memory_enabled:
             self._sync_conversation_memory(conversation_id, client_turn_id)
         return turn
 
@@ -359,13 +363,24 @@ class ConversationService:
         context, _ = self.context_builder.build(
             self.tenant_id, self.user_id, conversation_id, excluded_turn_id=client_turn_id
         )
+        preferences = self.preferences()
         # A save is acknowledged only after both stores have accepted it.
         try:
             explicit_memory_request = "saved" if self._explicit_memory_content(query) is not None else ""
         except ValueError:
             explicit_memory_request = "rejected"
-        if explicit_memory_request == "saved":
+        if explicit_memory_request == "saved" and preferences.memory_enabled:
             self._sync_conversation_memory(conversation_id, client_turn_id)
+        elif explicit_memory_request == "saved":
+            explicit_memory_request = "disabled"
+        if not preferences.memory_enabled:
+            return replace(
+                context,
+                preference_text=self.preference_prompt_fragment(preferences),
+                nickname=preferences.nickname,
+                language=preferences.language,
+                explicit_memory_request=explicit_memory_request,
+            )
         candidates = self.memory_store.search(
             memory_query or query,
             self.tenant_id,
@@ -387,7 +402,6 @@ class ConversationService:
             selected.append(item)
             used_words += estimated
         memories = tuple(selected)
-        preferences = self.preferences()
         return replace(
             context,
             long_term_memories=memories,
@@ -410,6 +424,8 @@ class ConversationService:
             None,
         )
         if user_message is not None:
+            if not self.preferences().memory_enabled:
+                return
             try:
                 content = self._explicit_memory_content(user_message.content)
             except ValueError:

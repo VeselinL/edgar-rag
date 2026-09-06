@@ -1,0 +1,2 @@
+ALTER TABLE ava_user_preferences
+    ADD COLUMN IF NOT EXISTS memory_enabled BOOLEAN NOT NULL DEFAULT TRUE;

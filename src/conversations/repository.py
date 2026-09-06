@@ -45,7 +45,7 @@ class ConversationRepository(Protocol):
     def delete_memory_item(self, tenant_id: str, user_id: str, memory_id: str) -> MemoryItem: ...
     def upsert_conversation_summary_memory(self, tenant_id: str, user_id: str, conversation_id: str, source_message_id: str | None, content: str) -> MemoryItem: ...
     def get_preferences(self, tenant_id: str, user_id: str) -> UserPreferences: ...
-    def upsert_preferences(self, tenant_id: str, user_id: str, **values: str) -> UserPreferences: ...
+    def upsert_preferences(self, tenant_id: str, user_id: str, **values: Any) -> UserPreferences: ...
 
 
 class InMemoryConversationRepository:
@@ -385,7 +385,7 @@ class InMemoryConversationRepository:
         with self._lock:
             return self._preferences.get((tenant_id, user_id), UserPreferences(tenant_id, user_id))
 
-    def upsert_preferences(self, tenant_id: str, user_id: str, **values: str) -> UserPreferences:
+    def upsert_preferences(self, tenant_id: str, user_id: str, **values: Any) -> UserPreferences:
         with self._lock:
             current = self.get_preferences(tenant_id, user_id)
             item = UserPreferences(**{**current.__dict__, **values, "updated_at": utc_now()})
@@ -467,7 +467,8 @@ class PostgresConversationRepository:
             tenant_id=row["tenant_id"], user_id=row["user_id"], nickname=row["nickname"],
             warmth=row["warmth"], enthusiasm=row["enthusiasm"], emoji_use=row["emoji_use"],
             custom_instructions=row["custom_instructions"], language=row["language"],
-            model=row["model"], theme=row["theme"], created_at=row["created_at"], updated_at=row["updated_at"],
+            model=row["model"], theme=row["theme"], memory_enabled=row["memory_enabled"],
+            created_at=row["created_at"], updated_at=row["updated_at"],
         )
 
     def create_conversation(self, tenant_id: str, user_id: str, title: str, memory_enabled: bool, company_scope: Sequence[str] = ()) -> Conversation:
@@ -787,20 +788,20 @@ class PostgresConversationRepository:
                 ).fetchone()
         return self._preferences(row)
 
-    def upsert_preferences(self, tenant_id: str, user_id: str, **values: str) -> UserPreferences:
+    def upsert_preferences(self, tenant_id: str, user_id: str, **values: Any) -> UserPreferences:
         current = self.get_preferences(tenant_id, user_id)
-        allowed = {"nickname", "warmth", "enthusiasm", "emoji_use", "custom_instructions", "language", "model", "theme"}
+        allowed = {"nickname", "warmth", "enthusiasm", "emoji_use", "custom_instructions", "language", "model", "theme", "memory_enabled"}
         if not set(values) <= allowed:
             raise ValueError("Invalid preference field.")
         next_values = {**current.__dict__, **values}
         with self._connect() as connection:
             row = connection.execute(
                 """UPDATE ava_user_preferences SET nickname=%s, warmth=%s, enthusiasm=%s,
-                     emoji_use=%s, custom_instructions=%s, language=%s, model=%s, theme=%s, updated_at=NOW()
+                     emoji_use=%s, custom_instructions=%s, language=%s, model=%s, theme=%s, memory_enabled=%s, updated_at=NOW()
                    WHERE tenant_id=%s AND user_id=%s RETURNING *""",
                 (next_values["nickname"], next_values["warmth"], next_values["enthusiasm"],
                  next_values["emoji_use"], next_values["custom_instructions"], next_values["language"],
-                 next_values["model"], next_values["theme"], tenant_id, user_id),
+                 next_values["model"], next_values["theme"], next_values["memory_enabled"], tenant_id, user_id),
             ).fetchone()
         return self._preferences(row)
 

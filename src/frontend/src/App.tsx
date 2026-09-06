@@ -57,6 +57,7 @@ const GENERATION_ACTIVITIES = {
 const DEFAULT_PREFERENCES: UserPreferences = {
   nickname: '', warmth: 'balanced', enthusiasm: 'balanced', emoji_use: 'off',
   custom_instructions: '', language: 'en', model: 'AZURE_GPT_4o_2024_1120', theme: 'system',
+  memory_enabled: true,
 }
 
 function SettingsIcon() {

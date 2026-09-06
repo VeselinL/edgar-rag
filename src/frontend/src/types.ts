@@ -93,12 +93,14 @@ export interface UserPreferences {
   language: 'en' | 'sr'
   model: string
   theme: PreferenceTheme
+  memory_enabled: boolean
 }
 
 export interface MemoryItem {
   id: string
   content: string
   type: 'explicit' | 'conversation_summary'
+  saved_by?: 'user' | 'ava'
   source_conversation_id: string | null
   source_message_id: string | null
   version: number

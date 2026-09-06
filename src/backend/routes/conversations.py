@@ -43,6 +43,7 @@ class PreferencesRequest(BaseModel):
     language: Literal["en", "sr"] | None = None
     model: str | None = None
     theme: Literal["light", "dark", "system"] | None = None
+    memory_enabled: bool | None = None
 
 
 def conversation_payload(value: Any) -> dict[str, Any]:
@@ -85,6 +86,7 @@ def memory_payload(value: Any) -> dict[str, Any]:
         "id": value.id,
         "content": value.content,
         "type": value.memory_type,
+        "saved_by": "ava" if value.source_message_id else "user",
         "source_conversation_id": value.conversation_id,
         "source_message_id": value.source_message_id,
         "version": value.version,
@@ -103,6 +105,7 @@ def preferences_payload(value: Any) -> dict[str, Any]:
         "language": value.language,
         "model": value.model,
         "theme": value.theme,
+        "memory_enabled": value.memory_enabled,
     }
 
 

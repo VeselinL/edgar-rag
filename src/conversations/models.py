@@ -87,5 +87,6 @@ class UserPreferences:
     language: Literal["en", "sr"] = "en"
     model: str = "AZURE_GPT_4o_2024_1120"
     theme: Literal["light", "dark", "system"] = "system"
+    memory_enabled: bool = True
     created_at: datetime = field(default_factory=utc_now)
     updated_at: datetime = field(default_factory=utc_now)

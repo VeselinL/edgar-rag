@@ -339,6 +339,34 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(pipeline.received_model, "AZURE_GPT_41_2025_0414")
 
+    def test_memory_payload_marks_manual_and_chat_saves_by_provenance(self):
+        repository = InMemoryConversationRepository()
+        service = ConversationService(repository, tenant_id="tenant", user_id="user")
+        conversation = service.create()
+        manual = service.create_memory("My preferred metric is revenue")
+        service.begin_turn(
+            conversation.id, str(uuid4()), "Remember this: My preferred company is Rivian", str(uuid4())
+        )
+        with TestClient(create_app(application_settings=self.settings, pipeline=MockPipeline(delay_seconds=0),
+                                   conversation_service=service)) as client:
+            response = client.get("/api/memory")
+
+        saved_by = {item["id"]: item["saved_by"] for item in response.json()["memory"]}
+        self.assertEqual(saved_by[manual.id], "user")
+        self.assertIn("ava", saved_by.values())
+
+    def test_memory_preference_is_owner_scoped_and_exposed_to_settings(self):
+        repository = InMemoryConversationRepository()
+        service = ConversationService(repository, tenant_id="tenant", user_id="user")
+        with TestClient(create_app(application_settings=self.settings, pipeline=MockPipeline(delay_seconds=0),
+                                   conversation_service=service)) as client:
+            changed = client.patch("/api/preferences", json={"memory_enabled": False})
+            current = client.get("/api/preferences")
+
+        self.assertEqual(changed.status_code, 200)
+        self.assertFalse(changed.json()["memory_enabled"])
+        self.assertFalse(current.json()["memory_enabled"])
+
     def test_task_planner_does_not_precede_memory_search_with_another_llm_call(self):
         repository = InMemoryConversationRepository()
         service = ConversationService(repository, tenant_id="tenant", user_id="user")

@@ -125,14 +125,19 @@ export function SettingsModal({
             </>}
             {page === 'memory' && <>
               <h2>{label('memory')}</h2>
+              <label className="settings-switch">
+                <span><strong>{label('enableMemory')}</strong><small>{label('memoryToggleNotice')}</small></span>
+                <input type="checkbox" role="switch" aria-label={label('enableMemory')} checked={preferences.memory_enabled} onChange={(event) => void save({ memory_enabled: event.target.checked })} />
+                <span className="settings-switch__track" aria-hidden="true" />
+              </label>
               <p>{label('memoryNotice')}</p>
               <label htmlFor="memory-content">{label('addMemory')}
-                <textarea id="memory-content" aria-label={label('addMemory')} value={draftMemory} maxLength={1500} onChange={(event) => setDraftMemory(event.target.value)} />
+                <textarea id="memory-content" aria-label={label('addMemory')} value={draftMemory} maxLength={1500} disabled={!preferences.memory_enabled} onChange={(event) => setDraftMemory(event.target.value)} />
               </label>
-              <button type="button" className="settings-primary" onClick={() => void addMemory()}>{label('addMemory')}</button>
+              <button type="button" className="settings-primary" disabled={!preferences.memory_enabled} onClick={() => void addMemory()}>{label('addMemory')}</button>
               {loadingMemory ? <p>{label('loadingMemory')}</p> : <ul className="memory-list">
                 {memory.map((item) => <li key={item.id}>
-                  <p>{item.content}</p><small>{item.type === 'explicit' ? label('savedByYou') : label('learnedChats')}</small>
+                  <p>{item.content}</p><small>{item.saved_by === 'ava' ? label('savedByAva') : label('savedByYou')}</small>
                   <div className="memory-list__actions"><button type="button" onClick={() => { setEditingId(item.id); setEditingContent(item.content) }}>{label('edit')}</button><button type="button" onClick={() => void onDeleteMemory(item.id)}>{label('delete')}</button></div>
                 </li>)}
               </ul>}

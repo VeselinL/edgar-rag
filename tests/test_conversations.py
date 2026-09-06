@@ -287,6 +287,36 @@ class ConversationServiceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "always enabled"):
             self.service.update(conversation.id, memory_enabled=False)
 
+    def test_owner_memory_preference_disables_chat_saves_and_long_term_context(self):
+        conversation = self.service.create()
+        self.service.create_memory("My preferred company is Rivian")
+        self.service.update_preferences(memory_enabled=False)
+
+        remember = "Remember this: My favorite company is Tesla"
+        turn_id = str(uuid4())
+        self.service.begin_turn(conversation.id, turn_id, remember, str(uuid4()))
+        context = self.service.prepare_context(
+            conversation.id, turn_id, remember
+        )
+
+        self.assertEqual(context.long_term_memories, ())
+        self.assertEqual(context.explicit_memory_request, "disabled")
+        self.assertEqual(len(self.service.list_memory()), 1)
+        with self.assertRaisesRegex(ValueError, "disabled"):
+            self.service.create_memory("My preferred metric is revenue")
+
+    def test_owner_memory_preference_restores_existing_memory_without_rewriting_it(self):
+        conversation = self.service.create()
+        item = self.service.create_memory("My preferred company is Rivian")
+        self.service.update_preferences(memory_enabled=False)
+        self.service.update_preferences(memory_enabled=True)
+
+        context = self.service.prepare_context(
+            conversation.id, str(uuid4()), "What is my preferred company?"
+        )
+
+        self.assertEqual([memory.id for memory in context.long_term_memories], [item.id])
+
     def test_company_scope_survives_a_conversation_turn(self):
         conversation = self.service.create(company_scope=("TSLA",))
 
