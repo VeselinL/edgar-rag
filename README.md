@@ -352,7 +352,7 @@ LLM JSON planner followed by deterministic server validation and execution. The
 planner resolves intent and decomposes a request; it cannot execute arbitrary
 code, select arbitrary URLs, access storage, or bypass ownership checks.
 
-[DIAGRAM PLACEHOLDER: bounded planner routing filing, upload, web, memory, and calculator tasks]
+![Bounded planner routing](diagrams/bounded_planner_routing.png)
 
 The planner can produce finite tasks for:
 
@@ -535,6 +535,66 @@ its corresponding source information.
 
 This state demonstrates a current-information request using the bounded trusted
 web route and web-source presentation.
+
+### Additional source, tool, localization, and upload states
+
+![General filing source panel](screenshots/filings_retrieval_sources_cropped.png)
+
+Filing source cards and citation status.
+
+![Retrieval sources](screenshots/retrieval_sources.png)
+
+Retrieval evidence presented in the Sources view.
+
+![Preferred company CEO answer](screenshots/preferred_company's_ceo_cropped.png)
+
+Memory-resolved company reference followed by filing-backed evidence.
+
+![Tesla filing and web answer](screenshots/tesla_ceo_and_stock_price_cropped.png)
+
+A mixed filing and current-web response with separate evidence types.
+
+![Web source card](screenshots/web_search_source_cropped.png)
+
+A cropped trusted web source card with publisher and timestamp metadata.
+
+![Web sources](screenshots/web_search_sources_fullscreen.png)
+
+Full-screen web search source presentation.
+
+![Evidence-derived calculator answer](screenshots/ford_tesla_combined_revenue_calculation_cropped.png)
+
+An evidence-derived arithmetic response using the bounded calculator route.
+
+![Serbian answer](screenshots/serbian_answer_cropped.png)
+
+Serbian-language generation with citations preserved.
+
+![Upload showcase](screenshots/upload_showcase_fullscreen.png)
+
+The conversation-scoped upload menu and upload flow.
+
+![Pasted text upload](screenshots/upload_raw_text_fullscreen.png)
+
+Pasted-text upload with an optional filename.
+
+## Architecture diagrams
+
+The architecture diagrams are stored as PNG assets so they remain visible in
+GitHub, PDF exports, and Markdown viewers without Mermaid support. The README
+uses the English diagram set.
+
+### SEC ingestion and retrieval
+
+![SEC ingestion and retrieval architecture](diagrams/sec_ingestion_pipeline.png)
+
+### Bounded planner routing
+
+![Bounded planner routing](diagrams/bounded_planner_routing.png)
+
+### Evidence hierarchy and citation validation
+
+![Evidence hierarchy and citation validation](diagrams/evidence_citation_validation.png)
 
 ## Deployment
 
