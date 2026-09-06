@@ -125,6 +125,7 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(translation, "What cars does my preferred company produce?")
         self.assertEqual(completions.arguments["max_tokens"], 128)
         self.assertEqual(completions.arguments["temperature"], 0.0)
+        self.assertIn("saved user preferences", completions.arguments["messages"][0]["content"])
 
     def test_filing_retrieval_translation_is_source_free_and_bounded(self):
         response = SimpleNamespace(

@@ -109,7 +109,7 @@ def create_router(
                         "translate_memory_retrieval_query",
                         None,
                     )
-                    if preferences.language == "sr" and callable(translator):
+                    if callable(translator):
                         try:
                             request_generator = active_pipeline.generator.for_model(effective_model)
                             translated = await asyncio.to_thread(
