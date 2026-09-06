@@ -576,7 +576,9 @@ describe('App', () => {
     expect(screen.getByRole('menu', { name: 'Add a source' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('menuitem', { name: 'Upload raw text' }))
     await userEvent.type(screen.getByLabelText('Paste text'), 'Owner-scoped text source.')
-    await userEvent.click(screen.getByRole('button', { name: 'Upload text' }))
+    expect(screen.getAllByRole('button', { name: /^(Back|Save)$/ }).map((button) => button.textContent)).toEqual(['Back', 'Save'])
+    expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(mockedUploadDocument).toHaveBeenCalledOnce())
     const uploadedFile = mockedUploadDocument.mock.calls[0][1]
@@ -602,7 +604,7 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Upload a source' }))
     await userEvent.click(screen.getByRole('menuitem', { name: 'Upload raw text' }))
     await userEvent.type(screen.getByLabelText('Paste text'), 'Will not persist.')
-    await userEvent.click(screen.getByRole('button', { name: 'Upload text' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(mockedDeleteConversation).toHaveBeenCalledWith('conversation-1'))
     expect(screen.getByText('The source could not be uploaded.')).toBeInTheDocument()

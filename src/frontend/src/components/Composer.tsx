@@ -189,10 +189,9 @@ export function Composer({
                 </label>
                 <p>{t(language, 'sourceFilenameHint')}</p>
                 {rawTextError && <p className="settings-error" role="alert">{rawTextError}</p>}
-                <div className="upload-dialog__actions">
-                  <button type="submit" className="settings-primary">{t(language, 'uploadText')}</button>
+                <div className="upload-dialog__actions upload-dialog__actions--raw">
                   <button type="button" className="header-button" onClick={() => setRawTextMode(false)}>{t(language, 'back')}</button>
-                  <button type="button" className="header-button" onClick={closeUploadChoice}>{t(language, 'cancel')}</button>
+                  <button type="submit" className="settings-primary">{t(language, 'save')}</button>
                 </div>
               </form>
             )}
