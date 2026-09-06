@@ -840,12 +840,16 @@ class GenerationService:
         evidence: Sequence[dict[str, Any]],
         *,
         conversation_context: str = "",
+        answer_language: str | None = None,
     ) -> GenerationStream:
         response = self._create(
             streaming=True,
             model=self.model,
             messages=self._messages(
-                query, evidence, conversation_context=conversation_context
+                query,
+                evidence,
+                conversation_context=conversation_context,
+                answer_language=answer_language,
             ),
             temperature=self.temperature,
             max_tokens=self.max_output_tokens,
@@ -879,9 +883,13 @@ class GenerationService:
         evidence: Sequence[dict[str, Any]],
         *,
         conversation_context: str = "",
+        answer_language: str | None = None,
     ) -> Iterator[str]:
         yield from self.stream_answer_with_metadata(
-            query, evidence, conversation_context=conversation_context
+            query,
+            evidence,
+            conversation_context=conversation_context,
+            answer_language=answer_language,
         )
 
     def answer_with_metadata(

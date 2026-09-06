@@ -1459,19 +1459,31 @@ class RealPipeline(RouteHandlerMixin):
                 yield PipelineEvent("delta", {"text": visible_answer})
         elif self.llm_streaming:
             streaming_generation_started = time.perf_counter()
+            translator = getattr(generator, "translate_grounded_answer_to_serbian", None)
+            translate_grounded_answer = language == "sr" and callable(translator)
             if self.emit_activity:
                 yield activity_event(random.choice(
                     SERBIAN_GENERATION_ACTIVITIES if language == "sr" else GENERATION_ACTIVITIES
                 ))
             with trace.stage("generation_start"):
                 if hasattr(generator, "stream_answer_with_metadata"):
+                    stream_kwargs: dict[str, Any] = {}
+                    if prompt_context:
+                        stream_kwargs["conversation_context"] = prompt_context
+                    if (
+                        translate_grounded_answer
+                        and "answer_language" in inspect.signature(
+                            generator.stream_answer_with_metadata
+                        ).parameters
+                    ):
+                        stream_kwargs["answer_language"] = "en"
                     if prompt_context:
                         provider_stream = generator.stream_answer_with_metadata(
-                            query, evidence, conversation_context=prompt_context
+                            query, evidence, **stream_kwargs
                         )
                     else:
                         provider_stream = generator.stream_answer_with_metadata(
-                            query, evidence
+                            query, evidence, **stream_kwargs
                         )
                 else:
                     if prompt_context:
@@ -1495,16 +1507,18 @@ class RealPipeline(RouteHandlerMixin):
                         return
                     if isinstance(fragment, str) and fragment:
                         answer_fragments.append(fragment)
-                        visible_fragment = citation_filter.feed(fragment)
-                        if visible_fragment:
-                            trace.mark_first_token()
-                            visible_fragments.append(visible_fragment)
-                            yield PipelineEvent("delta", {"text": visible_fragment})
-                tail = citation_filter.finish()
-                if tail:
-                    trace.mark_first_token()
-                    visible_fragments.append(tail)
-                    yield PipelineEvent("delta", {"text": tail})
+                        if not translate_grounded_answer:
+                            visible_fragment = citation_filter.feed(fragment)
+                            if visible_fragment:
+                                trace.mark_first_token()
+                                visible_fragments.append(visible_fragment)
+                                yield PipelineEvent("delta", {"text": visible_fragment})
+                if not translate_grounded_answer:
+                    tail = citation_filter.finish()
+                    if tail:
+                        trace.mark_first_token()
+                        visible_fragments.append(tail)
+                        yield PipelineEvent("delta", {"text": tail})
             finally:
                 close = getattr(provider_stream, "close", None)
                 if callable(close):
@@ -1513,6 +1527,19 @@ class RealPipeline(RouteHandlerMixin):
                 trace.stage_latency_ms["generation"] = round(
                     (time.perf_counter() - streaming_generation_started) * 1_000, 3
                 )
+            if translate_grounded_answer:
+                draft = "".join(answer_fragments)
+                with trace.stage("grounded_answer_translation"):
+                    translated = await asyncio.to_thread(translator, draft)
+                if translated and citation_ids(translated) == citation_ids(draft):
+                    answer_fragments = [translated]
+                else:
+                    LOGGER.warning("AVA Serbian answer translation changed citations")
+                visible_answer = visible_answer_text("".join(answer_fragments), allowed_ids)
+                if visible_answer:
+                    trace.mark_first_token()
+                    visible_fragments.append(visible_answer)
+                    yield PipelineEvent("delta", {"text": visible_answer})
         else:
             if self.emit_activity:
                 yield activity_event(random.choice(

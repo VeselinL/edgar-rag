@@ -85,6 +85,21 @@ class GenerationTests(unittest.TestCase):
         self.assertTrue(completions.arguments["stream"])
         self.assertEqual(completions.arguments["max_tokens"], 4096)
 
+    def test_streamed_grounded_draft_accepts_an_english_language_override(self):
+        stream = FakeStream([chunk("English draft")])
+        completions = FakeCompletions(stream)
+        service = GenerationService(
+            SimpleNamespace(chat=SimpleNamespace(completions=completions)), model="test"
+        )
+
+        self.assertEqual(
+            list(service.stream_answer_with_metadata(
+                "Pitanje", self.evidence(), answer_language="en"
+            )),
+            ["English draft"],
+        )
+        self.assertIn("Write this grounded draft in English", completions.arguments["messages"][0]["content"])
+
     def test_personal_context_stream_uses_the_baseline_gateway_shape(self):
         stream = FakeStream([chunk("Your preferred metric is revenue.")])
         completions = FakeCompletions(stream)
@@ -126,6 +141,12 @@ class GenerationTests(unittest.TestCase):
         self.assertEqual(completions.arguments["max_tokens"], 128)
         self.assertEqual(completions.arguments["temperature"], 0.0)
         self.assertIn("saved user preferences", completions.arguments["messages"][0]["content"])
+
+    def test_memory_retrieval_prompt_reduces_saved_references_to_their_subject(self):
+        from src.generation.prompts import MEMORY_RETRIEVAL_TRANSLATION_PROMPT
+
+        self.assertIn("my preferred company", MEMORY_RETRIEVAL_TRANSLATION_PROMPT)
+        self.assertIn("my favorite product", MEMORY_RETRIEVAL_TRANSLATION_PROMPT)
 
     def test_filing_retrieval_translation_is_source_free_and_bounded(self):
         response = SimpleNamespace(
