@@ -168,11 +168,11 @@ export function Composer({
       {uploadChoiceOpen && (
         <div ref={uploadMenu} className="upload-menu" aria-label={t(language, 'addSource')} role={rawTextMode ? undefined : 'menu'}>
             {!rawTextMode ? (
-              <div className="upload-dialog__actions">
-                <button type="button" role="menuitem" className="settings-primary" onClick={() => fileInput.current?.click()}>
+              <div className="upload-menu__options">
+                <button type="button" role="menuitem" className="upload-menu__option" onClick={() => fileInput.current?.click()}>
                   {t(language, 'uploadFromComputer')}
                 </button>
-                <button type="button" role="menuitem" className="header-button" onClick={() => setRawTextMode(true)}>
+                <button type="button" role="menuitem" className="upload-menu__option" onClick={() => setRawTextMode(true)}>
                   {t(language, 'uploadRawText')}
                 </button>
               </div>

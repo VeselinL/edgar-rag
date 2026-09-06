@@ -506,6 +506,9 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
 .composer-meta__right { display: flex; min-width: 0; align-items: baseline; justify-content: flex-end; gap: 10px; }
 .chat-sources-button { padding: 0; border: 0; color: var(--primary-strong); background: transparent; cursor: pointer; font-size: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .upload-menu { position: absolute; z-index: 20; bottom: calc(100% - 2px); left: 24px; width: min(430px, calc(100% - 48px)); padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); box-shadow: 0 12px 32px rgb(0 0 0 / 20%); }
+.upload-menu__options { display: grid; }
+.upload-menu__option { width: 100%; padding: 10px 8px; border: 0; border-radius: 7px; color: var(--text); background: transparent; cursor: pointer; font: inherit; text-align: left; }
+.upload-menu__option:hover, .upload-menu__option:focus-visible { background: var(--surface-subtle); }
 .upload-dialog__actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .upload-dialog__form { display: grid; gap: 12px; }
 .upload-dialog__form label { display: grid; gap: 6px; font-size: 0.9rem; font-weight: 650; }
