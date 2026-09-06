@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "release_candidate_frozen_report_deferred",
+  "freeze_manifest": "data/evaluation/finalization/v19/freeze_manifest.json",
+  "phase6_results": "data/evaluation/finalization/v19/phase6/RESULTS.md",
+  "source_commit": "56d3ae603b7240d82f294e9471befd20fe3da306",
+  "verified_gates": {
+    "focused_backend": "151 passed",
+    "frontend_lint": "passed",
+    "frontend_tests": "43 passed",
+    "frontend_typecheck": "passed",
+    "frontend_build": "passed",
+    "agent_routes_v18": "60/60 passed",
+    "conversation_history_v18": "passed",
+    "freeze_manifest_validation": "passed"
+  },
+  "known_limitations": [
+    "Planner context resolution can still be unreliable on some ambiguous follow-ups.",
+    "Serbian citation-ID parity remains at the explicitly accepted 0.8 exception.",
+    "Trusted web answers depend on qualifying provider results and timestamps."
+  ],
+  "deferred_by_owner": [
+    "INTERNSHIP_REPORT.md detailed report",
+    "showcase presentation template and deck",
+    "optional post-release UI polish"
+  ],
+  "reproducibility": {
+    "corpus_and_index": "frozen in freeze_manifest.json",
+    "prompts_and_parameters": "frozen in freeze_manifest.json",
+    "holdout_tuning": false
+  }
+}
