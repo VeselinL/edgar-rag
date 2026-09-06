@@ -597,12 +597,6 @@ class RealPipeline(RouteHandlerMixin):
             )
             yield PipelineEvent("done", {})
             return
-        if not deterministic_resolution.resolved_tickers and len(memory_scope) == 1:
-            deterministic_resolution = replace(
-                deterministic_resolution,
-                planner_scope_tickers=memory_scope,
-                scope="single_company",
-            )
         preliminary_route = (
             deterministic_route(
                 query,
@@ -613,6 +607,12 @@ class RealPipeline(RouteHandlerMixin):
             if self.request_routing_enabled
             else None
         )
+        if not deterministic_resolution.resolved_tickers and len(memory_scope) == 1:
+            deterministic_resolution = replace(
+                deterministic_resolution,
+                planner_scope_tickers=memory_scope,
+                scope="single_company",
+            )
         upload_candidates: list[Any] = []
         upload_match = False
         should_search_uploads = bool(
@@ -648,35 +648,6 @@ class RealPipeline(RouteHandlerMixin):
             for ticker in deterministic_resolution.resolved_tickers
             if selected_scope and ticker not in selected_scope
         )
-        if excluded_query_tickers and not upload_match:
-            route = RequestRoute(
-                RouteKind.CLARIFY,
-                RouteReason.AMBIGUOUS_INTENT,
-                decided_by="manual_company_scope_mismatch",
-            )
-            trace.route = route.as_dict()
-            trace.resolver = {
-                "resolved_tickers": list(deterministic_resolution.resolved_tickers),
-                "selected_tickers": list(selected_scope),
-                "excluded_query_tickers": list(excluded_query_tickers),
-            }
-            response_text = company_scope_mismatch_message(
-                excluded_query_tickers, selected_scope, language
-            )
-            trace.generated_answer = response_text
-            trace.source_status = "none_cited"
-            trace.mark_first_token()
-            yield PipelineEvent("delta", {"text": response_text})
-            yield PipelineEvent(
-                "sources",
-                {
-                    "sources": [],
-                    "source_status": "none_cited",
-                    "malformed_source_count": 0,
-                },
-            )
-            yield PipelineEvent("done", {})
-            return
         with trace.stage("routing"):
             if upload_match:
                 route = RequestRoute(
@@ -727,6 +698,39 @@ class RealPipeline(RouteHandlerMixin):
         if not self.calculator_enabled:
             route = without_calculator_route(route)
         trace.route = route.as_dict()
+        if (
+            excluded_query_tickers
+            and not upload_match
+            and (route.uses_filing_retrieval or route.uses_web_search)
+        ):
+            route = RequestRoute(
+                RouteKind.CLARIFY,
+                RouteReason.AMBIGUOUS_INTENT,
+                decided_by="manual_company_scope_mismatch",
+            )
+            trace.route = route.as_dict()
+            trace.resolver = {
+                "resolved_tickers": list(deterministic_resolution.resolved_tickers),
+                "selected_tickers": list(selected_scope),
+                "excluded_query_tickers": list(excluded_query_tickers),
+            }
+            response_text = company_scope_mismatch_message(
+                excluded_query_tickers, selected_scope, language
+            )
+            trace.generated_answer = response_text
+            trace.source_status = "none_cited"
+            trace.mark_first_token()
+            yield PipelineEvent("delta", {"text": response_text})
+            yield PipelineEvent(
+                "sources",
+                {
+                    "sources": [],
+                    "source_status": "none_cited",
+                    "malformed_source_count": 0,
+                },
+            )
+            yield PipelineEvent("done", {})
+            return
         if route.uses_web_search and not self.web_search_enabled:
             # Keep the non-filing boundary intact. The web handler emits a safe,
             # source-free unavailable response without invoking filing planning.

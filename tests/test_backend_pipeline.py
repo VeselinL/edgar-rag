@@ -986,6 +986,53 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
             "manual_company_scope_mismatch",
         )
 
+    async def test_saved_preference_recall_is_not_blocked_by_filing_scope(self):
+        class PersonalMemoryGenerator(RoutedGenerator):
+            def __init__(self):
+                super().__init__(RequestRoute(
+                    RouteKind.CONVERSATION_ONLY,
+                    RouteReason.CASUAL_CONVERSATION,
+                    decided_by="model",
+                ))
+
+            def route_request(
+                self, query, deterministic_resolution=None, conversation_context="",
+                uploaded_source_names=(),
+            ):
+                return super().route_request(query, deterministic_resolution, conversation_context)
+
+            def stream_conversation_context_answer(self, query, *, conversation_context):
+                self.personal_context = conversation_context
+                return iter(["Your preferred company is Rivian."])
+
+        retriever = FakeRetriever()
+        records = []
+        generator = PersonalMemoryGenerator()
+        pipeline = RealPipeline(retriever, generator, telemetry_sink=records.append)
+        memory = MemoryItem(
+            id="memory-1", tenant_id="tenant", user_id="user", conversation_id=None,
+            source_id=None, memory_type="explicit", content="My preferred company is Rivian.",
+        )
+
+        async def connected():
+            return False
+
+        events = [
+            event async for event in pipeline.stream(
+                "What is my preferred company?",
+                connected,
+                company_scope=["GM"],
+                conversation_context=ConversationContext(
+                    long_term_memories=(memory,), memory_company_tickers=("RIVN",),
+                ),
+            )
+        ]
+
+        self.assertIsNone(retriever.arguments)
+        self.assertEqual(events[0].data["text"], "Your preferred company is Rivian.")
+        self.assertEqual(records[0]["route"]["route"], "conversation")
+        self.assertNotEqual(records[0]["route"]["decided_by"], "manual_company_scope_mismatch")
+
     async def test_routing_kill_switch_restores_filing_only_path(self):
         class KillSwitchGenerator(FakeGenerator):
             def route_request(self, *args, **kwargs):
