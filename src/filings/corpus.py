@@ -39,10 +39,7 @@ COMPANY_ALIASES: dict[str, tuple[str, ...]] = {
     "QCOM": ("qualcomm", "snapdragon digital chassis", "snapdragon"),
     "APTV": ("aptiv",),
     "OUST": ("ouster",),
-    "RIVN": (
-        "rivian automotive", "rivian", "rivn", "r1t", "r1s", "r2", "r3",
-        "r3x", "rivian commercial van",
-    ),
+    "RIVN": ("rivian automotive", "rivian", "rivn"),
 }
 
 if set(ACTIVE_FILINGS) != set(COMPANY_ALIASES) or set(ACTIVE_FILINGS) != set(COMPANY_NAMES):

@@ -74,7 +74,7 @@ QUESTION_WORDS = {
 
 NON_COMPANY_ACRONYMS = {
     "ADAS", "AI", "AV", "CEO", "COO", "CFO", "CTO", "EV", "FSD", "GAAP",
-    "OEM", "OEMs", "R&D", "SEC", "SUV", "USD",
+    "OEM", "OEMs", "R&D", "R1S", "R1T", "R2", "R3", "R3X", "SEC", "SUV", "USD",
 }
 
 

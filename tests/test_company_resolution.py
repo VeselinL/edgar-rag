@@ -87,7 +87,7 @@ class CompanyResolverTests(unittest.TestCase):
             "consumer vehicles vehicle models currently manufacture", internal
         )
 
-    def test_configured_rivian_product_alias_prevents_false_company_ambiguity(self):
+    def test_rivian_product_designator_does_not_create_false_company_ambiguity(self):
         result = self.resolver.resolve(
             "Do a web search to check if Rivian R2 is in production."
         )
