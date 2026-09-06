@@ -1024,7 +1024,7 @@ class RealPipeline(RouteHandlerMixin):
         generation_context = (
             prompt_context.replace(
                 "Answer language: Serbian.",
-                "Initial grounded draft language: English.",
+                "Answer language: English.",
             )
             if language == "sr"
             else prompt_context
@@ -1038,12 +1038,12 @@ class RealPipeline(RouteHandlerMixin):
                 if effective_scope and planner_supports_scope
                 else {}
             )
-            if prompt_context:
+            if generation_context:
                 plan = await asyncio.to_thread(
                     generator.plan_retrieval,
                     planning_query,
                     deterministic_resolution,
-                    prompt_context,
+                    generation_context,
                     **planner_scope_kwargs,
                 )
             else:

@@ -99,6 +99,7 @@ class FakeGenerator:
     def plan_retrieval(self, query, deterministic_resolution=None, conversation_context=""):
         self.planned_query = query
         self.deterministic_resolution = deterministic_resolution
+        self.planner_context = conversation_context
         return {
             "needs_multiple_retrievals": True,
             "subqueries": [
@@ -131,6 +132,7 @@ class SerbianPlanningGenerator(FakeGenerator):
     def plan_retrieval(self, query, deterministic_resolution=None, conversation_context=""):
         self.planned_query = query
         self.deterministic_resolution = deterministic_resolution
+        self.planner_context = conversation_context
         return {
             "needs_multiple_retrievals": False,
             "subqueries": [{"query": query, "tickers": ["TSLA"]}],
@@ -793,7 +795,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(generator.answer_language, "en")
         self.assertEqual(generator.answer_query, "Who is Tesla's Chief Executive Officer?")
-        self.assertIn("Initial grounded draft language: English.", generator.answer_context)
+        self.assertIn("Answer language: English.", generator.answer_context)
         self.assertNotIn("Answer language: Serbian.", generator.answer_context)
         self.assertEqual(
             generator.translation_input,
@@ -1686,7 +1688,7 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_serbian_grounding_uses_english_query_but_preserves_user_query(self):
         generator = SerbianPlanningGenerator()
-        pipeline = RealPipeline(FakeRetriever(), generator, llm_streaming=False)
+        pipeline = RealPipeline(ContextAwareRetriever(), generator, llm_streaming=False)
         query = "Ko je Teslin glavni izvršni direktor?"
 
         async def connected():
@@ -1694,12 +1696,18 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
 
         events = [
             event async for event in pipeline.stream(
-                query, connected, conversation_context=ConversationContext(language="sr")
+                query,
+                connected,
+                conversation_context=ConversationContext(
+                    language="sr", preference_text="Answer language: Serbian."
+                ),
             )
         ]
 
         self.assertEqual(generator.translation_input, query)
         self.assertEqual(generator.planned_query, "Who is Tesla's Chief Executive Officer?")
+        self.assertIn("Answer language: English.", generator.planner_context)
+        self.assertNotIn("Answer language: Serbian.", generator.planner_context)
         self.assertEqual(
             generator.answer_arguments[0], "Who is Tesla's Chief Executive Officer?"
         )
