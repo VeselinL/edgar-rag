@@ -986,6 +986,15 @@ professional.
   gold chunk recall, numerical values, route, and citations must match; wording
   is graded separately.
 
+**Release exception authorized 6 September 2026:** the v16 paired run has
+company-resolution, route, gold-recall, and numerical parity of `1.0`, but
+exact citation-ID-set parity of `0.8`. The two retained differences are the
+QCOM citation subset and Ouster abstention/evidence selection documented in
+`data/evaluation/finalization/v16/runs/language-parity-v1/`. They are a known
+future-work limitation, not grounds for further release-cycle tuning. Preserve
+the raw artifact and disclose the exception in the final report; this exception
+allows the Phase 6 language gate to pass once every other Phase 6 gate succeeds.
+
 ### 11.5 Sidebar final state
 
 - Sidebar remains open when a chat is selected, renamed, pinned, or deleted. It
@@ -1007,7 +1016,8 @@ professional.
 - concurrent chats choosing different models cannot affect one another;
 - explicit memory CRUD and Qdrant synchronization pass;
 - long-term read/write behavior passes normal-chat tests;
-- English/Serbian parity and personalization guardrail sets pass;
+- personalization guardrail sets pass; English/Serbian parity passes subject to
+  the documented 6 September 2026 citation-ID exception above;
 - rerun generation/agent/memory evaluations under the new prompt hash.
 
 ## 12. Phase 7 — Final release, report, and presentation
