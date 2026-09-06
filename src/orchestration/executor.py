@@ -40,6 +40,7 @@ from src.generation.rag import (
     GenerationService,
     ProviderCircuitBreaker,
     count_generation_input_tokens,
+    citation_ids,
     make_llm_client,
     resolve_cited_evidence,
     visible_answer_text,
@@ -1519,16 +1520,26 @@ class RealPipeline(RouteHandlerMixin):
                 ))
             with trace.stage("generation"):
                 if hasattr(generator, "answer_with_metadata"):
+                    answer_kwargs: dict[str, Any] = {}
+                    if prompt_context:
+                        answer_kwargs["conversation_context"] = prompt_context
+                    if (
+                        language == "sr"
+                        and "answer_language" in inspect.signature(
+                            generator.answer_with_metadata
+                        ).parameters
+                    ):
+                        answer_kwargs["answer_language"] = "en"
                     if prompt_context:
                         result = await asyncio.to_thread(
                             generator.answer_with_metadata,
                             query,
                             evidence,
-                            conversation_context=prompt_context,
+                            **answer_kwargs,
                         )
                     else:
                         result = await asyncio.to_thread(
-                            generator.answer_with_metadata, query, evidence
+                            generator.answer_with_metadata, query, evidence, **answer_kwargs
                         )
                 else:
                     if prompt_context:
@@ -1545,6 +1556,14 @@ class RealPipeline(RouteHandlerMixin):
                     result = GenerationResult(answer_text, {})
             answer = result.text
             trace.provider_usage = result.usage
+            translator = getattr(generator, "translate_grounded_answer_to_serbian", None)
+            if language == "sr" and callable(translator):
+                with trace.stage("grounded_answer_translation"):
+                    translated = await asyncio.to_thread(translator, answer)
+                if translated and citation_ids(translated) == citation_ids(answer):
+                    answer = translated
+                else:
+                    LOGGER.warning("AVA Serbian answer translation changed citations")
             if await disconnected():
                 return
             if answer:

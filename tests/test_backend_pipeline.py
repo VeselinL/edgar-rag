@@ -142,6 +142,25 @@ class SerbianPlanningGenerator(FakeGenerator):
         }
 
 
+class SerbianGroundedAnswerGenerator(FakeGenerator):
+    def __init__(self):
+        super().__init__()
+        self.answer_language = None
+        self.translation_input = None
+
+    def answer_with_metadata(
+        self, query, evidence, *, conversation_context="", answer_language=None
+    ):
+        self.answer_language = answer_language
+        return SimpleNamespace(
+            text="English grounded answer [TSLA-2025-CHUNK-000001].", usage={}
+        )
+
+    def translate_grounded_answer_to_serbian(self, answer):
+        self.translation_input = answer
+        return "Srpski utemeljen odgovor [TSLA-2025-CHUNK-000001]."
+
+
 class ModelAwareGenerator(FakeGenerator):
     def __init__(self, model="base", calls=None):
         super().__init__()
@@ -728,6 +747,30 @@ class RealPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(retriever.arguments[2].resolved_tickers, ("RIVN",))
         self.assertEqual(retriever.arguments[3], [["RIVN"], ["RIVN"]])
         self.assertEqual(events[-1].event, "done")
+
+    async def test_serbian_filing_answer_is_grounded_in_english_then_translated(self):
+        retriever = FakeRetriever()
+        generator = SerbianGroundedAnswerGenerator()
+        pipeline = RealPipeline(retriever, generator, llm_streaming=False)
+
+        async def connected():
+            return False
+
+        events = [
+            event
+            async for event in pipeline.stream(
+                "Ko je Teslin CEO?",
+                connected,
+                conversation_context=ConversationContext(language="sr"),
+            )
+        ]
+
+        self.assertEqual(generator.answer_language, "en")
+        self.assertEqual(
+            generator.translation_input,
+            "English grounded answer [TSLA-2025-CHUNK-000001].",
+        )
+        self.assertIn("Srpski utemeljen odgovor", events[0].data["text"])
 
     async def test_conflicting_semantic_memory_scopes_clarify_without_retrieval(self):
         retriever = FakeRetriever()

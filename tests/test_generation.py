@@ -102,6 +102,11 @@ class GenerationTests(unittest.TestCase):
         self.assertTrue(completions.arguments["stream"])
         self.assertNotIn("stream_options", completions.arguments)
 
+    def test_personal_context_prompt_keeps_preferences_owned_by_the_user(self):
+        from src.generation.prompts import CONVERSATION_CONTEXT_PROMPT
+
+        self.assertIn("Never attribute a saved user preference", CONVERSATION_CONTEXT_PROMPT)
+
     def test_memory_retrieval_translation_is_source_free_and_bounded(self):
         response = SimpleNamespace(
             choices=[SimpleNamespace(message=SimpleNamespace(
@@ -167,6 +172,42 @@ class GenerationTests(unittest.TestCase):
             "Question", self.evidence()
         )
         self.assertEqual(result.usage, {"prompt_tokens": 10, "completion_tokens": 4, "total_tokens": 14})
+
+    def test_grounded_draft_language_is_a_system_level_instruction(self):
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content="English draft"))]
+        )
+        completions = FakeCompletions(response)
+        service = GenerationService(
+            SimpleNamespace(chat=SimpleNamespace(completions=completions)), model="test"
+        )
+
+        service.answer_with_metadata(
+            "Pitanje", self.evidence(), conversation_context="Answer language: Serbian.",
+            answer_language="en",
+        )
+
+        self.assertIn("Write this grounded draft in English", completions.arguments["messages"][0]["content"])
+        self.assertIn("Answer language: Serbian.", completions.arguments["messages"][1]["content"])
+
+    def test_grounded_answer_translation_is_source_free_and_preserves_citations(self):
+        response = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(
+                content="Tesla odgovor [TSLA-2025-CHUNK-000001]."
+            ))]
+        )
+        completions = FakeCompletions(response)
+        service = GenerationService(
+            SimpleNamespace(chat=SimpleNamespace(completions=completions)), model="test"
+        )
+
+        translated = service.translate_grounded_answer_to_serbian(
+            "Tesla answer [TSLA-2025-CHUNK-000001]."
+        )
+
+        self.assertEqual(translated, "Tesla odgovor [TSLA-2025-CHUNK-000001].")
+        self.assertIn("Preserve every citation", completions.arguments["messages"][0]["content"])
+        self.assertNotIn("Retrieved filing excerpts", completions.arguments["messages"][1]["content"])
 
     def test_stream_metadata_captures_terminal_provider_usage(self):
         terminal = SimpleNamespace(

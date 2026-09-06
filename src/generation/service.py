@@ -38,6 +38,7 @@ from .prompts import (
     CALCULATION_PLANNER_JSON_FORMAT,
     CONVERSATION_CONTEXT_PROMPT,
     FILING_PROMPT_VERSION,
+    GROUNDED_ANSWER_TRANSLATION_PROMPT,
     MEMORY_RETRIEVAL_TRANSLATION_PROMPT,
     PLANNER_INSTRUCTION,
     PLANNER_JSON_FORMAT,
@@ -108,6 +109,7 @@ def generation_messages(
     *,
     conversation_context: str = "",
     system_prompt: str = SYSTEM_PROMPT,
+    answer_language: str | None = None,
 ) -> list[dict[str, str]]:
     """Build the exact grounded messages shared by generation and token packing."""
     context = format_context(evidence)
@@ -118,8 +120,14 @@ def generation_messages(
         if conversation_context
         else ""
     )
+    draft_language = (
+        "\n\nWrite this grounded draft in English. It will be translated after "
+        "citation validation; do not translate it yourself."
+        if answer_language == "en"
+        else ""
+    )
     return [
-        {"role": "system", "content": system_prompt},
+        {"role": "system", "content": system_prompt + draft_language},
         {
             "role": "user",
             "content": (
@@ -306,12 +314,14 @@ class GenerationService:
         evidence: Sequence[dict[str, Any]],
         *,
         conversation_context: str = "",
+        answer_language: str | None = None,
     ) -> list[dict[str, str]]:
         return generation_messages(
             query,
             evidence,
             conversation_context=conversation_context,
             system_prompt=self.system_prompt,
+            answer_language=answer_language,
         )
 
     def route_request(
@@ -723,6 +733,19 @@ class GenerationService:
         """Translate a non-English filing question before retrieval planning."""
         return self._translate_retrieval_query(query, RETRIEVAL_QUERY_TRANSLATION_PROMPT)
 
+    def translate_grounded_answer_to_serbian(self, answer: str) -> str:
+        """Translate a cited English draft without exposing source excerpts again."""
+        response = self._create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": GROUNDED_ANSWER_TRANSLATION_PROMPT},
+                {"role": "user", "content": answer},
+            ],
+            temperature=0.0,
+            max_tokens=self.max_output_tokens,
+        )
+        return (response.choices[0].message.content or "").strip()
+
     def stream_web_answer_with_metadata(
         self,
         query: str,
@@ -867,11 +890,15 @@ class GenerationService:
         evidence: Sequence[dict[str, Any]],
         *,
         conversation_context: str = "",
+        answer_language: str | None = None,
     ) -> GenerationResult:
         response = self._create(
             model=self.model,
             messages=self._messages(
-                query, evidence, conversation_context=conversation_context
+                query,
+                evidence,
+                conversation_context=conversation_context,
+                answer_language=answer_language,
             ),
             temperature=self.temperature,
             max_tokens=self.max_output_tokens,
