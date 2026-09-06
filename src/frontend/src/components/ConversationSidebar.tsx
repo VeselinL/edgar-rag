@@ -14,8 +14,6 @@ interface Props {
   onPin: (conversation: ConversationSummary) => void
   onRename: (conversation: ConversationSummary) => void
   onDelete: (conversation: ConversationSummary) => void
-  onDeleteAll: () => void
-  onExport: () => void
 }
 
 const COMPANIES = [
@@ -137,8 +135,6 @@ export function ConversationSidebar({
   onPin,
   onRename,
   onDelete,
-  onDeleteAll,
-  onExport,
 }: Props) {
   const [menuId, setMenuId] = useState<string | null>(null)
   const [scopeExpanded, setScopeExpanded] = useState(false)
@@ -219,10 +215,6 @@ export function ConversationSidebar({
           </div>
         )}
       </section>
-      <div className="conversation-sidebar__footer">
-        <button type="button" onClick={onExport}>{t(language, 'exportData')}</button>
-        {conversations.length > 0 && <button type="button" className="danger" onClick={onDeleteAll}>{t(language, 'deleteAll')}</button>}
-      </div>
     </aside>
   )
 }

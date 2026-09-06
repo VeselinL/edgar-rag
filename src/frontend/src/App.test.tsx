@@ -546,9 +546,11 @@ describe('App', () => {
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: createObjectURL })
     Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: revokeObjectURL })
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined)
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
     render(<App />)
 
     await userEvent.click(await screen.findByRole('button', { name: 'Open conversation sidebar' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Settings' }))
     await userEvent.click(screen.getByRole('button', { name: 'Export my data' }))
 
     await waitFor(() => expect(mockedExportConversations).toHaveBeenCalledOnce())

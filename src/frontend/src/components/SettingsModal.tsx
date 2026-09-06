@@ -29,10 +29,14 @@ interface Props {
   onCreateMemory: (content: string) => Promise<void>
   onUpdateMemory: (id: string, content: string) => Promise<void>
   onDeleteMemory: (id: string) => Promise<void>
+  hasConversations: boolean
+  onDeleteAll: () => void
+  onExport: () => void
 }
 
 export function SettingsModal({
   preferences, memory, loadingMemory, onClose, onPreferences, onCreateMemory, onUpdateMemory, onDeleteMemory,
+  hasConversations, onDeleteAll, onExport,
 }: Props) {
   const label = (key: Parameters<typeof t>[1]) => t(preferences.language, key)
   const dialog = useRef<HTMLDivElement>(null)
@@ -122,6 +126,13 @@ export function SettingsModal({
                   {MODELS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                 </select>
               </label>
+              <section className="settings-data-controls" aria-labelledby="data-controls-heading">
+                <h3 id="data-controls-heading">{label('dataControls')}</h3>
+                <div className="settings-data-controls__actions">
+                  <button type="button" className="settings-pill" onClick={onExport}>{label('exportData')}</button>
+                  {hasConversations && <button type="button" className="settings-pill settings-pill--danger" onClick={onDeleteAll}>{label('deleteAll')}</button>}
+                </div>
+              </section>
             </>}
             {page === 'memory' && <>
               <h2>{label('memory')}</h2>

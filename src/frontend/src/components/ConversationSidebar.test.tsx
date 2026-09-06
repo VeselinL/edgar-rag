@@ -25,8 +25,6 @@ function renderSidebar() {
       onPin={() => {}}
       onRename={() => {}}
       onDelete={() => {}}
-      onDeleteAll={() => {}}
-      onExport={() => {}}
     />,
   )
 }

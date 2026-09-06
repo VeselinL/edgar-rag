@@ -2,7 +2,7 @@ export type Language = 'en' | 'sr'
 
 const text = {
   en: {
-    settings: 'Settings', close: 'Close', general: 'General', memory: 'Memory', personalization: 'Personalization',
+    settings: 'Settings', close: 'Close', general: 'General', memory: 'Memory', personalization: 'Personalization', dataControls: 'Data controls',
     appearance: 'Appearance', language: 'Language', english: 'English', serbian: 'Serbian', model: 'Answer model', system: 'System', light: 'Light', dark: 'Dark',
     addMemory: 'Add memory', loadingMemory: 'Loading memory…', savedByYou: 'Saved by you', savedByAva: 'Saved by AVA', learnedChats: 'Learned from chats',
     enableMemory: 'Enable memory', memoryToggleNotice: 'Let AVA use saved preferences and save explicit memory requests from chats.',
@@ -33,7 +33,7 @@ const text = {
     actionsFor: 'Actions for', pin: 'Pin', unpin: 'Unpin', rename: 'Rename',
   },
   sr: {
-    settings: 'Podešavanja', close: 'Zatvori', general: 'Opšte', memory: 'Memorija', personalization: 'Personalizacija',
+    settings: 'Podešavanja', close: 'Zatvori', general: 'Opšte', memory: 'Memorija', personalization: 'Personalizacija', dataControls: 'Kontrole podataka',
     appearance: 'Izgled', language: 'Jezik', english: 'Engleski', serbian: 'Srpski', model: 'Model za odgovor', system: 'Sistemski', light: 'Svetla', dark: 'Tamna',
     addMemory: 'Dodaj memoriju', loadingMemory: 'Učitavanje memorije…', savedByYou: 'Sačuvali ste', savedByAva: 'Sačuvao AVA', learnedChats: 'Naučeno iz razgovora',
     enableMemory: 'Omogući memoriju', memoryToggleNotice: 'Dozvolite AVA da koristi sačuvane preference i čuva izričite zahteve za memoriju iz razgovora.',

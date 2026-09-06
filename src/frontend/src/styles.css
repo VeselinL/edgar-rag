@@ -317,6 +317,12 @@ a { color: var(--primary-strong); text-underline-offset: 3px; }
 .settings-content label { display: grid; gap: 6px; margin: 14px 0; color: var(--text-secondary); font-size: 0.84rem; font-weight: 700; }
 .settings-content select, .settings-content input, .settings-content textarea { width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 8px; color: var(--text); background: var(--surface); font: inherit; font-weight: 400; }
 .settings-content textarea { min-height: 86px; resize: vertical; }
+.settings-data-controls { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--border); }
+.settings-data-controls h3 { margin: 0 0 12px; color: var(--text); font-size: .92rem; }
+.settings-data-controls__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.settings-pill { padding: 8px 16px; border: 1px solid var(--border); border-radius: 999px; color: var(--text); background: var(--surface-subtle); cursor: pointer; font: inherit; font-size: .84rem; }
+.settings-pill:hover { border-color: var(--primary-strong); }
+.settings-pill--danger { border-color: color-mix(in srgb, var(--error) 50%, var(--border)); color: var(--error); }
 .settings-primary { min-height: 38px; padding: 7px 12px; border: 1px solid var(--primary-strong); border-radius: 8px; color: #07111f; background: var(--primary); cursor: pointer; font-weight: 700; }
 .settings-error { color: var(--error) !important; }
 .memory-list { display: grid; gap: 9px; margin: 18px 0 0; padding: 0; list-style: none; }

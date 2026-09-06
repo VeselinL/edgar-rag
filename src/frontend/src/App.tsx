@@ -32,7 +32,7 @@ const UI_COPY = {
     sourcesUnavailable: 'Sources could not be loaded.', sourceUploadFailed: 'The source could not be uploaded.',
     sourceDeleteFailed: 'The source could not be deleted.', adding: 'Adding', ready: 'is ready in this chat.', removed: 'was removed.',
     enterQuestion: 'Enter a question to continue.', historyPreparing: 'AVA is preparing conversation history. Please try again shortly.',
-    deleteSource: 'Delete {name} from this chat?', deleteChats: 'Delete all saved conversations? This cannot be undone.',
+    deleteSource: 'Delete {name} from this chat?', deleteChats: 'Delete all saved conversations? This cannot be undone.', exportConfirm: 'Export your saved conversations and data?',
     exportFailed: 'Your data could not be exported. Please try again.', conversationName: 'Conversation name',
     signInTitle: 'Sign in to AVA', signInBody: 'Your filing research and saved conversations stay isolated to your verified account.',
     signIn: 'Continue to sign in', unavailable: 'AVA is temporarily unavailable', retry: 'Retry', checkConnection: 'Check the connection, then try again.',
@@ -44,7 +44,7 @@ const UI_COPY = {
     sourcesUnavailable: 'Izvori nisu mogli da se učitaju.', sourceUploadFailed: 'Izvor nije mogao da se otpremi.',
     sourceDeleteFailed: 'Izvor nije mogao da se obriše.', adding: 'Dodajem', ready: 'je spreman u ovom razgovoru.', removed: 'je uklonjen.',
     enterQuestion: 'Unesite pitanje da biste nastavili.', historyPreparing: 'AVA priprema istoriju razgovora. Pokušajte ponovo uskoro.',
-    deleteSource: 'Obrisati {name} iz ovog razgovora?', deleteChats: 'Obrisati sve sačuvane razgovore? Ova radnja se ne može poništiti.',
+    deleteSource: 'Obrisati {name} iz ovog razgovora?', deleteChats: 'Obrisati sve sačuvane razgovore? Ova radnja se ne može poništiti.', exportConfirm: 'Izvesti sačuvane razgovore i podatke?',
     exportFailed: 'Vaši podaci nisu mogli da se izvezu. Pokušajte ponovo.', conversationName: 'Naziv razgovora',
     signInTitle: 'Prijavite se u AVA', signInBody: 'Vaša istraživanja prijava i sačuvani razgovori ostaju izdvojeni u potvrđenom nalogu.',
     signIn: 'Nastavite sa prijavom', unavailable: 'AVA je privremeno nedostupan', retry: 'Pokušajte ponovo', checkConnection: 'Proverite vezu, a zatim pokušajte ponovo.',
@@ -463,26 +463,6 @@ export default function App() {
                 }
               })
             }}
-            onDeleteAll={() => {
-              if (!window.confirm(copy.deleteChats)) return
-              void deleteAllConversations().then(async () => {
-                setConversations([])
-                setCurrentConversation(null)
-                setMessages([])
-              })
-            }}
-            onExport={() => {
-              void exportConversations()
-                .then((blob) => {
-                  const url = URL.createObjectURL(blob)
-                  const link = document.createElement('a')
-                  link.href = url
-                  link.download = 'ava-conversations.json'
-                  link.click()
-                  URL.revokeObjectURL(url)
-                })
-                .catch(() => window.alert(copy.exportFailed))
-            }}
           />
         )}
         {historyEnabled && sourcesOpen && (
@@ -583,6 +563,28 @@ export default function App() {
           onCreateMemory={addMemory}
           onUpdateMemory={saveMemory}
           onDeleteMemory={removeMemory}
+          hasConversations={conversations.length > 0}
+          onDeleteAll={() => {
+            if (!window.confirm(copy.deleteChats)) return
+            void deleteAllConversations().then(async () => {
+              setConversations([])
+              setCurrentConversation(null)
+              setMessages([])
+            })
+          }}
+          onExport={() => {
+            if (!window.confirm(copy.exportConfirm)) return
+            void exportConversations()
+              .then((blob) => {
+                const url = URL.createObjectURL(blob)
+                const link = document.createElement('a')
+                link.href = url
+                link.download = 'ava-conversations.json'
+                link.click()
+                URL.revokeObjectURL(url)
+              })
+              .catch(() => window.alert(copy.exportFailed))
+          }}
         />
       )}
     </div>
