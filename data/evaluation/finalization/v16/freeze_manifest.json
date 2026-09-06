@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-09-06T10:49:46.817767+00:00",
+  "source_commit": "261f9a843c198e7e9bfa7f3195732225f57c23db",
+  "source_tree": "bb6ee4cbaadf9c77e8a05a14b59fde1be2e22a2f",
+  "runtime": {
+    "python": "3.12.3",
+    "python_requirements": "sha256:b80cad530c778ea05cc305837c72b916b72d43a7aa883dd941a12f2f6056e440",
+    "frontend_lockfile": "sha256:831ed92c1c568f65a6c0290374dc50391a634195572191b90e62a5a790c34c8c"
+  },
+  "corpus": {
+    "active_filings": {
+      "AUR": "2025-10-K",
+      "TSLA": "2025-10-K",
+      "MBLY": "2025-10-K",
+      "GOOGL": "2025-10-K",
+      "GM": "2025-10-K",
+      "F": "2025-10-K",
+      "NVDA": "2026-10-K",
+      "QCOM": "2025-10-K",
+      "APTV": "2025-10-K",
+      "OUST": "2025-10-K",
+      "RIVN": "2025-10-K"
+    },
+    "input_hashes": {
+      "raw_metadata": {
+        "data/raw/APTV/2025-10-K.metadata.json": "sha256:c4318bd844e2b63a093009f27a30a1e6710ffc271285ea6a214aebd62775b415",
+        "data/raw/AUR/2025-10-K.metadata.json": "sha256:6073a353802e9e5834d50c61487192f152a9f0502ec9bf4d5354fe7335bcd9fe",
+        "data/raw/F/2025-10-K.metadata.json": "sha256:3aba1c44b80f8cd972d2bb5d992d3be4fd4f165e5e6baf9debae382ceb9c53b5",
+        "data/raw/GM/2025-10-K.metadata.json": "sha256:18c2fc0528c5bc904793147cd54b8fc6a6c0f5a296c7b65f80b93f31d26ecbd9",
+        "data/raw/GOOGL/2025-10-K.metadata.json": "sha256:c87b1e7deea9049e688a1cea131f0c3e1cb096d207a8df0b32dd3fe171eb0f94",
+        "data/raw/MBLY/2025-10-K.metadata.json": "sha256:c07036dfbf42e9d74b1be57d86879495d394a20afeec0e4ae7ce9e4d1f46e80d",
+        "data/raw/NVDA/2026-10-K.metadata.json": "sha256:24a51721a13b5c423f4afeed67b39c40c41d0f4bb7fab3bdb5e009623cc40128",
+        "data/raw/OUST/2025-10-K.metadata.json": "sha256:83a139e586afc5e7c3c57dff32d18b2dad37222f6e9cad241b9ff0eada5bd044",
+        "data/raw/QCOM/2025-10-K.metadata.json": "sha256:a1866e15dbad9f227bedd5332be75c4a3df73ca943a822d6802c5fffea10e904",
+        "data/raw/RIVN/2025-10-K.metadata.json": "sha256:dc79a9ee8f902c9526a89a2462c9c8316b336c468d33bfca396909e43d4fa168",
+        "data/raw/TSLA/2025-10-K.metadata.json": "sha256:56da66e664e15d72e547441dfadc55d04a5cc6e1064bce3249eeb96eaee2418f"
+      },
+      "processed_blocks": {
+        "data/processed/APTV/2025-10-K.blocks.jsonl": "sha256:4dd5c3633ab588648ad700b37836298ac986449d6a29b3fc3a500e735a5a7cad",
+        "data/processed/AUR/2025-10-K.blocks.jsonl": "sha256:edd5181f36ee46d196609948d64d92616d1dfbc96863eb02c3318d2beb2312d8",
+        "data/processed/F/2025-10-K.blocks.jsonl": "sha256:da66102d7aae13d4bf6bf35a10da3ca70d4fea59892bc0d8f9d0d4c9dafde031",
+        "data/processed/GM/2025-10-K.blocks.jsonl": "sha256:73460400fa0082eb677a59a4504161bee2c6eb3a3724d67e09d1d31279bf1e45",
+        "data/processed/GOOGL/2025-10-K.blocks.jsonl": "sha256:dbe559c8df553e6774ace618f0e0121e546b6b75cafd5afc69796ecd38f7734c",
+        "data/processed/MBLY/2025-10-K.blocks.jsonl": "sha256:ff40c103e969c84013dc85ae21da2b3513ba3deb058edfd88bb70983b328d882",
+        "data/processed/NVDA/2026-10-K.blocks.jsonl": "sha256:e9071218303ec971052aea8f4b25fc91abafe12fd9873654ccce9d79c06416f8",
+        "data/processed/OUST/2025-10-K.blocks.jsonl": "sha256:1fe2333a8bba911866fc20c03e6e8629cd02206b2cee955aa6bc00847c9aca8a",
+        "data/processed/QCOM/2025-10-K.blocks.jsonl": "sha256:1218fd4e6900fa782b3d04b5edd71c90186d7539efc5ae8431dfabed4e104a6d",
+        "data/processed/RIVN/2025-10-K.blocks.jsonl": "sha256:93ecef9ca127d43544506219dfc01b483bfd9393cac1a0062c39852832730e24",
+        "data/processed/TSLA/2025-10-K.blocks.jsonl": "sha256:64dd343f8df8ab67b47c496a72bf96c026b3c0035d7771582ca44642cdc1aa36"
+      },
+      "chunks": {
+        "data/chunks/APTV/2025-10-K.chunks.jsonl": "sha256:2bd10e5f4b9d4e0ed8c67bfc6e265362d1a1d6cf33e811bb21be3e4c14095558",
+        "data/chunks/AUR/2025-10-K.chunks.jsonl": "sha256:e4b37bb683d1a956a9c13a29a61480b8b706263cb518d4e0083cee15ce611658",
+        "data/chunks/F/2025-10-K.chunks.jsonl": "sha256:c5b227f6dc7147a498ad4bd655d5b8442325a9e45e77eab9eaf4d9dc41bf8121",
+        "data/chunks/GM/2025-10-K.chunks.jsonl": "sha256:501dc0c7b1d88ec393d53b0ac22e4e7d393e277a0aeeaad277a13d3b8a527ea0",
+        "data/chunks/GOOGL/2025-10-K.chunks.jsonl": "sha256:5b469395854eeacce94b2a45aaebe00a46d274863040315ab6a92b47c0d24353",
+        "data/chunks/MBLY/2025-10-K.chunks.jsonl": "sha256:a84fb4c9b6058d84e07b4f8f63479c64696e4608ea67da99fe1fb989b6dc7154",
+        "data/chunks/NVDA/2026-10-K.chunks.jsonl": "sha256:9c540a847da9e12a671cf77f0be4728f42e5d6bc5e47c2e43f5b2260e63635f1",
+        "data/chunks/OUST/2025-10-K.chunks.jsonl": "sha256:4dc8197d2c57e144273fa246ff3554f95e80838e3de50ae2c3bbcc0a82400c05",
+        "data/chunks/QCOM/2025-10-K.chunks.jsonl": "sha256:20210e30da13a2f57ee813119e31d46d60547017ee762818ea7ac565522711e1",
+        "data/chunks/RIVN/2025-10-K.chunks.jsonl": "sha256:3d684ee926f9a50750e5d9f1c1c3e80794207ecaf61f859727c6f6841c623378",
+        "data/chunks/TSLA/2025-10-K.chunks.jsonl": "sha256:9ac5a7ac8c9e048fd1c88401dc61abf5db9258a0b55e6738570845e805f4f58b"
+      },
+      "embedding_manifests": {
+        "data/embeddings/APTV/2025-10-K.bgebase.embeddings.manifest.json": "sha256:8b539b540206b2a486e267a62b5c1cbdf29af197fa7186df9020dab479b7b7a1",
+        "data/embeddings/AUR/2025-10-K.bgebase.embeddings.manifest.json": "sha256:f8d39607a7804bea1544b67a8c697c7ce1e562e1c8496ab62cd9abd694854cd8",
+        "data/embeddings/F/2025-10-K.bgebase.embeddings.manifest.json": "sha256:831f9ea6d137174bfae311a331fad7821bead4b1ace4358338d703927fd50368",
+        "data/embeddings/GM/2025-10-K.bgebase.embeddings.manifest.json": "sha256:26d31ac91e33625bf7c255cece86a281cb3bc0239191f667364541ff881a6186",
+        "data/embeddings/GOOGL/2025-10-K.bgebase.embeddings.manifest.json": "sha256:29a3553ce9fad7d4c9d23c45e0a060478cae1b07999a169c69f02f0b211e5e6f",
+        "data/embeddings/MBLY/2025-10-K.bgebase.embeddings.manifest.json": "sha256:3f4b57a94023188dae77179de533d072a93fde7c1028c712b380e02f2ca3e3b3",
+        "data/embeddings/NVDA/2026-10-K.bgebase.embeddings.manifest.json": "sha256:fd5b1300a8352f02cedca5b9b95003feb05b478130ebbcaf768f402c092794d9",
+        "data/embeddings/OUST/2025-10-K.bgebase.embeddings.manifest.json": "sha256:57c93b8c7466414f5dba9c2ce7c532491a39ac7ac0a0e9bb2ae69bed94eae149",
+        "data/embeddings/QCOM/2025-10-K.bgebase.embeddings.manifest.json": "sha256:756cae3a2eb926dd215c3e31e8cdf819640aac522e9dacbbc4c589df247b3737",
+        "data/embeddings/RIVN/2025-10-K.bgebase.embeddings.manifest.json": "sha256:47adb27fd69d3431f5b40b149efaf2141d0add35ba7b442ed35128ef4ff64063",
+        "data/embeddings/TSLA/2025-10-K.bgebase.embeddings.manifest.json": "sha256:21aa095c20e5e6cd97898680fd6f6e05607aec26a3b0ccdea9f42abc198cf53e"
+      },
+      "embedding_vectors": {
+        "data/embeddings/APTV/2025-10-K.bgebase.embeddings.npz": "sha256:f8c988dd84cc31573d2fc034778c16a4baaad98401cee902819efcd57688d421",
+        "data/embeddings/AUR/2025-10-K.bgebase.embeddings.npz": "sha256:8a9b68a87cc3ebf1358b6d0afc6a8d2bab595c1380d80bcbf60424d773b07d18",
+        "data/embeddings/F/2025-10-K.bgebase.embeddings.npz": "sha256:0f42e881fb5715202b18a4abc89d4faf2e86baba535cb1edcb3e2302e82960a2",
+        "data/embeddings/GM/2025-10-K.bgebase.embeddings.npz": "sha256:884f8039d233c6603f54b8aa0297e05711532888d73b6f35940d717b4cdbdf6c",
+        "data/embeddings/GOOGL/2025-10-K.bgebase.embeddings.npz": "sha256:1ebc9d88a7bc353f770443a8d80f386d5123d989150740303c05d9d0ff1d4578",
+        "data/embeddings/MBLY/2025-10-K.bgebase.embeddings.npz": "sha256:32fa231e71460f74b555b66a9506d7f537c62d6bc0f381ebd7cc99a19b1b3dc2",
+        "data/embeddings/NVDA/2026-10-K.bgebase.embeddings.npz": "sha256:0f380e789f5030d8173f7421ead3ba89c40632da3dd002a58cb822c94cf14c68",
+        "data/embeddings/OUST/2025-10-K.bgebase.embeddings.npz": "sha256:44caef1b3abae21dcb21f2753471330e20fd03d3d3eef6885b28d353c476a7f4",
+        "data/embeddings/QCOM/2025-10-K.bgebase.embeddings.npz": "sha256:26d359cd90d157a696700fa7b6380438318e8c5e676506158cbd2a69fc25938e",
+        "data/embeddings/RIVN/2025-10-K.bgebase.embeddings.npz": "sha256:68faf93298a2838ca55923c5a2fef00065d58af6c3964a61c9c3be82d960e57f",
+        "data/embeddings/TSLA/2025-10-K.bgebase.embeddings.npz": "sha256:0458802a4eaf811c815b627dcc0da765575139b44e0005d5f72e643acb0ce9d1"
+      },
+      "evaluation_manifests": {
+        "data/evaluation/finalization/v1/agent_routes.jsonl": "sha256:ac2d351d503ecb060a010d79794fab172f938ecce8d3f15fd0d36d395cd2570d",
+        "data/evaluation/finalization/v1/conversations.jsonl": "sha256:2a83981d3ca9421b7503d12acecdf4dedce4fa453e4ffafa3aa5a875c9ec1986",
+        "data/evaluation/finalization/v1/memory.jsonl": "sha256:ab1ca9bad012dcdca20138ce36350e10327f96d462b7da7aad2831e4c1cf9c2e",
+        "data/evaluation/finalization/v1/qa_gold.jsonl": "sha256:ee639e56d1ea6ecffe2fcabdb3e083199925484173de93f997aff9f41a1a4590",
+        "data/evaluation/finalization/v1/security.jsonl": "sha256:1dad5cab63a7fa45e5b71779f6ae1d202eeef2543f7b77e828e97314f6116e73",
+        "data/evaluation/finalization/v1/splits.json": "sha256:6e37ea657ebf1817aaf0e367e058caf235b3f2bd0c6f34e32569fe6b48d75e7c",
+        "data/evaluation/finalization/v1/ui_language.jsonl": "sha256:73071105e37cc85f76487240379e2fe32789aa7023d9aea017b3a77961851040"
+      }
+    },
+    "chunking_config": "sha256:c9c2556c845a5867451a942d4f4c9778d127286c0728629a32b8c31079ea0738",
+    "artifact_version": "sha256:89d3a5be9e7d7a8e0d1188f4a5564c7be9bf01b92e381a7410e048a07738610c",
+    "point_count": 4526
+  },
+  "embeddings": {
+    "model_repository": "BAAI/bge-base-en-v1.5",
+    "requested_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+    "resolved_model_revision": "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a",
+    "dimension": 768,
+    "normalized": true,
+    "query_prefix": "Represent this sentence for searching relevant passages: ",
+    "document_prefix": ""
+  },
+  "qdrant": {
+    "server_version": "1.18.2",
+    "client_version": "1.19.0",
+    "alias": "ava_filing_chunks_current",
+    "physical_collection": "ava_filing_chunks_89d3a5be9e7d7a8e",
+    "point_count": 4526,
+    "import_manifest": "data/indexes/qdrant/ava_filing_chunks_89d3a5be9e7d7a8e.import.json",
+    "import_manifest_sha256": "sha256:6bb4892c8bb1d78b687a227455e40aac5c2aefb7b4478219ff016f57f4e4e4d6",
+    "payload_schema": "keyword: chunk_id, ticker, cik, accession_number, content_type, artifact_version",
+    "audit": {
+      "collection_name": "ava_filing_chunks_89d3a5be9e7d7a8e",
+      "artifact_version": "sha256:89d3a5be9e7d7a8e0d1188f4a5564c7be9bf01b92e381a7410e048a07738610c",
+      "point_count": 4526,
+      "expected_point_count": 4526,
+      "company_count": 11,
+      "dimension": 768,
+      "vector_name": "dense_bge_base_v1_5",
+      "distance": "Dot",
+      "exact_search_smoke_chunk_id": "AUR-2025-CHUNK-000001",
+      "status": "passed"
+    }
+  },
+  "retrieval": {
+    "rrf_k": 100,
+    "candidate_k": 50,
+    "final_evidence_k": 10,
+    "min_chunks_per_subquery": 2,
+    "multi_subquery_bonus": 0.01
+  },
+  "prompts": {
+    "filing_version": "filing-grounding-v1",
+    "hashes": {
+      "src.generation.prompts.SYSTEM_PROMPT": "sha256:82ba527c6fdd88bcbb6bec86e9e9f7611652330b60b563a1fffa936cde2f8766",
+      "src.generation.prompts.FILING_PROMPT_VERSION": "sha256:a870a740ce99680dee1e6974039157451bc7d8c799b34eb2890b7a4a88871f8d",
+      "src.generation.prompts.CONVERSATION_CONTEXT_PROMPT": "sha256:af92b55f38be4f3be4268b577be61634141999d40ea2a1236476411ffb3551e4",
+      "src.generation.prompts.MEMORY_RETRIEVAL_TRANSLATION_PROMPT": "sha256:f4523604469bbfb0e8bfb8f66b676c7b40f5796e754c57b60d7cf16646d0d8e7",
+      "src.generation.prompts.RETRIEVAL_QUERY_TRANSLATION_PROMPT": "sha256:4a7cd7ce8e91a8a081d6952862ed0989ef85c265544ba19b7b399f0848f201da",
+      "src.generation.prompts.GROUNDED_ANSWER_TRANSLATION_PROMPT": "sha256:b0db1a0f8ba73b293ee7588c7580bec182d745539820ee6b85dfacb6318411c4",
+      "src.generation.prompts.PLANNER_INSTRUCTION": "sha256:74aaaf8a2172b48fa5ee4c25916f3df57829f1e3c3bf048d7053332515ed6725",
+      "src.generation.prompts.CALCULATION_PLANNER_INSTRUCTION": "sha256:f64585e4644e895c17966ddbc05306a56111974dbeb769e4807031280e485356",
+      "src.generation.prompts.WEB_SYSTEM_PROMPT": "sha256:345cabd97b06afaeddc17813e06c1273848028b3b36b45cecdaa78df63e75b5d",
+      "src.generation.prompts.UPLOAD_SYSTEM_PROMPT": "sha256:c3306e0d15e903c71431b1baf9e11bf104bdbc15263760b730e17a756b71bb2f",
+      "src.orchestration.routing.ROUTER_INSTRUCTION": "sha256:c07f79828961327d18e3185a0419f54821650fb1fa749899ee976da0bcb655a1"
+    }
+  },
+  "trusted_source_registry_sha256": "sha256:ab1267fa1aed8c30341ff7f332b5d73292eaca96a96380a8b1da961cf71abf15",
+  "migrations": {
+    "src/auth/migrations/0001_auth_sessions.sql": "sha256:53967fe4252a54ed10c7d218dac800604f3880e150b1d44ad35e09c73cde28ad",
+    "src/conversations/migrations/0001_conversations.sql": "sha256:aef60ec2d72f5da6673602f241060d556f8cf68faad1f85803d0408b93f43923",
+    "src/conversations/migrations/0002_feedback_metadata.sql": "sha256:66f9310a76025163a6c65dc6120286c8bb7057330a9e4e0e9030ea1ac380010b",
+    "src/conversations/migrations/0003_uploaded_documents.sql": "sha256:cff9717a56100c55145e26596e1edc532fc82b8beb2590b4b804df1189b00daa",
+    "src/conversations/migrations/0004_conversation_pins.sql": "sha256:e0be13f83e5f2af4e39a3ad4471218c0de1b91b437607c201d68d07bccdc4dcf",
+    "src/conversations/migrations/0005_company_scope.sql": "sha256:a016366a73b86274bee1101c65caa7cdf346257d93bb87309863697a6af86d62",
+    "src/conversations/migrations/0006_memory_preferences.sql": "sha256:10c84ff9c0df7e5c7914a6982d7c9f6fa9e42240b739acada38b8cbb8a742d59"
+  },
+  "effective_configuration": {
+    "auth": {
+      "algorithms": [
+        "RS256"
+      ],
+      "allow_insecure_http": false,
+      "client_id": "",
+      "clock_skew_seconds": 30,
+      "cookie_name": "ava_session",
+      "cookie_same_site": "lax",
+      "cookie_secure": true,
+      "csrf_cookie_name": "ava_csrf",
+      "discovery_timeout_seconds": 5.0,
+      "fixed_tenant_id": null,
+      "issuer": "",
+      "login_ttl_seconds": 300,
+      "redirect_uri": "",
+      "scopes": [
+        "openid",
+        "profile"
+      ],
+      "session_ttl_seconds": 28800,
+      "tenant_claim": null
+    },
+    "conversation": {
+      "long_term_candidate_k": 5,
+      "long_term_score_threshold": 0.55,
+      "long_term_store": "qdrant",
+      "long_term_token_budget": 1024,
+      "mode": "single_user",
+      "recent_token_budget": 16384,
+      "retention_days": 90,
+      "single_user_boundary_acknowledged": true,
+      "summary_token_budget": 768,
+      "tenant_id": "local-test",
+      "user_id": "local-test"
+    },
+    "documents": {
+      "enabled": true
+    },
+    "logging": {
+      "json_logs": false,
+      "level": "INFO"
+    },
+    "operations": {
+      "maximum_body_bytes": 16384,
+      "maximum_upload_bytes": 20971520,
+      "requests_per_minute": 60,
+      "stream_timeout_seconds": 180
+    },
+    "pipeline": {
+      "calculator_enabled": true,
+      "context_window_tokens": 65536,
+      "llm_model": "AZURE_GPT_4o_2024_1120",
+      "llm_streaming": false,
+      "max_tool_executions": 4,
+      "max_web_searches": 2,
+      "mode": "real",
+      "model_device": "cpu",
+      "observability_retention_days": 30,
+      "qdrant_collection_alias": "ava_filing_chunks_current",
+      "qdrant_local_path": null,
+      "qdrant_mode": "primary",
+      "qdrant_timeout_seconds": 30,
+      "qdrant_url": "http://127.0.0.1:6333",
+      "request_routing_enabled": true,
+      "reserved_output_tokens": 4096,
+      "web_search_api_url": "https://api.tavily.com",
+      "web_search_enabled": true,
+      "web_search_max_results": 5,
+      "web_search_provider": "tavily",
+      "web_search_timeout_seconds": 8.0
+    },
+    "provider": {
+      "api_version": "2023-12-06",
+      "circuit_failures": 5,
+      "circuit_recovery_seconds": 30.0,
+      "maximum_retries": 2,
+      "timeout_seconds": 90.0
+    },
+    "ui": {
+      "available_models": [
+        "AZURE_GPT_4o_2024_1120",
+        "AZURE_GPT_41_2025_0414",
+        "AZURE_GPT_5_2025_0807",
+        "AZURE_GPT_51_2025_1113",
+        "AZURE_GPT_54_2026_0305",
+        "AZURE_GPT_55_2026_0424",
+        "AZURE_GPT_56_SOL_2026_0709"
+      ],
+      "cors_origins": [
+        "http://localhost:5173"
+      ],
+      "default_model": "AZURE_GPT_4o_2024_1120",
+      "query_max_length": 4000
+    }
+  }
+}
